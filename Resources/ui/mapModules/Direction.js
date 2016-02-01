@@ -86,9 +86,11 @@ exports.create = function(_context, _args, _additional) {
                                     type: 'Ti.UI.View',
                                     rclass: 'NavBarButtonSeparator'
                                 },
-                                rightNavButton('paintmode', $sPaint), {
+                                rightNavButton('paintmode', $sPaint, {
+                                    visible: __APPLE__
+                                }), {
                                     type: 'Ti.UI.View',
-                                    rclass: 'NavBarButtonSeparator'
+                                    rclass: 'NavBarButtonSeparator',
                                 }, {
                                     type: 'Ti.UI.View',
                                     bindId: 'modeHolder',
