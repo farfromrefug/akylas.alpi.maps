@@ -154,7 +154,7 @@ exports.create = function(_context, _args, _additional) {
                 // } else {
                 self.enabled = _value;
                 if (self.enabled && !tutorials) {
-                    tutorials = require('/data/tutorials.js').tutorials;
+                    tutorials = require('/data/tutorials').tutorials;
                 }
                 // }
             }
@@ -274,7 +274,7 @@ exports.create = function(_context, _args, _additional) {
     });
 
     if (self.enabled) {
-        tutorials = require('/data/tutorials.js').tutorials;
+        tutorials = require('/data/tutorials').tutorials;
     }
     return self;
 };
