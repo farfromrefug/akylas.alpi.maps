@@ -148,13 +148,13 @@ exports.create = function(_context, _args, _additional) {
         },
         enabled: Ti.App.Properties.getBool('tutorials.enabled', true),
         setEnabled: function(_value) {
-            if (_value !== this.enabled) {
+            if (_value !== self.enabled) {
                 sdebug('tutorialManager', 'setEnabled', _value);
                 Ti.App.Properties.setBool('tutorials.enabled', _value);
                 // if (_value) {
                 //     app.showAlert('tutorial_restart_needed');
                 // } else {
-                this.enabled = _value;
+                self.enabled = _value;
                 // }
             }
         },
@@ -163,7 +163,7 @@ exports.create = function(_context, _args, _additional) {
             doneTutorials = [];
         },
         addTutorials: function(_tutorials) {
-            if (!this.enabled) {
+            if (!self.enabled) {
                 return;
             }
             _.defaults(tutorials, _tutorials);
@@ -175,10 +175,10 @@ exports.create = function(_context, _args, _additional) {
             return result;
         },
         showTutorials: function(_tuts, _force) {
-            if (!this.enabled) {
+            if (!self.enabled) {
                 return;
             }
-            var views = _.reduce(this.getTutorials(_tuts, _force), function(memo, value, key) {
+            var views = _.reduce(self.getTutorials(_tuts, _force), function(memo, value, key) {
                 memo.push(createTutorialView(key, value));
                 return memo;
             }, []);
