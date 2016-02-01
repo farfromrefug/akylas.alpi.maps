@@ -633,7 +633,7 @@ exports.data = {
         }
     },
     'Waze': {
-        url: 'http://il-livemap-tiles{s}.waze.com/tiles/{z}/{z}/{y}.png',
+        url: 'https://worldtiles{s}.waze.com/tiles/{z}/{x}/{y}.png',
         options: {
             attribution: '{attribution.OpenStreetMap} &copy; <a href="http://waze.com">Waze</a>',
             subdomains: '1234',
