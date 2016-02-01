@@ -79,7 +79,7 @@ exports.create = function(_context, _args, _additional) {
     function getAnnotImage(_item) {
         iconStyleView.applyProperties({
             image: {
-                image: '/images/weather3/' + _item.weather[0].icon + '.png'
+                image: 'http://raw.githubusercontent.com/farfromrefug/akylas.alpi.maps/master/images/weather3/' + _item.weather[0].icon + '.png'
             },
             label: {
                 text: Math.round(_item.main.temp) + '˚'

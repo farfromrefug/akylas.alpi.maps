@@ -61,7 +61,7 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
                 },
                 sourceId: value.id,
                 imageView: {
-                    image: '/images/tiles/' + value.id + '.png'
+                    image: 'http://raw.githubusercontent.com/farfromrefug/akylas.alpi.maps/master/images/tiles/' + value.id + '.png'
                 },
                 // mapView: {
                 //     region:region,
