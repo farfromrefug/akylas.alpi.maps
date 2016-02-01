@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="svg2" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" sodipodi:docname="skitouring.svg" inkscape:version="0.48.2 r9819" inkscape:export-filename="/home/tai/svgc2c/skitouring_big.png" inkscape:export-ydpi="7.0300002" inkscape:export-xdpi="7.0300002"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="320px" height="320px"
+	 viewBox="0 0 320 320" enable-background="new 0 0 320 320" xml:space="preserve">
+<g id="layer1" transform="translate(0,-732.36218)" inkscape:label="Calque 1" inkscape:groupmode="layer">
+	
+		<path id="path2996" sodipodi:type="arc" sodipodi:cx="90.35714" sodipodi:cy="76.071426" sodipodi:rx="31.071428" sodipodi:ry="31.071428" fill="#545455" d="
+		M113.571,801.291c0,17.16-13.911,31.071-31.071,31.071s-31.071-13.911-31.071-31.071c0-17.161,13.911-31.072,31.071-31.072
+		S113.571,784.13,113.571,801.291z"/>
+	<path id="rect3766" fill="#545455" d="M149.427,739.505h81.018c7.377,0,13.356,6.715,13.356,15v5.684c0,8.284-5.979,15-13.356,15
+		h-81.018c-7.376,0-13.356-6.716-13.356-15v-5.684C136.071,746.221,142.051,739.505,149.427,739.505z"/>
+	<path id="rect3766-9" fill="#545455" d="M145.164,783.449h104.549c15.271,0,27.65,10.986,27.65,24.539v11.125
+		c0,13.552-12.38,24.539-27.65,24.539H145.164c-15.271,0-27.651-10.986-27.651-24.539v-11.125
+		C117.513,794.435,129.893,783.449,145.164,783.449z"/>
+	<path id="rect3799" fill="#545455" d="M171.604,877.26l31.561,45.174c7.297,10.445,7.445,22.941,0.331,27.912l-5.144,3.594
+		c-7.114,4.97-18.797,0.531-26.094-9.913l-31.561-45.175c-7.297-10.444-7.445-22.941-0.331-27.912l5.143-3.593
+		C152.624,862.377,164.307,866.815,171.604,877.26z"/>
+	<path id="rect3801" fill="#545455" d="M145.329,866.943l96.863-67.123c9.622-6.668,22.142-5.263,27.964,3.139l4.47,6.45
+		c5.822,8.401,2.741,20.617-6.881,27.285l-96.863,67.123c-9.621,6.668-22.142,5.263-27.963-3.139l-4.47-6.45
+		C132.626,885.827,135.707,873.611,145.329,866.943z"/>
+	<path id="rect3805" fill="#545455" d="M101.616,867.049l20.509-64.05c1.867-5.832,8.344-8.969,14.467-7.009l10.658,3.413
+		c6.123,1.96,9.573,8.277,7.706,14.108l-20.509,64.05c-1.867,5.831-8.345,8.969-14.467,7.009l-10.658-3.413
+		C103.199,879.197,99.749,872.88,101.616,867.049z"/>
+	<path id="rect3807" fill="#545455" d="M71.633,882.962l38.157-21.774c9.057-5.168,18.982-4.832,22.169,0.752l3.605,6.317
+		c3.187,5.584-1.573,14.301-10.63,19.469L86.777,909.5c-9.057,5.169-18.982,4.832-22.169-0.752l-3.605-6.317
+		C57.817,896.847,62.576,888.13,71.633,882.962z"/>
+	
+		<rect id="rect3809" x="46.333" y="966.967" transform="matrix(-0.906 0.4232 -0.4232 -0.906 771.2787 1779.2207)" fill="#545455" width="283.597" height="16.522"/>
+	
+		<rect id="rect3811" x="84.489" y="812.75" transform="matrix(-0.8535 0.5211 -0.5211 -0.8535 800.9875 1409.7653)" fill="#545455" width="235.653" height="9.465"/>
+	
+		<rect id="rect3832" x="276.507" y="758.625" transform="matrix(0.5211 0.8535 -0.8535 0.5211 790.2695 116.8062)" fill="#545455" width="29.086" height="7.954"/>
+	<path id="rect3836" inkscape:connector-curvature="0" sodipodi:nodetypes="cccccc" fill="#545455" d="M18.82,1039.315l26.611-6.199
+		l11.579-5.771l6.992,14.971l-10.73,4.46L18.82,1039.315z"/>
+</g>
+</svg>

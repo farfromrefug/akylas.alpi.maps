@@ -1,0 +1,136 @@
+SettingsWindow {
+    modal: true,
+    navWindow:true,
+}
+
+.SettingsRealWindow {
+    /*backgroundColor:'#555555',*/
+    title:trc('settings'),
+    showBackButton: true,
+    ownBackButtonTitle: $sClose,
+    customNavBar: true,
+    barColor: $cTheme.main,
+    listViewArgs:{
+    },
+}
+
+
+.SettingsRow {
+    backgroundColor:$white,
+    layout:'horizontal',
+    height: 44
+}
+
+.SettingsRowIcon {
+    visible:false,
+}
+
+.SettingsRowLabel {
+    height: 'FILL',
+    touchEnabled:false,
+    left:15,
+    width:'SIZE',
+    maxWidth:200,
+    color: $black
+}
+
+
+.SettingsRowSublabel {
+    height: 'FILL',
+    weight:2,
+    touchEnabled:false,
+    font:{size:16},
+    textAlign:'right',
+    width:'FILL',
+    /*maxWidth:150,*/
+    color: 'gray'
+}
+
+.SettingsRowAccessory {
+    height: 'FILL',
+    width:20,
+    textAlign:'right',
+    right:10,
+    color: '#CECED2',
+    font: {family:$iconicfontfamily,size:16},
+    text:$sRight,
+    touchEnabled:false
+}
+
+.SettingsRowSwitch {
+    right:15,
+    onTintColor:$cTheme.main,
+    preventListViewSelection:true,
+    bubbleParent:true,
+}
+
+.SettingsSelectionWindow, .ModulesSettingsWindow {
+    showBackButton: true,
+    customNavBar: true,
+    barColor: $cTheme.main,
+}
+
+
+.LicenseRow {
+    rclass:'BottomSeparatorView',
+    backgroundSelectedColor:$cTheme.main,
+    width:'FILL',
+    height:'SIZE',
+    layout:'vertical',
+    borderColor:'#88dddddd',
+    borderPadding:[-1,-1,0,-1],
+}
+
+.LicenseRowLabel {
+    left:10,
+    top:5,
+    height:18,
+    touchEnabled:false,
+    font: {size:16},
+    color:$black
+}
+
+.LicenseRowSublabel {
+    left:10,
+    touchEnabled:false,
+    maxLines:2,
+    verticalAlign:'top',
+    height:27,
+    bottom:5,
+    font: {size:13},
+    color:$gray
+}
+
+
+.LicenseRowValue {
+    autoLink: Ti.UI.AUTOLINK_ALL,    
+    touchEnabled:false,
+    visible:false,
+    height:'SIZE',
+    left:10,
+    font: {size:13},
+    bottom:5,
+    color:$black
+}
+
+.ModuleHeader {
+    height:40,
+    
+}
+
+ModulesWindow {
+    modal: true,
+    navWindow:true,
+}
+
+.ModulesRealWindow {
+    /*backgroundColor:'#555555',*/
+    title:trc('modules'),
+    showBackButton: true,
+    ownBackButtonTitle: $sClose,
+    customNavBar: true,
+    barColor: $cTheme.main,
+    listViewArgs:{
+    },
+}
+

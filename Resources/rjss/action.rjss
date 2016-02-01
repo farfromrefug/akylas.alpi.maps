@@ -1,0 +1,49 @@
+ItemActionBar {
+    /*rclass:'ElevatedView',*/
+    backgroundColor:$white,
+    bubbleParent: false,
+    height:$itemActionBarHeight,
+}
+.ActionButtonLabel {
+    touchEnabled:false,
+    /*width: 'FILL',*/
+    height:'FILL',
+    font: {
+        size:9,
+        weight:'bold'
+    },
+    /*sizeRatio:1,*/
+    visible:app.tutorial,
+    maxLines:1,
+    textAlign:'center',
+    verticalAlign:'bottom',
+    color:$cTheme.main,
+    /*selectedColor:$white,*/
+    padding:{bottom:3, left:1, right:1},
+    ellipsize:Ti.UI.TEXT_ELLIPSIZE_WORD
+    /*disabledColor:$gray*/
+}
+
+ActionButton {
+    rclass:'ActionButtonLabel',
+    visible:true,
+    height:'FILL',
+    minWidth:56,
+    font: {
+        family:$iconicfontfamily,
+        size:30,
+        weight:null
+    },
+    touchEnabled:true,
+    dispatchPressed:__APPLE__,
+    verticalAlign:'middle'
+}
+.ActionLine {
+    height:54,
+    width:'FILL',
+    contentWidth:'SIZE',
+    right:0,
+    directionalLockEnabled:true,
+    clipChildren:false,
+    layout:'horizontal'
+}

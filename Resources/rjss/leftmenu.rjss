@@ -1,0 +1,82 @@
+LeftMenu {
+    layout:'vertical'
+}
+
+.LeftMenuRow {
+    height:50,
+    layout:'horizontal',
+    borderColor:'#333',
+    backgroundSelectedColor:$cTheme.main,
+    borderPadding:{left:-1,right:-1, top:-1},
+    dispatchPressed:true,
+}
+
+.LeftMenuRowNoSelect {
+    rclass:'LeftMenuRow',
+    preventListViewSelection:true,
+}
+
+
+
+.LeftMenuLabel {
+    height:'FILL',
+    color:$white,
+    selectedColor:$cTheme.color,
+}
+
+.LeftMenuRowIcon {
+    rclass:'LeftMenuLabel',
+    touchPassThrough:true,
+    left:0,
+    width:40,
+    color:$cTheme.main,
+    textAlign:'center',
+    font: {family:$iconicfontfamily,size:22}
+}
+
+.LeftMenuRowLabel {
+    rclass:'LeftMenuLabel',
+    width:'FILL',
+    touchPassThrough:true,
+    font: {size:16},
+}
+
+.LeftMenuRowSwitch {
+    bubbleParent:true,
+    onTintColor:$cTheme.main,
+    right:5,
+}
+
+
+#leftMenuAbout {
+    height: 'SIZE',
+    dispatchPressed:true,
+    layout:'vertical',
+}
+
+#leftMenuAboutLogo {
+    top:$navBarTop+ 10,
+    color:$cTheme.main,
+    text:$sLogo,
+    font: {family:$iconicfontfamily,size:50}
+}
+
+#leftMenuAboutMain {
+    padding: {left:10, right:10},
+    textAlign:'center',
+    top:10,
+    touchPassThrough:true,
+    color:$cTheme.main,
+    text:app.info.name,
+    /*selectedColor:$white,*/
+    font:{size:20}
+}
+#leftMenuAboutSub {
+    padding: {left:10, right:10},
+    textAlign:'center',
+    touchPassThrough:true,
+    color:$white,
+    top:7,
+    /*selectedColor:$cTheme.main,*/
+    font:{size:14}
+}

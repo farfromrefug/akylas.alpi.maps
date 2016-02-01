@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <style name="BaseTheme" parent="@style/Theme.AppCompat.Light">
+        <item name="android:windowBackground">@drawable/background</item>
+         <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="actionBarStyle">@style/BaseTheme.ActionBarStyle</item>
+        <item name="alertDialogTheme">@style/BaseTheme.AlertDialogStyle</item>       
+        
+        <item name="colorPrimary">#0CA3CA</item>
+        
+        <!-- colorPrimaryDark is used for the status bar -->
+        <item name="colorPrimaryDark">#097591</item>
+        
+        <!-- colorAccent is used as the default value for colorControlActivated
+        which is used to tint widgets -->
+        <item name="colorAccent">#0CA3CA</item>
+        <item name="colorControlNormal">#ffffff</item>
+        <item name="colorControlActivated">#0CA3CA</item>
+        <item name="colorControlHighlight">#0CA3CA</item>
+        <item name="android:editTextStyle">@style/myEditText</item>
+    </style>
+    
+    <style name="myEditText" parent="Widget.AppCompat.EditText"> 
+        <item name="android:textCursorDrawable">@null</item> 
+    </style>
+    
+</resources>

@@ -1,0 +1,131 @@
+
+MapWindow {
+    navBarHidden:true,
+    withLoadingIndicator:true,
+    title:''
+}
+
+.AppMapViewChildrenHolder {
+    /*gesturesCanCancelClick:true,*/
+    touchPassThrough:true,
+}
+
+.AppMapHolder {
+    backgroundColor: $white,
+}
+
+
+.AppMapView {
+    userTrackingMode: 1,
+    maxZoom: 22,
+    traffic: false,
+    indoorPicker:true,
+    indoor: false,
+    canSelectRoute:true,
+    buildings: false,
+    /*zOrderOnTop:true,*/
+    centerCoordinate: [45.2002, 5.7222],
+    zoom: 10,
+    regionFits:false,
+    userLocationEnabled: false,
+    animateChanges: true,
+    toolbar:false,
+    compass: true
+}
+
+MapAnnotation {
+    bubbleParent:true,
+    showInfoWindow: false,
+    hasInfo: true,
+    calloutBorderRadius:2,
+    calloutPadding: 0
+}
+
+MapRoute {
+    lineWidth:3,
+    selectedLineWidth:6,
+    color: '#0581FC',
+    /*selectedColor: '#0581FC',*/
+}
+
+MapCluster {
+    /*zIndex: 800,*/
+    showInfoWindow: false,
+    /*strokeWidth:2,*/
+    anchorPoint: [0.5, 0.5],
+    touchable:false,
+    bubbleParent:true,
+    showText:false,
+    minDistance:5,
+    flat:true,
+    /*selectedShowText:true,*/
+    maxDistance:35,
+/*    font:{
+        size:12,
+        weight:'bold'
+    }*/
+}
+
+.MarkerInfoGrabber {
+    height:16,
+    width:'FILL',
+    color:'darkgray',
+    font: {
+        family: $iconicfontfamily,
+        size: 30
+    },
+    textAlign:'center',
+    text:$sHOptions
+}
+
+
+/*.MarkerInfoDistance {
+    width: 84,
+    padding: {
+        left: 10,
+        right: 10,
+        bottom: 5
+    },
+    touchEnabled: false,
+    height: 'FILL',
+    verticalAlign: 'bottom',
+    font: {
+        size: 15,
+        weight: 'bold'
+    },
+    textAlign: 'center',
+    color: $cTheme.main,
+    maxLines: 1
+
+}*/
+
+.MapActionLabel {
+    width:$mapActionBtnWidth,
+    /*height:$mapActionBtnWidth,*/
+    height:'FILL',
+    color:$white,
+    selectedColor:'gray',
+    textAlign:'center',
+    font: {family: $iconicfontfamily, size: 28},
+}
+
+.MapActionButton {
+    rclass:'NavBarButton',
+    /*color:'#737373'*/
+}
+
+
+AllFeaturesListWindow {
+    title:trc('lists'),
+    showBackButton:true,
+    customNavBar:true
+}
+
+.MapButton {
+    rclass:'FloatingAction',
+    backgroundColor: '#ffffff',
+    width:40,
+    height:40,
+    font: {family: $iconicfontfamily, size: 22},
+    borderRadius: 20,
+}

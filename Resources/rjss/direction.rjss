@@ -1,0 +1,66 @@
+.DirectionBar {
+    rclass:'InternalElevatedView',
+    bubbleParent: false,
+    layout: 'vertical',
+    backgroundColor: $cTheme.main,
+    /*touchPassThrough:true,*/
+}
+
+.DirectionListView {
+    height: 'FILL',
+    delaysContentTouches:true,
+    top:0,
+    canMove: true,
+    canEdit:true,
+}
+
+.DirectionRow {
+    height:34,
+    backgroundSelectedColor:'transparent',
+    dispatchPressed:true,
+    layout:'horizontal'
+}
+
+.DirectionRowShapeLine {
+    retina : true,
+    antialiasing : true,
+    lineColor:'#44ffffff',
+    lineWidth:2,
+    lineDash:{
+        phase:1,
+        pattern:[2,3]
+    },
+    points: [
+    [0, 0],
+    [0, '50%']
+    ]
+}
+.DirectionRowShapeTopLine {
+    rclass:'DirectionRowShapeLine',
+    anchor:app.modules.shapes.TOP_MIDDLE
+}
+.DirectionRowShapeBottomLine {
+    rclass:'DirectionRowShapeLine',
+    anchor:app.modules.shapes.BOTTOM_MIDDLE
+}
+.DirectionRowShapeView {
+    rclass:'ListItemRowIcon',
+}
+
+.DirectionRowIcon {
+    rclass:'ListItemRowIcon',
+    color:$white,
+    touchPassThrough:true,
+    selectedColor:$gray,
+    font:{size:20},
+}
+
+.DirectionRowLabel {
+    rclass:'ListItemRowLabel',
+    color:$white,
+    touchPassThrough:true,
+    selectedColor:$gray,
+    font:{size:14},
+    borderPadding:[-1,-1,0,-1],
+    borderColor:'#44ffffff'
+}

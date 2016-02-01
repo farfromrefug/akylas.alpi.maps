@@ -1,0 +1,65 @@
+Window, SlideMenu {
+    /*extendEdges: [Ti.UI.EXTEND_EDGE_ALL],*/
+    /*autoAdjustScrollViewInsets: true,*/
+    /*navBarHidden: true,*/
+    statusBarStyle: Titanium.UI.iPhone.StatusBar.LIGHT_CONTENT
+}
+
+ListView, CollectionView {
+    selectedBackgroundColor: '#ECF2FB',
+}
+
+MapWindow {
+    hideShadow:true,
+    translucent:true,
+    extendEdges: [Ti.UI.EXTEND_EDGE_ALL]
+}
+
+.InternalElevatedView {
+    viewShadow:{
+        radius:1.5,
+        offset:[0,1],
+        color:'#88333333'
+    }
+}
+
+.FloatingAction {
+    /*backgroundSelectedColor:$cTheme.selector,*/
+    selectedColor:$cTheme.main,
+    viewShadow:{
+        offset:{x:0,y:1},
+        radius:2,
+        color:'#88000000'
+    }
+}
+
+.MapButton {
+    padding:{top:2},
+    viewShadow:{
+        color:'#44000000',
+        radius:0.5,
+    }
+}
+
+.SettingsRealWindow, .SettingsSelectionWindow, .ModulesRealWindow, .ModulesSettingsWindow{
+    listViewArgs:{
+        separatorStyle:1,
+        style:1,
+    },
+}
+
+.SettingsSelectionWindow {
+    listViewArgs:{
+        defaultItemTemplate:1,
+    }
+}
+.NativeListWindow {
+    listViewArgs:{
+        separatorStyle:1,
+    },
+}
+
+.GeoFeatureListView {
+    canCancelEvents: false,
+    delaysContentTouches: true,
+}

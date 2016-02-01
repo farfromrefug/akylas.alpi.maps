@@ -1,0 +1,124 @@
+.SearchWindow {
+    backgroundColor: 'transparent',
+    blurredBackground: true,
+    navBarHidden: true,
+    verticalContainer: true,
+    modal: false,
+}
+
+.SearchRow {
+    backgroundColor:'transparent',
+    /*backgroundSelectedColor:'lightgray',*/
+    width:'FILL',
+    height:44,
+    layout:'horizontal',
+    borderColor:'gray',
+    borderPadding:[-1,-1,0,-1]
+}
+
+.SearchRowIcon {
+    font: {
+        family: $iconicfontfamily,
+        size: 22
+    },
+    width:26,
+    verticalAlign:'top',
+    textAlign:'right',
+    color:$white
+}
+
+.SearchRowLabel {
+    left:10,
+    touchPassThrough:true,
+    width:'FILL',
+    height:'FILL',
+    font: {size:17},
+    color:$white,
+    ellipsize:Ti.UI.TEXT_ELLIPSIZE_TAIL
+}
+
+.SearchRowSublabel {
+    left:10,
+    touchPassThrough:true,
+    height:'SIZE',
+    maxLines:1,
+    width:'FILL',
+    padding:[0,0,4,0],
+    font: {size:13},
+    color:$gray,
+    ellipsize:Ti.UI.TEXT_ELLIPSIZE_TAIL
+}
+
+.SearchRowAccessory {
+    font: {
+        family: $iconicfontfamily,
+        size: 22
+    },
+    width:26,
+    verticalAlign:'/*top*/',
+    color:$white,
+    preventListViewSelection:true,
+    text:$sGps
+}
+
+
+.SearchView {
+    layout:'vertical',
+    height:'SIZE',
+    right:10,
+    left:10,
+    top:5
+}
+
+.SearchTextField
+{
+    width:'FILL',
+    height:44,
+    font: {size:17},
+    hintText:trc('enter_search_text'),
+    hintColor:'gray',
+    color:$black,
+    padding:10,
+    padding: {
+        left: 10
+    },
+    clearButtonMode:Ti.UI.INPUT_BUTTONMODE_ONFOCUS,
+    returnKeyType:Ti.UI.RETURNKEY_DONE
+}
+
+.SearchFeaturesFilter {
+    rclass:'BorderedView',
+    layout:'horizontal',
+    contenWidth:'SIZE',
+    contentHeight:'FILL',
+    height: 40,
+    borderPadding:[0,-1,-1,-1],
+}
+
+.SearchResultView {
+    rclass:'ElevatedView',
+    bottom:0,
+    backgroundColor:$white
+}
+
+.SearchAroundResultView {
+    rclass:'ElevatedView',
+    bottom:0,
+    /*backgroundColor:$white,*/
+    layout:'vertical'
+}
+
+.SearchAroundHeader {
+    color: $white,
+    font:{size:18},
+    padding:[0,15,0,15],
+    width:'FILL',
+    height:$navBarHeight
+}
+
+.SearchLoadingIndicator {
+    style:Ti.UI.ActivityIndicatorStyle.BIG_DARK,
+    color:'darkgray',
+    width: 40,
+    height: 'FILL'
+}

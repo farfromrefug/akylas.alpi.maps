@@ -1,0 +1,781 @@
+Window {
+    tintColor:$white,
+	backgroundColor:$backgroundColor,
+	orientationModes:[Ti.UI.UPSIDE_PORTRAIT, Ti.UI.PORTRAIT]
+}
+
+[app.deviceinfo.isTablet] {
+    Window {
+        orientationModes:[Ti.UI.UPSIDE_PORTRAIT, Ti.UI.PORTRAIT, Ti.UI.LANDSCAPE_LEFT, Ti.UI.LANDSCAPE_RIGHT]
+    }
+}
+
+/*AppWindow {
+    customNavBar: true,
+    barColor: $cTheme.main,
+}*/
+
+.NativeListWindow {
+    customNavBar: true,
+    barColor: $cTheme.main,
+    listViewArgs:{
+    },
+}
+ItemsListWindow {
+    withLoadingIndicator:true
+}
+
+CustomAlertView {
+    navBarHidden:true,
+    backgroundColor:'transparent',
+    verticalContainer:false
+}
+
+
+FullscreenImageWindow {
+    orientationModes:[Ti.UI.UPSIDE_PORTRAIT, Ti.UI.PORTRAIT, Ti.UI.LANDSCAPE_LEFT, Ti.UI.LANDSCAPE_RIGHT],
+    navBarHidden:true,
+    dontElevateTopBar:true,
+    fullscreen:true,
+    verticalContainer:false,
+    backgroundColor:'transparent',
+    modal:false,
+    winOpeningArgs:{
+        from:{
+            opacity: 0,
+        },
+        to:{
+            opacity: 1,
+        },
+        duration: 300
+    },
+    winClosingArgs:{
+        opacity: 0,
+        duration: 300
+    }
+}
+
+.TopToolbar {
+    top:0,
+    /*layout:'vertical',*/
+    zIndex:100,
+    touchPassThrough:true,
+    /*rclass:'ElevatedView'*/
+}
+
+.BottomToolbar {
+    height:'SIZE',
+    layout:'vertical',
+    bottom:0,
+    zIndex:100,
+    rclass:'InversedElevatedView'
+}
+
+.ImageWindowImageView {
+    transition:{
+        style: Ti.UI.TransitionStyle.FADE
+    },
+    localLoadSync:false,
+    onlyTransitionIfRemote: false,
+    width:'FILL',
+    height:'FILL'
+}
+
+MainWindow {
+    title:'MAIN_WINDOW',
+    backgroundColor:'transparent',
+    mainWindow:true,
+    navWindow:true
+}
+
+WebWindow {
+    withLoadingIndicator:true,
+    backgroundColor:$white,
+    showBackButton: true,
+    customNavBar:true,
+    barColor:$cTheme.main,
+    withAd:true,
+}
+
+.InternalElevatedView {
+}
+
+.ElevatedView {
+    /*rclass:'InternalElevatedView'*/
+}
+
+.InversedElevatedView {
+/*    viewShadow:{
+        radius:1,
+        offset:[0,-1],
+        color:'#88333333'
+    }*/
+}
+
+.BorderedView {
+    borderColor:'#88dddddd',
+    borderPadding:[-1,-1,0,-1],
+}
+
+.AppWebView {
+    /*scalesPageToFit:true,*/
+    hideLoadIndicator:true,
+    backgroundColor: $white
+}
+
+
+AppTabView {
+    layout:'vertical'
+}
+/*$tabHeight = 30;*/
+.AppTabViewScrollableView {
+    /*top:$tabHeight,*/
+    transition: {
+        style: Ti.UI.TransitionStyle.FADE
+    },
+    width:'FILL',
+    height:'FILL',
+    scrollingEnabled:false,
+    disableBounce:true
+}
+
+
+AppTabController {
+    rclassTabOff:'AppTabOff',
+    rclassTabOn:'AppTabOn',
+    rclass:'BottomSeparatorView',
+    top:0,
+    backgroundColor:'#F6F6F8',
+    /*height:$tabHeight*/
+}
+
+.AppTabControllerContainer {
+    layout:'horizontal'
+}
+
+$appTabBorderWidth=3;
+
+.AppTab {
+    font: {size:14, weight:'bold'},
+    width:'FILL',
+    height:'FILL',
+    textAlign:'center',
+    color:$gray,
+    disabledColor:$black,
+    selectedColor:$gray
+}
+
+.CustomAlertTF {
+    width:'FILL',
+    height:44,
+    font: {size:15},
+    hintColor:'gray',
+    borderPadding: [-1, -1, 0, -1],
+    borderColor: '#ddd',
+    color:$black,
+    padding: {
+        left: 10
+    },
+    clearButtonMode:Ti.UI.INPUT_BUTTONMODE_ONFOCUS,
+    returnKeyType:Ti.UI.RETURNKEY_DONE
+}
+
+Label {
+    /*verticalAlign:'middle'*/
+}
+
+TextField {
+    tintColor:$cTheme.main,
+    padding:0,
+    backgroundColor:'transparent',
+    includeFontPadding:false,
+    autocapitalization:Ti.UI.TEXT_AUTOCAPITALIZATION_NONE,
+    autocorrect:false,
+}
+
+ListView {
+    tintColor:$cTheme.main,
+    allowsSelection:false,
+    /*asyncDelete:true,*/
+    unHighlightOnSelect: false,
+    delaysContentTouches:false,
+    scrollsToTop:true,
+    separatorStyle:Ti.UI.ListViewSeparatorStyle.NONE,
+}
+
+CollectionView {
+    allowsSelection:false,
+    columnWidth: '50%',
+    rowHeight:152,
+    backgroundColor:'transparent',
+    unHighlightOnSelect: false,
+}
+
+
+ImageView {
+    scaleType: Ti.UI.SCALE_TYPE_ASPECT_FILL,
+    retina:app.deviceinfo.isRetina,
+    localLoadSync:true,
+    onlyTransitionIfRemote: true,
+    preventDefaultImage:true
+}
+
+$leftMenuWidth=220;
+SlideMenu {
+    actionBarOverlay:true,
+    navBarHidden:true,
+    showUnderStatusBar:true,
+    panningMode:app.modules.slidemenu.MENU_PANNING_NONE,
+    exitOnClose:true,
+    shadowWidth:2,
+    leftViewDisplacement: -40,
+    backgroundColor:$cMenuBack,
+    leftViewWidth:$leftMenuWidth
+}
+
+ButtonBar {
+    top:4,
+    bottom:4,
+    tabbedBar:true,
+}
+
+.FloatingAction {
+    width: 52,
+    height: 52,
+    textAlign:'center',
+    font: {family: $iconicfontfamily, size: 24},
+    borderRadius: 26,
+    backgroundColor: $white,
+    backgroundDisabledColor: '#545454',
+    color: '#737373'
+}
+
+.OptionButton {
+    width: 40,
+    height: 40,
+    textAlign:'center',
+    font: {family: $iconicfontfamily, size: 24},
+    color: $white,
+    preventListViewSelection:true,
+    selectedColor:$cTheme.selector
+}
+
+.Button {
+    width: 'SIZE',
+    padding:{left:10,right:10},
+    height: 40,
+    textAlign:'center',
+    color: $white,
+    selectedColor:$cTheme.selector
+}
+
+.WhiteOptionButton {
+    width: 40,
+    height: 40,
+    textAlign:'center',
+    font: {family: $iconicfontfamily, size: 24},
+    color: 'darkgray',
+    preventListViewSelection:true,
+    selectedColor:$cTheme.selector
+}
+
+/*LoadingView {
+    top:$navBarTop+$navBarHeight,
+}*/
+.LoadingViewHolder {
+    borderRadius:5,
+    layout:'vertical',
+    backgroundColor:'#bb000000',
+    maxWidth:170,
+    maxHeight:130,
+    width:'SIZE',
+    height:'SIZE'
+}
+
+.LoadingViewLabel {
+    font:{size:15, weight:'bold'},
+    color:$white,
+    textAlign:'center',
+    maxWidth:200,
+    maxLines:2,
+    padding:{bottom:20, left:20,right:20}
+    
+}
+
+.LoadingViewIndicator {
+    top:20,
+    bottom:20,
+    left:20,
+    right:20,
+    style:Ti.UI.ActivityIndicatorStyle.BIG,
+    color:$white
+}
+
+.WebToolbarButton {
+    font: {
+        family: $iconicfontfamily,
+        size: 28
+    },
+    color: $white,
+    width:50,
+    disabledColor: 'lightgray'
+}
+
+.ListRow {
+    rclass:'BorderedView',
+    layout:'horizontal',
+    height:44,
+    backgroundColor:$white
+}
+
+.ListRowBorderLine {
+    backgroundColor:'#88dddddd',
+    height:1,
+}
+.ListRowIcon {
+    font: {
+        family: $iconicfontfamily,
+        size: 26
+    },
+    width:40,
+    textAlign:'center',
+    color:$black
+}
+
+.ListRowLabel {
+    touchPassThrough:true,
+    height:'FILL',
+    width:'FILL',
+    font: {size:17},
+    color:$black
+}
+
+.ListRowSublabel {
+    touchPassThrough:true,
+    width:'FILL',
+    height:'SIZE',
+    maxLines:1,
+    padding:[0,0,4,0],
+    font: {size:13},
+    color:$gray
+}
+
+.ListRowCountLabel {
+    font: {size:15, weight:'bold'},
+    color:'darkgray',
+    right:5,
+    width:'SIZE',
+    textAlign:'right',
+    /*backgroundColor:'green',*/
+    /*borderRadius:6,*/
+    /*padding:[3,5,2,5],*/
+    /*textAlign:'center',*/
+    /*color:$white*/
+}
+
+.ListRowSwitch {
+    bubbleParent:true,
+    isrounded:false,
+    onTintColor:$cTheme.main,
+}
+
+.ListRowAccessory {
+    font: {
+        family: $iconicfontfamily,
+        size: 20
+    },
+    width:30,
+    textAlign:'center',
+    color:$gray,
+    text:$sRight
+}
+
+$listItemRowHeight = 58;
+
+.ListItemRow {
+    rclass:'BorderedView',
+    layout:'horizontal',
+    backgroundColor:$white,
+    height:$listItemRowHeight
+}
+
+.ListItemRowBorderLine {
+    rclass:'ListRowBorderLine'
+}
+
+.ListItemRowImage {
+    left:0,
+    scaleType:Ti.UI.SCALE_TYPE_ASPECT_FILL,
+    sizeRatio:1,
+    /*squared:true,*/
+    height:'FILL',
+    transition:{
+        style: Ti.UI.TransitionStyle.FADE
+    },
+}
+
+.ListItemRowIcon {
+    font: {
+        family: $iconicfontfamily,
+        size: 26
+    },
+    height:'FILL',
+    width:40,
+    textAlign:'center',
+    color:$black
+}
+
+.ListItemRowLabel {
+    touchPassThrough:true,
+    left:5,
+    height:'FILL',
+    width:'FILL',
+    font: {size:17},
+    color:$black,
+    ellipsize:Ti.UI.TEXT_ELLIPSIZE_TAIL
+}
+
+.ListItemRowSublabel {
+    touchPassThrough:true,
+    left:5,
+    width:'FILL',
+    height:'SIZE',
+    maxLines:1,
+    padding:[0,0,4,0],
+    font: {size:13},
+    color:$gray,
+    ellipsize:Ti.UI.TEXT_ELLIPSIZE_TAIL
+}
+
+.ListItemRowAccessory {
+    font: {
+        family: $iconicfontfamily,
+        size: 15
+    },
+    width:25,
+    verticalAlign:'middle',
+    height:40,
+    top:0,
+    rigth:5,
+    textAlign:'center',
+    /*verticalAlign:'top',*/
+    color:$gray,
+    text:$sRight
+}
+
+$gfHeaderHeight = Math.round(app.deviceinfo.height*0.28);
+.GFHeader {
+    top: $navBarTop,
+    height: $gfHeaderHeight,
+}
+.GFHeaderScrollableView {
+    overlayEnabled: true,
+    disableBounce:true,
+    currentPage:1,
+    cacheSize:1,
+    pagingControlColor: '#44000000',
+}
+
+.GFHeaderIcon {
+    color: $white,
+    font: {
+        family: $iconicfontfamily,
+        size: 22
+    }
+}
+
+.GFHeaderTitle {
+    color: $white,
+    left:0,
+    /*padding: {
+        left: 44,
+    },*/
+    /*right:80,*/
+    /*backgroundColor:'red',*/
+    font: {
+        size: 17,
+        weight:'bold'
+    },
+    width: 'FILL',
+    /*verticalAlign:'top',*/
+    maxLines:2,
+    ellipsize:Ti.UI.TEXT_ELLIPSIZE_TAIL,
+}
+
+.GFHeaderSubtitle
+{
+    color: 'lightgray',
+    height:30,
+    padding: {
+        left: 20,
+        bottom:13,
+    },
+    width: 'FILL',
+    bottom:0,
+    verticalAlign:'bottom',
+    font: {
+        size: 14,
+    },
+}
+
+.GFHeaderInfo
+{
+    color: $gray,
+    height:30,
+    bottom:0,
+    padding: {
+        right: 20,
+        bottom:13,
+    },
+    width: 'SIZE',
+    textAlign:'right',
+    verticalAlign:'bottom',
+    font: {
+        family: $iconicfontfamily,
+        size: 16
+    },
+}
+
+.GFOptionRow {
+    rclass:'ListItemRow',
+    height:44,
+}
+
+.GFOptionRowImage {
+    rclass:'ListItemRowImage'
+}
+
+.GFOptionRowIcon {
+    rclass:'ListItemRowIcon',
+    width:30,
+    font: {family: $iconicfontfamily,size:22},
+    height:44,
+    top:0,
+}
+
+.GFOptionRowLabel {
+    rclass:'ListItemRowLabel',
+    left:0,
+    font: {size:14},
+}
+
+.GFOptionRowSublabel {
+    rclass:'ListItemRowSublabel'
+}
+
+.GFOptionRowAccessory {
+    rclass:'ListItemRowAccessory',
+    font: {size:20},
+    height:44,
+    
+    text:$sExpand,
+}
+
+
+.ItemGeoInfoLabel {
+    rclass:'ListItemRowLabel',
+    touchPassThrough:false,
+    /*textIsSelectable: true,*/
+    height:24,
+    padding:{left:30},
+    font:{size:13}
+}
+
+
+.ItemGeoInfoIcon {
+    rclass:'ListItemRowIcon',
+    width:30,
+    font: {family: $iconicfontfamily,size:20},
+    height:'FILL',
+    left:0,
+}
+
+
+.ColorBubble {
+    left:15,
+    right:15,
+    width:30,
+    height:30,
+    borderWidth:2,
+    borderColor:$black,
+    borderRadius:15
+}
+
+.ItemInfoRow {
+    rclass:'BorderedView',
+    selector:true,
+    height:70,
+    backgroundColor:$white
+}
+
+.ItemInfoRowIcon {
+    width: 26,
+    left:5,
+    top:5,
+    height: 24,
+    /*textAlign: 'center',*/
+    font: {
+        family: $iconicfontfamily,
+        size: 22
+    },
+    /*padding:{bottom:5},*/
+    /*verticalAlign:'top',*/
+    color: $white,
+}
+
+.ItemInfoRowLabelHolder {
+    touchEnabled:false,
+    layout: 'vertical',
+    width: 'FILL',
+    height: 'FILL'
+}
+
+.ItemInfoRowExtraHolder {
+    layout: 'horizontal',
+    left:7,
+    height: 17
+}
+
+.ItemInfoRowAccessory {
+    width: 45,
+    right:0,
+    padding:{right:10},
+    textAlign:'right',
+    height:'FILL',
+    color:$cTheme.main,
+    font: {
+        size:16,
+        family: $iconicfontfamily
+    },
+    title:$sRight
+
+}
+
+.ItemInfoRowLabel {
+    width: 'FILL',
+    height: 'FILL',
+    ellipsize:Ti.UI.TEXT_ELLIPSIZE_TAIL,
+    color: $black,
+    /*maxLines:1*/
+}
+
+.ItemInfoRowExtraLabel {
+    rclass:'ItemInfoRowLabel',
+    /*width:'SIZE',*/
+    color:$cTheme.main,
+    font: {
+        size:13,
+        weight:'bold'
+    },
+    right:3
+}
+.ItemInfoRowDescription {
+    rclass:'ItemInfoRowExtraLabel',
+    right:10,
+    height:'FILL',
+    verticalAlign:'bottom',
+    width:'SIZE',
+    color: '#777',
+    font: {
+        size:13,
+        weight:'normal'
+    },
+}
+
+.ItemInfoRowExtraIcon {
+    rclass:'ItemInfoRowLabel',
+    color:$cTheme.main,
+    font: {
+        size:14,
+        family: $iconicfontfamily
+    },
+    right:1,
+    width:14
+}
+
+.ItemInfoRowTitle {
+    rclass:'ItemInfoRowLabel',
+    top:0,
+    verticalAlign:'top',
+    padding:{right:10},
+    font: {
+        size: 15,
+        weight:'bold'
+    }
+}
+
+.ItemInfoRowSubtitle {
+    rclass:'ItemInfoRowLabel',
+    padding:{right:10},
+    /*bottom:0,*/
+    maxLines:1,
+    /*verticalAlign:'bottom',*/
+    color: '#777',
+    font: {
+        size: 13
+    }
+}
+
+.ItemInfoRowImage {
+    rclass:'ListItemRowImage',
+    scaleRatio:1,
+}
+
+.ItemInfoRowOpenIcon {
+    rclass:'ItemInfoRowExtraIcon',
+    verticalAlign:'top',
+    right: 7,
+    text: app.icons.hours,
+    visible: false
+
+}
+.ItemInfoRowOpenDetails {
+    rclass:'ItemInfoRowExtraLabel',
+    verticalAlign:'top',
+    width:'SIZE',
+    color:$black,
+    font: {
+        size: 12,
+        weight:'normal'
+    },
+}
+
+.AdmobView {
+    adUnitId: 'ca-app-pub-3147314304971005/9108611579', 
+    backgroundColor: 'white',
+    testDevices: ["ffcafc1059694f867651d0090d809978"],
+    keywords: 'hiking mountain sport'
+}
+
+Interstitial {
+    rclass:'AdmobView',
+    adUnitId: 'ca-app-pub-3147314304971005/1585344773',
+    showOnLoad: true
+}
+
+
+.AdmobViewRow {
+    rclass:'AdmobView'
+}
+
+.SectionHeaderLabel {
+    padding: {
+        left: 5
+    },
+    width: 'FILL',
+    height: 24,
+    font: {
+        size: 15,
+        /*weight: 'bold'*/
+    }
+}
+
+ItemInfoView {
+    canShowActionButtons: true,
+    backgroundColor:'#ffffff',
+    layout: 'vertical',
+    bottom: 0,
+    height: 0,
+    bubbleParent: false,
+    visible: false,
+}

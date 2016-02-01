@@ -1,0 +1,158 @@
+
+.TSControlRow {
+    layout: 'horizontal',
+    borderPadding:[-1,-1,0,-1],
+    borderColor:'#11dddddd',
+}
+
+.TSControlLine {
+    rclass:'ActionLine',
+    right:0,
+    backgroundColor:'#20201f',
+}
+$TSCountrolsHeight=200;
+.TSControls {
+    layout: 'vertical',
+    height: $TSCountrolsHeight,
+    bottom: 0
+}
+
+.TSControlsLabel {
+    left:10,
+    padding:__APPLE__?{top:3}:undefined,
+    font: {size:__APPLE__?14:16,},
+    verticalAlign:__APPLE__?'top':'middle',
+    height:'FILL',
+    width:'FILL',
+/*    touchEnabled:false,
+*/    color:$white
+}
+
+.TSControlListView {
+    height:'FILL',
+    rowHeight:44,
+    canMove:true,
+    delaysContentTouches:true,
+    disableBounce:false,
+}
+
+.TSControlSlider {
+    min: 0,
+    visible: __APPLE__,
+    max: 1,
+    height:'FILL',
+    left: 5,
+    right: 5,
+    left: 10,
+    right: 10,
+    exclusiveTouch:true,
+    preventListViewSelection:true
+}
+
+TileSourceSelectWindow {
+    modal: true,
+    navWindow:true,
+}
+.TileSourceSelectRealWindow {
+    /*backgroundColor:'#555555',*/
+    dontElevateTopBar:true,
+    title:trc('map_sources'),
+    showBackButton: true,
+    backgroundColor:$cTheme.main,
+    ownBackButtonTitle: $sClose,
+    customNavBar: true,
+    barColor: $cTheme.main,
+}
+.TSSelectRow {
+    /*height:50,*/
+}
+
+.TSSelectRowHolder {
+    layout:'vertical',
+    backgroundColor:$white,
+    backgroundSelectedColor:'#ecf2fb',
+    top:2,
+    left:2,
+    bottom:2,
+    right:2,
+}
+
+.TSSelectionListView {
+    backgroundColor:'#ddd',
+    /*separatorStyle:Ti.UI.ListViewSeparatorStyle.SINGLE_LINE,*/
+    columnWidth:'50%',
+    rowHeight:200,
+}
+
+.TSSelectRowMapView {
+    animateChanges:false,
+    top:5,
+    left:5,
+    bottom:5,
+    right:5,
+    width:'FILL',
+    height:70,
+    backgroundColor:'#727272'
+}
+
+.TSSelectRowImageView {
+    localLoadSync: false,
+    onlyTransitionIfRemote: false,
+    transition: {style: Ti.UI.TransitionStyle.FADE},
+    backgroundColor:$white,
+    top:6,
+    left:6,
+    touchEnabled:false,
+    /*bottom:5,*/
+    right:6,
+    width:'FILL',
+    height:90,
+}
+
+.TSSelectRowLabel {
+    left:6,right:6,
+    width: 'FILL',
+    height:'SIZE',
+    color: $black,
+    touchEnabled:false,
+    font: {
+        size: 13,
+    },
+    maxLines: 2,
+    ellipsize: Ti.UI.TEXT_ELLIPSIZE_TAIL
+}
+
+.TSSelectRowTitle {
+    rclass:'TSSelectRowLabel',
+    font: {
+        size: 15,
+    },
+    height:'SIZE',
+    maxLines:1
+}
+
+.TSSelectRowSubtitle {
+    rclass:'TSSelectRowLabel',
+    maxLines: 2,
+    height:'SIZE',
+    color:'gray'
+}
+.TSSelectRowAttribution {
+    rclass:'TSSelectRowLabel',
+    /*touchEnabled:true,*/
+    font: {
+        size: 11,
+    },
+    maxLines: 0,
+    bottom:6,
+    height:'FILL',
+    verticalAlign:'bottom'
+}
+
+.TSSelectionTabController {
+    /*rclass:'ElevatedView',*/
+    top:5,
+    color:$white,
+    indicatorColor:$white,
+    bottom:5,
+}

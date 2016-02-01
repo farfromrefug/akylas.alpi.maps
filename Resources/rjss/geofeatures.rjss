@@ -1,0 +1,14 @@
+
+GeoFeatureWindow {
+    barColor:'transparent',
+    withLoadingIndicator:true,
+    verticalContainer:false,
+    title: '',
+    showBackButton: true,
+    customNavBar: true
+}
+
+.GeoFeatureListView {
+    touchPassThrough: true,
+    bottom: $itemActionBarHeight,
+}

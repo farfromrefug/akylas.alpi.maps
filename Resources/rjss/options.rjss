@@ -1,0 +1,27 @@
+OptionsListWindow {
+    navBarHidden:true,
+    blurredBackground:true,
+    /*fullscreen:true,*/
+    verticalContainer:true,
+    lightweight:true,
+    backgroundColor:'transparent',
+    modal:false,
+}
+
+
+.OptionsListListView {
+    canSwipeLeft:false,
+    canSwipeRight:false,
+    showVerticalScrollIndicator:false,
+    /*height:'FILL',*/
+    bottom:0,
+}
+
+
+.OptionsListHeader {
+    color: $white,
+    font:{size:17},
+    padding:[$navBarTop,15,0,15],
+    width:'FILL',
+    height:$navBarTop+$navBarHeight
+}

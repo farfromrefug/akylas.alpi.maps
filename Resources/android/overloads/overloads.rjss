@@ -1,0 +1,58 @@
+ListItem {
+    selector:true,
+}
+
+.FloatingAction {
+    antiAlias: true,
+    elevation: 3,
+    selector:$cTheme.selector,
+}
+
+.AppMapView {
+    /*elevation: 3*/
+}
+
+Button {
+    color: $cTheme.main
+}
+.NBButton {
+    color:$white
+}
+
+.InternalElevatedView {
+    elevation: 3
+}
+
+.ElevatedView {
+    rclass:'InternalElevatedView'
+}
+
+.LicenseRowLabel {
+    height:20
+}
+
+.LicenseRowSublabel {
+    height:30,
+}
+
+.Settings {
+    stickyHeaders:false,
+}
+
+.AppWebView {
+    enableZoomControls:false,
+    /*disableHW:true,*/
+}
+
+.GeoFeatureListView {
+    overScrollMode: 2,
+}
+
+CustomAlertView, .TutorialWindow {
+    /*we use lightweight so that webview or mapview wont pause*/
+    lightweight:true,
+}
+
+.SearchWindow {
+    windowSoftInputMode:Ti.UI.Android.SOFT_INPUT_STATE_HIDDEN | Ti.UI.Android.SOFT_INPUT_STATE_VISIBLE | Ti.UI.Android.SOFT_INPUT_ADJUST_RESIZE
+}

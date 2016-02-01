@@ -1,0 +1,23 @@
+SlideMenu, AppWindow {
+    navigationBarColor:$cTheme.dark
+}
+.LeftMenuRow {
+    /*backgroundColor:null,*/
+    backgroundSelectedColor:null,
+    selector:true
+}
+
+.SettingsRow {
+    height: 50,
+    backgroundSelectedColor:null,
+    selector:true
+}
+
+.LicenseRow {
+    backgroundSelectedColor:null,
+    selector:true
+}
+
+.LicenseRow {
+    selector:true
+}

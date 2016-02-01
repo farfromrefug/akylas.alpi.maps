@@ -1,0 +1,82 @@
+$nbButtonWidth = 50;
+
+.NavBar {
+    top:0,
+    backgroundColor:$cTheme.main,
+    zIndex:100,
+    /*rclass:'ElevatedView'*/
+}
+
+.NavBarHolder {
+    top:$navBarTop ,
+    height:$navBarHeight,
+}
+
+.NBButton {
+    selectedColor:$gray,
+    textAlign:'center',
+    minWidth:$nbButtonWidth,
+    top:0,
+    height:$navBarHeight,
+    verticalAlign:'middle'
+}
+
+.NavBarButton {
+    rclass:'NBButton',
+    /*backgroundColor:'red',*/
+    width:$nbButtonWidth,
+    font:{size:26, family:$iconicfontfamily},
+}
+
+.NavBarTextButton {
+    rclass:'NBButton',
+    padding:{top:4,right:10,},
+    font: {size:16}
+}
+
+.NavBarRightButton {
+    rclass:'NavBarButton',
+    /*textAlign:'right'*/
+}
+
+
+.ToolbarButton {
+    rclass:'NavBarButton',
+    width:60,
+}
+
+.NavBarButtonSeparator {
+    backgroundColor:'#55ffffff',
+    width:1,
+    height:20,
+}
+
+.NavBarLeftButton {
+    rclass:'NavBarButton',
+    textAlign:'left'
+}
+
+.NBBackButton {
+    rclass:'NavBarButton',
+    /*textAlign:'left'*/
+}
+
+.NBTitle {
+    color:$white,
+    maxLines:2,
+    height:$navBarHeight,
+    textAlign:'center',
+    touchEnabled:false,
+    ellipsize:Ti.UI.TEXT_ELLIPSIZE_TAIL,
+    font:{size:16, weight:'bold'},
+}
+
+#menuBtn {
+   rclass:'NavBarLeftButton',
+   text:$sMenu,
+}
+
+#closeBtn {
+   rclass:'NavBarLeftButton',
+   text:$sClose
+}
