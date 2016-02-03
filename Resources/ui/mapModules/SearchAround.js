@@ -10,6 +10,7 @@ exports.create = function(_context, _args, _additional) {
         animationDuration = 200,
         searchAroundItem, searchAroundItemDesc,
         lastSelectedIndex = -1,
+        OSMIgnoredClass = ['highway', 'waterway', 'historic', 'railway', 'landuse', 'aeroway', 'boundary' ],
         infoRowItemForItem = itemHandler.infoRowItemForItem,
         updateParamsForLocation = itemHandler.updateParamsForLocation,
         type = itemHandler.initializeType('searchitem', _.assign(_.cloneDeep(require('data/markertypes').data[
@@ -236,13 +237,19 @@ exports.create = function(_context, _args, _additional) {
 
     function handleSearch() {
         sdebug('searchAround', radiuses[radiusIndex]);
-        self.window.showLoading();
-        app.api.searchOSM2({
+        
+        var request = app.api.searchOSM2({
             // query: searchAroundItem.address,
             centerCoordinate: searchAroundItem,
             silent: true,
             radius: radiuses[radiusIndex]
         }, onSearchAround);
+        self.window.showLoading({
+            request:request,
+            label:{
+                text:trc('searching') + '...'
+            }
+        });
     }
 
     function handleNoResult(_ask) {
@@ -464,15 +471,18 @@ exports.create = function(_context, _args, _additional) {
         },
         // hideModule: hide,
         onModuleAction: function(_params) {
-            if (_params.id === 'searcharound') {
+            if (_params.command === 'searcharound') {
                 lastSelectedIndex = -1;
                 searchAroundItem = _params.item;
-                searchAroundItemDesc = _params.itemDesc;
+                searchAroundItemDesc = _params.desc;
                 radiusIndex = 0;
-                if (searchAroundItem.osm) {
-                    self.runAction('refresh_tags', searchAroundItem, searchAroundItemDesc);
+                if (searchAroundItem.osm && !_.contains(OSMIgnoredClass, searchAroundItem.osm.class)) {
+                    // sdebug('test', _.keys(_params));
+                    // self.runAction('refresh_tags', searchAroundItem, searchAroundItemDesc);
+                    app.itemHandler.handleItemAction('refresh_tags', searchAroundItem, searchAroundItemDesc, undefined, _params.parent || self.window,
+                    _params.mapHandler || self.parent);
                 } else {
-                self.window.manager.closeToRootWindow();
+                    self.window.manager.closeToRootWindow();
                     handleSearch();
 
                 }

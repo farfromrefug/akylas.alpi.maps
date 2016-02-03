@@ -198,20 +198,23 @@ function createApi(_context) {
     }
 
     function CallChain(_calls, _callback) {
-        var request;
         var obj = {
+            _request:null,
             abort: function() {
-                if (request) {
-                    request.abort();
+                sdebug('CallChain', 'abort', this);
+                if (this._request) {
+                    this._request.abort();
+                    this._request = null;
                 }
             }
         };
         Chain()("done", function(res, chain) {
-            request = null;
+            obj._request = null;
             _callback(res, chain);
-        }).apply(this, _.map(_calls, function(f) {
+        }).apply(this, _.map(_calls, function(f, index) {
             return function(res, chain) {
-                request = f(res, chain);
+                sdebug('CallChain', 'next', index);
+                obj._request = f(res, chain);
             };
         }));
         return obj;
@@ -549,6 +552,7 @@ function createApi(_context) {
                 chain.next(res);
                 return;
             }
+            sdebug('osmDetails', _args);
             var type = _args.osm.type;
             var data = '[out:json];{1}({2});out {3};'.assign(type, _args.osm.id, (type === 'relation') ?
                 'geom' : 'center');
@@ -563,8 +567,9 @@ function createApi(_context) {
                     if (!result.elements || result.elements.length === 0) {
                         onError(trc('no_place_found'), _options.onError, _options);
                     } else {
-                        res = res || {};
-                        res.osm = convert.prepareOSMObject(result.elements[0], true, true);
+                        sdebug(type, result);
+                            res = res || {};
+                            res.osm = convert.prepareOSMObject(result.elements[0], true, true);
                         chain.next(res);
                     }
                 },

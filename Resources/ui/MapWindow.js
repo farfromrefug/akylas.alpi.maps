@@ -17,7 +17,7 @@ ak.ti.constructors.createMapWindow = function(_args) {
         args.splice(0, 1);
         _.forEachRight(mods, function(module) {
             if (module[method]) {
-                // sdebug(id, _method, '1', args);
+                // sdebug(module.id, method, _.keys(args[0]));
                 if (module[method].apply(module, args)) {
                     result = true;
                     return false;
@@ -227,7 +227,9 @@ ak.ti.constructors.createMapWindow = function(_args) {
             'LocationButton',
             'TileSourceManager',
             'Wikitude'
-        ];
+        ],
+        hideDebugTimer,
+        debugView;
 
     if (__APPLE__) {
         mapModules.push('Weather');
@@ -337,70 +339,70 @@ ak.ti.constructors.createMapWindow = function(_args) {
                     //     rclass: 'AppMapViewChildrenHolder'
                     // },
                     // childTemplates: [{
+                    type: 'Ti.UI.View',
+                    properties: {
+                        rclass: 'AppMapViewChildrenHolder',
+                        // elevation: 1000,
+                        layout: 'vertical'
+                    },
+                    childTemplates: [{
                         type: 'Ti.UI.View',
+                        bindId: 'mapTopToolbar',
+                        properties: {
+                            height: 'SIZE',
+                            rclass: 'AppMapViewChildrenHolder',
+                            clipChildren: false,
+                            bubbleParent: true,
+                            // layout: 'vertical',
+                            zIndex: 1,
+                        },
+                        childTemplates: moduleParams.mapTopToolbarChildren,
+                        // events: {
+
+                        // }
+                    }, {
+                        type: 'Ti.UI.View',
+                        bindId: 'childrenHolder',
                         properties: {
                             rclass: 'AppMapViewChildrenHolder',
-                            // elevation: 1000,
-                            layout: 'vertical'
+                            clipChildren: false,
+                            height: 'FILL',
+                            bubbleParent: true,
                         },
-                        childTemplates: [{
-                            type: 'Ti.UI.View',
-                            bindId: 'mapTopToolbar',
-                            properties: {
-                                height: 'SIZE',
-                                rclass: 'AppMapViewChildrenHolder',
-                                clipChildren: false,
-                                bubbleParent: true,
-                                // layout: 'vertical',
-                                zIndex: 1,
-                            },
-                            childTemplates: moduleParams.mapTopToolbarChildren,
-                            // events: {
+                        childTemplates: moduleParams.mapPaddedChildren,
+                        events: {
+                            postlayout: function(e) {
+                                var parentRect = mapView.rect;
+                                var rect = e.source.rect;
+                                // sdebug('mapview postLayout', rect, parentRect);
+                                // currentPadding = _.pick(e.source, 'top', 'left', 'bottom', 'right');
+                                self.setMapFakePadding('toolbars', {
+                                    left: rect.x,
+                                    top: rect.y,
+                                    right: parentRect.width - rect.x -
+                                        rect
+                                        .width,
+                                    bottom: parentRect.height - rect.y -
+                                        rect.height,
+                                });
 
-                            // }
-                        }, {
-                            type: 'Ti.UI.View',
-                            bindId: 'childrenHolder',
-                            properties: {
-                                rclass: 'AppMapViewChildrenHolder',
-                                clipChildren: false,
-                                height: 'FILL',
-                                bubbleParent: true,
-                            },
-                            childTemplates: moduleParams.mapPaddedChildren,
-                            events: {
-                                postlayout: function(e) {
-                                    var parentRect = mapView.rect;
-                                    var rect = e.source.rect;
-                                    // sdebug('mapview postLayout', rect, parentRect);
-                                    // currentPadding = _.pick(e.source, 'top', 'left', 'bottom', 'right');
-                                    self.setMapFakePadding('toolbars', {
-                                        left: rect.x,
-                                        top: rect.y,
-                                        right: parentRect.width - rect.x -
-                                            rect
-                                            .width,
-                                        bottom: parentRect.height - rect.y -
-                                            rect.height,
-                                    });
-
-                                }
                             }
-                        }, {
-                            type: 'Ti.UI.View',
-                            bindId: 'mapBottomToolbar',
-                            properties: {
-                                rclass: 'AppMapViewChildrenHolder',
-                                clipChildren: false,
-                                bubbleParent: true,
-                                height: 'SIZE',
-                                zIndex: 1,
-                                // layout: 'vertical',
-                            },
-                            childTemplates: moduleParams.mapBottomToolbarChildren,
-                            // events: {
+                        }
+                    }, {
+                        type: 'Ti.UI.View',
+                        bindId: 'mapBottomToolbar',
+                        properties: {
+                            rclass: 'AppMapViewChildrenHolder',
+                            clipChildren: false,
+                            bubbleParent: true,
+                            height: 'SIZE',
+                            zIndex: 1,
+                            // layout: 'vertical',
+                        },
+                        childTemplates: moduleParams.mapBottomToolbarChildren,
+                        // events: {
 
-                            // }
+                        // }
                         // }]
                     }],
                     events: {
@@ -523,6 +525,7 @@ ak.ti.constructors.createMapWindow = function(_args) {
         getMapPadding: function(_key) {
             return mapPaddings[_key];
         },
+
         getMapCurrentPadding: function() {
             if (!arguments) {
                 return currentPadding;
@@ -581,10 +584,58 @@ ak.ti.constructors.createMapWindow = function(_args) {
         runGetMethodOnModules: runGetMethodOnModules,
         runGetSingleMethodOnModules: runGetSingleMethodOnModules,
         runReduceMethodOnModules: runReduceMethodOnModules,
-        getModule: getModule
+        getModule: getModule,
+        showDebugText: function(_text) {
+            if (hideDebugTimer) {
+                clearTimeout(hideDebugTimer);
+                hideDebugTimer = null;
+            }
+            if (!debugView) {
+                debugView = new Label({
+                    backgroundColor: '#bb000000',
+                    padding: 6,
+                    top: 10,
+                    maxWidth: '90%',
+                    font: {
+                        size: 11
+                    },
+                    color: $white,
+                    opacity: 0,
+                    text: _text
+                });
+                self.childrenHolder.add(debugView);
+                debugView.animate({
+                    opacity: 1,
+                    duration: 100
+                });
+                hideDebugTimer = setTimeout(function() {
+                    debugView.animate({
+                        opacity: 0,
+                        duration: 100
+                    }, function() {
+                        self.childrenHolder.remove(debugView);
+                        debugView = null;
+                    });
+                }, 4000);
+            } else {
+
+                debugView.applyProperties({
+                    text: _text
+                })
+                hideDebugTimer = setTimeout(function() {
+                    debugView.animate({
+                        opacity: 0,
+                        duration: 100
+                    }, function() {
+                        self.childrenHolder.remove(debugView);
+                        debugView = null;
+                    });
+                }, 4000);
+            }
+
+        }
     });
     self.setMapPadding('default', mapView.padding);
-
 
     // window.on('androidback', function(e) {
     //     sdebug('onBack');
@@ -594,7 +645,7 @@ ak.ti.constructors.createMapWindow = function(_args) {
     // });
     // ak.ti.markTime('onInit');
     _.each(getAllModules(), function(module) {
-        sdebug('test on init ', module.id);
+        // sdebug('test on init ', module.id);
         var key = 'onInit' + module.id;
         // ak.ti.markTime(key);
         _.assign(module, {
@@ -730,6 +781,9 @@ ak.ti.constructors.createMapWindow = function(_args) {
     });
 
     self.onBack = function(e) {
+        if (self.cancelRunningRequest()) {
+            return;
+        }
         if (!runMethodOnModules('onWindowBack', e)) {
             self.closeMe();
         }

@@ -124,7 +124,7 @@ exports.create = function(_context, _args, _additional) {
                         delta + '</font>') || ''))
             },
             'icon': {
-                image: '/images/weather3/' + ((_specific &&
+                image: 'http://raw.githubusercontent.com/farfromrefug/akylas.alpi.maps/master/images/weather3/' + ((_specific &&
                     _data.id) || _data.weather[
                     0].icon) + '.png',
                 scaleType: Ti.UI.SCALE_TYPE_ASPECT_FIT
@@ -274,13 +274,8 @@ exports.create = function(_context, _args, _additional) {
         },
         onModuleAction: function(_params) {
             if (_params.id === 'weather') {
-                (_params.parent || self.window).showLoading({
-                    label: {
-                        html: utilities.htmlIcon(type.icon, 1) + ' ' + trc('loading') +
-                            '...'
-                    }
-                });
-                app.api.openWeatherMapRegion({
+                
+                var request = app.api.openWeatherMapRegion({
                     region: self.mapView.region,
                     zoom: self.mapView.zoom,
                 }, function(_stations) {
@@ -321,17 +316,19 @@ exports.create = function(_context, _args, _additional) {
                     }
                     (_params.parent || self.window).hideLoading();
                 });
-            } else if (_params.command === 'weather') {
-
-                var item = _params.item;
-                var isRoute = itemHandler.isItemARoute(item);
                 (_params.parent || self.window).showLoading({
+                    request:request,
                     label: {
                         html: utilities.htmlIcon(type.icon, 1) + ' ' + trc('loading') +
                             '...'
                     }
                 });
-                app.api.openWeatherForecast(item.start || item, function(_result) {
+            } else if (_params.command === 'weather') {
+
+                var item = _params.item;
+                var isRoute = itemHandler.isItemARoute(item);
+                
+                var request = app.api.openWeatherForecast(item.start || item, function(_result) {
                     // sdebug(_result);
                     if (!_result.error) {
                         itemWeatherData[item.id] = _.assign(_result, {
@@ -348,6 +345,13 @@ exports.create = function(_context, _args, _additional) {
                     }
 
                     (_params.parent || self.window).hideLoading();
+                });
+                (_params.parent || self.window).showLoading({
+                    request:request,
+                    label: {
+                        html: utilities.htmlIcon(type.icon, 1) + ' ' + trc('loading') +
+                            '...'
+                    }
                 });
             } else if (_params.command === 'weather_long') {
 

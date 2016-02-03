@@ -98,7 +98,7 @@ exports.create = function(_context, _args, _additional) {
             update(settings.currentLocation);
         },
         onAnnotationPress: function(e) {
-            sdebug('userlocation', 'onAnnotationPress', e.annotation.title);
+            // sdebug('userlocation', 'onAnnotationPress', e.annotation.title);
             if (e.annotation === userLocationAnnot) {
                 sdebug('userlocation', 'onAnnotationPress done!');
                 self.parent.runMethodOnModules('onModuleAction', {

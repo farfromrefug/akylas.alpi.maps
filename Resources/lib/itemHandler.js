@@ -407,7 +407,7 @@
                     scaleType: banner ? Ti.UI.SCALE_TYPE_ASPECT_FIT : Ti.UI.SCALE_TYPE_ASPECT_FILL,
                     filterOptions: {
                         colorArt: banner
-                        // scale: scale
+                            // scale: scale
                     },
                     image: getThumbnailImagePath(photo)
                 },
@@ -989,9 +989,15 @@
                     // if (_item.tags.website) {
                     //     options.push('website');
                     // }
-                    options.push('refresh_tags');
-                } else if (!isRoute) {
+                    // options.push('refresh_tags');
+                    // } else if (!isRoute) {
+                    // options.push('searcharound');
+                }
+
+                if (!isRoute) {
                     options.push('searcharound');
+                    // } else  {
+                    // options.push('refresh_tags');
                 }
 
                 if (!isRoute) {
@@ -1196,7 +1202,6 @@
                     }
                 case 'refresh_tags':
                     {
-                        _parent.showLoading();
                         var clearUpString = function(s) {
                             return _.deburr(s).toLowerCase().replace(/^(the|le|la|el)\s/, '').trim();
                         };
@@ -1286,7 +1291,7 @@
                                 _parent.hideLoading();
                             }
                         }, this);
-                        app.api.chainCalls(calls, _.bind(function(res, chain) {
+                        var request = app.api.chainCalls(calls, _.bind(function(res, chain) {
                             var result = {};
                             // sdebug(res);
                             if (chain.error().length === 0) {
@@ -1324,6 +1329,14 @@
                             }
                             onDone(result);
                         }, this));
+                        if (_parent) {
+                            _parent.showLoading({
+                                request: request,
+                                label: {
+                                    text: trc('refreshing') + '...'
+                                }
+                            });
+                        }
                         break;
                     }
                 case 'twitter':
@@ -1366,14 +1379,8 @@
                     }
                 case 'reverse_geo':
                     {
-                        if (_parent) {
-                            _parent.showLoading({
-                                label: {
-                                    text: trc(_option) + '...'
-                                }
-                            });
-                        }
-                        app.api.reverseGeocode(_item, _.bind(function(e) {
+
+                        var request = app.api.reverseGeocode(_item, _.bind(function(e) {
                             if (!e.error) {
                                 var changes = {
                                     address: e
@@ -1399,6 +1406,14 @@
                             }
 
                         }, this));
+                        if (_parent) {
+                            _parent.showLoading({
+                                request: request,
+                                label: {
+                                    text: trc(_option) + '...'
+                                }
+                            });
+                        }
                         break;
                     }
                 case 'images':
@@ -1412,14 +1427,8 @@
                     }
                 case 'consolidate_alt':
                     {
-                        if (_parent) {
-                            _parent.showLoading({
-                                label: {
-                                    text: trc(_option) + '...'
-                                }
-                            });
-                        }
-                        app.api.ignElevation(_item, _.bind(function(e) {
+
+                        var request = app.api.ignElevation(_item, _.bind(function(e) {
                             if (!e.error) {
                                 var changes = {
                                     altitude: e.altitude
@@ -1437,40 +1446,51 @@
                                 _parent.hideLoading();
                             }
                         }, this));
-                        break;
-                    }
-                case 'query_profile':
-                    {
                         if (_parent) {
                             _parent.showLoading({
+                                request: request,
                                 label: {
                                     text: trc(_option) + '...'
                                 }
                             });
                         }
+                        break;
+                    }
+                case 'query_profile':
+                    {
+
                         var factor = 1;
                         //app.simplify(_item.route.points, factor/3779)
                         var points = _item.route.points;
                         // var toUsePoints = this.simplify(_item.route.points, factor / 3779);
                         // sdebug(_option, points.length, toUsePoints.length);
-                        app.api.ignElevationProfile(this, _item.route.points, _.bind(function(e) {
-                            if (!e.error) {
-                                var changes = {
-                                    profile: e.profile
-                                };
-                                showMessage(trc('profile_found'), colors);
-                                var result = this.updateItem(_item, _desc, changes,
-                                    _mapHandler);
-                                if (_callback) {
-                                    _callback(_option, result);
+                        var request = app.api.ignElevationProfile(this, _item.route.points, _.bind(
+                            function(e) {
+                                if (!e.error) {
+                                    var changes = {
+                                        profile: e.profile
+                                    };
+                                    showMessage(trc('profile_found'), colors);
+                                    var result = this.updateItem(_item, _desc, changes,
+                                        _mapHandler);
+                                    if (_callback) {
+                                        _callback(_option, result);
+                                    }
+                                    // } else {
+                                    //     app.showAlert(e);
                                 }
-                                // } else {
-                                //     app.showAlert(e);
-                            }
-                            if (_parent) {
-                                _parent.hideLoading();
-                            }
-                        }, this));
+                                if (_parent) {
+                                    _parent.hideLoading();
+                                }
+                            }, this));
+                        if (_parent) {
+                            _parent.showLoading({
+                                request: request,
+                                label: {
+                                    text: trc(_option) + '...'
+                                }
+                            });
+                        }
                         break;
                     }
                 case 'remove':
@@ -1487,13 +1507,16 @@
                         }
                         break;
                     }
-                case 'searcharound':
-                    _mapHandler.runMethodOnModules('spreadModuleAction', {
-                        id: _option,
-                        item: _item,
-                        itemDesc: _desc
-                    });
-                    break;
+                // case 'searcharound':
+                //     _mapHandler.runMethodOnModules('spreadModuleAction', {
+                //         id: _option,
+                //         parent: _parent,
+                //         mapHandler: _mapHandler,
+                //         command: _option,
+                //         item: _item,
+                //         desc: _desc,
+                //     });
+                //     break;
                 case 'locate':
                 case 'select':
                     _mapHandler.runMethodOnModules('runActionOnItem', _item.type, _item, 'select');

@@ -68,7 +68,7 @@ exports.create = function(_context, _args, _additional) {
 
     function unselectItem() {
         if (selectedItem) {
-            sdebug('unselectItem');
+            // sdebug('unselectItem');
             selectedItem.mapItem.off('changed', onSelectedChanged);
             selectedItem = null;
             delete self.onRoutePress;
@@ -92,7 +92,7 @@ exports.create = function(_context, _args, _additional) {
         }
         unselectItem();
         var shouldSelect = hasItem && mapItem.hasInfo !== false;
-        sdebug('selectItem', hadItem, hasItem);
+        // sdebug('selectItem', hadItem, hasItem);
         if (!hasItem || !shouldSelect) {
             view && view.hideMe();
             return;

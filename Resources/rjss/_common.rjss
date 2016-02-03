@@ -286,8 +286,8 @@ ButtonBar {
     borderRadius:5,
     layout:'vertical',
     backgroundColor:'#bb000000',
-    maxWidth:170,
-    maxHeight:130,
+    maxWidth:240,
+    maxHeight:300,
     width:'SIZE',
     height:'SIZE'
 }
@@ -298,7 +298,7 @@ ButtonBar {
     textAlign:'center',
     maxWidth:200,
     maxLines:2,
-    padding:{bottom:20, left:20,right:20}
+    padding:{bottom:20, top:20, left:20,right:20}
     
 }
 

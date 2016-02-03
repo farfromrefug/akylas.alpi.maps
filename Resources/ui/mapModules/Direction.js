@@ -257,6 +257,8 @@ exports.create = function(_context, _args, _additional) {
                                     case 'driving':
                                         mode = callbackId;
                                         _.each(view.modeHolder.children, function(button) {
+                                            sdebug(button.callbackId, button.callbackId !==
+                                                mode);
                                             button.enabled = button.callbackId !==
                                                 mode;
                                         });
@@ -639,7 +641,7 @@ exports.create = function(_context, _args, _additional) {
         });
         var annot = new MapAnnotation(_.assign({
             anchorPoint: [0.5, 0.5],
-            hasInfo:false,
+            hasInfo: false,
             image: app.getImagePath(itemHandler.getAnnotImage(waypointType, item))
         }, item));
         wayPointsAnnotations.push(annot);

@@ -56,7 +56,7 @@ MapCluster {
     touchable:false,
     bubbleParent:true,
     showText:false,
-    minDistance:5,
+    /*minDistance:5,*/
     flat:true,
     /*selectedShowText:true,*/
     maxDistance:35,

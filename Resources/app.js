@@ -131,7 +131,7 @@ function main() {
         var args = {
             text: _text,
         };
-        if (_colors.color) {
+        if (_colors && _colors.color) {
             args.backgroundColor = _colors.color;
             args.color = _colors.contrast;
         } else {
@@ -140,7 +140,9 @@ function main() {
         if (__APPLE__) {
             app.modules.statusbarnotification.showMessage(args);
         } else {
-
+            Ti.UI.showNotification(_.assign(args, {
+                gravity:48
+            }));
         }
     }
     _.assign(app, {

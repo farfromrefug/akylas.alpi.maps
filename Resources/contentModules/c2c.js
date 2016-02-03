@@ -523,16 +523,22 @@ exports.create = function(_context, _args, _additional) {
         onModuleAction: function(_params) {
             if (_params.command === 'c2c_around') {
                 self.window.manager.closeToRootWindow();
-                self.window.showLoading();
                 var loc = geolib.coords(_params.item.start || _params.item);
                 // sdebug('loc', loc);
                 var url = baseUrl + 'sarnd/' + loc.longitude + ',' + loc.latitude +
                     ',2000/geom/yes/npp/100/format/json-track-full-html';
-                Chain()("done", function(res, chain) {
+                var request = app.api.chainCalls([_.partial(getC2CResultsFromPage, url)], function(res,
+                    chain) {
                     // sdebug(res);
                     var module = self.parent.getModule('Search');
                     module.showSearchResults(res, chain.error(), self.window.hideLoading);
-                }).apply(this, [_.partial(getC2CResultsFromPage, url)]);
+                });
+                self.window.showLoading({
+                    request:request,
+                    label:{
+                        text:trc('searching') + '...'
+                    }
+                });
                 return true;
             }
         },

@@ -4,10 +4,18 @@ ak.ti.constructors.createLoadingView = function(_args) {
         properties: _args,
         childTemplates: [{
             type: 'Ti.UI.View',
+            bindId: 'holder',
             properties: {
                 rclass: 'LoadingViewHolder'
             },
             childTemplates: [{
+                type: 'Ti.UI.Label',
+                bindId: 'label',
+                properties: {
+                    rclass: 'LoadingViewLabel',
+                    padding:{bottom:0},
+                }
+            }, {
                 type: 'Ti.UI.ActivityIndicator',
                 bindId: 'indicator',
                 properties: {
@@ -15,8 +23,9 @@ ak.ti.constructors.createLoadingView = function(_args) {
                 }
             }, {
                 type: 'Ti.UI.Label',
-                bindId: 'label',
+                bindId: 'sublabel',
                 properties: {
+                    padding:{top:0},
                     rclass: 'LoadingViewLabel'
                 }
             }]

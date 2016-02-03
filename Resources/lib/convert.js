@@ -1,4 +1,4 @@
-var OSMIgnoredSubtypes = ['parking_entrance', 'tram_stop', 'platform', 'bus_stop', 'tram'];
+var OSMIgnoredSubtypes = ['parking_entrance', 'tram_stop', 'platform', 'bus_stop', 'tram', 'track'];
 var OSMIgnoredClasses = [];
 var OSMReplaceKeys = {
     'contact:phone': 'phone',
@@ -79,9 +79,8 @@ function osmAddress(result) {
 };
 
 function osmIcon(osmClass, osmSub, osmSubValue) {
-    // sdebug('osmIcon', osmClass, osmSub, osmSubValue);
-    return osmIcons[osmSubValue] || app.icons[osmSubValue] || osmIcons[osmSub] || osmIcons[osmClass] ||
-        app.icons[osmSub] ||
+    sdebug('osmIcon', osmClass, osmSub, osmSubValue);
+    return osmIcons[osmSubValue] || app.icons[osmSubValue] || osmIcons[osmSub] || app.icons[osmSub] || osmIcons[osmClass] ||
         app.icons[osmClass];
 }
 
@@ -260,6 +259,52 @@ function prepareOSMWay(way, nodes, geolib) {
         var osmSub = result.osm.subtype;
         result.icon = osmIcon(osmClass, osmSub, result.tags[osmSub]);
     }
+    return result;
+}
+
+function prepareUtfGridResult(ele) {
+    if (!ele.name) {
+        return;
+    }
+
+    if (!ele.osm_id) {
+        return {
+            title: ele.name
+        }
+    }
+    var id = isNaN(ele.osm_id) ? ele.osm_id : ele.osm_id.toString();
+    var result = {
+        title:ele.name,
+        osm: {
+            id: ele.osm_id,
+            type: ele.hasOwnProperty('way_area') ? 'way' : 'node'
+        },
+        id: id,
+        tags: ele.tags,
+
+    };
+    var osmClass;
+    var osmSub;
+    _.each(OSMClassProps, function(key) {
+        if (ele.tags[key]) {
+            osmClass = key;
+            osmSub = ele.tags[key];
+            return false;
+        }
+    });
+    //ignores 
+    if (osmSub && _.contains(OSMIgnoredSubtypes, osmSub)) {
+        return;
+    }
+    if (osmClass && osmSub) {
+        result.osm.class = osmClass;
+        result.osm.subtype = osmSub;
+        result.icon = osmIcon(osmClass, osmSub, ele.extratags && ele.extratags[osmSub]);
+        result.settings = {
+            geofeature: osmIsGeoFeature(osmClass, osmSub)
+        };
+    }
+
     return result;
 }
 
@@ -489,6 +534,7 @@ exports.prepareOSMObject = prepareOSMObject;
 exports.prepareOSMWay = prepareOSMWay;
 exports.preparePhotonObject = preparePhotonObject;
 exports.prepareNominatimResult = prepareNominatimResult;
+exports.prepareUtfGridResult = prepareUtfGridResult;
 exports.osmTagsDetails = osmTagsDetails;
 exports.osmTagsIconsHTML = osmTagsIconsHTML;
 exports.osmTagsFastDetails = osmTagsFastDetails;

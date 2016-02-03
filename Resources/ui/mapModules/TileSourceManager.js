@@ -34,7 +34,6 @@ exports.create = function(_context, _args, _additional) {
             sdebug('createTileSource', JSON.stringify(result));
             return result;
         }
-
     }
 
     function onParentClick(e) {
@@ -281,7 +280,9 @@ exports.create = function(_context, _args, _additional) {
                     defaultItemTemplate: 'default',
                     sections: [{
                         items: _.reduce(tileSources, function(memo, value, key) {
-                            memo.push(tileSourceItem(value.layer));
+                            if (value.layer) {
+                                memo.push(tileSourceItem(value.layer));
+                            }
                             return memo;
                         }, [])
                     }]
@@ -591,9 +592,8 @@ exports.create = function(_context, _args, _additional) {
             }
         },
     });
-
     _.assign(_additional.mapArgs, {
-        tileSource: tileSources,
+        tileSource: (_additional.mapArgs.tileSource || []).concat(tileSources),
         mapType: mapTypes[Ti.App.Properties.getString('maptype', 'normal')]
     });
 

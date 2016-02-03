@@ -409,12 +409,37 @@ ak.ti.constructors.createAppWindow = function(_args) {
     // }
 
     if (self.withLoadingIndicator) {
+        var currentRequest;
         self.loadingView = new LoadingView({
             rclassPrefix: _args.LoadingRclassPrefix || 'Loading'
         });
         self.addPropertiesToGC('loadingView');
         self.showLoading = function(_args, _animated) {
-            // sdebug('showLoading');
+            sdebug('showLoading', _args);
+            _args = _args || {};
+            if (currentRequest) {
+                currentRequest.abort();
+                currentRequest = null;
+            }
+            currentRequest = _.remove(_args, 'request');
+            if (currentRequest) {
+                // sdebug('we have a request');
+                _args.sublabel = {
+                    text: trc('click_to_cancel')
+                }
+                self.loadingView.holder.once('click', function() {
+                    // sdebug('test');
+                    if (currentRequest) {
+                        currentRequest.abort();
+                        currentRequest = null;
+                    }
+                });
+            } else {
+                _args.sublabel = {
+                    text: ''
+                }
+            }
+            // sdebug('test1', _args);
             self.loadingView.startLoading(_args);
             self.add(self.loadingView);
             if (_animated !== false) {
@@ -432,7 +457,8 @@ ak.ti.constructors.createAppWindow = function(_args) {
         };
 
         self.hideLoading = function() {
-            // sdebug('hideLoading');
+            sdebug('hideLoading');
+            currentRequest = null;
             self.loadingView.animate({
                 cancelRunningAnimations: true,
                 opacity: 0,
@@ -444,15 +470,19 @@ ak.ti.constructors.createAppWindow = function(_args) {
             });
         };
 
-        self.runApiCall = function(_calls, _callback) {
-            self.showLoading();
-            Chain()("done", function(res, chain) {
-                if (_callback) {
-                    _callback(chain.error().length === 0, res);
-                }
-                if (isClosed) return;
-                self.hideLoading();
-            }).apply(this, _.isArray(_calls) ? _calls : [_calls]);
+        self.cancelRunningRequest = function() {
+            if (currentRequest) {
+                currentRequest.abort();
+                currentRequest = null;
+                return true;
+            }
+            return false;
+        }
+        self.onBack = function(e) {
+            if (self.cancelRunningRequest()) {
+                return;
+            }
+            self.closeMe();
         };
     }
 

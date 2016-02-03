@@ -605,6 +605,7 @@ exports.data = {
     map1eu: {
         url: '//beta.map1.eu/tiles/{z}/{x}/{y}.jpg',
         options: {
+            maxZoom:15,
             attribution: '&copy; <a href="http://beta.map1.eu/">map1.eu</a>, {attribution.OpenStreetMap}',
             forceHTTP: true
         }
