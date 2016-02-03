@@ -10,7 +10,7 @@ This is the source repository for the Open Source [iOS](https://itunes.apple.com
 
 ### Installing the SDK
 
-* Get a built version of it [here](https://drive.google.com/file/d/0B6sfR-aIHi1oRUVZOFFzNFI2OEE/view?usp=sharing)
+* Get a built version of it [here](https://drive.google.com/open?id=0B6sfR-aIHi1oajFRcG0zNExGVFk)
 
 
 ## Submodules
