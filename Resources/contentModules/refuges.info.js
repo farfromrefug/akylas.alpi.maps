@@ -261,7 +261,8 @@ exports.create = function(_context, _args, _additional) {
                                         bestScore = realScore;
                                         bestI = i;
                                     }
-                                    sdebug('found refuge', data.title, distance, score, realScore);
+                                    sdebug('found refuge', data.title, distance, score,
+                                        realScore);
                                 }
                                 if (bestScore > 0.01) {
                                     res.ri = result[bestI];
@@ -277,18 +278,17 @@ exports.create = function(_context, _args, _additional) {
         },
         prepareDetailsListView: function(item, itemDesc, sections, createItem) {
             if (item.refugeInfo) {
-                sections.push({
-                    items: [createItem({
-                        html: 'refuges.info' + '  ' + app.texts.ccopyright,
-                        icon: app.icons.website,
-                        callbackId: 'url',
-                        data: {
-                            url: 'http://www.refuges.info/point/' + item.refugeInfo
-                                .id
-                        },
-                        isLink: true
-                    })]
-                });
+                sdebug('test has refugeInfo');
+                sections[0].items.push(createItem({
+                    html: 'refuges.info' + '  ' + app.texts.ccopyright,
+                    icon: app.icons.website,
+                    callbackId: 'url',
+                    data: {
+                        url: 'http://www.refuges.info/point/' + item.refugeInfo
+                            .id
+                    },
+                    isLink: true
+                }));
             }
         }
 

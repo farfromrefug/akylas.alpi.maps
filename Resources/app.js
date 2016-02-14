@@ -1,6 +1,6 @@
 var lang = Ti.App.Properties.getString('language');
 // app = require('akylas.commonjs.dev/akylas.commonjs').createApp(this, { // not using var seems very important, cant really see why!
-    app = require('akylas.commonjs').createApp(this, { // not using var seems very important, cant really see why!
+app = require('akylas.commonjs').createApp(this, { // not using var seems very important, cant really see why!
     modules: {
         admob: 'akylas.admob',
         shapes: 'akylas.shapes',
@@ -9,14 +9,14 @@ var lang = Ti.App.Properties.getString('language');
         charts: 'akylas.charts',
         paint: 'ti.paint',
         zoomableimage: 'akylas.zoomableimage',
-        ios:{
+        ios: {
             wikitude: 'com.wikitude.ti'
         }
         // crosswalk: 'com.universalavenue.ticrosswalk',
     },
     showAds: Ti.App.Properties.getBool('show_ads', true),
     offlineMode: Ti.App.Properties.getBool('offline', false),
-
+    developerMode: Ti.App.Properties.getBool('developerMode', false),
     servicesKeys: require('API_KEYS').keys,
     defaultLanguage: 'en',
     forceLanguage: lang,
@@ -117,15 +117,25 @@ function main() {
     }
 
     var dataDir = Ti.Filesystem.applicationDataDirectory;
-    var imageHoldingDir = Ti.Filesystem.getFile(dataDir, 'images');
-    if (!imageHoldingDir.exists()) {
-        imageHoldingDir.createDirectory();
-    }
-    var imageDir = imageHoldingDir.nativePath;
-    if (!_.endsWith(imageDir, '/')) {
-        imageDir += '/';
-    }
-    imageHoldingDir = null;
+    var paths = {};
+    _.each(['images', 'files', 'mbtiles'], function(key) {
+        var holdingDir = Ti.Filesystem.getFile(dataDir, key);
+        if (!holdingDir.exists()) {
+            holdingDir.createDirectory();
+        }
+        var theDir = holdingDir.nativePath;
+        if (!_.endsWith(theDir, '/')) {
+            theDir += '/';
+        }
+        paths[key] = theDir;
+    })
+
+    function getDataPath(_dir, _path) {
+        if (_.startsWith(_path, 'http')) {
+            return _path;
+        }
+        return paths[_dir] + _path;
+    };
 
     function showMessage(_text, _colors) {
         var args = {
@@ -141,7 +151,7 @@ function main() {
             app.modules.statusbarnotification.showMessage(args);
         } else {
             Ti.UI.showNotification(_.assign(args, {
-                gravity:48
+                gravity: 48
             }));
         }
     }
@@ -190,15 +200,14 @@ function main() {
             }
             return result;
         },
-        getImagePath: function(_image) {
-            if (_.startsWith(_image, 'http')) {
-                return _image;
-            }
-            return imageDir + _image;
+        getImagePath: _.partial(getDataPath, 'images'),
+        getFilePath: _.partial(getDataPath, 'files'),
+        getPath:function(_path) {
+            return paths[_path];
         },
-        getThumbnailImagePath:function(_photo){
-        return app.getImagePath(_photo.thumbnailImage || _photo.thumbnail || _photo.image);
-    }
+        getThumbnailImagePath: function(_photo) {
+            return app.getImagePath(_photo.thumbnailImage || _photo.thumbnail || _photo.image);
+        }
 
     });
 
@@ -234,6 +243,7 @@ function main() {
                 'BY-SA 2.0</font></small>'
         },
         utils: {
+            filesize:require('lib/filesize'),
             geolib: require('lib/geolib'),
             FuzzySet: require('lib/fuzzyset'),
             // openingHours: require('lib/opening_hours'),
@@ -245,8 +255,7 @@ function main() {
     app.modules.map.googleMapAPIKey = app.servicesKeys.google;
     var openingHours = require('lib/opening_hours');
     require('ui/mapModules/MapModule').init(this);
-    require(
-        "lib/moment-duration-format");
+    require("lib/moment-duration-format");
 
     _.assign(app, {
         api: require('lib/api').init(this, app.global),
@@ -266,6 +275,14 @@ function main() {
                 app.tempMetrics = _value;
                 Ti.App.Properties.setBool('temp_metric', _value);
                 app.emit('temp_metric_changed');
+            }
+        },
+        setDeveloperMode: function(_value) {
+            if (app.developerMode !== _value) {
+                sdebug('setDeveloperMode', _value);
+                app.showMessage("may the force be with you!");
+                app.developerMode = _value;
+                Ti.App.Properties.setBool('developerMode', _value);
             }
         },
         localeInfo: ak.getLocaleInfo(),
@@ -348,8 +365,8 @@ function main() {
             _view.applyProperties(startRect);
             win.closeMe = function() {
                 win.animate({
-                    underContainer:{
-                        opacity:0
+                    underContainer: {
+                        opacity: 0
                     },
                     container: startRect,
                     duration: 200
@@ -362,8 +379,8 @@ function main() {
             };
             win.once('open', function() {
                 win.animate({
-                    underContainer:{
-                        opacity:1
+                    underContainer: {
+                        opacity: 1
                     },
                     container: {
                         left: originalLeft,
@@ -584,6 +601,6 @@ function main() {
         //     app.modules.plcrashreporter.triggerCrash();
         // }, 5000);
     }
-    // sdebug(app.modules.map.googleMapLicenses);
+    sdebug('Google Maps SDK', app.modules.map.googleMapSDKVersion);
 }
 main();

@@ -137,17 +137,17 @@ ak.ti.constructors.createWebWindow = function(_args) {
 		var scrolling = false;
 		webView
 		// .on('scroll', function(e) {
-			// scrolling = true;
-			// sdebug('scroll');
+		// scrolling = true;
+		// sdebug('scroll');
 		// })
-		.on('touchend', function(e) {
+			.on('touchend', function(e) {
 			// sdebug('touchend');
 			if (loaded && !scrolling) {
-			_.delay(checkForImageNote, 500, e);
+				_.delay(checkForImageNote, 500, e);
 			}
 			// scrolling = false;
 		}).on('postlayout', function(e) {
-			 viewWidth = webView.rect.width;
+			viewWidth = webView.rect.width;
 		}).on('longpress', function(e) {
 			// sdebug('longpress', e);
 			if (loaded) {
@@ -189,6 +189,7 @@ ak.ti.constructors.createWebWindow = function(_args) {
 				// }, {
 				type: 'Ti.UI.View'
 			},
+			// createToolbarButton('pdf', '\ue0fb'),
 			createToolbarButton('note', app.icons.note, {
 				visible: false
 			}), {
@@ -204,7 +205,7 @@ ak.ti.constructors.createWebWindow = function(_args) {
 				}
 
 			},
-			createToolbarButton('more', String.fromCharCode(0xe2a9))
+			createToolbarButton('more', $sOptions)
 		],
 		events: {
 			click: app.debounce(function(e) {
@@ -324,12 +325,17 @@ ak.ti.constructors.createWebWindow = function(_args) {
 					}
 
 				} else if (bindId === 'more') {
-					var options = ['share'];
+					var options = ['share', 'print'];
+					if (currentItem) {
+						options.push('download');
+					}
 					if (__APPLE__) {
 						options.push('open_safari');
-					}
-					if (__ANDROID__ || Ti.Platform.canOpenURL('googlechrome://')) {
-						options.push('open_chrome');
+						if (Ti.Platform.canOpenURL('googlechrome://')) {
+							options.push('open_chrome');
+						}
+					} else if (__ANDROID__) {
+						options.push('open_browser');
 					}
 
 					new OptionDialog({
@@ -345,6 +351,20 @@ ak.ti.constructors.createWebWindow = function(_args) {
 							var url = webView.url;
 							var option = options[e.index];
 							switch (option) {
+								case 'download':
+									self.showLoading({
+										request: app.api.webToPDF(url, currentTitle, function(e) {
+											if (e.file) {
+												sdebug(e);
+												app.showMessage(trc('document_created'), colors);
+												itemHandler.updateItem(currentItem, itemDesc, {
+													newFiles: [_.omit(e, 'file')]
+												}, mapHandler);
+											}
+											self.hideLoading();
+										})
+									});
+									break;
 								case 'share':
 									app.share({
 										text: url
@@ -412,7 +432,7 @@ ak.ti.constructors.createWebWindow = function(_args) {
 	});
 	self.container.navBar.add(loadingIndicatorView, 0);
 
-	var hideLoadingTimer, loaded;
+	var hideLoadingTimer, loaded, currentTitle;
 
 	function setProgress(_progress) {
 		if (webView == null) {
@@ -449,11 +469,11 @@ ak.ti.constructors.createWebWindow = function(_args) {
 		}
 		if (_progress === 1) {
 			loaded = true;
-			var title = webView.evalJS('document.title');
-			sdebug('load', title);
+			currentTitle = webView.evalJS('document.title');
+			sdebug('load', currentTitle);
 			self.container.applyProperties({
 				titleView: {
-					text: title
+					text: currentTitle
 				}
 			});
 			if (!hideLoadingTimer) {
@@ -499,15 +519,14 @@ ak.ti.constructors.createWebWindow = function(_args) {
 		}
 	}
 	self.container.add(webView, 1);
-	
 
 	webView.on('load', function(e) {
-			// sdebug('on load done load', e.url);
+		// sdebug('on load done load', e.url);
 		// setProgress(1);
 	}).on('loadprogress', function(e) {
 		// if (e.progress !== 1) {
-			sdebug('loadprogress', e.progress);
-			setProgress(e.progress);
+		sdebug('loadprogress', e.progress);
+		setProgress(e.progress);
 		// }
 	}).on('error', function(e) {
 		setProgress(1);
@@ -565,7 +584,7 @@ ak.ti.constructors.createWebWindow = function(_args) {
 		toolBar = null;
 		mapHandler = null;
 		self = null;
-		
+
 		Ti.UI.Clipboard.off('change', onClipboardChange);
 
 	});

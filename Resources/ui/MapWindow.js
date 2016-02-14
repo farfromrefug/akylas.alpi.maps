@@ -226,7 +226,8 @@ ak.ti.constructors.createMapWindow = function(_args) {
             'Direction',
             'LocationButton',
             'TileSourceManager',
-            'Wikitude'
+            'Wikitude',
+            'OfflineMaps',
         ],
         hideDebugTimer,
         debugView;
@@ -239,7 +240,7 @@ ak.ti.constructors.createMapWindow = function(_args) {
         loadModule(value, index, false);
     });
     _.each(app.contentModules, function(value, index) {
-        sdebug('test contentModules', value, index);
+        // sdebug('test contentModules', value, index);
         loadModule(value, index, true);
     });
 
@@ -592,9 +593,10 @@ ak.ti.constructors.createMapWindow = function(_args) {
             }
             if (!debugView) {
                 debugView = new Label({
-                    backgroundColor: '#bb000000',
+                    backgroundColor: '#dd000000',
                     padding: 6,
-                    top: 10,
+                    top: __ANDROID__ ? 60 : 10,
+                    borderRadius: 6,
                     maxWidth: '90%',
                     font: {
                         size: 11
@@ -623,13 +625,16 @@ ak.ti.constructors.createMapWindow = function(_args) {
                     text: _text
                 })
                 hideDebugTimer = setTimeout(function() {
-                    debugView.animate({
-                        opacity: 0,
-                        duration: 100
-                    }, function() {
-                        self.childrenHolder.remove(debugView);
-                        debugView = null;
-                    });
+                    if (debugView) {
+                        debugView.animate({
+                            opacity: 0,
+                            duration: 100
+                        }, function() {
+                            self.childrenHolder.remove(debugView);
+                            debugView = null;
+                        });
+                    }
+
                 }, 4000);
             }
 

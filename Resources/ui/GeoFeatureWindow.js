@@ -35,8 +35,8 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
         }),
         lastPosition = app.locationManager.getLastPosition();
 
-    function runAction(_action, _callback) {
-        itemHandler.handleItemAction(_action, currentItem, itemDesc, _callback, self, mapHandler);
+    function runAction(_action, _callback, _params) {
+        itemHandler.handleItemAction(_action, currentItem, itemDesc, _callback, self, mapHandler, _params);
     }
     _args.bottomToolbar = actionBar;
     _args.bottomToolbarVisible = true;
@@ -156,7 +156,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
     }
 
     function setDataFromItem() {
-        sdebug('setDataFromItem', currentItem.id, itemDesc.id);
+        sdebug('setDataFromItem', currentItem.id, itemDesc.id, currentItem);
         colors = currentItem.color ? app.getContrastColor(currentItem.color) : itemDesc.colors;
         var isDark = colors.luminance > 0.8;
         iconicColor = isDark ? colors.contrast : colors.color;
@@ -388,7 +388,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
             headerView: sectionHeaderView,
             items: items
         }];
-        mapHandler.runMethodOnModules(true, 'prepareDetailsListView', currentItem, itemDesc, sections, createItem);
+        mapHandler.runMethodOnModules('prepareDetailsListView', currentItem, itemDesc, sections, createItem, colors, iconicColor);
 
         listView.applyProperties({
             templates: _.assign(contentTemplates, templates),
@@ -656,6 +656,77 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
                             self,
                             mapHandler);
                         break;
+                    case 'file':
+                        if (e.bindId === 'delete') {
+                            itemHandler.updateItem(currentItem, itemDesc, {
+                                deletedFiles: [item.data.fileName]
+                            }, mapHandler);
+                            e.section.deleteItemsAt(e.itemIndex, 1, {
+                                animated: true
+                            });
+                        } else {
+                            var file = Ti.Filesystem.getFile(app.getFilePath(item.data.fileName));
+                            if (__ANDROID__) {
+                                try {
+
+                                    if (Ti.Filesystem.isExternalStoragePresent()) {
+                                        var filenameBase = new Date().getTime();
+                                        tmpFile = Ti.Filesystem.getFile(Ti.Filesystem.tempDirectory,
+                                            filenameBase + '.' + item.data.type);
+                                        tmpFile.write(file);
+                                        if (tmpFile.exists()) {
+                                            var intent = Ti.Android.createIntent({
+                                                action: Ti.Android.ACTION_VIEW,
+                                                type: "application/" + item.data.type,
+                                                data: tmpFile.nativePath
+                                            });
+                                            try {
+                                                Ti.Android.currentActivity.startActivity(intent);
+                                            } catch (e) {
+                                                Ti.API.debug(e);
+                                                alert('No apps PDF apps installed!');
+                                            }
+                                        } else {
+                                            Ti.API.info('starting intent tmpFile exists: ' +
+                                                tmpFile.exists());
+                                            alert('error while reading pdf file');
+                                        }
+                                    }
+                                    // Ti.Android.currentActivity.startActivity(Ti.Android.createIntent({
+                                    //     action: Ti.Android.ACTION_VIEW,
+                                    //     type: 'application/' + item.data.type,
+                                    //     data: filePath
+                                    // }));
+                                } catch (e) {
+                                    Ti.API.info('error trying to launch activity, e = ' + e);
+                                    alert('No PDF apps installed!');
+                                }
+                            } else {
+                                Ti.UI.iOS.createDocumentViewer({
+                                    title: item.data.title,
+                                    url: file.nativePath
+                                }).show();
+                            }
+
+                        }
+
+                        // if (e.bindId === 'accessory') {
+                        //     runAction(callbackId, null, {
+                        //         moreAction:true
+                        //     });
+
+                        // } else {
+                        // self.manager.createAndOpenWindow('PDFWindow', {
+                        //     mapHandler: mapHandler,
+                        //     showBackButton: true,
+                        //     file: item.data,
+                        //     item: currentItem,
+                        //     itemDesc: itemDesc,
+                        //     itemHandler: itemHandler
+
+                        // });
+                        // }
+                        break;
                     case 'hours':
                         {
                             today = moment().day();
@@ -835,7 +906,8 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
     //     sdebug('scroll', e.contentOffset.y);
     // });
 
-    var limit =  (__APPLE__?-$navBarTop:1);
+    var limit = (__APPLE__ ? -$navBarTop : 1);
+
     function onPostLayout(e) {
         var top = e.source.absoluteRect.y;
         // sdebug('postlayout', top, sectionHeaderViewAtTop);
@@ -856,7 +928,13 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
         var item = e.item;
         if (item.id === currentItem.id) {
             currentItem = item;
-            setDataFromItem();
+
+            //if only removing file no need to update all listview
+            if (_.xor(_.keys(e.changes), ['deletedFiles']).length == 0) {
+
+            } else {
+                setDataFromItem();
+            }
         }
     }
 

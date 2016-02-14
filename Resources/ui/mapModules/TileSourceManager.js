@@ -8,13 +8,119 @@ exports.create = function(_context, _args, _additional) {
         htmlIcon = app.utilities.htmlIcon,
         defaultHD = app.deviceinfo.densityFactor >= 3,
         overlaySources = {},
+        mbTilesGenerator,
+        SOURCES_SECTION_INDEX = 1,
+        MBTILES_SECTION_INDEX = 0,
+        mbtiles = Ti.App.Properties.getObject('mbtiles', {}),
         currentSources = Ti.App.Properties.getObject('tilesources', []);
+
+    // Ti.App.Properties.removeProperty('mbtiles');
+    // Ti.App.Properties.removeProperty('tilesources');
+
+    function getMBTilesGenerator() {
+        if (!mbTilesGenerator) {
+            mbTilesGenerator = require('lib/mbtilesgenerator/generator');
+        }
+        return mbTilesGenerator;
+    }
+
+    var runningMbTiles = {};
+
+    function createMBTiles(_tileSource, _bounds, _callback) {
+        sdebug('test', self.mapView.zoom);
+        var args = [_tileSource, _bounds, 1, 19];
+        // getMBTilesGenerator().requestMBTiles(JSON.parse(JSON.stringify(_tileSource)), _bounds);
+        var estimated = getMBTilesGenerator().computeInfoForMBTiles.apply(this, args);
+        sdebug('estimated', estimated);
+        // if (estimated.size > 200000 ) {
+        //     alert('too big!');
+        //     return;
+        // }
+        app.confirmAction({
+            buttonNames: [trc('no'), trc('yes')],
+            message: trc('area') + ': ' + Math.round(estimated.area) + ' km²\n' +
+                trc('count') + ': ' + estimated.count + '\n' +
+                trc('size') + ': ' + app.utils.filesize(estimated.size, {
+                    round: 0
+                }),
+            title: 'are you sure?'
+        }, function() {
+            var request = getMBTilesGenerator().requestMBTiles.apply(this, args);
+            request.on('update', function(e) {
+                sdebug('got update', e);
+                var request = e.request,
+                    running = runningMbTiles[request.token];
+                if (running) {
+                    view.listView.updateItemAt(MBTILES_SECTION_INDEX, running.index, {
+                        progress: {
+                            value: e.progress
+                        }
+                    });
+                }
+
+            }).on('cancelled', function(e) {
+                var request = e.request,
+                    running = runningMbTiles[request.token];
+                if (running) {
+                    view.listView.deleteItemsAt(MBTILES_SECTION_INDEX, running.index, 1);
+                    delete runningMbTiles[request.token];
+                }
+            }).on('done', function(e) {
+                var request = e.request,
+                    running = runningMbTiles[request.token];
+                if (running) {
+                    view.listView.deleteItemsAt(MBTILES_SECTION_INDEX, running.index, 1);
+                    delete runningMbTiles[request.token];
+                    mbtiles[request.token] = _.assign({
+                        layer: _tileSource.layer,
+                    }, _.pick(request, 'area', 'size', 'token', 'count', 'timestamp',
+                        'file'))
+                    Ti.App.Properties.setObject('mbtiles', mbtiles);
+                    self.internalAddTileSource(createTileSource(request.token));
+                }
+            });
+            sdebug(JSON.stringify(request));
+            runningMbTiles[request.token] = {
+                index: view.listView.getSectionItemsCount(MBTILES_SECTION_INDEX),
+                request: request
+            }
+            view.listView.appendItems(MBTILES_SECTION_INDEX, [{
+                template: 'mbtiles',
+                title: {
+                    html: sourceName(_tileSource.layer)
+                },
+                subtitle: {
+                    text: moment(request.timestamp).format('llll') + '\n' +
+                        Math.round(request.area) + ' km²   ' + app.utils.filesize(request.size, {
+                            round: 0
+                        })
+                },
+                token: request.token,
+                progress: {
+                    value: 0
+                }
+            }]);
+        }, _callback);
+    }
 
     function zIndex(_index) {
         return _index;
     }
 
     function createTileSource(_id, _index) {
+        if (mbtiles[_id]) {
+            sdebug('found mbtiles', mbtiles[_id]);
+            var enabled = Ti.App.Properties.getBool(_id + '_enabled', true);
+            var layer = mbtiles[_id].layer;
+            return new MapTileSource({
+                id: _id,
+                visible: enabled,
+                opacity: Ti.App.Properties.getDouble(_id + '_opacity', (layer.options && layer.options.opacity) ||
+                    1),
+                layer: layer,
+                source: app.getPath('mbtiles') + _.last(mbtiles[_id].file.split('/'))
+            });
+        }
         var layer = baseSources[_id] || overlaySources[_id];
         if (layer) {
             var enabled = Ti.App.Properties.getBool(_id + '_enabled', true);
@@ -23,11 +129,13 @@ exports.create = function(_context, _args, _additional) {
                 url: layer.url,
                 layer: layer,
                 visible: enabled,
+                cacheable: layer.options.cacheable || !!app.developerMode,
                 maxZoom: 19,
                 zIndex: zIndex(_index),
-                autoHd:Ti.App.Properties.getBool(_id + '_hd', defaultHD),
-                tileSize: layer.options.tileSize,
-                opacity: Ti.App.Properties.getDouble(_id + '_opacity', layer.options.opacity || 1),
+                autoHd: Ti.App.Properties.getBool(_id + '_hd', defaultHD),
+                // tileSize: layer.options.tileSize,
+                opacity: Ti.App.Properties.getDouble(_id + '_opacity', (layer.options && layer.options.opacity) ||
+                    1),
             }, _.omit(layer.options, 'url'));
             var result = new MapTileSource(props);
             // result.clearCache();
@@ -94,11 +202,7 @@ exports.create = function(_context, _args, _additional) {
         }
     }
 
-    function tileSourceItem(_value) {
-        var id = _value.id;
-        // if (id !== shadingId) {
-        var enabled = Ti.App.Properties.getBool(id + '_enabled',
-            true);
+    function sourceName(_value) {
         var title = _value.name;
         if (_value.options) {
             if (_value.options.variantName) {
@@ -107,9 +211,21 @@ exports.create = function(_context, _args, _additional) {
             }
 
         }
+        return title;
+    }
+
+    function tileSourceItem(_value) {
+
+        var id = _value.id;
+        var isMbTiles = !!mbtiles[id];
+        var layer = _value.layer;
+        sdebug('tileSourceItem', id, isMbTiles);
+        // if (id !== shadingId) {
+        var enabled = Ti.App.Properties.getBool(id + '_enabled',
+            true);
         return {
             title: {
-                html: title
+                html: isMbTiles ? ('mb: <small>' + sourceName(layer) + '</small><br>') : sourceName(layer)
             },
             sourceId: id,
             enable: {
@@ -119,6 +235,9 @@ exports.create = function(_context, _args, _additional) {
             slider: {
                 value: Ti.App.Properties.getDouble(id +
                     '_opacity', 1)
+            },
+            download: {
+                visible: !isMbTiles && ((layer.options && !!layer.options.downloadable)  || !!app.developerMode)
             }
 
         };
@@ -152,23 +271,24 @@ exports.create = function(_context, _args, _additional) {
             var variantName = parts[1];
             var name = providerName + ' ' + variantName;
 
-            if (!providers[providerName]) {
+            var data = providers[providerName];
+            if (!data) {
                 throw 'No such provider (' + providerName + ')';
             }
-
             var provider = {
                 name: providerName,
                 id: id,
-                url: providers[providerName].url,
-                options: _.assign({}, providers[providerName].options),
+                category: data.category,
+                url: data.url,
+                options: _.assign({}, data.options),
             };
 
             // overwrite values in provider from variant.
-            if (variantName && 'variants' in providers[providerName]) {
-                if (!(variantName in providers[providerName].variants)) {
+            if (variantName && 'variants' in data) {
+                if (!(variantName in data.variants)) {
                     throw 'No such variant of ' + providerName + ' (' + variantName + ')';
                 }
-                var variant = providers[providerName].variants[variantName];
+                var variant = data.variants[variantName];
                 var variantOptions;
                 if (typeof variant === 'string') {
                     variantOptions = {
@@ -229,7 +349,7 @@ exports.create = function(_context, _args, _additional) {
     var tileSourcesIndexed = {};
     var tileSources = _.reduce(currentSources,
         function(memo, value, index) {
-            // sdebug('tilesource', value);
+            sdebug('tilesource', value);
             var tileSource = createTileSource(value, index);
             // tileSource.clearCache();
             if (tileSource) {
@@ -275,17 +395,16 @@ exports.create = function(_context, _args, _additional) {
                 properties: {
                     rclass: 'TSControlListView',
                     templates: {
-                        default: app.templates.row.tilesourceControl
+                        default: app.templates.row.tilesourceControl,
+                        mbtiles: app.templates.row.mbtilesGenerator
                     },
                     defaultItemTemplate: 'default',
-                    sections: [{
-                        items: _.reduce(tileSources, function(memo, value, key) {
-                            if (value.layer) {
-                                memo.push(tileSourceItem(value.layer));
-                            }
-                            return memo;
-                        }, [])
-                    }]
+                    sections: [{}, {
+                            items: _.reduce(tileSources, function(memo, value, key) {
+                                memo.push(tileSourceItem(value));
+                                return memo;
+                            }, [])
+                        }] // second is for mbtiles
                 },
                 events: {
                     longpress: function(e) {
@@ -389,52 +508,100 @@ exports.create = function(_context, _args, _additional) {
                     var options, current, tileSource,
                         sourceId = e.item.sourceId;
                     sdebug(e.type, callbackId, e.item);
-                    if (callbackId == 'delete') {
-                        self.removeTileSource(sourceId);
-                    } else if (callbackId == 'enable') {
-                        current = tileSourcesIndexed[sourceId].visible;
-                        current = !current;
-                        e.source.applyProperties({
-                            text: current ? $sVisible : $sHidden,
-                            color: current ? $cTheme.main : $white
-                        });
-                        Ti.App.Properties.setBool(sourceId + '_enabled', current);
-                        tileSourcesIndexed[sourceId].visible = current;
-                    } else if (callbackId == 'options') {
-                        var isHd = Ti.App.Properties.getBool(sourceId + '_hd', defaultHD);
-                        options = ['clear_cache', 'delete'];
-                        options.unshift(isHd ? 'disable_hd' : 'enable_hd');
-                        new OptionDialog({
-                            options: _.map(options, function(value,
-                                index) {
-                                return trc(value);
-                            }),
-                            buttonNames: [trc('cancel')],
-                            cancel: 0,
-                            tapOutDismiss: true
-                        }).on('click', (function(f) {
-                            if (!f.cancel) {
-                                var option = options[f.index];
-                                switch (option) {
-                                    case 'enable_hd':
-                                    case 'disable_hd':
-                                        isHd = !isHd;
-                                        Ti.App.Properties.setBool(sourceId + '_hd', isHd);
-                                        tileSource = tileSourcesIndexed[sourceId];
-                                        tileSource.autoHd = isHd;
-                                        tileSource.clearCache();
-                                        break;
-
-                                    case 'clear_cache':
-                                        tileSource = tileSourcesIndexed[sourceId];
-                                        tileSource.clearCache();
-                                        break;
-                                    case 'delete':
-                                        self.removeTileSource(sourceId);
-                                        break;
+                    switch (callbackId) {
+                        case 'delete':
+                            {
+                                if (e.item.token && runningMbTiles[e.item.token]) {
+                                    var request = runningMbTiles[e.item.token].request;
+                                    request.stop();
+                                } else if (sourceId) {
+                                    self.removeTileSource(sourceId);
                                 }
+                                break;
                             }
-                        }).bind(this)).show();
+                        case 'enable':
+                            {
+                                current = tileSourcesIndexed[sourceId].visible;
+                                current = !current;
+                                e.source.applyProperties({
+                                    text: current ? $sVisible : $sHidden,
+                                    color: current ? $cTheme.main : $white
+                                });
+                                Ti.App.Properties.setBool(sourceId + '_enabled', current);
+                                tileSourcesIndexed[sourceId].visible = current;
+                                break;
+                            }
+                        case 'options':
+                            {
+                                var isMbTiles = !!mbtiles[sourceId];
+                                var isHd = Ti.App.Properties.getBool(sourceId + '_hd', defaultHD);
+                                options = ['delete'];
+                                if (!isMbTiles) {
+                                    options.unshift('clear_cache');
+                                    options.unshift(isHd ? 'disable_hd' : 'enable_hd');
+                                }
+                                new OptionDialog({
+                                    options: _.map(options, function(value,
+                                        index) {
+                                        return trc(value);
+                                    }),
+                                    buttonNames: [trc('cancel')],
+                                    cancel: 0,
+                                    tapOutDismiss: true
+                                }).on('click', (function(f) {
+                                    if (!f.cancel) {
+                                        var option = options[f.index];
+                                        switch (option) {
+                                            case 'enable_hd':
+                                            case 'disable_hd':
+                                                isHd = !isHd;
+                                                Ti.App.Properties.setBool(sourceId + '_hd',
+                                                    isHd);
+                                                tileSource = tileSourcesIndexed[sourceId];
+                                                tileSource.autoHd = isHd;
+                                                tileSource.clearCache();
+                                                break;
+
+                                            case 'clear_cache':
+                                                tileSource = tileSourcesIndexed[sourceId];
+                                                tileSource.clearCache();
+                                                break;
+                                            case 'delete':
+                                                self.removeTileSource(sourceId);
+                                                break;
+                                        }
+                                    }
+                                }).bind(this)).show();
+                                break;
+                            }
+                        case 'download':
+                            {
+                                createMBTiles(tileSourcesIndexed[sourceId], self.mapView.region);
+                                break;
+                            }
+                        case 'pause':
+                            {
+                                if (e.item.token && runningMbTiles[e.item.token]) {
+                                    var request = runningMbTiles[e.item.token].request;
+                                    if (request.paused) {
+                                        request.resume();
+                                        e.section.updateItemAt(e.itemIndex, {
+                                            pause: {
+                                                text: '\ue018'
+                                            }
+                                        });
+                                    } else {
+                                        request.pause();
+                                        e.section.updateItemAt(e.itemIndex, {
+                                            pause: {
+                                                text: '\ue01b'
+                                            }
+                                        });
+                                    }
+
+                                }
+                                break;
+                            }
                     }
                 }),
                 change: function(e) {
@@ -536,16 +703,20 @@ exports.create = function(_context, _args, _additional) {
         addTileSource: function(_id) {
             if (!_.contains(currentSources, _id)) {
                 var tileSource = createTileSource(_id, currentSources.length);
-                if (tileSource) {
-                    currentSources.push(_id);
-                    tileSources.push(tileSource);
-                    tileSourcesIndexed[_id] = tileSource;
-                    self.mapView.addTileSource(tileSource);
-                    view.listView.appendItems(0, [tileSourceItem(tileSource.layer)]);
-                    Ti.App.Properties.setObject('tilesources', currentSources);
-                    self.updateZIndexes();
-                    app.showTutorials(['tilesource_listview']);
-                }
+                self.internalAddTileSource(tileSource);
+            }
+        },
+        internalAddTileSource: function(tileSource) {
+            if (tileSource) {
+                sdebug('internalAddTileSource', tileSource);
+                currentSources.push(tileSource.id);
+                tileSources.push(tileSource);
+                tileSourcesIndexed[tileSource.id] = tileSource;
+                self.mapView.addTileSource(tileSource);
+                view.listView.appendItems(SOURCES_SECTION_INDEX, [tileSourceItem(tileSource)]);
+                Ti.App.Properties.setObject('tilesources', currentSources);
+                self.updateZIndexes();
+                app.showTutorials(['tilesource_listview']);
             }
         },
         updateZIndexes: function() {
@@ -573,7 +744,7 @@ exports.create = function(_context, _args, _additional) {
                 if (index >= 0) {
                     currentSources.splice(index, 1);
                     tileSources.splice(index, 1);
-                    view.listView.deleteItemsAt(0, index, 1, {
+                    view.listView.deleteItemsAt(SOURCES_SECTION_INDEX, index, 1, {
                         animated: true
                     });
                     Ti.App.Properties.setObject('tilesources', currentSources);
@@ -586,7 +757,7 @@ exports.create = function(_context, _args, _additional) {
             }
         },
         onWindowBack: function() {
-            if (bottomControlsVisible ) {
+            if (bottomControlsVisible) {
                 hideBottomControls();
                 return true;
             }

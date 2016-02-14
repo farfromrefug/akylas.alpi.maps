@@ -11,6 +11,7 @@ exports.create = function(_context, _args, _additional) {
         },
         lists = Ti.App.Properties.getObject('lists', {}),
         photosDb = Ti.App.Properties.getObject('photos', {}),
+        filesDb = Ti.App.Properties.getObject('files', {}),
         settings = _args.settings,
         __items = {},
         __routes = {},
@@ -430,26 +431,51 @@ exports.create = function(_context, _args, _additional) {
                             } else {
                                 annotsToRemove.push(annotations[index]);
                             }
-                            if (_realDelete !== false && _item.photos) {
-                                var removedPhoto = false;
-                                _.forEach(_item.photos, function(photo) {
-                                    var photoDb = photosDb[photo.image];
-                                    photoDb = _.without(photoDb, _item.id);
-                                    if (photoDb && photoDb.length === 0) {
-                                        removedPhoto = true;
-                                        delete photosDb[photo.image];
-                                        Ti.Filesystem.getFile(app.getImagePath(
-                                            photo.image)).deleteFile();
-                                        if (photo.thumbnailImage) {
+                            if (_realDelete !== false) {
+                                if (_item.photos) {
+                                    var removedPhoto = false;
+                                    _.forEach(_item.photos, function(photo) {
+                                        var photoDb = photosDb[photo.image];
+                                        photoDb = _.without(photoDb, _item.id);
+                                        if (photoDb && photoDb.length === 0) {
+                                            removedPhoto = true;
+                                            delete photosDb[photo.image];
+                                            sdebug('removing photo', photo);
                                             Ti.Filesystem.getFile(app.getImagePath(
-                                                photo.thumbnailImage)).deleteFile();
+                                                photo.image)).deleteFile();
+                                            if (photo.thumbnailImage) {
+                                                Ti.Filesystem.getFile(app.getImagePath(
+                                                    photo.thumbnailImage
+                                                )).deleteFile();
+                                            }
                                         }
-                                    }
 
-                                });
-                                if (removedPhoto) {
-                                    Ti.App.Properties.setObject('photos', photosDb);
+                                    });
+                                    if (removedPhoto) {
+                                        Ti.App.Properties.setObject('photos', photosDb);
+                                    }
                                 }
+
+                                if (_item.files) {
+                                    var removedFile = false;
+                                    _.forEach(_item.files, function(file) {
+                                        var fileDb = filesDb[file.fileName];
+                                        fileDb = _.without(fileDb, _item.id);
+                                        if (fileDb && fileDb.length === 0) {
+                                            removedFile = true;
+                                            delete filesDb[file.filePath];
+                                            sdebug('removing file', file);
+                                            Ti.Filesystem.getFile(app.getFilePath(
+                                                file.filePath)).deleteFile();
+
+                                        }
+
+                                    });
+                                    if (removedFile) {
+                                        Ti.App.Properties.setObject('files', filesDb);
+                                    }
+                                }
+
                             }
                         }
 
@@ -890,6 +916,7 @@ exports.create = function(_context, _args, _additional) {
         },
         getSupplyTemplates: function(memo) {
             memo['elprofile'] = app.templates.row.elevationProfile;
+            memo['file'] = app.templates.row.gfoptionfileitem;
         },
         getItemSupplViews: function(_item, _desc, _params) {
             if (isItemARoute(_item) && (_item.profile || (_item.tags &&
@@ -995,9 +1022,12 @@ exports.create = function(_context, _args, _additional) {
                         break;
                     }
                 }
-                var first = _.find(_.pluck(datas, 'name'), function(o) { return !!o; });
-                if (first) {
-                    app.showMessage(first);
+                var last = _.findLast(datas, function(o) {
+                    return o.hasOwnProperty('name');
+                });
+                sdebug('last', last);
+                if (last) {
+                    app.showMessage(last.name);
                 }
                 if (__DEVELOPMENT__) {
                     self.parent.showDebugText(JSON.stringify(datas));
@@ -1136,12 +1166,39 @@ exports.create = function(_context, _args, _additional) {
                             if (!photoDb || photoDb.length === 0) {
                                 needsPhotoDbChange = true;
                                 delete photosDb[photoId];
+                                sdebug('removing photo', photoId);
                                 Ti.Filesystem.getFile(app.getImagePath(photoId)).deleteFile();
                             }
                         });
                     }
                     if (needsPhotoDbChange) {
                         Ti.App.Properties.setObject('photos', photosDb);
+                    }
+
+                    var needsFileDbChange = false;
+                    if (e.changes.newFiles) {
+                        needsPhotoDbChange = true;
+                        _.forEach(e.changes.newFiles, function(file) {
+                            filesDb[file.fileName] = photosDb[file.fileName] || [];
+                            filesDb[file.fileName].push(item.id);
+                        });
+                    }
+                    if (e.changes.deletedFiles) {
+                        _.forEach(e.changes.deletedFiles, function(fileId) {
+                            var fileDb = filesDb[fileId];
+                            if (fileDb) {
+                                fileDb = _.without(fileDb, item.id);
+                            }
+                            if (!fileDb || fileDb.length === 0) {
+                                needsFileDbChange = true;
+                                delete filesDb[fileId];
+                                sdebug('removing file', fileId);
+                                Ti.Filesystem.getFile(app.getFilePath(fileId)).deleteFile();
+                            }
+                        });
+                    }
+                    if (needsFileDbChange) {
+                        Ti.App.Properties.setObject('files', filesDb);
                     }
                 }
                 return true;
@@ -1314,6 +1371,46 @@ exports.create = function(_context, _args, _additional) {
                 }
             }
             return true;
+        },
+        prepareDetailsListView: function(item, itemDesc, sections, createItem, colors, iconicColor) {
+            if (item.files) { // });
+                sections.push({
+                    hideWhenEmpty:true,
+                    headerView: ak.ti.style({
+                        type: 'Ti.UI.Label',
+                        properties: {
+                            rclass: 'SectionHeaderLabel',
+                            backgroundColor: colors.color,
+                            color: colors.contrast,
+                            text: 'files'
+                        }
+                    }),
+                    items: _.reduce(item.files, function(items, file) {
+                        items.push({
+                            template:'file',
+                            callbackId: 'file',
+                            icon: {
+                                color: iconicColor,
+                                text: '\ue288'
+                            },
+                            title: {
+                                text: file.title || file.fileName,
+                            },
+                            subtitle:{
+                                text:moment(file.timestamp).fromNow() + ' - ' + app.utils.filesize(file.fileSize, {round: 0})
+                                // text:moment(file.timestamp).fromNow()
+                            },
+                            // accessory: {
+                            //     color: iconicColor,
+                            //     text:$sHOptions,
+                            //     visible:true
+                            // },
+                            data: file
+                        });
+                        return items;
+                    }, [])
+                });
+            }
         }
     });
     return self;

@@ -262,7 +262,7 @@ ak.ti.constructors.createSettingsWindow = function(_args) {
                 }),
                 buttonNames: [trc('cancel')],
                 cancel: 0,
-                selectedIndex:_selectedIndex,
+                selectedIndex: _selectedIndex,
                 tapOutDismiss: true
             }).on('click', (function(e) {
                 if (!e.cancel) {
@@ -278,7 +278,7 @@ ak.ti.constructors.createSettingsWindow = function(_args) {
             title: trc(_title),
             showBackButton: true,
             listViewArgs: {
-                rclass:'SettingsListView',
+                rclass: 'SettingsListView',
                 templates: {
                     'default': app.templates.row.settings,
                 },
@@ -287,6 +287,7 @@ ak.ti.constructors.createSettingsWindow = function(_args) {
             }
         });
     }
+
 
     function handleCallbackId(e) {
         var callbackId = (e.item && e.item.callbackId) || e.bindId,
@@ -372,6 +373,7 @@ ak.ti.constructors.createSettingsWindow = function(_args) {
                 app.tutorialManager.setEnabled(e.value);
                 break;
             case 'powered_by_akylas':
+                
                 self.manager.createAndOpenWindow('WebWindow', {
                     url: 'http://www.akylas.fr'
                 });
@@ -418,7 +420,8 @@ ak.ti.constructors.createSettingsWindow = function(_args) {
         }
     }
 
-    app.onDebounce(self.listView, 'click', handleCallbackId);
+    self.listView.on('click', handleCallbackId);
+    // app.onDebounce(self.listView, 'click', handleCallbackId);
     self.listView.on('change', handleCallbackId);
     var navWindow = new AppWindow(_args);
 

@@ -468,7 +468,7 @@ exports.create = function(_context, _args, _additional) {
         },
         prepareDetailsListView: function(item, itemDesc, sections, createItem) {
             if (item.c2c) {
-                var items = [createItem({
+                sections[0].items.push(createItem({
                     html: 'Camp2Camp' + '  ' + app.texts.ccopyright,
                     icon: app.icons.website,
                     callbackId: 'url',
@@ -476,19 +476,31 @@ exports.create = function(_context, _args, _additional) {
                         url: item.c2c.url
                     },
                     isLink: true
-                })];
+                }));
 
                 var obj = item.c2c.object.properties;
                 if (obj.linkedParkings && obj.linkedParkings.length > 0) {
-                    _.each(obj.linkedParkings, function(value) {
-                        items.push(createItem({
-                            text: value.name,
-                            icon: app.icons.parking,
-                            callbackId: 'url',
-                            data: {
-                                url: value.url
+                    sections.push({
+                        headerView: ak.ti.style({
+                            type: 'Ti.UI.Label',
+                            properties: {
+                                rclass: 'SectionHeaderLabel',
+                                backgroundColor: type.colors.color,
+                                color: type.colors.contrast,
+                                html: htmlIcon(type.icon, 1) + ' Camp2Camp'
                             }
-                        }));
+                        }),
+                        items: _.reduce(obj.linkedParkings, function(items, value) {
+                            items.push(createItem({
+                                text: value.name,
+                                icon: app.icons.parking,
+                                callbackId: 'url',
+                                data: {
+                                    url: value.url
+                                }
+                            }));
+                            return items;
+                        }, [])
                     });
                     // sections.push({
                     //     headerTitle: trc('parkings'),
@@ -498,18 +510,7 @@ exports.create = function(_context, _args, _additional) {
                     //     }, [])
                     // });
                 }
-                sections.push({
-                    headerView: ak.ti.style({
-                        type: 'Ti.UI.Label',
-                        properties: {
-                            rclass: 'SectionHeaderLabel',
-                            backgroundColor: type.colors.color,
-                            color: type.colors.contrast,
-                            html: htmlIcon(type.icon, 1) + ' Camp2Camp'
-                        }
-                    }),
-                    items: items
-                });
+
             }
         },
         actionsForItem: function(_item, _desc, _onMap, result) {
@@ -534,9 +535,9 @@ exports.create = function(_context, _args, _additional) {
                     module.showSearchResults(res, chain.error(), self.window.hideLoading);
                 });
                 self.window.showLoading({
-                    request:request,
-                    label:{
-                        text:trc('searching') + '...'
+                    request: request,
+                    label: {
+                        text: trc('searching') + '...'
                     }
                 });
                 return true;

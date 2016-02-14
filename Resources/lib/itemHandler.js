@@ -347,7 +347,7 @@
             params.text = icon;
         }
         // view.applyProperties(params, true);
-        // sdebug('creating annot image', _markerType, _item, _selected, imageId, file.nativePath);
+        sdebug('creating annot image', params);
         image = view.toImage(null, {
             properties: params
         });
@@ -394,10 +394,11 @@
                 return;
             }
             var photo = _item.photos[0];
+            
             var ratio = photo.width / photo.height;
             // var scale = Math.min(400 / photo.width, 300 / photo.height);
             var banner = ratio > 2;
-            // sdebug('customViewForAnnot', _item, _needsLoading);
+            sdebug('customViewForAnnot', photo, _needsLoading);
             return {
                 template: 'calloutPhoto',
                 title: {
@@ -742,12 +743,29 @@
             }
             if (_changes.deletedNotes) {
                 _.forEach(_changes.deletedNotes, function(noteId) {
-                    item.notes = _.reject(item.photos, 'id', noteName);
+                    item.notes = _.reject(item.notes, 'id', noteId);
                 });
                 if (item.notes.length === 0) {
                     delete item.notes;
                 }
                 delete item.deletedNotes;
+            }
+
+            if (_changes.newFiles) {
+                item.files = item.files || [];
+                for (i = 0; i < _changes.newFiles.length; i++) {
+                    item.files.push(_changes.newFiles[i]);
+                }
+                delete item.newFiles;
+            }
+            if (_changes.deletedFiles) {
+                _.forEach(_changes.deletedFiles, function(fileId) {
+                    item.files = _.reject(item.files, 'fileName', fileId);
+                });
+                if (item.files.length === 0) {
+                    delete item.files;
+                }
+                delete item.deletedFiles;
             }
 
             var newPhotosCount = item && item.photos && item.photos.length;
@@ -1089,7 +1107,7 @@
             });
         },
         showFloatingWebView: showFloatingWebView,
-        handleItemAction: function(_option, _item, _desc, _callback, _parent, _mapHandler) {
+        handleItemAction: function(_option, _item, _desc, _callback, _parent, _mapHandler, _params) {
             sdebug('handleItemAction', _option, _item.id, _item.title, _item.type);
 
             var colors = app.getColors(_item, _desc);
@@ -1632,6 +1650,7 @@
                             parent: _parent,
                             mapHandler: _mapHandler,
                             command: _option,
+                            params:_params,
                             item: _item,
                             desc: _desc,
                         });

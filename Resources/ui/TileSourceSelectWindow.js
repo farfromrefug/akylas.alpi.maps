@@ -25,68 +25,113 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
         return trc(result);
     }
 
-    function fillSection(_base) {
+    function fillSections(_base) {
         var region = module.mapView.region;
-        return _.reduce(_base, function(memo, value, key) {
-            var id = value.id;
-            // var title = '<b>' + value.name + '</b>';
-            // if (value.options) {
-            //     if (value.options.hasOwnProperty('maxZoom')) {
-            //         title += ' <small>(' + trc(maxZoomToString(value.options.maxZoom)) + ')</small>';
-            //     }
-            //     if (value.options.variantName) {
-            //         title += '<small><br><i>' + value.options.variantName +
-            //             '</i></small>';
-            //     }
+        var realBase = {all:_base},
+            category, categories, i;
 
-            // }
-            var subtitle = ' ';
-            if (value.options) {
-                if (value.options.variantName) {
-                    subtitle = value.options.variantName;
-                }
-                if (value.options.hasOwnProperty('maxZoom')) {
-                    subtitle = (subtitle ? (subtitle + '\n') : '') + 'maxZoom: ' + maxZoomToString(
-                        value.options.maxZoom);
-                }
-
-            }
-            memo.push({
-                searchableText: value.id,
-                title: {
-                    text: value.name
-                },
-                subtitle: {
-                    text: subtitle
-                },
-                sourceId: value.id,
-                imageView: {
-                    image: 'http://raw.githubusercontent.com/farfromrefug/akylas.alpi.maps/master/images/tiles/' + value.id + '.png'
-                },
-                // mapView: {
-                //     region:region,
-                //     mapType:'none',
-                //     animateChanges:false,
-                //     touchEnabled:false,
-                //     tileSource:[_.defaults({
-                //         id:value.id,
-                //         tileSize:512,
-                //         url:value.url
-                //     }, value.options)]
+        //first create categories
+        // _.each(_base, function(value, key) {
+        //     categories = (value.category || 'world').split(',');
+        //     for (i = 0; i < categories.length; i++) {
+        //         category = categories[i];
+        //         realBase[category] = realBase[category] || {};
+        //         realBase[category][key] = value;
+        //     }
+        // });
+        return _.reduce(realBase, function(sections, section, sectionKey) {
+            sections.push({
+                // headerView: {
+                //     type: 'Ti.UI.Label',
+                //     properties: {
+                //         width: 'FILL',
+                //         height: 34,
+                //         padding:{left:10},
+                //         text: sectionKey,
+                //         backgroundColor: 'lightgray',
+                //         color: $white
+                //     },
+                //     childTemplates: [{
+                //         type: 'Ti.UI.Label',
+                //         properties: {
+                //             right:5,
+                //             font: {
+                //                 family: $iconicfontfamily,
+                //                 size: 20
+                //             },
+                //             height:'FILL',
+                //             width:40,
+                //             backgroundColor:'red',
+                //             text: $sDown,
+                //             color: $white
+                //         }
+                //     }],
+                //     events:{
+                //         click:function(e) {
+                //             sdebug(e);
+                //             e.section.visible = !e.section.visible;
+                //         }
+                //     }
                 // },
-                realAttribution: value.options.attribution,
-                attribution: {
-                    text: value.options.attribution && value.options.attribution.replace(
-                        /<\/?[A-Za-z][^>]*>|&[a-z]+;/g, '')
-                }
+                // visible: false,
+                // showHeaderWhenHidden: true,
+                items: _.reduce(section, function(items, value, key) {
+                    var id = value.id;
+                    var subtitle = ' ';
+                    if (value.options) {
+                        if (value.options.variantName) {
+                            subtitle = value.options.variantName;
+                        }
+                        if (value.options.hasOwnProperty('maxZoom')) {
+                            subtitle = (subtitle ? (subtitle + '\n') : '') + 'maxZoom: ' +
+                                maxZoomToString(
+                                    value.options.maxZoom);
+                        }
+
+                    }
+                    if (!!value.options.devHidden && !app.developerMode) {
+                        return items;
+                    }
+                    items.push({
+                        searchableText: value.category + ',' + id,
+                        title: {
+                            text: value.name
+                        },
+                        subtitle: {
+                            text: subtitle
+                        },
+                        sourceId: id,
+                        imageView: {
+                            image: 'http://raw.githubusercontent.com/farfromrefug/akylas.alpi.maps/master/images/tiles/' +
+                                encodeURI(id) + '.png'
+                        },
+                        // mapView: {
+                        //     region:region,
+                        //     mapType:'none',
+                        //     animateChanges:false,
+                        //     touchEnabled:false,
+                        //     tileSource:[_.defaults({
+                        //         id:value.id,
+                        //         tileSize:512,
+                        //         url:value.url
+                        //     }, value.options)]
+                        // },
+                        realAttribution: value.options.attribution,
+                        attribution: {
+                            text: value.category
+                        }
+                    });
+                    return items;
+                }, [])
             });
-            return memo;
+            return sections;
         }, []);
+
     }
 
     function createSearchListView(_title, _base, _isOverlay) {
 
-        var items = fillSection(_base);
+        var sections = fillSections(_base);
         // var index = 0;
         // _.each(letters, function(letter) {
         //     var newIndex = _.findIndex(items, function(item) {
@@ -126,9 +171,7 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
                         'default': app.templates.row.colTileSource
                     },
                     defaultItemTemplate: 'default',
-                    sections: [{
-                        items: items
-                    }]
+                    sections: sections
                 },
                 events: {
                     longpress: function(e) {

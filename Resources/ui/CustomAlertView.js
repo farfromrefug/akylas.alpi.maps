@@ -1,6 +1,7 @@
 ak.ti.constructors.createCustomAlertView = function(_args) {
     var cancel = _.remove(_args, 'cancel'),
         hideOnClick = _.remove(_args, 'hideOnClick'),
+        tapOutDismiss = _.remove(_args, 'tapOutDismiss', true),
         buttonNames = _.remove(_args, 'buttonNames', [trc('ok').toUpperCase()]),
         message = _.remove(_args, 'message'),
         image = _.remove(_args, 'image'),
@@ -52,9 +53,9 @@ ak.ti.constructors.createCustomAlertView = function(_args) {
             color: $black,
             left: 10,
             right: 10,
-            maxHeight:250,
+            maxHeight: 250,
             width: 'FILL',
-            ellipsize:Ti.UI.TEXT_ELLIPSIZE_TAIL,
+            ellipsize: Ti.UI.TEXT_ELLIPSIZE_TAIL,
             textAlign: textAlign
         }
     }, {
@@ -116,7 +117,7 @@ ak.ti.constructors.createCustomAlertView = function(_args) {
         verticalContainer: false
     }));
     ak.ti.add(self.container, {
-        bindId:'alertView',
+        bindId: 'alertView',
         properties: {
             borderRadius: 2,
             backgroundColor: $white,
@@ -133,12 +134,16 @@ ak.ti.constructors.createCustomAlertView = function(_args) {
 
     function onClick(e) {
         sdebug(index, theCancel, e.source === backView);
+        var isBack = e.source === self.container;
+        if (isBack && !tapOutDismiss) {
+            return;
+        }
         var index = e.source.callbackIndex;
-        var shouldHide = e.source === self.container || index !== undefined;
+        var shouldHide = isBack || index !== undefined;
         if (shouldHide) {
-            var theCancel = e.source === self.container || index === cancel;
+            var theCancel = isBack || index === cancel;
             self.emit('click', {
-                source:self.container,
+                source: self.container,
                 index: index,
                 cancel: theCancel
             });
@@ -175,7 +180,9 @@ ak.ti.constructors.createCustomAlertView = function(_args) {
             },
             duration: 300
         });
-        app.ui.openWindow(self, {animated:false});
+        app.ui.openWindow(self, {
+            animated: false
+        });
     };
     self.closeMe = function(_args) {
 

@@ -41,10 +41,10 @@ $TSCountrolsHeight=200;
     visible: __APPLE__,
     max: 1,
     height:'FILL',
-    left: 5,
-    right: 5,
-    left: 10,
-    right: 10,
+    /*left: 5,*/
+    /*right: 5,*/
+    /*left: 10,*/
+    /*right: 10,*/
     exclusiveTouch:true,
     preventListViewSelection:true
 }

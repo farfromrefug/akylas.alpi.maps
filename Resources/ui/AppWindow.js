@@ -479,11 +479,11 @@ ak.ti.constructors.createAppWindow = function(_args) {
             return false;
         }
         self.onBack = function(e) {
-            if (self.cancelRunningRequest()) {
-                return;
-            }
-            self.closeMe();
-        };
+        if (self.cancelRunningRequest()) {
+            return;
+        }
+        self.closeMe();
+    };
     }
 
     self.setColors = function(_color, _withNavBar, _barColor) {

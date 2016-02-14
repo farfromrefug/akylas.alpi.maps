@@ -4,11 +4,12 @@ function create(_context) {
         prepareTemplate: ak.ti.prepareListViewTemplate
     });
     var icons = {
-        'delete': String.fromCharCode(0xe287),
-        'edit': String.fromCharCode(0xe076),
-        'clear': String.fromCharCode(0xe070),
-        'move': String.fromCharCode(0xe103),
-        'locate': String.fromCharCode(0xe604),
+        'share': '\ue6c0',
+        'delete': '\ue287',
+        'edit': '\ue076',
+        'clear': '\ue070',
+        'move': '\ue103',
+        'locate': '\ue604',
     };
 
     var onChartTouch = function(e) {
@@ -421,11 +422,11 @@ function create(_context) {
         list: {
             properties: {
                 rclass: 'ListRow',
-                leftSwipeButtons: [
+                rightSwipeButtons: [
                     createSwipeButton('clear', 'blue'),
                     createSwipeButton('delete', 'red'),
                 ],
-                rightSwipeButtons: [
+                leftSwipeButtons: [
                     createSwipeButton('edit', 'green')
                 ]
             },
@@ -756,11 +757,90 @@ function create(_context) {
 
             }, {
                 type: 'Ti.UI.Label',
+                bindId: 'download',
+                properties: {
+                    rclass: 'OptionButton',
+                    visible: false,
+                    color: $white,
+                    text: '\ue0fb'
+                },
+            }, {
+                type: 'Ti.UI.Label',
                 bindId: 'options',
                 properties: {
                     rclass: 'OptionButton',
                     color: $white,
                     text: $sOptions
+                },
+            }]
+        },
+        mbtilesGenerator: {
+            properties: {
+                rclass: 'TSControlRow',
+                height: 60
+            },
+            childTemplates: [{
+                type: 'Ti.UI.ActivityIndicator',
+                bindId: 'loading',
+                properties: {
+                    rclass: 'OptionButton'
+                },
+            }, {
+                type: 'Ti.UI.View',
+                bindId: 'holder',
+                properties: {
+                    touchPassThrough: true,
+                    layout: 'vertical',
+                    width: 'FILL',
+                },
+                childTemplates: [{
+                    bindId: 'title',
+                    type: 'Ti.UI.Label',
+                    properties: {
+                        rclass: 'TSControlsLabel',
+                        maxLines: 1,
+                        height: 'SIZE'
+                    }
+                }, {
+                    bindId: 'subtitle',
+                    type: 'Ti.UI.Label',
+                    properties: {
+                        rclass: 'TSControlsLabel',
+                        maxLines: 2,
+                        height: 'SIZE',
+                        font: {
+                            size: 12,
+                        },
+                        color: 'lightgray'
+                    }
+                }, {
+                    bindId: 'progress',
+                    type: 'Ti.UI.ProgressBar',
+                    properties: {
+                        left: 10,
+                        width: 'FILL',
+                        height: 'FILL',
+                        min: 0,
+                        value: 0,
+                        // trackTintColor: $cTheme.main,
+                        max: 100
+                    },
+                }]
+            }, {
+                type: 'Ti.UI.Label',
+                bindId: 'pause',
+                properties: {
+                    rclass: 'OptionButton',
+                    color: $white,
+                    text: '\ue018'
+                },
+            }, {
+                type: 'Ti.UI.Label',
+                bindId: 'delete',
+                properties: {
+                    rclass: 'OptionButton',
+                    color: $white,
+                    text: icons.delete
                 },
             }]
         },
@@ -1456,15 +1536,28 @@ function create(_context) {
     templates.listitem = templates.cloneTemplateAndFill(
         'iteminfo', {
             properties: {
-                leftSwipeButtons: [
+                rightSwipeButtons: [
                     createSwipeButton('delete', 'red'),
                 ],
-                rightSwipeButtons: [
+                leftSwipeButtons: [
                     createSwipeButton('locate', 'blue'),
                     createSwipeButton('move', 'green'),
                 ]
             }
         });
+    templates.gfoptionfileitem = templates.cloneTemplateAndFill(
+        'gfoptionitem', {
+            properties: {
+                rightSwipeButtons: [
+                    createSwipeButton('delete', 'red'),
+                ],
+                leftSwipeButtons: [
+                    createSwipeButton('share', 'blue'),
+                    //     createSwipeButton('move', 'green'),
+                ]
+            }
+        });
+
     templates.createSwipeButton = createSwipeButton;
     return templates;
 }

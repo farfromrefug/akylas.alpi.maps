@@ -36,6 +36,8 @@ ak.ti.constructors.createLeftMenu = function(_args) {
     if (app.info.deployType !== 'production') {
         aboutText += '.' + app.info.buildNumber + '\nbuild: ' + moment(app.info.buildDate).format('lll') + '\n';
     }
+    var devModeCount = 0,
+        devModeTimer;
     var self = new View({
         properties: _args,
         childTemplates: [{
@@ -46,6 +48,40 @@ ak.ti.constructors.createLeftMenu = function(_args) {
                     type: 'Ti.UI.Label',
                     properties: {
                         rid: 'leftMenuAboutLogo'
+                    },
+                    events: {
+                        click: function() {
+                            if (devModeTimer) {
+                                clearTimeout(devModeTimer);
+                                devModeTimer = null;
+                            }
+                            devModeCount++;
+                            devModeTimer = setTimeout(function() {
+                                devModeCount = 0;
+                            }, 1000);
+                            if (devModeCount === 9) {
+                                app.confirmAction({
+                                    tapOutDismiss:false,
+                                    message:'',
+                                    customView: {
+
+                                        type: 'Ti.UI.TextField',
+                                        bindId: 'textfield',
+                                        properties: {
+                                            rclass: 'CustomAlertTF',
+                                            hintText: trc('enter_password'),
+                                        }
+                                    },
+                                    title: trc('developer_mode')
+                                }, function(e) {
+                                    if (!e.cancel && e.source.textfield.value ===
+                                        app.servicesKeys.akylas) {
+                                        app.setDeveloperMode(!app.developerMode);
+
+                                    }
+                                });
+                            }
+                        }
                     }
                 }, {
                     type: 'Ti.UI.Label',
@@ -59,13 +95,6 @@ ak.ti.constructors.createLeftMenu = function(_args) {
                         text: aboutText
                     }
                 }],
-                // events: {
-                //     click: app.debounce(function() {
-                //         if (app.modules.testfairy) {
-                //             app.modules.testfairy.submitFeedback();
-                //         }
-                //     })
-                // }
             }, {
                 // type:'Ti.UI.View'
             },

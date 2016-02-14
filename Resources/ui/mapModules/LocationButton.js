@@ -285,8 +285,11 @@ exports.create = function(_context, _args, _additional) {
             }
         },
         onGeolocStatusChange: function(_enabled) {
-            if (!_enabled && settings.updateBearing) {
-                app.locationManager.stopUpdateHeading();
+            if (!_enabled) {
+                if (settings.updateBearing) {
+                    app.locationManager.stopUpdateHeading();
+                }
+                stopLoading();
             }
         },
         onWindowOpen: function(_enabled) {

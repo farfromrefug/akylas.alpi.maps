@@ -199,7 +199,7 @@ function createApi(_context) {
 
     function CallChain(_calls, _callback) {
         var obj = {
-            _request:null,
+            _request: null,
             abort: function() {
                 sdebug('CallChain', 'abort', this);
                 if (this._request) {
@@ -568,8 +568,8 @@ function createApi(_context) {
                         onError(trc('no_place_found'), _options.onError, _options);
                     } else {
                         sdebug(type, result);
-                            res = res || {};
-                            res.osm = convert.prepareOSMObject(result.elements[0], true, true);
+                        res = res || {};
+                        res.osm = convert.prepareOSMObject(result.elements[0], true, true);
                         chain.next(res);
                     }
                 },
@@ -1370,6 +1370,39 @@ function createApi(_context) {
                     });
                 },
                 onError: _callback
+            });
+        },
+        downloadAndSaveFile: function(_url, _type, _callback) {
+            return api.call({
+                url: _url,
+                onData: function(e) {
+                    var timestamp = moment().valueOf();
+                    var path = Ti.Utils.md5HexDigest(_url) + '_' + timestamp + '.' + _type;
+                    var file = Ti.Filesystem.getFile(app.getFilePath(path));
+                    file.write(e.responseData);
+                    _callback({
+                        originalLink: _url,
+                        file: e.responseData,
+                        type:_type,
+                        timestamp: timestamp,
+                        fileSize:file.size,
+                        fileName: path
+                    });
+                },
+                onError: _callback
+            });
+        },
+        webToPDF:function(_url, _title, _callback) {
+            var url = 'https://bottle-alpimaps.rhcloud.com/pdf?url=' + _url + '&viewport=' + app.deviceinfo.pixelWidth + 'x' + app.deviceinfo.pixelHeight;
+            return api.downloadAndSaveFile(url, 'pdf', function(e) {
+                if (e.file) {
+                    _callback(_.assign(e, {
+                        originalLink:_url,
+                        title:_title
+                    }));
+                } else {
+                    _callback(e);
+                }
             });
         },
         getImage: function(_source, res, chain) {

@@ -28,9 +28,11 @@ function Step() {
   var steps = Array.prototype.slice.call(arguments),
       pending, counter, results, lock;
 
+    sdebug('Step test1', steps.length);
   // Define the main callback that's given as `this` to the steps.
   function next() {
     counter = pending = 0;
+    sdebug('Step test2');
 
     // Check if there are no steps left
     if (steps.length === 0) {

@@ -1,5 +1,6 @@
 exports.data = {
     'RefugesInfo': {
+        category:'europe,topo',
         url: '//maps.refuges.info/hiking/{z}/{x}/{y}.png',
         options: {
             attribution: '&copy; <a href="http://www.refuges.info/wiki/licence">Refuges.info</a>, {attribution.OpenStreetMap}',
@@ -7,32 +8,44 @@ exports.data = {
             maxZoom: 18
         }
     },
-    OpenPisteMap: {
-        url: '//tiles.openpistemap.org/{variant}/{z}/{x}/{y}.png',
-        options: {
-            attribution: '&copy; <a href="http://www.openpistemap.org">OpenPisteMap</a>, {attribution.OpenStreetMap}',
-            variant: 'nocontours',
-            forceHTTP: true
-        },
-        variants: {
-            // Contours: 'contours',
-            LandShading: 'landshaded'
-        }
-    },
+    // OpenPisteMap: {
+    //     category:'ski',
+    //     url: '//tiles.openpistemap.org/{variant}/{z}/{x}/{y}.png',
+    //     options: {
+    //         attribution: '&copy; <a href="http://www.openpistemap.org">OpenPisteMap</a>, {attribution.OpenStreetMap}',
+    //         variant: 'nocontours',
+    //         forceHTTP: true
+    //     },
+    //     variants: {
+    //         // Contours: 'contours',
+    //         LandShading: 'landshaded'
+    //     }
+    // },
     OpenSkiMap: {
+        category:'ski',
         url: '//tiles.skimap.org/openskimap2x/{z}/{x}/{y}.png',
         options: {
             attribution: '&copy; <a href="http://www.openskimap.org">OpenSkiMap</a>, {attribution.OpenStreetMap}',
             forceHTTP: true
         },
     },
+    OpenSnowMap: {
+        category:'ski',
+        url: '//www.opensnowmap.org/opensnowmap-overlay/{z}/{x}/{y}.png',
+        options: {
+            opacity:0.99,
+            attribution: '&copy; <a href="http://www.opensnowmap.org">OpenSnowMap</a>, {attribution.OpenStreetMap}',
+            forceHTTP: true
+        },
+    },
     IGN: {
+        category:'france',
         url: '//gpp3-wxs.ign.fr/' + app.servicesKeys.ign +
             '/geoportail/wmts?LAYER={variant}&EXCEPTIONS=text/xml&FORMAT={format}&SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetTile&STYLE=normal&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}',
         options: {
             userAgent: app.info.name,
             variant: 'GEOGRAPHICALGRIDSYSTEMS.MAPS',
-            cacheable: false,
+            cacheable: __DEVELOPMENT__,
             format: 'image/jpeg',
             forceHTTP: true,
             maxZoom: 18
@@ -41,6 +54,12 @@ exports.data = {
             Plan: {
                 options: {
                     variant: 'GEOGRAPHICALGRIDSYSTEMS.PLANIGN',
+                }
+
+            },
+            Satellite: {
+                options: {
+                    variant: 'ORTHOIMAGERY.ORTHOPHOTOS',
                 }
 
             },
@@ -57,6 +76,13 @@ exports.data = {
                     format: 'image/png',
                 }
 
+            },
+            ScanExpress: {
+                options: {
+                    variant: 'GEOGRAPHICALGRIDSYSTEMS.MAPS.SCAN-EXPRESS.STANDARD',
+                    // format: 'image/png',
+                }
+
             }
         }
 
@@ -64,7 +90,10 @@ exports.data = {
     OpenStreetMap: {
         url: '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
         options: {
+            subdomains:'abc',
+            minZoom: 2,
             maxZoom: 19,
+            downloadable:true,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         },
         variants: {
@@ -96,12 +125,14 @@ exports.data = {
         }
     },
     OpenSeaMap: {
+        category:'sea',
         url: 'http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',
         options: {
             attribution: 'Map data: &copy; <a href="http://www.openseamap.org">OpenSeaMap</a> contributors'
         }
     },
     OpenTopoMap: {
+        category:'topo,europe',
         url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
         options: {
             maxZoom: 16,
@@ -109,6 +140,7 @@ exports.data = {
         }
     },
     Lonvia: {
+        category:'topo',
         options: {
             maxZoom: 16,
             attribution: 'Map data: {attribution.OpenStreetMap}, <Overlay from cycling.lonvia.de, <a href="http://cycling.lonvia.de/en/copyright"> Terms of Use</a> )'
@@ -395,6 +427,7 @@ exports.data = {
         }
     },
     OpenWeatherMap: {
+        category:'weather',
         url: 'http://{s}.tile.openweathermap.org/map/{variant}/{z}/{x}/{y}.png',
         options: {
             maxZoom: 19,
@@ -505,6 +538,7 @@ exports.data = {
         }
     },
     FreeMapSK: {
+        category:'slovenia',
         url: 'http://{s}.freemap.sk/T/{z}/{x}/{y}.jpeg',
         options: {
             minZoom: 8,
@@ -514,6 +548,7 @@ exports.data = {
         }
     },
     MtbMap: {
+        category:'europe',
         url: 'http://tile.mtbmap.cz/mtbmap_tiles/{z}/{x}/{y}.png',
         options: {
             maxZoom: 18,
@@ -535,6 +570,7 @@ exports.data = {
         }
     },
     HikeBike: {
+        category:'topo',
         url: 'http://{s}.tiles.wmflabs.org/{variant}/{z}/{x}/{y}.png',
         options: {
             maxZoom: 14,
@@ -543,6 +579,7 @@ exports.data = {
         },
         variants: {
             HillShading: {
+                category:'relief',
                 options: {
                     maxZoom: 15,
                     variant: 'hillshading'
@@ -552,6 +589,7 @@ exports.data = {
     },
 
     NASAGIBS: {
+        category:'other',
         url: '//map1.vis.earthdata.nasa.gov/wmts-webmerc/{variant}/default/{time}/{tilematrixset}{maxZoom}/{z}/{y}/{x}.{format}',
         options: {
             attribution: 'Imagery provided by services from the Global Imagery Browse Services (GIBS), operated by the NASA/GSFC/Earth Science Data and Information System ' +
@@ -603,6 +641,7 @@ exports.data = {
         }
     },
     map1eu: {
+        category:'europe',
         url: '//beta.map1.eu/tiles/{z}/{x}/{y}.jpg',
         options: {
             maxZoom:15,
@@ -621,6 +660,7 @@ exports.data = {
                 url: 'http://{s}.tile.geofabrik.de/549e80f319af070f8ea8d0f149a149c2/{z}/{x}/{y}.png'
             },
             Topo: {
+                category:'topo',
                 url: 'http://{s}.tile.geofabrik.de/15173cf79060ee4a66573954f6017ab0/{z}/{x}/{y}.png'
             },
         }
@@ -642,6 +682,7 @@ exports.data = {
         }
     },
     'Alltrails': {
+        category:'topo',
         url: 'http://alltrails.com/tiles/alltrailsOutdoors/{z}/{x}/{y}.png',
         options: {
             attribution: '{attribution.OpenStreetMap} &copy; <a href="http://alltrails.com">Alltrails</a>',
@@ -649,6 +690,7 @@ exports.data = {
         }
     },
     '4umaps': {
+        category:'europe,topo',
         url: 'http://4umaps.eu/{z}/{x}/{y}.png',
         options: {
             attribution: '{attribution.OpenStreetMap} &copy; <a href="http://4umaps.eu">4umaps</a>',
@@ -657,6 +699,7 @@ exports.data = {
         }
     },
     'Maptoolkit': {
+        category:'europe,usa',
         url: 'http://tile{s}.maptoolkit.net/{variant}/{z}/{x}/{y}.png',
         options: {
             attribution: '{attribution.OpenStreetMap} &copy; <a href="http://maptoolkit.net/">Maptoolkit</a>',
@@ -676,6 +719,29 @@ exports.data = {
                 options: {
                     variant: 'bikemap',
                     opacity: 0.9
+                }
+            }
+        }
+    },
+    'slopes > 30%':{
+        category:'europe',
+        url:'http://www.skitrack.fr/cgi-bin/mapserv.fcgi?map=/srv/d_vttrack/vttrack/skitrack/mapserver/WMS-{variant}.map&SERVICE=WMS&VERSION=1.1.1&LAYERS=slope&FORMAT=image%2Fpng&TRANSPARENT=true&REQUEST=GetMap&STYLES=&SRS=EPSG%3A900913&BBOX={bbox}&WIDTH=512&HEIGHT=512',
+        options: {
+            attribution: '{attribution.OpenStreetMap} &copy; <a href="http://maptoolkit.net/">Maptoolkit</a>',
+            devHidden:true,
+            maxZoom: 15
+        },
+        variants:{
+            IGN:{
+                options: {
+                    variant: 'slopeIGN75',
+                    opacity: 0.99
+                }
+            },
+            aster:{
+                options: {
+                    variant: 'slope-aster',
+                    opacity: 0.99
                 }
             }
         }

@@ -1,261 +1,294 @@
+'use strict';
+
+var PENDING = 'pending';
+var SETTLED = 'settled';
+var FULFILLED = 'fulfilled';
+var REJECTED = 'rejected';
+var NOOP = function() {};
+var isNode = typeof global !== 'undefined' && typeof global.process !== 'undefined' && typeof global.process.emit ===
+    'function';
+
+var asyncSetTimer = typeof setImmediate === 'undefined' ? setTimeout : setImmediate;
+var asyncQueue = [];
+var asyncTimer;
+
+function asyncFlush() {
+    // run promise callbacks
+    for (var i = 0; i < asyncQueue.length; i++) {
+        asyncQueue[i][0](asyncQueue[i][1]);
+    }
+
+    // reset async asyncQueue
+    asyncQueue = [];
+    asyncTimer = false;
+}
+
+function asyncCall(callback, arg) {
+    asyncQueue.push([callback, arg]);
+
+    if (!asyncTimer) {
+        asyncTimer = true;
+        asyncSetTimer(asyncFlush, 0);
+    }
+}
+
+function invokeResolver(resolver, promise) {
+    function resolvePromise(value) {
+        resolve(promise, value);
+    }
+
+    function rejectPromise(reason) {
+        reject(promise, reason);
+    }
+
+    try {
+        resolver(resolvePromise, rejectPromise);
+    } catch (e) {
+        rejectPromise(e);
+    }
+}
+
+function invokeCallback(subscriber) {
+    var owner = subscriber.owner;
+    var settled = owner._state;
+    var value = owner._data;
+    var callback = subscriber[settled];
+    var promise = subscriber.then;
+
+    if (typeof callback === 'function') {
+        settled = FULFILLED;
+        try {
+            value = callback(value);
+        } catch (e) {
+            reject(promise, e);
+        }
+    }
+
+    if (!handleThenable(promise, value)) {
+        if (settled === FULFILLED) {
+            resolve(promise, value);
+        }
+
+        if (settled === REJECTED) {
+            reject(promise, value);
+        }
+    }
+}
+
+function handleThenable(promise, value) {
+    var resolved;
+
+    try {
+        if (promise === value) {
+            throw new TypeError('A promises callback cannot return that same promise.');
+        }
+
+        if (value && (typeof value === 'function' || typeof value === 'object')) {
+            // then should be retrieved only once
+            var then = value.then;
+
+            if (typeof then === 'function') {
+                then.call(value, function(val) {
+                    if (!resolved) {
+                        resolved = true;
+
+                        if (value === val) {
+                            fulfill(promise, val);
+                        } else {
+                            resolve(promise, val);
+                        }
+                    }
+                }, function(reason) {
+                    if (!resolved) {
+                        resolved = true;
+
+                        reject(promise, reason);
+                    }
+                });
+
+                return true;
+            }
+        }
+    } catch (e) {
+        if (!resolved) {
+            reject(promise, e);
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+function resolve(promise, value) {
+    if (promise === value || !handleThenable(promise, value)) {
+        fulfill(promise, value);
+    }
+}
+
+function fulfill(promise, value) {
+    if (promise._state === PENDING) {
+        promise._state = SETTLED;
+        promise._data = value;
+
+        asyncCall(publishFulfillment, promise);
+    }
+}
+
+function reject(promise, reason) {
+    if (promise._state === PENDING) {
+        promise._state = SETTLED;
+        promise._data = reason;
+
+        asyncCall(publishRejection, promise);
+    }
+}
+
+function publish(promise) {
+    promise._then = promise._then.forEach(invokeCallback);
+}
+
+function publishFulfillment(promise) {
+    promise._state = FULFILLED;
+    publish(promise);
+}
+
+function publishRejection(promise) {
+    promise._state = REJECTED;
+    publish(promise);
+    if (!promise._handled && isNode) {
+        global.process.emit('unhandledRejection', promise._data, promise);
+    }
+}
+
+function notifyRejectionHandled(promise) {
+    global.process.emit('rejectionHandled', promise);
+}
+
 /**
- * @fileoverview Simple implementation of CommonJS Promise/A.
- * @author yo_waka
+ * @class
  */
+function Promise(resolver) {
+    if (typeof resolver !== 'function') {
+        throw new TypeError('Promise resolver ' + resolver + ' is not a function');
+    }
 
-(function(define) {
-define([], function() {
-
-    'use strict';
-
-    // Use freeze if exists.
-    var freeze = Object.freeze || function() {};
-
-    
-    /**
-     * Promise/A interface.
-     * @interface
-     */
-    var IPromise = function() {};
-
-    /**
-     * @param {*} value
-     */
-    IPromise.prototype.resolve;
-
-    /**
-     * @param {*} error
-     */
-    IPromise.prototype.reject;
-
-    /**
-     * @param {Function} callback
-     * @param {Function} errback
-     */
-    IPromise.prototype.then;
-
-
-    /**
-     * Implemented Promise/A interface.
-     *
-     * @param {Object=} opt_scope
-     * @constructor
-     * @implements {IPromise}
-     */
-    var Deferred = function(opt_scope) {
-        this.state_ = Deferred.State.UNRESOLVED;
-        this.chain_ = [];
-        this.scope_ = opt_scope || null;
-    };
-
-    /**
-     * @type {Deferred.State}
-     * @private
-     */
-    Deferred.prototype.state_;
-
-    /**
-     * @type {!Array.<!Array>}
-     * @private
-     */
-    Deferred.prototype.chain_;
-
-    /**
-     * @type {Object}
-     * @private
-     */
-    Deferred.prototype.scope_;
-
-    /**
-     * The current Deferred result.
-     * @type {*}
-     * @private
-     */
-    Deferred.prototype.result_;
-
-    /**
-     * @return {Deferred}
-     * @override
-     */
-    Deferred.prototype.then = function(callback, errback, progback) {
-        this.chain_.push([callback || null, errback || null, progback || null]);
-        if (this.state_ !== Deferred.State.UNRESOLVED) {
-            this.fire_();
-        }
-        return this;
-    };
-
-    /**
-     * @override
-     */
-    Deferred.prototype.resolve = function(value) {
-        this.state_ = Deferred.State.RESOLVED;
-        this.fire_(value);
-    };
-
-    /**
-     * @override
-     */
-    Deferred.prototype.reject = function(error) {
-        this.state_ = Deferred.State.REJECTED;
-        this.fire_(error);
-    };
-
-    /**
-     * @return {boolean}
-     */
-    Deferred.prototype.isResolved = function() {
-        return this.state_ === Deferred.State.RESOLVED;
-    };
-
-    /**
-     * @return {boolean}
-     */
-    Deferred.prototype.isRejected = function() {
-        return this.state_ === Deferred.State.REJECTED;
-    };
-
-    /**
-     * Create async deferred chain.
-     *
-     * @param {Function} callback
-     * @param {Function} errback
-     * @param {number=} opt_interval
-     * @return {Deferred}
-     */
-    Deferred.prototype.next = function(callback, errback, opt_interval) {
-        var interval = opt_interval || 10;
-
-        // create async deferred.
-        var deferred = new Deferred(this);
-        deferred.then(callback, errback);
-
-        // Add in original callback chain
-        this.then(
-            function(value) {
-                setTimeout(function() {
-                    deferred.resolve(value);
-                }, interval);
-            },
-            function(error) {
-                setTimeout(function() {
-                    deferred.reject(error);
-                }, interval);
-            }
+    if (this instanceof Promise === false) {
+        throw new TypeError(
+            'Failed to construct \'Promise\': Please use the \'new\' operator, this object constructor cannot be called as a function.'
         );
+    }
 
-        return deferred;
-    };
+    this._then = [];
 
+    invokeResolver(resolver, this);
+}
 
-    /**
-     * @param {*} value
-     * @private
-     */
-    Deferred.prototype.fire_ = function(value) {
-        var res = this.result_ = (typeof value !== 'undefined') ? value : this.result_;
+Promise.prototype = {
+    constructor: Promise,
 
-        while(this.chain_.length) {
-            var entry = this.chain_.shift();
-            var fn = (this.state_ === Deferred.State.REJECTED) ? entry[1] : entry[0];
-            if (fn) {
-                try {
-                    res = this.result_ = fn.call(this.scope_, res);
-                } catch (e) {
-                    this.state_ = Deferred.State.REJECTED;
-                    res = this.result_ = e;
-                }
+    _state: PENDING,
+    _then: null,
+    _data: undefined,
+    _handled: false,
+
+    then: function(onFulfillment, onRejection) {
+        var subscriber = {
+            owner: this,
+            then: new this.constructor(NOOP),
+            fulfilled: onFulfillment,
+            rejected: onRejection
+        };
+
+        if ((onRejection || onFulfillment) && !this._handled) {
+            this._handled = true;
+            if (this._state === REJECTED && isNode) {
+                asyncCall(notifyRejectionHandled, this);
             }
         }
-    };
 
+        if (this._state === FULFILLED || this._state === REJECTED) {
+            // already resolved, call callback async
+            asyncCall(invokeCallback, subscriber);
+        } else {
+            // subscribe
+            this._then.push(subscriber);
+        }
 
-    /**
-     * @enum {string}
-     */
-    Deferred.State = {
-        UNRESOLVED: 'unresolved',
-        RESOLVED: 'resolved',
-        REJECTED: 'rejected'
-    };
-    freeze(Deferred.State);
+        return subscriber.then;
+    },
 
+    catch: function(onRejection) {
+        return this.then(null, onRejection);
+    }
+};
 
-    /**
-     * @return {boolean}
-     * @static
-     */
-    var isPromise = function(arg) {
-        return (arg && typeof arg.then === 'function');
-    };
+Promise.all = function(promises) {
+    if (!Array.isArray(promises)) {
+        throw new TypeError('You must pass an array to Promise.all().');
+    }
 
-
-    /**
-     * @param {..*} var_args
-     * @return {Deferred}
-     * @static
-     */
-    var when = function(var_args) {
-        var deferred = new Deferred();
-        var args = [].slice.call(arguments, 0);
+    return new Promise(function(resolve, reject) {
         var results = [];
+        var remaining = 0;
 
-        var callback = function(value) {
-            results.push(value);
-            if (args.length === results.length) {
-                deferred.resolve(results);
-            }
-        };
+        function resolver(index) {
+            remaining++;
+            return function(value) {
+                results[index] = value;
+                if (!--remaining) {
+                    resolve(results);
+                }
+            };
+        }
 
-        var errback = function(error) {
-            deferred.reject(error);
-        };
+        for (var i = 0, promise; i < promises.length; i++) {
+            promise = promises[i];
 
-        for (var i = 0, len = args.length; i < len; i++) {
-            var arg = args[i];
-
-            if (isPromise(arg)) {
-                arg
-                .then(callback, errback)
-                .resolve();
-            } else if (typeof arg === 'function') {
-                (new Deferred())
-                .then(arg)
-                .then(callback, errback)
-                .resolve();
+            if (promise && typeof promise.then === 'function') {
+                promise.then(resolver(i), reject);
             } else {
-                (new Deferred())
-                .then(function() {
-                    return arg;
-                })
-                .then(callback, errback)
-                .resolve();
+                results[i] = promise;
             }
-        };
+        }
 
-        return deferred;
-    };
+        if (!remaining) {
+            resolve(results);
+        }
+    });
+};
 
-    
-    return {
-        /**
-         * Factory method.
-         * @param {*=} opt_scope
-         */
-        defer: function(opt_scope) {
-            return new Deferred(opt_scope);
-        },
-        isPromise: isPromise,
-        when: when
-    };
+Promise.race = function(promises) {
+    if (!Array.isArray(promises)) {
+        throw new TypeError('You must pass an array to Promise.race().');
+    }
 
-}); // define
-})(typeof define !== 'undefined' ?
-    // use define for AMD if available
-    define :
-    // If no define, look for module to export as a CommonJS module.
-    // If no define or module, attach to current context.
-    typeof module !== 'undefined' ?
-    function(deps, factory) { module.exports = factory(); } :
-    function(deps, factory) { this['Promise'] = factory(); }
-);
+    return new Promise(function(resolve, reject) {
+        for (var i = 0, promise; i < promises.length; i++) {
+            promise = promises[i];
+
+            if (promise && typeof promise.then === 'function') {
+                promise.then(resolve, reject);
+            } else {
+                resolve(promise);
+            }
+        }
+    });
+};
+
+Promise.resolve = function(value) {
+    if (value && typeof value === 'object' && value.constructor === Promise) {
+        return value;
+    }
+
+    return new Promise(function(resolve) {
+        resolve(value);
+    });
+};
+
+Promise.reject = function(reason) {
+    return new Promise(function(resolve, reject) {
+        reject(reason);
+    });
+};
+module.exports = Promise;
