@@ -55,6 +55,7 @@ FullscreenImageWindow {
     }
 }
 
+
 .TopToolbar {
     top:0,
     /*layout:'vertical',*/
@@ -143,26 +144,37 @@ AppTabView {
 AppTabController {
     rclassTabOff:'AppTabOff',
     rclassTabOn:'AppTabOn',
-    rclass:'BottomSeparatorView',
+    /*rclass:'BottomSeparatorView',*/
     top:0,
-    backgroundColor:'#F6F6F8',
-    /*height:$tabHeight*/
+    /*backgroundColor:'#F6F6F8',*/
+    height:40
 }
 
 .AppTabControllerContainer {
     layout:'horizontal'
 }
 
-$appTabBorderWidth=3;
 
+$appTabBorderWidth=3;
+.AppTabOff {
+    /*font: {size:14, weight:'normal'}*/
+}
+.AppTabOn {
+    /*font: {size:14, weight:'bold'}*/
+}
 .AppTab {
     font: {size:14, weight:'bold'},
     width:'FILL',
     height:'FILL',
     textAlign:'center',
-    color:$gray,
-    disabledColor:$black,
-    selectedColor:$gray
+    borderDisabledColor:$white,
+    /*borderSelectedColor:$white,*/
+    borderColor:'transparent',
+    borderWidth:$appTabBorderWidth,
+    borderPadding:{left:-$appTabBorderWidth,top:-$appTabBorderWidth,right:-$appTabBorderWidth},
+    color:'#88ffffff',
+    disabledColor:$white,
+    selectedColor:$white
 }
 
 .CustomAlertTF {

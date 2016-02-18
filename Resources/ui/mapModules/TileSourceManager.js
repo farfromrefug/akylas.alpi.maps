@@ -12,95 +12,209 @@ exports.create = function(_context, _args, _additional) {
         SOURCES_SECTION_INDEX = 1,
         MBTILES_SECTION_INDEX = 0,
         mbtiles = Ti.App.Properties.getObject('mbtiles', {}),
+        runningMbTiles = Ti.App.Properties.getObject('mbtiles_generating', {}),
+        generatorService,
+        MBTilesUtils,
+
         currentSources = Ti.App.Properties.getObject('tilesources', []);
 
-    // Ti.App.Properties.removeProperty('mbtiles');
-    // Ti.App.Properties.removeProperty('tilesources');
+    Ti.App.on('mbtiles_generator_update', function(e) {
+        // sdebug('got update', e);
+        var request = e.request,
+            running = runningMbTiles[request.token];
+        if (running) {
+            view.listView.updateItemAt(MBTILES_SECTION_INDEX, running.index, {
+                progress: {
+                    value: e.progress
+                },
+                subtitle: {
+                    text: mbTilesDownloadSubTitle(e)
+                }
+            });
+            running.query.doneCount = e.doneCount;
 
+            saveRunningMBTiles();
+        }
+    }).on('mbtiles_generator_done', function(e) {
+        var request = e.request,
+            running = runningMbTiles[request.token];
+        if (running) {
+            view.listView.deleteItemsAt(MBTILES_SECTION_INDEX, running.index, 1, {
+                animated: true
+            });
+            delete runningMbTiles[request.token];
+            saveRunningMBTiles();
+            mbtiles[request.token] = _.assign({
+                layer: request.layer.layer,
+            }, _.pick(request, 'area', 'size', 'token', 'count', 'timestamp',
+                'file', 'bounds'))
+            Ti.App.Properties.setObject('mbtiles', mbtiles);
+
+            self.internalAddTileSource(createTileSource(request.token));
+        }
+        if (e.runningRequestsCount === 0 && generatorService) {
+            if (__APPLE__) {
+                generatorService.unregister();
+                generatorService = undefined;
+            } else if (__ANDROID__) {
+                generatorService.stop();
+                generatorService = undefined;
+            }
+        }
+
+    }).on('mbtiles_generator_cancelled', function(e) {
+        var request = e.request,
+            running = runningMbTiles[request.token];
+        if (running) {
+            view.listView.deleteItemsAt(MBTILES_SECTION_INDEX, running.index, 1, {
+                animated: true
+            });
+            delete runningMbTiles[request.token];
+            saveRunningMBTiles();
+        }
+        if (e.runningRequestsCount === 0 && generatorService) {
+            if (__APPLE__) {
+                generatorService.unregister();
+                generatorService = undefined;
+            } else if (__ANDROID__) {
+                generatorService.stop();
+                generatorService = undefined;
+            }
+        }
+    }).on('mbtiles_generator_state', function(e) {
+        var request = e.request,
+            running = runningMbTiles[request.token];
+        // sdebug('on state');
+        if (running) {
+            // sdebug('on state', !!e.request.paused);
+            view.listView.updateItemAt(MBTILES_SECTION_INDEX, running.index, {
+                pause: {
+                    text: !!e.request.paused ? '\ue01b' : '\ue018'
+                },
+                subtitle: {
+                    text: mbTilesDownloadSubTitle(e)
+                }
+            });
+        }
+    }).on('mbtiles_generator_start', function(e) {
+        var request = e.request;
+        runningMbTiles[request.token] = {
+            index: view.listView.getSectionItemsCount(MBTILES_SECTION_INDEX),
+            doneCount: request.layer.doneCount,
+            count: request.count,
+            query: _.assign(request.layer, _.pick(request, 'token', 'timestamp', 'doneCount')),
+            file: request.file,
+            token: request.token,
+            request: request,
+            bounds: request.bounds,
+            minZoom: request.minZoom,
+            maxZoom: request.maxZoom
+        }
+        saveRunningMBTiles();
+        // sdebug('adding mbtiles', runningMbTiles[request.token], request);
+        view.listView.appendItems(MBTILES_SECTION_INDEX, [{
+            template: 'mbtiles',
+            title: {
+                html: sourceName(request.layer.layer)
+            },
+            subtitle: {
+                text: mbTilesDownloadSubTitle(e)
+            },
+            token: request.token,
+            progress: {
+                value: (request.doneCount > 0) ? (request.doneCount / request.count * 100) : 0
+            },
+            pause: {
+                text: (request.doneCount > 0) ? '\ue01b' : '\ue018'
+            }
+        }], {
+            animated: true
+        });
+    });
+    // Ti.App.Properties.removeProperty('mbtiles');
+    // Ti.App.Properties.removeProperty('mbtiles_generating');
     function getMBTilesGenerator() {
         if (!mbTilesGenerator) {
+            // if (__APPLE__) {
             mbTilesGenerator = require('lib/mbtilesgenerator/generator');
+            // }
         }
         return mbTilesGenerator;
     }
 
-    var runningMbTiles = {};
+    function saveRunningMBTiles() {
+        Ti.App.Properties.setObject('mbtiles_generating', _.mapValues(runningMbTiles, _.partialRight(_.omit,
+            'request')));
+    }
 
-    function createMBTiles(_tileSource, _bounds, _callback) {
+    function startMBTilesGeneration(_query, _bounds, _minZoom, _maxZoom) {
+        sdebug('startMBTilesGeneration', _query, _bounds, _minZoom, _maxZoom);
+        var realQuery = function() {
+            Ti.App.emit('mbtiles_generator_command', {
+                command: 'start',
+                layer: _query,
+                bounds: _bounds,
+                minZoom: _minZoom,
+                maxZoom: _maxZoom,
+            });
+            // Ti.App.emit('mbtiles_generator_request', {
+            //     layer: _query,
+            //     bounds: _bounds,
+            //     minZoom: _minZoom,
+            //     maxZoom: _maxZoom,
+            // });
+        };
+        if (__APPLE__) {
+            if (!generatorService) {
+
+                getMBTilesGenerator();
+                generatorService = Ti.App.iOS.registerBackgroundService({
+                    url: 'mbtilesgenerator.js'
+                });
+            }
+            realQuery();
+        } else if (__ANDROID__) {
+            var isRunning;
+            if (!generatorService) {
+                var intent = Ti.Android.createServiceIntent({
+                    url: 'mbtilesgenerator.js'
+                });
+                isRunning = Ti.Android.isServiceRunning(intent);
+            }
+
+            if (!isRunning) {
+                generatorService = Ti.Android.createService(intent);
+                generatorService.once('start', realQuery);
+                generatorService.start();
+            } else {
+                realQuery();
+            }
+        }
+
+        // return request;
+    }
+
+    function createMBTiles(_tileSource, _bounds) {
+        if (!MBTilesUtils) {
+            MBTilesUtils = require('lib/mbtilesgenerator/utils');
+        }
         sdebug('test', self.mapView.zoom);
-        var args = [_tileSource, _bounds, 1, 19];
-        // getMBTilesGenerator().requestMBTiles(JSON.parse(JSON.stringify(_tileSource)), _bounds);
-        var estimated = getMBTilesGenerator().computeInfoForMBTiles.apply(this, args);
+        var args = [JSON.parse(JSON.stringify(_tileSource)), _bounds, 1, 19];
+        var estimated = MBTilesUtils.computeInfoForMBTiles.apply(this, args);
         sdebug('estimated', estimated);
-        // if (estimated.size > 200000 ) {
-        //     alert('too big!');
-        //     return;
-        // }
+
         app.confirmAction({
             buttonNames: [trc('no'), trc('yes')],
             message: trc('area') + ': ' + Math.round(estimated.area) + ' km²\n' +
-                trc('count') + ': ' + estimated.count + '\n' +
-                trc('size') + ': ' + app.utils.filesize(estimated.size, {
+                trc('count') + ': ' + estimated.count + ' tiles\n' +
+                trc('minZoom') + ': ' + estimated.minZoom + ' \n' +
+                trc('maxZoom') + ': ' + estimated.maxZoom + ' \n' +
+                trc('count') + ': ' + estimated.count + ' tiles\n' +
+                trc('estimated_size') + ': ' + app.utils.filesize(estimated.size, {
                     round: 0
                 }),
-            title: 'are you sure?'
-        }, function() {
-            var request = getMBTilesGenerator().requestMBTiles.apply(this, args);
-            request.on('update', function(e) {
-                sdebug('got update', e);
-                var request = e.request,
-                    running = runningMbTiles[request.token];
-                if (running) {
-                    view.listView.updateItemAt(MBTILES_SECTION_INDEX, running.index, {
-                        progress: {
-                            value: e.progress
-                        }
-                    });
-                }
-
-            }).on('cancelled', function(e) {
-                var request = e.request,
-                    running = runningMbTiles[request.token];
-                if (running) {
-                    view.listView.deleteItemsAt(MBTILES_SECTION_INDEX, running.index, 1);
-                    delete runningMbTiles[request.token];
-                }
-            }).on('done', function(e) {
-                var request = e.request,
-                    running = runningMbTiles[request.token];
-                if (running) {
-                    view.listView.deleteItemsAt(MBTILES_SECTION_INDEX, running.index, 1);
-                    delete runningMbTiles[request.token];
-                    mbtiles[request.token] = _.assign({
-                        layer: _tileSource.layer,
-                    }, _.pick(request, 'area', 'size', 'token', 'count', 'timestamp',
-                        'file'))
-                    Ti.App.Properties.setObject('mbtiles', mbtiles);
-                    self.internalAddTileSource(createTileSource(request.token));
-                }
-            });
-            sdebug(JSON.stringify(request));
-            runningMbTiles[request.token] = {
-                index: view.listView.getSectionItemsCount(MBTILES_SECTION_INDEX),
-                request: request
-            }
-            view.listView.appendItems(MBTILES_SECTION_INDEX, [{
-                template: 'mbtiles',
-                title: {
-                    html: sourceName(_tileSource.layer)
-                },
-                subtitle: {
-                    text: moment(request.timestamp).format('llll') + '\n' +
-                        Math.round(request.area) + ' km²   ' + app.utils.filesize(request.size, {
-                            round: 0
-                        })
-                },
-                token: request.token,
-                progress: {
-                    value: 0
-                }
-            }]);
-        }, _callback);
+            title: trc('are_you_sure') + '?'
+        }, _.partial.apply(this, [startMBTilesGeneration].concat(args)));
     }
 
     function zIndex(_index) {
@@ -108,28 +222,23 @@ exports.create = function(_context, _args, _additional) {
     }
 
     function createTileSource(_id, _index) {
+        var layer, isMbTiles = false;
         if (mbtiles[_id]) {
             sdebug('found mbtiles', mbtiles[_id]);
-            var enabled = Ti.App.Properties.getBool(_id + '_enabled', true);
-            var layer = mbtiles[_id].layer;
-            return new MapTileSource({
-                id: _id,
-                visible: enabled,
-                opacity: Ti.App.Properties.getDouble(_id + '_opacity', (layer.options && layer.options.opacity) ||
-                    1),
-                layer: layer,
-                source: app.getPath('mbtiles') + _.last(mbtiles[_id].file.split('/'))
-            });
+            isMbTiles = true;
+            layer = mbtiles[_id].layer;
+        } else {
+            layer = baseSources[_id] || overlaySources[_id];
         }
-        var layer = baseSources[_id] || overlaySources[_id];
         if (layer) {
             var enabled = Ti.App.Properties.getBool(_id + '_enabled', true);
             var props = _.assign({
                 id: _id,
-                url: layer.url,
+                url: (!isMbTiles) ? layer.url : undefined,
+                source: isMbTiles ? (app.getPath('mbtiles') + mbtiles[_id].file) : undefined,
                 layer: layer,
                 visible: enabled,
-                cacheable: layer.options.cacheable || !!app.developerMode,
+                cacheable: !isMbTiles && (layer.options.cacheable || !!app.developerMode),
                 maxZoom: 19,
                 zIndex: zIndex(_index),
                 autoHd: Ti.App.Properties.getBool(_id + '_hd', defaultHD),
@@ -214,18 +323,39 @@ exports.create = function(_context, _args, _additional) {
         return title;
     }
 
+    function mbTilesSubTitle(_value, _showDate) {
+        // return 'toto';
+        var result = Math.round(_value.area) + ' km²  -  ' + app.utils.filesize(_value.size, {
+            round: 0
+        });
+        if (!!_showDate) {
+            // moment.duration(moment().valueOf() - _value.timestamp).format()
+            result += '  -  ' + app.utils.humanizeDuration(moment().valueOf() - _value.timestamp, {
+                largest: 1,
+                round: true
+            });
+        }
+        return result;
+    }
+    function mbTilesDownloadSubTitle(e) {
+        return mbTilesSubTitle(e.request) + '\n' + trc(!!e.request.paused ? 'paused' : 'downloading') + '  (' + e.progress.toFixed() + '%)';
+    }
+
     function tileSourceItem(_value) {
 
         var id = _value.id;
         var isMbTiles = !!mbtiles[id];
         var layer = _value.layer;
-        sdebug('tileSourceItem', id, isMbTiles);
+        sdebug('tileSourceItem', id, isMbTiles, _value, app.developerMode);
         // if (id !== shadingId) {
         var enabled = Ti.App.Properties.getBool(id + '_enabled',
             true);
         return {
             title: {
-                html: isMbTiles ? ('mb: <small>' + sourceName(layer) + '</small><br>') : sourceName(layer)
+                html: isMbTiles ? ('mb: ' + sourceName(layer)) : sourceName(layer)
+            },
+            subtitle: {
+                html: isMbTiles ? '<small>' + mbTilesSubTitle(mbtiles[id], true) + '</small>' : undefined
             },
             sourceId: id,
             enable: {
@@ -237,7 +367,7 @@ exports.create = function(_context, _args, _additional) {
                     '_opacity', 1)
             },
             download: {
-                visible: !isMbTiles && ((layer.options && !!layer.options.downloadable)  || !!app.developerMode)
+                visible: !isMbTiles && ((layer.options && !!layer.options.downloadable) || !!app.developerMode)
             }
 
         };
@@ -429,7 +559,7 @@ exports.create = function(_context, _args, _additional) {
                 },
                 childTemplates: actionButtons,
                 events: {
-                    'click': app.debounce(function(e) {
+                    'click': function(e) {
                         var callbackId = e.source.callbackId;
                         sdebug('click', callbackId);
                         if (callbackId) {
@@ -495,7 +625,7 @@ exports.create = function(_context, _args, _additional) {
                             }
                         }
 
-                    })
+                    }
                 }
 
             }],
@@ -513,7 +643,11 @@ exports.create = function(_context, _args, _additional) {
                             {
                                 if (e.item.token && runningMbTiles[e.item.token]) {
                                     var request = runningMbTiles[e.item.token].request;
-                                    request.stop();
+                                    // request.stop();
+                                    Ti.App.emit('mbtiles_generator_command', {
+                                        command: 'stop',
+                                        token: e.item.token
+                                    });
                                 } else if (sourceId) {
                                     self.removeTileSource(sourceId);
                                 }
@@ -536,10 +670,13 @@ exports.create = function(_context, _args, _additional) {
                                 var isMbTiles = !!mbtiles[sourceId];
                                 var isHd = Ti.App.Properties.getBool(sourceId + '_hd', defaultHD);
                                 options = ['delete'];
-                                if (!isMbTiles) {
+                                if (isMbTiles) {
+                                    options.unshift('center_bounds');
+                                } else {
                                     options.unshift('clear_cache');
-                                    options.unshift(isHd ? 'disable_hd' : 'enable_hd');
                                 }
+                                options.unshift(isHd ? 'disable_hd' : 'enable_hd');
+                                sdebug('about to show options dialog');
                                 new OptionDialog({
                                     options: _.map(options, function(value,
                                         index) {
@@ -569,6 +706,11 @@ exports.create = function(_context, _args, _additional) {
                                             case 'delete':
                                                 self.removeTileSource(sourceId);
                                                 break;
+                                            case 'center_bounds':
+                                                sdebug(option, mbtiles[sourceId]);
+                                                self.parent.setRegion(mbtiles[sourceId].bounds,
+                                                    0.2);
+                                                break;
                                         }
                                     }
                                 }).bind(this)).show();
@@ -576,28 +718,23 @@ exports.create = function(_context, _args, _additional) {
                             }
                         case 'download':
                             {
-                                createMBTiles(tileSourcesIndexed[sourceId], self.mapView.region);
+                                createMBTiles(tileSourcesIndexed[sourceId], app.utils.geolib.scaleBounds(self.mapView.region, 0.2));
                                 break;
                             }
                         case 'pause':
                             {
                                 if (e.item.token && runningMbTiles[e.item.token]) {
-                                    var request = runningMbTiles[e.item.token].request;
-                                    if (request.paused) {
-                                        request.resume();
-                                        e.section.updateItemAt(e.itemIndex, {
-                                            pause: {
-                                                text: '\ue018'
-                                            }
-                                        });
-                                    } else {
-                                        request.pause();
-                                        e.section.updateItemAt(e.itemIndex, {
-                                            pause: {
-                                                text: '\ue01b'
-                                            }
-                                        });
-                                    }
+                                    // var request = runningMbTiles[e.item.token].request;
+                                    Ti.App.emit('mbtiles_generator_command', {
+                                        command: 'playpause',
+                                        token: e.item.token
+                                    });
+                                    // if (request.paused) {
+                                    //     request.resume();
+                                    // } else {
+
+                                    //     request.pause();
+                                    // }
 
                                 }
                                 break;
@@ -650,6 +787,13 @@ exports.create = function(_context, _args, _additional) {
         }),
         onWindowOpen: function(_enabled) {
             app.showTutorials(['map_settings']);
+
+            _.each(runningMbTiles, function(value, id) {
+                sdebug('runningMbTiles', value.query.token, value.bounds, value.minZoom,
+                    value.maxZoom);
+                startMBTilesGeneration(value.query, value.bounds, value.minZoom, value.maxZoom);
+                // request.pause();
+            });
         },
         onMapReset: function(_params) {
             _params = _params || {};
@@ -754,6 +898,14 @@ exports.create = function(_context, _args, _additional) {
                 }
                 self.mapView.removeTileSource(tileSource);
                 self.updateZIndexes();
+            }
+        },
+        removeMBTiles: function(_id) {
+            if (mbtiles[_id]) {
+                self.removeTileSource(_id);
+                Ti.Filesystem.getFile(app.getPath('mbtiles') + mbtiles[_id].file).deleteFile();
+                delete mbtiles[_id];
+                Ti.App.Properties.setObject('mbtiles', mbtiles);
             }
         },
         onWindowBack: function() {

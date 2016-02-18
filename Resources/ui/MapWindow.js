@@ -212,31 +212,12 @@ ak.ti.constructors.createMapWindow = function(_args) {
         region = Ti.App.Properties.hasProperty('last_region') ?
         Ti.App.Properties.getObject('last_region') : undefined,
         currentRegion,
-        mapModules = [
-            'Tutorial',
-            'ListsModule',
-            'Items',
-            'UserLocation',
-            'MarkerInfo',
-            'SearchAround',
-            'Search',
-            'MapActionButtons',
-            'PositionInfo',
-            'Crosshair',
-            'Direction',
-            'LocationButton',
-            'TileSourceManager',
-            'Wikitude',
-            'OfflineMaps',
-        ],
+        
         hideDebugTimer,
         debugView;
 
-    if (__APPLE__) {
-        mapModules.push('Weather');
-    }
 
-    _.each(mapModules, function(value, index) {
+    _.each(app.mapModules, function(value, index) {
         loadModule(value, index, false);
     });
     _.each(app.contentModules, function(value, index) {
@@ -727,10 +708,16 @@ ak.ti.constructors.createMapWindow = function(_args) {
             var moduleId = e.moduleId;
             if (e.id === 'enabled') {
                 sdebug('handling module change', e);
+                var modulesToChange = contentModules;
+                var index = app.contentModules.indexOf(moduleId);
+                if (index == -1) {
+                    index = app.mapModules.indexOf(moduleId);
+                    modulesToChange = modules;
+                }
                 if (!!e.value) {
                     if (!contentModules.hasOwnProperty(moduleId)) {
                         sdebug('loading module', moduleId);
-                        var module = loadModule(moduleId, app.contentModules.indexOf(moduleId), true);
+                        var module = loadModule(moduleId, index, modulesToChange === contentModules);
                         _.assign(module, {
                             window: self,
                             mapView: mapView,
@@ -741,13 +728,13 @@ ak.ti.constructors.createMapWindow = function(_args) {
                         }
                     }
                 } else {
-                    if (contentModules.hasOwnProperty(moduleId)) {
+                    if (modulesToChange.hasOwnProperty(moduleId)) {
                         sdebug('unloading module', moduleId);
-                        contentModules[moduleId].GC();
-                        delete contentModules[moduleId];
+                        modulesToChange[moduleId].GC();
+                        delete modulesToChange[moduleId];
                     }
                 }
-                runMethodOnModules('onModuleLoaded', moduleId, e.value, contentModules[moduleId]);
+                runMethodOnModules('onModuleLoaded', moduleId, e.value, modulesToChange[moduleId]);
             }
 
         }).on('enabled_gps', function(e) {

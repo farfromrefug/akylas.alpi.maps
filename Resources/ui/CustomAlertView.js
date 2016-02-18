@@ -118,14 +118,19 @@ ak.ti.constructors.createCustomAlertView = function(_args) {
     }));
     ak.ti.add(self.container, {
         bindId: 'alertView',
+        // type:__APPLE__?'Ti.UI.iOS.Toolbar':'Ti.UI.View',
         properties: {
             borderRadius: 2,
             backgroundColor: $white,
+            // backgroundOpacity:0.5,
+            // extendBackground:true,
             width: 'SIZE',
             minWidth: 250,
             maxWidth: 274,
             height: 'SIZE',
-            layout: 'vertical'
+            layout: 'vertical',
+            // translucent:true,
+            // style:1
         },
         childTemplates: children
     });

@@ -31,7 +31,7 @@ exports.create = function(_context, _args, _additional) {
         formatter = itemHandler.geolib.formatter,
         htmlIcon = app.utilities.htmlIcon,
         cleanUpString = app.api.cleanUpString,
-        self = new _context.MapModule(_args),
+        self = new _context.ContentModule(_args),
         baseUrl = 'http://www.camptocamp.org/routes/list/',
         type = itemHandler.initializeType('c2c', {
             icon: '\ue800',

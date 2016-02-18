@@ -22,6 +22,7 @@
     "rate_question": "if you enjoy using {1}, would you mind taking a moment to rate it? It won't take more than a minute. Thanks for your support!",
     "are_you_sure": "are you sure?",
     "quit_tutorial_confirm": "you won't see anymore tutorial. You can still re enable it through the settings.",
+    "delete_mbtiles_confirm": "this will delete the offline map",
     "tutorial_restart_needed": "tutorials will appear on the next app restart.",
     "quit_tutorial": "stop tutorials",
     "adding_item_tutorial": "•<b>long press:</b> create a new item directly on the map",

@@ -16,7 +16,6 @@ app = require('akylas.commonjs').createApp(this, { // not using var seems very i
     },
     showAds: Ti.App.Properties.getBool('show_ads', true),
     offlineMode: Ti.App.Properties.getBool('offline', false),
-    developerMode: Ti.App.Properties.getBool('developerMode', false),
     servicesKeys: require('API_KEYS').keys,
     defaultLanguage: 'en',
     forceLanguage: lang,
@@ -156,6 +155,7 @@ function main() {
         }
     }
     _.assign(app, {
+        mapModules: {},
         showMessage: showMessage,
         tutorial: Ti.App.Properties.getBool('tutorial', true),
         icons: _.mapValues(require('data/icons').icons, function(value) {
@@ -202,7 +202,7 @@ function main() {
         },
         getImagePath: _.partial(getDataPath, 'images'),
         getFilePath: _.partial(getDataPath, 'files'),
-        getPath:function(_path) {
+        getPath: function(_path) {
             return paths[_path];
         },
         getThumbnailImagePath: function(_photo) {
@@ -238,17 +238,19 @@ function main() {
 
     // SunCalc = require('suncalc');
     _.assign(app, {
+        developerMode: Ti.App.Properties.getBool('developerMode', __DEVELOPMENT__),
         texts: {
             'ccopyright': '<small><font color="gray">' + app.utilities.htmlIcon($sCC) +
                 'BY-SA 2.0</font></small>'
         },
         utils: {
-            filesize:require('lib/filesize'),
+            filesize: require('lib/filesize'),
             geolib: require('lib/geolib'),
             FuzzySet: require('lib/fuzzyset'),
             // openingHours: require('lib/opening_hours'),
             convert: require('lib/convert'),
-            suncalc: require('suncalc')
+            humanizeDuration: require('lib/humanize-duration'),
+            suncalc: require('suncalc'),
         }
     });
     // SunCalc = undefined;
@@ -405,6 +407,28 @@ function main() {
     app.contentModules = _.map(Ti.Filesystem.getFile('contentModules').getDirectoryListing(), function(value) {
         return value.slice(0, -3);
     });
+
+    app.mapModules = [
+        'Tutorial',
+        'ListsModule',
+        'Items',
+        'UserLocation',
+        'MarkerInfo',
+        'SearchAround',
+        'Search',
+        'MapActionButtons',
+        'PositionInfo',
+        'Crosshair',
+        'Direction',
+        'LocationButton',
+        'TileSourceManager',
+        'Wikitude',
+        'PointToLocation',
+    ];
+    
+    if (__APPLE__) {
+        app.mapModules.push('Weather');
+    }
     // app.contentModules = [
     //     'panoramio',
     //     'facebook',

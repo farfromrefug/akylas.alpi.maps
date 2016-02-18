@@ -10,7 +10,7 @@
     right:0,
     backgroundColor:'#20201f',
 }
-$TSCountrolsHeight=200;
+$TSCountrolsHeight='50%';
 .TSControls {
     layout: 'vertical',
     height: $TSCountrolsHeight,
@@ -18,7 +18,7 @@ $TSCountrolsHeight=200;
 }
 
 .TSControlsLabel {
-    left:10,
+    left:0,
     padding:__APPLE__?{top:3}:undefined,
     font: {size:__APPLE__?14:16,},
     verticalAlign:__APPLE__?'top':'middle',
@@ -86,24 +86,24 @@ TileSourceSelectWindow {
 
 .TSSelectRowMapView {
     animateChanges:false,
-    top:5,
-    left:5,
-    bottom:5,
-    right:5,
+    touchEnabled:false,
+    backgroundColor:$white,
+    mapType:'none',
+    top:6,
+    left:6,
+    right:6,
     width:'FILL',
-    height:70,
-    backgroundColor:'#727272'
+    height:90
 }
 
 .TSSelectRowImageView {
     localLoadSync: false,
     onlyTransitionIfRemote: false,
     transition: {style: Ti.UI.TransitionStyle.FADE},
+    touchPassThrough:true,
     backgroundColor:$white,
     top:6,
     left:6,
-    touchEnabled:false,
-    /*bottom:5,*/
     right:6,
     width:'FILL',
     height:90,
@@ -148,11 +148,18 @@ TileSourceSelectWindow {
     height:'FILL',
     verticalAlign:'bottom'
 }
-
+.TSSelectRowDeleteButton {
+    title:trc('delete'),
+    color:$white,
+    width:'FILL',
+    height:40,
+    bottom:0,
+    backgroundColor: 'red'
+}
 .TSSelectionTabController {
     /*rclass:'ElevatedView',*/
     top:5,
     color:$white,
     indicatorColor:$white,
-    bottom:5,
+    /*bottom:5,*/
 }

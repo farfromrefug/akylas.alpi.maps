@@ -29,7 +29,7 @@ exports.create = function(_context, _args, _additional) {
         cleanUpString = app.api.cleanUpString,
         key = 'wikivoyage',
         supportedLangs = ['en', 'fr', 'de', 'fa', 'it', 'nl', 'pl', 'sv']
-        self = new _context.MapModule(_args);
+        self = new _context.ContentModule(_args);
 
     var lang = ak.locale.currentLanguage.split('-')[0].toLowerCase();
     if (!_.contains(supportedLangs, lang)) {
@@ -208,9 +208,7 @@ exports.create = function(_context, _args, _additional) {
         getDetailsCalls: function(memo, _query, _item, _desc) {
             memo[key] = _.partial(getDetails, _item);
         },
-        shouldBeEnabledByDefault: function() {
-            return true;
-        },
+
         // getSearchCalls: function(memo, _params) {
         // memo[key] = _.partial(search, _params);
         // },

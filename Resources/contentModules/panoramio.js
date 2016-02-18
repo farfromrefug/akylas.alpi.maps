@@ -25,7 +25,7 @@ exports.create = function(_context, _args, _additional) {
         htmlIcon = app.utilities.htmlIcon,
         cleanUpString = app.api.cleanUpString,
         key = 'panoramio',
-        self = new _context.MapModule(_args);
+        self = new _context.ContentModule(_args);
 
     var baseUrl = 'http://www.panoramio.com/map/get_panoramas.php';
 

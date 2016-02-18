@@ -12,6 +12,7 @@
     <guid>cb816e58-37f3-4cc2-adba-16b2dbea6a76</guid>
     <property name="ti.ui.defaultunit" type="string">dp</property>
     <ios>
+        <use-jscore-framework>true</use-jscore-framework>
         <!-- <use-app-thinning>true</use-app-thinning> -->
         <min-ios-ver>8.0</min-ios-ver>
         <plist>
@@ -68,6 +69,9 @@
                 <meta-data android:name="com.google.android.gms.version" android:value="8487000" />
             </application>
         </manifest>
+        <services>
+            <service url="mbtilesgenerator.js"/>
+        </services>
         <abi>armeabi-v7a,x86</abi>
     </android>
     <plugins>

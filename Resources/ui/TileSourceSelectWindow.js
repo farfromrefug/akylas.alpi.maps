@@ -25,9 +25,26 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
         return trc(result);
     }
 
+    function mbTilesSubTitle(_value, _showDate) {
+        // return 'toto';
+        var result = Math.round(_value.area) + ' km² - ' + app.utils.filesize(_value.size, {
+            round: 0
+        });
+        if (_showDate !== false) {
+            // moment.duration(moment().valueOf() - _value.timestamp).format()
+            result += ' - ' + app.utils.humanizeDuration(moment().valueOf() - _value.timestamp, {
+                largest: 1,
+                round: true
+            });
+        }
+        return result;
+    }
+
     function fillSections(_base) {
         var region = module.mapView.region;
-        var realBase = {all:_base},
+        var realBase = {
+                all: _base
+            },
             category, categories, i;
 
         //first create categories
@@ -76,7 +93,16 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
                 // visible: false,
                 // showHeaderWhenHidden: true,
                 items: _.reduce(section, function(items, value, key) {
+
+                    var isMbTiles = value.hasOwnProperty('file');
+                    var mbtiles;
+                    if (isMbTiles) {
+                        mbtiles = value;
+                        value = value.layer;
+                        sdebug('mbtiles', mbtiles);
+                    }
                     var id = value.id;
+
                     var subtitle = ' ';
                     if (value.options) {
                         if (value.options.variantName) {
@@ -87,12 +113,12 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
                                 maxZoomToString(
                                     value.options.maxZoom);
                         }
+                        if (!!value.options.devHidden && !app.developerMode) {
+                            return items;
+                        }
+                    }
 
-                    }
-                    if (!!value.options.devHidden && !app.developerMode) {
-                        return items;
-                    }
-                    items.push({
+                    var item = {
                         searchableText: value.category + ',' + id,
                         title: {
                             text: value.name
@@ -100,11 +126,7 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
                         subtitle: {
                             text: subtitle
                         },
-                        sourceId: id,
-                        imageView: {
-                            image: 'http://raw.githubusercontent.com/farfromrefug/akylas.alpi.maps/master/images/tiles/' +
-                                encodeURI(id) + '.png'
-                        },
+
                         // mapView: {
                         //     region:region,
                         //     mapType:'none',
@@ -117,10 +139,56 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
                         //     }, value.options)]
                         // },
                         realAttribution: value.options.attribution,
-                        attribution: {
-                            text: value.category
+                    };
+                    if (mbtiles) {
+                        var url;
+                        if (mbtiles.bounds) {
+                            var zoom = app.utils.geolib.getBoundsZoomLevel(mbtiles.bounds,
+                                app.deviceinfo);
+                            var center = app.utils.geolib.getCenter([mbtiles.bounds.sw,
+                                mbtiles.bounds.ne
+                            ]);
+                            url = 'http://tyler-alpimaps.rhcloud.com/?' + 'lat=' + center.latitude +
+                                '&lon=' + center.longitude + '&zoom=' + zoom + 
+                                '&width=500&height=500' + '&tile_url=' +
+                                value.url.replace('{s}', '[' + value.subdomains + ']').replace(/&/g, '%26');
+                            if (value.options && value.options.userAgent) {
+                                url += '&tile_url_headers={"User-Agent":"' + value.options.userAgent + '"}'
+                            }
+                            sdebug('url', url);
+                        } else {
+                            url =
+                                'http://raw.githubusercontent.com/farfromrefug/akylas.alpi.maps/master/images/tiles/' +
+                                encodeURI(id) + '.png'
                         }
-                    });
+                        sdebug('image url', url);
+                        _.assign(item, {
+                            sourceId: mbtiles.token,
+                            delete: {
+                                visible: true
+                            },
+                            attribution: {
+                                text: mbTilesSubTitle(mbtiles, true)
+                            },
+                            imageView: {
+                                image: url
+                            },
+                        });
+                    } else {
+                        _.assign(item, {
+                            sourceId: id,
+                            imageView: {
+                                image: 'http://raw.githubusercontent.com/farfromrefug/akylas.alpi.maps/master/images/tiles/' +
+                                    encodeURI(id) + '.png'
+                            },
+                            attribution: {
+                                text: value.category
+                            }
+                        });
+
+                    }
+
+                    items.push(item);
                     return items;
                 }, [])
             });
@@ -211,7 +279,18 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
                         );
                     },
                     singletap: app.debounce(function(e) {
-                        if (e.link) {
+                        if (e.bindId === 'delete') {
+                            app.confirmAction({
+                                'title': trc('are_you_sure'),
+                                'message': trc('delete_mbtiles_confirm'),
+                                buttonNames: [trc('no'), trc('yes')]
+                            }, function() {
+                                module.removeMBTiles(e.item.sourceId);
+                                e.section.deleteItemsAt(e.itemIndex, 1, {
+                                    animated: true
+                                });
+                            });
+                        } else if (e.link) {
                             self.manager.createAndOpenWindow('WebWindow', {
                                 url: e.link,
                                 title: e.item.title.text
@@ -229,12 +308,11 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
     }
     // var searchText;
     var tabView = new AppTabView({
-        nativeControls: true,
+        // nativeControls: true,
         tabsControllerClass: 'TSSelectionTabController',
         tabs: [createSearchListView('map_sources', baseSources),
-            createSearchListView('map_overlaySources',
-                overlaySources,
-                true)
+            createSearchListView('map_overlaySources', overlaySources, true),
+            createSearchListView('offline_maps', Ti.App.Properties.getObject('mbtiles', {}), true),
         ]
     }).on('change', function(e) {
         if (e.oldView) {

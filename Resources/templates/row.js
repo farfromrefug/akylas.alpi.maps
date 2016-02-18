@@ -740,12 +740,31 @@ function create(_context) {
                     rclass: 'OptionButton'
                 },
             }, {
-                bindId: 'title',
-                type: 'Ti.UI.Label',
+                type: 'Ti.UI.View',
+                bindId: 'holder',
                 properties: {
-                    rclass: 'TSControlsLabel'
+                    touchPassThrough: true,
+                    height: 'FILL',
+                    width: 'FILL',
                 },
                 childTemplates: [{
+                    bindId: 'title',
+                    type: 'Ti.UI.Label',
+                    properties: {
+                        rclass: 'TSControlsLabel',
+                        top: 0,
+                        height: '50%'
+                    }
+                }, {
+                    bindId: 'subtitle',
+                    type: 'Ti.UI.Label',
+                    properties: {
+                        rclass: 'TSControlsLabel',
+                        color: 'lightgray',
+                        bottom: 0,
+                        height: '50%'
+                    }
+                }, {
                     type: 'Ti.UI.Slider',
                     bindId: 'slider',
                     properties: {
@@ -798,6 +817,8 @@ function create(_context) {
                     type: 'Ti.UI.Label',
                     properties: {
                         rclass: 'TSControlsLabel',
+                        verticalAlign:'middle',
+                        padding:null,
                         maxLines: 1,
                         height: 'SIZE'
                     }
@@ -817,7 +838,6 @@ function create(_context) {
                     bindId: 'progress',
                     type: 'Ti.UI.ProgressBar',
                     properties: {
-                        left: 10,
                         width: 'FILL',
                         height: 'FILL',
                         min: 0,
@@ -859,13 +879,20 @@ function create(_context) {
                     properties: {
                         rclass: 'TSSelectRowImageView'
                     },
-
-                    // type: 'Akylas.Googlemap.View',
-                    // bindId: 'mapView',
-                    // properties: {
-                    //     rclass: 'TSSelectRowMapView'
-
-                    // },
+                    childTemplates: [{
+                        type: 'Ti.UI.Label',
+                        bindId: 'delete',
+                        properties: {
+                            rclass: 'EditPhotoRemoveBtn',
+                            visible:false
+                        }
+                    //     type: 'Akylas.Googlemap.View',
+                    //     bindId: 'mapView',
+                    //     properties: {
+                    //         rclass: 'TSSelectRowMapView',
+                    //         visible: false
+                    //     }
+                    }]
                 }, {
                     type: 'Ti.UI.Label',
                     bindId: 'title',
@@ -882,6 +909,13 @@ function create(_context) {
                     type: 'Ti.UI.View',
                     touchPassThrough: true,
                     childTemplates: [{
+                    //     type: 'Ti.UI.Button',
+                    //     bindId: 'delete',
+                    //     properties: {
+                    //         rclass: 'TSSelectRowDeleteButton',
+                    //         visible:false
+                    //     }
+                    // },{
 
                         type: 'Ti.UI.Label',
                         bindId: 'attribution',

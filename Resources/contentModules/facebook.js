@@ -26,7 +26,7 @@ exports.create = function(_context, _args, _additional) {
         formatter = itemHandler.geolib.formatter,
         cleanUpString = app.api.cleanUpString,
         convert = app.utils.convert,
-        self = new _context.MapModule(_args);
+        self = new _context.ContentModule(_args);
 
     function fbHoursToOSM(_hours) {
         var result = {};

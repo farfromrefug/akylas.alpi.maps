@@ -25,7 +25,7 @@ exports.create = function(_context, _args, _additional) {
         geolib = itemHandler.geolib,
         formatter = itemHandler.geolib.formatter,
         // cleanUpString = app.api.cleanUpString,
-        self = new _context.MapModule(_args),
+        self = new _context.ContentModule(_args),
         key = 'ri',
         type = itemHandler.initializeType(key, {
             icon: app.icons.house,

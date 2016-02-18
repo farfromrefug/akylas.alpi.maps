@@ -1,8 +1,10 @@
 var Promise = require('./promise-simple');
-var Step = require('./step');
-var EARTH_RADIUS = 6378.137;
+var Utils = require('./utils');
+var WMS_ORIGIN_X = -20037508.34789244;
+var WMS_ORIGIN_Y = 20037508.34789244;
+var WMS_MAP_SIZE = 20037508.34789244 * 2;
 // Number of requests for each step set.
-var STEP_REQUEST_SIZE = 96;
+var STEP_REQUEST_SIZE = 30;
 var dataDir = Ti.Filesystem.applicationDataDirectory;
 var mbtilesHoldingDir = Ti.Filesystem.getFile(dataDir, 'mbtiles');
 if (!mbtilesHoldingDir.exists()) {
@@ -12,6 +14,49 @@ var DB_DIR = mbtilesHoldingDir.nativePath;
 if (!_.endsWith(DB_DIR, '/')) {
   DB_DIR += '/';
 }
+this['_'] = this['_'] || require('lib/lodash');
+
+Ti.App.on('mbtiles_generator_command', function(e) {
+  Ti.API.debug('mbtiles_generator_command', e.command, e.token);
+  switch (e.command) {
+    case 'start':
+      requestMBTiles(e.layer, e.bounds, e.minZoom, e.maxZoom);
+      break;
+    case 'stop':
+      {
+        var running = mbTilesStatusService.get(e.token);
+        sdebug(_.keys(running));
+        if (running && running.request) {
+          running.request.stop();
+        }
+        break;
+      }
+    case 'pause':
+      {
+        var running = mbTilesStatusService.get(e.token);
+        if (running && running.request) {
+          running.request.pause();
+        }
+        break;
+      }
+    case 'resume':
+      {
+        var running = mbTilesStatusService.get(e.token);
+        if (running && running.request) {
+          running.request.resume();
+        }
+        break;
+      }
+    case 'playpause':
+      {
+        var running = mbTilesStatusService.get(e.token);
+        if (running && running.request) {
+          running.request.playpause();
+        }
+        break;
+      }
+  }
+});
 /**
  * Get Tile x y from Latitude, Longitude and tile numbers
  * @param lat in degrees
@@ -27,32 +72,8 @@ var latLngToTileXYForZoom = function(lat, lng, z) {
   return [Math.floor(x), Math.floor(y)];
 };
 
-/**
- * Compute the area in square kilometers of a lat lng quad.
- * @param b the bounds {left:, bottom:, right:, top:}
- */
-var boundsToArea = function(b) {
-  var r2 = Math.pow(EARTH_RADIUS, 2);
-  sdebug('Earth radius is ' + r2);
-  // Area of lat bottom to the north-pole
-  var alat1 = 2 * Math.PI * r2 * (1 - Math.sin(b.sw.latitude * Math.PI / 180));
-  // Area of lat top to the north-pole
-  var alat2 = 2 * Math.PI * r2 * (1 - Math.sin(b.ne.latitude * Math.PI / 180));
-  // Area of lat portion strip
-  var alat = alat1 - alat2;
-  // Area of lat portion between left and right lngs.
-  var a = alat * (Math.abs(b.sw.longitude - b.ne.longitude) / 360);
-  return a;
-};
 
-/**
- * Validate bounds
- * @param b the bounds {left:, bottom:, right:, top:}
- */
-var isValidBounds = function(b) {
-  return b.left >= -180 && b.left <= 180 && b.right >= -180 && b.right <= 180 && b.bottom >= -85 && b.bottom <= 85 &&
-    b.top >= -85 && b.top <= 85
-};
+
 
 // Classes
 function Tile(x, y, z) {
@@ -69,15 +90,18 @@ var mbTilesStatusService = (function() {
      * @param token
      */
     create: function(token, request) {
+      // sdebug('create', token, request);
       if (!this.mbtilesStatus[token]) {
         this.mbtilesStatus[token] = {
-          "status": "generating",
-          "progress": 0,
+          status: "generating",
+          doneCount: request.doneCount,
+          progress: ((request.doneCount && (request.doneCount / request.count * 100)) || 0),
           request: request
         };
       }
     },
     remove: function(token) {
+      // sdebug('remove', token);
       if (this.mbtilesStatus[token]) {
         delete this.mbtilesStatus[token];
       }
@@ -89,18 +113,30 @@ var mbTilesStatusService = (function() {
      * @param status
      * @param progress
      */
-    update: function(token, status, progress) {
+    update: function(token, status, doneCount, totalCount) {
+      // sdebug('update', token, status, doneCount, totalCount);
       var data = this.mbtilesStatus[token];
       if (data) {
         data.status = status;
-        data.progress = progress;
+        data.progress = doneCount / totalCount * 100;
+        data.doneCount = doneCount;
         if (data.request) {
-          data.request.emit('update', data);
+          Ti.App.emit('mbtiles_generator_update', {
+            request: data.request,
+            status: data.status,
+            progress: data.progress,
+            doneCount: data.doneCount,
+          });
+          // data.request.emit('update', data);
         }
-      }
+        sdebug('update', _.pick(data, 'doneCount', 'count', 'progress'), totalCount);
+    }
     },
     get: function(token) {
       return this.mbtilesStatus[token];
+    },
+    getCount: function() {
+      return _.size(this.mbtilesStatus);
     }
 
   });
@@ -118,37 +154,64 @@ function guid() {
 }
 var initMBTilesRequest = function(layer, data) {
   // Create temporary sqlite DB file
-  var token = guid();
+  var token = layer.token || guid();
   var file = token + '.mbtiles';
   // Ti.Database.open(token);
-  var db = Ti.Database.open( DB_DIR + file);
+  var db = Ti.Database.open(token);
+  // var db = Ti.Database.open(DB_DIR + file);
   // var db = new sqlite3.Database(file);
-  sdebug('initMBTilesRequest', data);
+  sdebug('initMBTilesRequest', token, layer, data);
   var request = new MicroEvent(_.assign(data, {
-    layer: layer,
-    timestamp: (new Date()).getTime(),
+    layer: _.omit(layer, 'token', 'count', 'doneCount', 'timestamp'),
+    timestamp: layer.timestamp || (new Date()).getTime(),
     db: db,
     token: token,
+    paused: layer.doneCount > 0,
+    doneCount: layer.doneCount,
     file: file,
     pause: function() {
-      sdebug('pause');
+      var data = mbTilesStatusService.get(this.token);
+      sdebug('pause', _.pick(data, 'doneCount', 'count', 'progress'));
+      
       this.paused = true;
+      Ti.App.emit('mbtiles_generator_state', {
+        request: this,
+        progress: data.progress
+      });
+    },
+    playpause: function() {
+      if (this.paused) {
+        this.resume();
+      } else {
+        this.pause();
+      }
     },
     resume: function() {
-      sdebug('resume');
+      var data = mbTilesStatusService.get(this.token);
+      sdebug('resume', _.pick(data, 'doneCount', 'count', 'progress'));
       this.paused = false;
+      Ti.App.emit('mbtiles_generator_state', {
+        request: this,
+        progress: data.progress
+      });
     },
     stop: function() {
-      sdebug('stop', this.token);
+      var data = mbTilesStatusService.get(this.token);
+      sdebug('stop', _.pick(data, 'doneCount', 'count', 'progress'));
+      
       this.stopped = true;
       mbTilesStatusService.remove(this.token);
-      this.emit('cancelled', {
-        request: request
+      Ti.App.emit('mbtiles_generator_cancelled', {
+        request: this,
+        runningRequestsCount: mbTilesStatusService.getCount()
       });
     }
   }));
-  sdebug('test', request.timestamp);
   mbTilesStatusService.create(token, request);
+  Ti.App.emit('mbtiles_generator_start', {
+    request: request,
+    progress: mbTilesStatusService.get(token).progress
+  });
   return request;
 };
 
@@ -157,25 +220,19 @@ var initMBTilesRequest = function(layer, data) {
  * @param bounds the MBTiles bounds
  * @returns a string value
  */
-exports.requestMBTiles = function(layer, bounds, minZoom, maxZoom) {
-  minZoom = Math.max(Math.max(1, layer.minZoom || 0), minZoom);
-  maxZoom = Math.min(Math.min(22, layer.maxZoom || 22), maxZoom);
-  sdebug('requestMBTiles', layer, bounds);
-  var request = initMBTilesRequest(layer, computeInfoForMBTiles(layer, bounds, minZoom, maxZoom));
+var requestMBTiles = exports.requestMBTiles = function(layer, bounds, minZoom, maxZoom) {
+  var data = Utils.computeInfoForMBTiles(layer, bounds, minZoom, maxZoom);
+  if (layer.token && layer.doneCount > 0) {
+    //resuming force same minZoom, maxZoom
+  } else {
+    minZoom = Math.max(Math.max(1, layer.minZoom || 0), minZoom);
+    maxZoom = Math.min(Math.min(22, layer.maxZoom || 22), maxZoom);
+  }
+
+  sdebug('requestMBTiles', bounds, minZoom, maxZoom);
+  var request = initMBTilesRequest(layer, data);
   processMBTiles(request, bounds, minZoom, maxZoom);
   return request;
-};
-
-var computeInfoForMBTiles = exports.computeInfoForMBTiles = function(layer, bounds, minZoom, maxZoom) {
-  minZoom = Math.max(Math.max(1, layer.minZoom || 0), minZoom);
-  maxZoom = Math.min(Math.min(22, layer.maxZoom || 22), maxZoom);
-  var result = {
-    area: boundsToArea(bounds), //square kilometers
-    count: countTiles(layer, bounds, minZoom, maxZoom)
-  }
-  var width = layer.tileSize || 256;
-  result.size = 12700 * result.count;
-  return result;
 };
 
 /**
@@ -184,7 +241,7 @@ var computeInfoForMBTiles = exports.computeInfoForMBTiles = function(layer, boun
  * @returns {Promise} the MBTile
  */
 exports.requestMBTilesSync = function(layer, bounds, minZoom, maxZoom) {
-  var request = initMBTilesRequest(layer, computeInfoForMBTiles(layer, bounds, minZoom, maxZoom))
+  var request = initMBTilesRequest(layer, Utils.computeInfoForMBTiles(layer, bounds, minZoom, maxZoom))
   processMBTiles(request, bounds, minZoom, maxZoom);
   return request;
 };
@@ -197,18 +254,28 @@ exports.requestMBTilesSync = function(layer, bounds, minZoom, maxZoom) {
 var processMBTiles = function(request, bounds, minZoom, maxZoom) {
 
   return new Promise(function(resolve, reject) {
-    sdebug("Processing MBTiles for bounds:" + JSON.stringify(bounds), resolve, reject);
+    sdebug("Processing MBTiles for bounds:" + JSON.stringify(bounds));
     var layer = request.layer;
     // fs.readFile('conf/schema.sql', 'utf8', function(err, data) {
     //   if (err) {
     //     console.error('Error while loading schema: ' + err);
     //     throw err;
     //   }
-    createTables(request.db, [
-        "CREATE TABLE tiles (zoom_level integer, tile_column integer, tile_row integer, tile_data blob);",
-        "CREATE TABLE metadata (name text, value text);"
-      ])
-      .then(function() {
+    var alreadyStared = request.doneCount > 0;
+    var promise = Promise.resolve().then(function() {
+        if (alreadyStared) {
+          sdebug('sending already started', request.doneCount, request.count);
+          mbTilesStatusService.update(request.token, "generating", request.doneCount, request.count);
+          return;
+        }
+        return createTables(request.db, [
+          "CREATE TABLE tiles (zoom_level integer, tile_column integer, tile_row integer, tile_data blob);",
+          "CREATE TABLE metadata (name text, value text);"
+        ])
+      }).then(function() {
+        if (alreadyStared) {
+          return;
+        }
         sdebug('storing metadata');
         // required MetaData for mbtiles spec
         var metaData = {
@@ -217,7 +284,8 @@ var processMBTiles = function(request, bounds, minZoom, maxZoom) {
           "version": 1,
           "description": layer.attribution,
           "format": "png",
-          "bounds": bounds.sw.longitude + ',' + bounds.sw.latitude + ',' + bounds.ne.longitude + ',' + bounds
+          "bounds": bounds.sw.longitude + ',' + bounds.sw.latitude + ',' + bounds.ne.longitude + ',' +
+            bounds
             .sw.latitude
         };
         sdebug('metaData', metaData);
@@ -235,9 +303,15 @@ var processMBTiles = function(request, bounds, minZoom, maxZoom) {
         // All tiles have been stored. Close db.
         if (!request.stopped) {
           request.db.close();
+          //move file
+          Ti.Filesystem.getFile(request.db.nativePath).move(DB_DIR + request.file);
+          
+          //get real file size now
+          request.size = Ti.Filesystem.getFile(DB_DIR + request.file).size;
+          
           sdebug('MBTile computed successfully. File output is available in ' + request.file);
           // Persist tile state
-          mbTilesStatusService.update(request.token, "done", 100);
+          mbTilesStatusService.update(request.token, "done", request.count, request.count);
           mbTilesStatusService.remove(request.token);
           // Open file, send binary data to client, and remove file.
           // Ti.Filesystem.getFile(DB_DIR + token + '.sqlite').read()
@@ -251,11 +325,18 @@ var processMBTiles = function(request, bounds, minZoom, maxZoom) {
       }).catch(reject);
     // });
   }).catch(function(e) {
+    sdebug('catch', e, 'for request', JSON.stringify(request));
     request.db.close();
-    request.db.remove();
+    // request.db.remove();
     mbTilesStatusService.remove(request.token);
-    Ti.FileSystem.getFile(request.file).deleteFile();
-    if (e !== 'stopped') {
+    sdebug('about to remove', DB_DIR + request.file);
+    // Ti.Filesystem.getFile(DB_DIR + request.file).deleteFile();
+    Ti.Filesystem.getFile(request.db.nativePath).deleteFile();
+    if (e.message !== 'stopped') {
+      request.emit('mbtiles_generator_cancelled', {
+        request: e.request,
+        runningRequestsCount: mbTilesStatusService.getCount()
+      });
       sdebug('processMBTiles error:', e);
       //trick to get the error to throw up
       setTimeout(function() {
@@ -274,7 +355,7 @@ var processMBTiles = function(request, bounds, minZoom, maxZoom) {
 var createTables = function(db, _tables) {
   return new Promise(function(resolve, reject) {
     try {
-      sdebug("createTables");
+      sdebug("createTables", _tables);
       db.execute('BEGIN'); // begin the transaction
       for (var i = 0; i < _tables.length; i++) {
         db.execute(_tables[i]); // begin the transaction
@@ -335,21 +416,21 @@ var insertTile = function(request, tile, data) {
 var fetchAndStoreTiles = function(request, bounds, minZoom, maxZoom) {
   // List tiles
   var tilesChunks = listTiles(request, bounds, minZoom, maxZoom); //separated in chunks
-  sdebug(((tilesChunks.length - 1) * STEP_REQUEST_SIZE + _.last(tilesChunks).length) + " tiles to process.");
-  // fuck
-  // Prepare steps
-  var steps = [];
-  var stepCount = tilesChunks.length;
+  var totalCount = ((tilesChunks.length - 1) * STEP_REQUEST_SIZE + _.last(tilesChunks).length);
+  var doneCount = request.doneCount || 0;
+  sdebug('totalCount', totalCount);
+  sdebug('doneCount', doneCount);
+  sdebug((totalCount - doneCount) + " tiles to process.");
+  var firstNeeded = Math.floor(doneCount / STEP_REQUEST_SIZE);
+  sdebug('tilesChunks length', tilesChunks.length);
+  sdebug('firstNeeded', firstNeeded);
+  if (firstNeeded > 0) {
+    tilesChunks.splice(0, firstNeeded);
+  }
+  sdebug('tilesChunks length', tilesChunks.length);
   // Start off with a promise that always resolves
-  var sequence = Promise.resolve();
   return _.reduce(tilesChunks, function(sequence, tiles, i) {
     sequence = sequence.then(function() {
-
-      return fetchTilesFunction(request, tiles);
-    }).then(function() {
-      finalizeStepFunction(request, i, stepCount);
-    }).then(function() {
-      sdebug('test1');
       return new Promise(function(resolve, reject) {
         if (!!request.stopped) {
           throw 'stopped';
@@ -364,64 +445,29 @@ var fetchAndStoreTiles = function(request, bounds, minZoom, maxZoom) {
         if (!!request.paused) {
           wait();
         } else {
-          setTimeout(resolve, 1000);
+          setTimeout(resolve, 100);
         }
       });
+    }).then(function() {
+      // sdebug('fetching', tiles.length, 'tiles');
+      return fetchTilesFunction(request, tiles);
+    }).then(function() {
+      // sdebug('finished fetching');
+      mbTilesStatusService.update(request.token, "generating", (i + firstNeeded + 1) * STEP_REQUEST_SIZE,
+        totalCount);
     });
     return sequence;
   }, Promise.resolve()).then(function() {
     sdebug('Rendering done');
+    mbTilesStatusService.remove(request.token);
     setTimeout(function() {
-      request.emit('done', {
-        request: request
+      Ti.App.emit('mbtiles_generator_done', {
+        request: request,
+        runningRequestsCount: mbTilesStatusService.getCount()
       });
     }, 0);
-    mbTilesStatusService.remove(request.token);
-    // resolve();
-    // }).catch(function(e) {
-
-    //   setTimeout(function() {
-    //     throw e;
-    //   }, 0);
-    //   sdebug('catching', e);
   });
-  // var stmt = db.prepare('INSERT INTO tiles VALUES (?, ?, ?, ?)');
-  // Use closures to split the tile fetch into sets, to prevent overflows (10000s of http requests at the same time).
-  // steps.push(fetchTilesFunction(request, tiles.slice(s * STEP_REQUEST_SIZE, Math.min((s + 1) *
-  // STEP_REQUEST_SIZE,
-  // tiles.length)), stmt));
-  // tiles.length))));
-  // steps.push(finalizeStepFunction(stmt, token, s, stepCount));
-  // steps.push(finalizeStepFunction(request.token, s, stepCount));
-  // }
-  // return new Promise(function(resolve, reject) {
-  //   // List tiles
-  //   var tiles = listTiles(request, bounds);
-  //   sdebug(tiles.length + " tiles to process.");
 
-  //   // Prepare steps
-  //   var steps = [];
-  //   var stepCount = Math.floor(1 + tiles.length / STEP_REQUEST_SIZE);
-  //   for (var s = 0; s < stepCount; s++) {
-  //     // var stmt = db.prepare('INSERT INTO tiles VALUES (?, ?, ?, ?)');
-  //     // Use closures to split the tile fetch into sets, to prevent overflows (10000s of http requests at the same time).
-  //     steps.push(fetchTilesFunction(request, tiles.slice(s * STEP_REQUEST_SIZE, Math.min((s + 1) *
-  //       STEP_REQUEST_SIZE,
-  //       // tiles.length)), stmt));
-  //       tiles.length))));
-  //     // steps.push(finalizeStepFunction(stmt, token, s, stepCount));
-  //     steps.push(finalizeStepFunction(request.token, s, stepCount));
-  //   }
-  //   // Last step is resolution
-  //   steps.push(function() {
-  //     sdebug('Rendering done');
-  //     resolve();
-  //   });
-  //   sdebug('steps', steps.length);
-  //   // Launch processing
-  //   Step.apply(this, steps);
-
-  // });
 };
 
 var countTiles = function(layer, bounds, minZoom, maxZoom) {
@@ -429,6 +475,7 @@ var countTiles = function(layer, bounds, minZoom, maxZoom) {
   var count = 0;
 
   for (var z = minZoom; z <= maxZoom; z++) {
+
     var coords1 = latLngToTileXYForZoom(bounds.ne.latitude, bounds.sw.longitude, z);
     var coords2 = latLngToTileXYForZoom(bounds.sw.latitude, bounds.ne.longitude, z);
     // Adjust to process at least one tile for each zoom (lower zoom levels)
@@ -438,10 +485,11 @@ var countTiles = function(layer, bounds, minZoom, maxZoom) {
     if (coords1[1] === coords2[1]) {
       coords2[1] += 1;
     }
-    count += (Math.max(coords1[0], coords2[0]) - Math.min(coords1[0], coords2[0])) *
-      (Math.max(coords1[1], coords2[1]) - Math.min(coords1[1], coords2[1]));
+    count += (Math.max(coords1[0], coords2[0]) - Math.min(coords1[0], coords2[0]) + 1) *
+      (Math.max(coords1[1], coords2[1]) - Math.min(coords1[1], coords2[1]) + 1);
 
   }
+  sdebug('countTiles', bounds, minZoom, maxZoom, count);
   return count;
 };
 
@@ -455,9 +503,8 @@ var listTiles = function(request, bounds, minZoom, maxZoom) {
   var layer = request.layer;
 
   var chunk;
-  var counter = 0;
+  var counter = 0, totalCount = 0;
 
-  sdebug('Listing tiles for bounds', bounds, minZoom, maxZoom);
   for (var z = minZoom; z <= maxZoom; z++) {
     var coords1 = latLngToTileXYForZoom(bounds.ne.latitude, bounds.sw.longitude, z);
     var coords2 = latLngToTileXYForZoom(bounds.sw.latitude, bounds.ne.longitude, z);
@@ -481,10 +528,12 @@ var listTiles = function(request, bounds, minZoom, maxZoom) {
           y: y,
           z: z,
         });
+        totalCount++;
         counter = (counter + 1) % STEP_REQUEST_SIZE;
       }
     }
   }
+  sdebug('Listing tiles for bounds', bounds, minZoom, maxZoom, totalCount++, ((tiles.length - 1)*STEP_REQUEST_SIZE + _.last(tiles).length));
   return tiles;
 
 };
@@ -505,7 +554,9 @@ var fetchTilesFunction = function(request, tiles) {
         // then wait for this chapter to arrive.
         return fetchPromise;
       }).then(function(data) {
-        insertTile(data.request, data.tile, data.data)
+        if (data) {
+          insertTile(data.request, data.tile, data.data)
+        }
       });
     }, Promise.resolve().then(function() {
       // sdebug('BEGIN');
@@ -533,23 +584,6 @@ var fetchTilesFunction = function(request, tiles) {
 
 };
 
-/**
- * Closure for step finalization
- * @param stmt the statement to close
- * @param token the current token
- * @param s the current step
- * @param stepCount the total number of steps 
- * @returns {Function} the function
- */
-// var finalizeStepFunction = function(stmt, token, s, stepCount) {
-var finalizeStepFunction = function(request, s, stepCount) {
-  // return function() {
-  mbTilesStatusService.update(request.token, "generating", Math.floor((s + 1) * 100 / (stepCount + 1)));
-  // stmt.finalize();
-  // this();
-  // }
-};
-
 function getSubdomain(t, subdomains) {
   // sdebug('getSubdomain', subdomains);
   if (subdomains) {
@@ -561,9 +595,17 @@ function getSubdomain(t, subdomains) {
 }
 
 function getTileUrl(request, t) {
-  return request.layer.url.replace('{x}', t.x).replace('{y}', t.y).replace('{z}', t.z).replace('{s}', getSubdomain(
-    t,
-    request.layer.subdomains));
+  var url = request.layer.url.replace('{s}', getSubdomain(t, request.layer.subdomains));
+  if (url.indexOf('{bbox}') >= 0) {
+    var tileSize = WMS_MAP_SIZE / Math.pow(2, t.z);
+    var minx = WMS_ORIGIN_X + t.x * tileSize;
+    var maxx = WMS_ORIGIN_X + (t.x + 1) * tileSize;
+    var miny = WMS_ORIGIN_Y - (t.y + 1) * tileSize;
+    var maxy = WMS_ORIGIN_Y - t.y * tileSize;
+    return url.replace('{bbox}', minx + ',' + miny + ',' + maxx + ',' + maxy);
+  } else {
+    return url.replace('{x}', t.x).replace('{y}', t.y).replace('{z}', t.z);
+  }
 }
 
 var fetchTile = function(request, t) {
@@ -572,7 +614,7 @@ var fetchTile = function(request, t) {
   return new Promise(function(resolve, reject) {
 
     function get(request, gattempts, resolve, reject) {
-      // sdebug('fetchTile', url, gattempts);
+      // sdebug('fetchTile', url, request.layer.userAgent, gattempts);
       // Do the usual XHR stuff
       var req = new HTTPClient({
         headers: (request.layer.userAgent && {
@@ -596,9 +638,11 @@ var fetchTile = function(request, t) {
           }
         },
         onerror: function(e) {
-          sdebug('onerror', gattempts, e.code, e.error);
+          sdebug('onerror', url, gattempts, e.code, e.error);
           if (request.stopped) {
             reject(Error('stopped'));
+          } else if (e.code >= 400) {
+            resolve();
           } else if (gattempts < 3) {
             get(request, gattempts + 1, resolve, reject);
           } else {

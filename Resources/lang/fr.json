@@ -140,6 +140,7 @@
     "rate_question": "Si vous aimez utiliser {1}, n'oubliez pas de donner votre avis sur l'App Store. Cela ne prend qu'une minute. Merci d'avance pour votre soutien !",
     "are_you_sure": "êtes vous sûr?",
     "quit_tutorial_confirm": "vous ne verrez plus aucun tutoriel. Vous pouvez toujours réactiver les tutoriels dans les paramètres.",
+    "delete_mbtiles_confirm": "this will delete the offline map",
     "quit_tutorial": "arrêter les tutoriels",
     "map_settings": "paramètres de carte.",
     "map_settings_tutorial": "vous donne accès à différents paramètres de carte comme le style, les <b>fonds de carte</b>, ou encore des incrustations.",

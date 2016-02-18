@@ -27,7 +27,7 @@ exports.create = function(_context, _args, _additional) {
         htmlIcon = app.utilities.htmlIcon,
         cleanUpString = app.api.cleanUpString,
         key = 'wikipedia',
-        self = new _context.MapModule(_args);
+        self = new _context.ContentModule(_args);
 
     var lang = ak.locale.currentLanguage.split('-')[0].toLowerCase();
     var baseUrl = createBaseUrl(lang);
@@ -235,9 +235,6 @@ exports.create = function(_context, _args, _additional) {
                     });
                 };
             }
-        },
-        shouldBeEnabledByDefault: function() {
-            return true;
         },
         // getSearchCalls: function(memo, _params) {
         // memo[key] = _.partial(search, _params);

@@ -23,11 +23,7 @@ exports.create = function(_context, _args, _additional) {
         cleanUpString = app.api.cleanUpString,
         isItemARoute = itemHandler.isItemARoute,
         getAnnotImage = itemHandler.getAnnotImage,
-        utfGrid = app.modules.map.createUTFGrid({
-            id: 'map1.utfGrid',
-            url: 'http://beta.map1.eu/tiles/{z}/{x}/{y}.js.gz',
-            maxZoom: 17
-        }),
+        
         __movingItems,
         htmlIcon = app.utilities.htmlIcon,
         mapArgs = _additional.mapArgs,
@@ -36,8 +32,6 @@ exports.create = function(_context, _args, _additional) {
         indexRemoveList = function(_key) {},
         indexer;
 
-    mapArgs.tileSource = mapArgs.tileSource || [];
-    mapArgs.tileSource.push(utfGrid);
     mapArgs.calloutTemplates = mapArgs.calloutTemplates || {};
     mapArgs.calloutTemplates['calloutPhoto'] = app.templates.view.cloneTemplateAndFill('calloutPhoto', {
         properties: {
@@ -200,41 +194,6 @@ exports.create = function(_context, _args, _additional) {
         }
     }
 
-    function prepareFeatures(_data) {
-        if (!_data) {
-            return;
-        }
-        var features = [];
-        var data;
-        for (i in _data) {
-            data = _data[i];
-            features[i] = {
-                tags: {}
-            }
-            for (prop in data) {
-                if (data.hasOwnProperty(prop)) {
-                    if (prop == 'wikipedia') {
-                        features[i]['wikipedia'] = data[prop].replace(':',
-                            '.wikipedia.org/wiki/')
-                    } else if (prop == 'name') {
-                        features[i]['name'] = data[prop]
-                    } else if (prop == 'osm_id') {
-                        features[i]['osm_id'] = data[prop]
-                    } else if (prop == 'website') {
-                        features[i]['website'] = data[prop]
-                    } else if (prop == 'way_area') {
-                        features[i]['way_area'] = data[prop]
-                    } else {
-                        features[i]['tags'][prop] = data[prop];
-                    }
-                }
-            }
-        }
-        // sdebug('prepareFeatures', _data, features);
-        return {
-            features: features
-        };
-    }
     var self = new _context.MapModule(_args);
     _.assign(self, {
         getCluster: function(_type) {
@@ -1009,45 +968,13 @@ exports.create = function(_context, _args, _additional) {
                 }).show();
             }
         },
-        onMapPress: function(e) {
-            var loc = _.pick(e, 'latitude', 'longitude', 'altitude');
-            var datas = utfGrid.getData(loc, e.zoom);
-            sdebug(datas);
-            if (datas) {
-                var data = prepareFeatures(datas);
-                for (var i = 0; i < data.features.length; i++) {
-                    var item = app.utils.convert.prepareUtfGridResult(data.features[i]);
-                    if (item) {
-                        sdebug('item', item);
-                        break;
-                    }
-                }
-                var last = _.findLast(datas, function(o) {
-                    return o.hasOwnProperty('name');
-                });
-                sdebug('last', last);
-                if (last) {
-                    app.showMessage(last.name);
-                }
-                if (__DEVELOPMENT__) {
-                    self.parent.showDebugText(JSON.stringify(datas));
-                }
-            }
-        },
+        
         onMapLongPress: function(e) {
             var loc = _.pick(e, 'latitude', 'longitude', 'altitude');
-            var data = prepareFeatures(utfGrid.getData(loc, e.zoom));
-            if (data) {
-                sdebug('prepareFeatures', data);
-                for (var i = 0; i < data.features.length; i++) {
-                    var item = app.utils.convert.prepareUtfGridResult(data.features[i]);
-                    if (item) {
-                        _.assign(loc, item);
-                        sdebug('item', item);
-                        break;
-                    }
-                }
-            }
+            var extras = self.parent.runReduceMethodOnModules(true, 'getDroppedExtra', loc, e.zoom);
+            _.each(extras, function(value, key) {
+                _.assign(loc, value);
+            });
             var type = 'dropped';
             var item = itemHandler.createAnnotItem(__types[type], loc);
             sdebug('onMapLongPress', 'create annot', item);

@@ -167,7 +167,7 @@ ak.ti.constructors.createModulesWindow = function(_args) {
                                 handlePropertyChange(_id, e.item.callbackId, newValue);
                                 e.section.updateItemAt(e.itemIndex, {
                                     switch: {
-                                        value:newValue
+                                        value: newValue
                                     },
                                 });
                             }
@@ -179,22 +179,29 @@ ak.ti.constructors.createModulesWindow = function(_args) {
         self.manager.navOpenWindow(win);
     }
 
-    var items = _.reduce(app.contentModules, function(memo, moduleKey) {
-        var settings = require('/contentModules/' + moduleKey).settings || {};
-        var enabled = Ti.App.Properties.getBool('module_' + moduleKey +
-            '_enabled', false);
-        memo.push({
-            settings: settings,
-            id: moduleKey,
-            subtitle: {
-                text: trc(enabled ? 'on' : 'off')
-            },
-            title: {
-                text: settings.name || moduleKey
-            }
-        });
+    function addModule(_isContent, memo, moduleKey) {
+        sdebug('addModule',  moduleKey, _isContent);
+        var settings = require((_isContent ? '/contentModules' : '/ui/mapModules') + '/' + moduleKey).settings;
+        if (_isContent || settings) {
+            settings = settings || {};
+            var enabled = Ti.App.Properties.getBool('module_' + moduleKey +
+                '_enabled', false);
+            memo.push({
+                settings: settings,
+                id: moduleKey,
+                subtitle: {
+                    text: trc(enabled ? 'on' : 'off')
+                },
+                title: {
+                    text: settings.name || moduleKey
+                }
+            });
+        }
         return memo;
-    }, []);
+
+    }
+
+    var items = _.reduce(app.contentModules, _.partial(addModule, true), _.reduce(app.mapModules, _.partial(addModule, false), []));
 
     var self = _args.window = new AppWindow({
         rclass: 'ModulesRealWindow',

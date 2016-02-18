@@ -53,6 +53,7 @@ exports.data = {
         variants: {
             Plan: {
                 options: {
+                    minZoom:6,
                     variant: 'GEOGRAPHICALGRIDSYSTEMS.PLANIGN',
                 }
 
@@ -728,6 +729,7 @@ exports.data = {
         url:'http://www.skitrack.fr/cgi-bin/mapserv.fcgi?map=/srv/d_vttrack/vttrack/skitrack/mapserver/WMS-{variant}.map&SERVICE=WMS&VERSION=1.1.1&LAYERS=slope&FORMAT=image%2Fpng&TRANSPARENT=true&REQUEST=GetMap&STYLES=&SRS=EPSG%3A900913&BBOX={bbox}&WIDTH=512&HEIGHT=512',
         options: {
             attribution: '{attribution.OpenStreetMap} &copy; <a href="http://maptoolkit.net/">Maptoolkit</a>',
+            tileSize: 512,
             devHidden:true,
             maxZoom: 15
         },
