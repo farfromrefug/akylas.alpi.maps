@@ -59,7 +59,6 @@ app = require('akylas.commonjs').createApp(this, { // not using var seems very i
 });
 
 function main() {
-    Q = require('lib/q');
     __LIST__ = 'list';
     __MARKERS__ = 'markers';
     __ITEMS__ = 'items';
