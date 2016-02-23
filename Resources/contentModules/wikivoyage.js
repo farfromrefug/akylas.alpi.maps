@@ -20,7 +20,6 @@ exports.lang = {
     }
 };
 
-
 exports.create = function(_context, _args, _additional) {
     var itemHandler = app.itemHandler,
         geolib = itemHandler.geolib,
@@ -29,7 +28,7 @@ exports.create = function(_context, _args, _additional) {
         cleanUpString = app.api.cleanUpString,
         key = 'wikivoyage',
         supportedLangs = ['en', 'fr', 'de', 'fa', 'it', 'nl', 'pl', 'sv']
-        self = new _context.ContentModule(_args);
+    self = new _context.ContentModule(_args);
 
     var lang = ak.locale.currentLanguage.split('-')[0].toLowerCase();
     if (!_.contains(supportedLangs, lang)) {
@@ -71,7 +70,7 @@ exports.create = function(_context, _args, _additional) {
                 ggsradius: Math.min(around.radius, 10000),
                 ggslimit: 50
             }),
-            
+
             onSuccess: function(result) {
                 sdebug('result', result);
                 _callback({
@@ -109,16 +108,16 @@ exports.create = function(_context, _args, _additional) {
         if (_item.wvoyage) {
             params.pageids = _item.wvoyage.id;
             url = createBaseUrl(_item.wvoyage.pagelanguage || 'en');
-        } else if (_item.tag && _item.tags.wikivoyage){
+        } else if (_item.tag && _item.tags.wikivoyage) {
             var id = _.last(_item.tags.wikivoyage.split('/'));
             var test = id.split(':');
             if (test.length > 1) {
                 url = createBaseUrl(test[0]);
                 id = test[1];
             }
-            params.titles =id;
+            params.titles = id;
         } else if (_item.title) {
-            params.titles =_item.title.split(/-|\/|\||_\|,/)[0].trim();
+            params.titles = _item.title.split(/-|\/|\||_\|,/)[0].trim();
         } else {
             return;
         }
@@ -137,7 +136,7 @@ exports.create = function(_context, _args, _additional) {
                             break;
                         }
                         // if (data.coordinates && data.coordinates[0].lat) {
-                            
+
                         // }
                     }
                 }
@@ -225,17 +224,15 @@ exports.create = function(_context, _args, _additional) {
         },
         prepareDetailsListView: function(item, itemDesc, sections, createItem) {
             if (item.wvoyage) {
-                sections.push({
-                    items: [createItem({
-                        text: trc('wikivoyage'),
-                        icon: app.icons.wikipedia,
-                        callbackId: 'url',
-                        data: {
-                            url: item.tags.wikivoyage
-                        },
-                        isLink: true
-                    })]
-                });
+                sections[0].items.push(createItem({
+                    text: trc('wikivoyage'),
+                    icon: app.icons.wikipedia,
+                    callbackId: 'url',
+                    data: {
+                        url: item.tags.wikivoyage
+                    },
+                    isLink: true
+                }));
             }
         }
     });

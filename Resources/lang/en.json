@@ -58,4 +58,5 @@
     "share_your_position_tutorial":"•<b>long press:</b> share your location or copy it to the clipboard.",
     "fr":"french",
     "en":"english",
+    "ptl_desc":"experimental module. Provides information upon map click. The data is available online and offline.",
 }

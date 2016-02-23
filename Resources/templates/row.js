@@ -760,6 +760,7 @@ function create(_context) {
                     type: 'Ti.UI.Label',
                     properties: {
                         rclass: 'TSControlsLabel',
+                        font: {size:__APPLE__?12:14},
                         color: 'lightgray',
                         bottom: 0,
                         height: '50%'
@@ -906,9 +907,9 @@ function create(_context) {
                         rclass: 'TSSelectRowSubtitle'
                     }
                 }, {
-                    type: 'Ti.UI.View',
-                    touchPassThrough: true,
-                    childTemplates: [{
+                    // type: 'Ti.UI.View',
+                    // touchPassThrough: true,
+                    // childTemplates: [{
                     //     type: 'Ti.UI.Button',
                     //     bindId: 'delete',
                     //     properties: {
@@ -923,7 +924,7 @@ function create(_context) {
                             rclass: 'TSSelectRowAttribution'
 
                         }
-                    }]
+                    // }]
                 }]
             }]
         },

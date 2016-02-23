@@ -4,6 +4,8 @@ function createApi(_context) {
     var geolib = app.utils.geolib;
     var queryString = app.utilities.queryString;
     var contactEmail = 'contact%40akylas.fr';
+    var osAPIURL = 'http://api-alpimaps.rhcloud.com/';
+    // var osAPIURL = 'http://localhost:8080/';
     var osmOverpassUrls = [
         // 'http://api.openstreetmap.fr/oapi/',
         'http://overpass-api.de/api/',
@@ -201,14 +203,15 @@ function createApi(_context) {
         var obj = {
             _request: null,
             abort: function() {
-                sdebug('CallChain', 'abort', this);
                 if (this._request) {
                     this._request.abort();
+                    sdebug('CallChain', 'abort', this._request.url);
                     this._request = null;
                 }
             }
         };
         Chain()("done", function(res, chain) {
+            sdebug('CallChain', 'done');
             obj._request = null;
             _callback(res, chain);
         }).apply(this, _.map(_calls, function(f, index) {
@@ -221,6 +224,7 @@ function createApi(_context) {
     }
 
     var api = new _context.MicroEvent({
+        osAPIURL:osAPIURL,
         networkConnected: false,
         offlineMode: false,
         cleanUpString: cleanUpString,
@@ -241,6 +245,7 @@ function createApi(_context) {
 
             var client = new HTTPClient({
                 showActivity: options.showActivity,
+                useTiUserAgent: false,
                 headers: options.headers,
                 timeout: options.hasOwnProperty('timeout') ? options.timeout : 30000,
                 ondatastream: options.ondatastream,
@@ -476,7 +481,7 @@ function createApi(_context) {
                     key: app.servicesKeys.mapquest,
                     lat: _query.latitude,
                     lon: _query.longitude,
-                    // zoom: 18,
+                    zoom: _query.zoom,
                     format: 'json',
                     addressdetails: 1
                 },
@@ -1372,8 +1377,8 @@ function createApi(_context) {
                 onError: _callback
             });
         },
-        downloadAndSaveFile: function(_url, _type, _callback) {
-            return api.call({
+        downloadAndSaveFile: function(_url, _type, _params, _callback) {
+            return api.call(_.assign({
                 url: _url,
                 onData: function(e) {
                     var timestamp = moment().valueOf();
@@ -1385,20 +1390,55 @@ function createApi(_context) {
                         file: e.responseData,
                         type:_type,
                         timestamp: timestamp,
-                        fileSize:file.size,
+                        fileSize: file.size,
                         fileName: path
                     });
                 },
                 onError: _callback
-            });
+            }, _params));
         },
-        webToPDF:function(_url, _title, _callback) {
-            var url = 'https://bottle-alpimaps.rhcloud.com/pdf?url=' + _url + '&viewport=' + app.deviceinfo.pixelWidth + 'x' + app.deviceinfo.pixelHeight;
-            return api.downloadAndSaveFile(url, 'pdf', function(e) {
+        webToPDF: function(_url, _title, _callback) {
+            var pxPerCm = app.deviceinfo.dpi / 2.54;
+            sdebug();
+            // var url
+            // var url = 'https://bottle-alpimaps.rhcloud.com/pdf?url=' + _url + '&viewport=' + app.deviceinfo.pixelWidth + 'x' + app.deviceinfo.pixelHeight;
+            return api.downloadAndSaveFile(osAPIURL + 'webtopdf', 'pdf', {
+                requestMethod: 'POST',
+                headers: {
+                    'User-Agent': Ti.defaultUserAgent,
+                    'Content-Type':'application/json'
+                },
+                postParamsString: {
+                    url: _url,
+                    'viewport-size': app.deviceinfo.width + 'x' + app.deviceinfo.height,
+                    // 'page-size':'A3',
+                    zoom:2,
+                    // 'page-width':11,
+                    // 'page-height':15,
+                    // dpi:app.deviceinfo.dpi,
+                    'disable-smart-shrinking':true,
+                    "encoding": "UTF-8",
+
+                    "T": 0,
+                    "B": 0,
+                    "L": 0,
+                    "R": 0
+                }
+            }, function(e) {
                 if (e.file) {
+                    var matches = _url.match(/(https?:\/\/|www\.?)(www\.)?([^\/\s]+)/);
+                    sdebug('test', matches);
+                    var title = _.last(matches);
+                    var parts = title.split('.');
+                    if (parts.length > 1) {
+                        title = parts[parts.length -2];
+                    } else {
+                        title = parts[0];
+                    }
                     _callback(_.assign(e, {
-                        originalLink:_url,
-                        title:_title
+                        originalLink: _url,
+                        title:_.capitalize(title),
+                        fullTitle: _title
                     }));
                 } else {
                     _callback(e);
@@ -1632,37 +1672,7 @@ function createApi(_context) {
                 },
                 onError: _callback
             });
-        },
-        // yelp: function(_params, _callback) {
-        //     // var request = yelpOauth.sign({
-        //     //     action: "GET",
-        //     //     path: "http://api.yelp.com/v2/search",
-        //     //     parameters: {
-        //     //         term: _params.query,
-        //     //         cll: _params.latitude ? (_params.latitude + ',' + _params.longitude) : undefined
-        //     //     }
-        //     // });
-        //     var lat = _params.latitude;
-        //     var lon = _params.longitude;
-        //     var delta = 0.0002;
-        //     api.call({
-        //         url: prepareOauth('http://api.yelp.com/v2/search', 'GET', yelpOauth, {
-        //             term: _params.query,
-        //             bounds: ((lat - delta) + ',' + (lon - delta) + '|' + (lat + delta) +
-        //                 ',' +
-        //                 (lon + delta)),
-        //             cll: (lat + ',' + lon)
-        //         }),
-        //         // headers: {
-        //         //     'Authorization': request.header
-        //         // },
-        //         onSuccess: function(e) {
-        //             _callback(e);
-
-        //         },
-        //         onError: _callback
-        //     });
-        // },
+        }
     });
 
     var onError = (function(e, failure_callback, _lastcall) {

@@ -17,6 +17,7 @@ ak.ti.constructors.createCustomAlertView = function(_args) {
     }
     var children = [{
         type: 'Ti.UI.Label',
+        bindId:'title',
         properties: {
             font: {
                 size: 16,
@@ -43,6 +44,7 @@ ak.ti.constructors.createCustomAlertView = function(_args) {
     sdebug(message);
     children = children.concat([{
         type: 'Ti.UI.Label',
+        bindId:'message',
         properties: {
             top: 15,
             font: {

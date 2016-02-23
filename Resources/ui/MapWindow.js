@@ -141,6 +141,9 @@ ak.ti.constructors.createMapWindow = function(_args) {
     function loadModule(_id, _index, _isContent) {
         var enabledKey = 'module_' + _id + '_enabled';
         var moduleJS = require((_isContent ? '/contentModules' : '/ui/mapModules') + '/' + _id);
+        if (!moduleJS) {
+            return;
+        }
         var module = moduleJS.create(this, {
             index: _index,
             id: _id,

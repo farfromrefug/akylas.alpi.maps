@@ -9,6 +9,8 @@
     Geolib.TO_DEG = 180 / Math.PI;
     Geolib.PI_X2 = Math.PI * 2;
     Geolib.PI_DIV4 = Math.PI / 4;
+    Geolib.XDPI = (app.deviceinfo.xdpi || app.deviceinfo.dpi) / app.deviceinfo.densityFactor;
+    Geolib.PX_PER_CM = Geolib.XDPI / 2.54;
 
     function getNiceNumber(number) {
         var exponent = Math.floor(Math.log(Math.abs(number)) / Math.LN10);
@@ -24,6 +26,11 @@
         return roundedFraction * Math.pow(10, exponent);
     }
 
+    function _getRoundNum(t) {
+        var e = Math.pow(10, (Math.floor(t) + "").length - 1),
+            i = t / e;
+        return i = i >= 10 ? 10 : i >= 5 ? 5 : i >= 3 ? 3 : i >= 2 ? 2 : 1, e * i;
+    }
     // Setting readonly defaults
     var geolib = Object.create(Geolib.prototype, {
         version: {
@@ -44,8 +51,8 @@
         maxLon: {
             value: 180
         },
-        scaleDistances: {
-            value: [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000]
+        pxPerCM: {
+            value: Geolib.PX_PER_CM
         },
         sexagesimalPattern: {
             value: /^([0-9]{1,3})°\s*([0-9]{1,3}(?:\.(?:[0-9]{1,2}))?)'\s*(([0-9]{1,3}(\.([0-9]{1,2}))?)"\s*)?([NEOSW]?)$/
@@ -454,6 +461,7 @@
         getBoundsZoomLevel: function(bounds, mapDim, worldDim) {
             worldDim = worldDim || 256;
             var zoomMax = 22;
+
             function latRad(lat) {
                 var sin = Math.sin(lat * Math.PI / 180);
                 var radX2 = Math.log((1 + sin) / (1 - sin)) / 2;
@@ -475,7 +483,7 @@
             var latZoom = zoom(mapDim.height, worldDim, latFraction);
             var lngZoom = zoom(mapDim.width, worldDim, lngFraction);
 
-            return Math.min(Math.min(latZoom, lngZoom),zoomMax);
+            return Math.min(Math.min(latZoom, lngZoom), zoomMax);
         },
         // getZoom: function(longDelta, pixelWidth) {
         //     var zoomScale = longDelta * 85445659.44705395 * Math.PI / 180.0 / pixelWidth;
@@ -965,43 +973,35 @@
             return result;
 
         },
+        getMppAtZoom: function(_zoom, pos) {
+            var lat = this.latitude(pos);
+            return 156543.03392 * Math.cos(lat * Math.PI / 180) / Math.pow(2, _zoom);
+        },
         getMapScale: function(_mpp, _maxWidth) {
-            var distance = _mpp * _maxWidth,
-                i, scales = this.scaleDistances,
-                maxValue = 0,
-                scaleWidth = 0,
-                unit;
-
-            var test = getNiceNumber(distance);
-
-            if (this.metrics) {
-                unit = "m";
-                if (distance > 2000.0) {
-                    // use kilometer scale
-                    unit = "km";
-                    distance = distance / 1000;
-                }
-            } else {
-                unit = "ft";
-                distance = distance * 3.28084;
-                if (distance >= 10000) {
-                    // user mile scale
-                    unit = "mi";
-                    distance = distance / 5280;
-                }
-            }
-            for (i = 0; i < scales.length; ++i) {
-                if (distance < scales[i]) {
-                    scaleWidth = _maxWidth * scales[i - 1] / distance;
-                    maxValue = scales[i - 1];
-                    break;
-                }
-            }
+            var distance = _mpp * _maxWidth;
+            sdebug('Geolib.PX_PER_CM', Geolib.PX_PER_CM);
+            var round = _getRoundNum(distance);
+            var realMetersPerScreenCM = _mpp * Geolib.PX_PER_CM * 100;
+            var roundMeters = _getRoundNum(realMetersPerScreenCM)
             var result = {
-                width: scaleWidth,
-                text: maxValue + ' ' + unit
+                width: _maxWidth * round / distance,
+                distance:distance,
+                scale: roundMeters,
+                realScale: realMetersPerScreenCM,
+                scaleWidth: _maxWidth * roundMeters / realMetersPerScreenCM,
+                text: this.formatter.distance(round)
             }
-            // sdebug(result, test);
+            return result;
+        },
+        getMapScaleAtZoom: function(_zoom, pos) {
+            var mpp = this.getMppAtZoom(_zoom, pos);
+            var realMetersPerScreenCM = mpp * Geolib.PX_PER_CM * 100;
+            var roundMeters = _getRoundNum(realMetersPerScreenCM)
+            var result = {
+                scale: roundMeters,
+                realScale: realMetersPerScreenCM,
+            }
+            sdebug('getMapScaleAtZoom', _zoom, pos, mpp, result);
             return result;
         },
         /**

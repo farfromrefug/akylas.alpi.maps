@@ -1,4 +1,7 @@
-exports.settings = {};
+exports.settings = {
+    name: 'Point To Location',
+    description: 'ptl_desc'
+};
 exports.create = function(_context, _args, _additional) {
     var settings = _args.settings,
         convert = app.utils.convert,
@@ -12,31 +15,35 @@ exports.create = function(_context, _args, _additional) {
         if (!_data) {
             return;
         }
-        var features = [];
+        var features = [], feature;
         var data;
         for (i in _data) {
             data = _data[i];
-            features[i] = {
+            if (data.hasOwnProperty('landuse')) {
+                continue;
+            }
+            feature = {
                 tags: {}
             }
             for (prop in data) {
                 if (data.hasOwnProperty(prop)) {
                     if (prop == 'wikipedia') {
-                        features[i]['wikipedia'] = data[prop].replace(':',
+                        feature['wikipedia'] = data[prop].replace(':',
                             '.wikipedia.org/wiki/')
                     } else if (prop == 'name') {
-                        features[i]['name'] = data[prop]
+                        feature['name'] = data[prop]
                     } else if (prop == 'osm_id') {
-                        features[i]['osm_id'] = data[prop]
+                        feature['osm_id'] = data[prop]
                     } else if (prop == 'website') {
-                        features[i]['website'] = data[prop]
+                        feature['website'] = data[prop]
                     } else if (prop == 'way_area') {
-                        features[i]['way_area'] = data[prop]
+                        feature['way_area'] = data[prop]
                     } else {
-                        features[i]['tags'][prop] = data[prop];
+                        feature['tags'][prop] = data[prop];
                     }
                 }
             }
+            features.push(feature);
         }
         // sdebug('prepareFeatures', _data, features);
         return {
@@ -63,14 +70,14 @@ exports.create = function(_context, _args, _additional) {
             sdebug(datas);
             if (datas) {
                 var data = prepareFeatures(datas);
-                for (var i = 0; i < data.features.length; i++) {
-                    var item = convert.prepareUtfGridResult(data.features[i]);
-                    if (item) {
-                        sdebug('item', item);
-                        break;
-                    }
-                }
-                var last = _.findLast(datas, function(o) {
+                // for (var i = 0; i < data.features.length; i++) {
+                //     var item = convert.prepareUtfGridResult(data.features[i]);
+                //     if (item) {
+                //         sdebug('item', item);
+                //         break;
+                //     }
+                // }
+                var last = _.findLast(data.features, function(o) {
                     return o.hasOwnProperty('name');
                 });
                 sdebug('last', last);

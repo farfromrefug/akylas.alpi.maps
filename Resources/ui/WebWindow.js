@@ -521,6 +521,9 @@ ak.ti.constructors.createWebWindow = function(_args) {
 	self.container.add(webView, 1);
 
 	webView.on('load', function(e) {
+		if (webView) {
+			sdebug('userAgent', webView.userAgent);
+		}
 		// sdebug('on load done load', e.url);
 		// setProgress(1);
 	}).on('loadprogress', function(e) {

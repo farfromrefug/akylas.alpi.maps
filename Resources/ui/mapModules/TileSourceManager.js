@@ -9,6 +9,7 @@ exports.create = function(_context, _args, _additional) {
         defaultHD = app.deviceinfo.densityFactor >= 3,
         overlaySources = {},
         mbTilesGenerator,
+        geolib = app.utils.geolib,
         SOURCES_SECTION_INDEX = 1,
         MBTILES_SECTION_INDEX = 0,
         mbtiles = Ti.App.Properties.getObject('mbtiles', {}),
@@ -39,26 +40,36 @@ exports.create = function(_context, _args, _additional) {
         var request = e.request,
             running = runningMbTiles[request.token];
         if (running) {
-            view.listView.deleteItemsAt(MBTILES_SECTION_INDEX, running.index, 1, {
-                animated: true
-            });
-            delete runningMbTiles[request.token];
-            saveRunningMBTiles();
-            mbtiles[request.token] = _.assign({
-                layer: request.layer.layer,
-            }, _.pick(request, 'area', 'size', 'token', 'count', 'timestamp',
-                'file', 'bounds'))
-            Ti.App.Properties.setObject('mbtiles', mbtiles);
+            var bounds = request.bounds;
+            var center = geolib.getCenter([bounds.sw, bounds.ne]);
+            app.api.reverseGeocode({
+                latitude: center.latitude,
+                longitude: center.longitude,
+                // zoom:request.minZoom
+            }, function(e) {
+                view.listView.deleteItemsAt(MBTILES_SECTION_INDEX, running.index, 1, {
+                    animated: true
+                });
+                delete runningMbTiles[request.token];
+                saveRunningMBTiles();
+                mbtiles[request.token] = _.assign({
+                    address: e,
+                    layer: request.layer.layer,
+                }, _.pick(request, 'area', 'size', 'token', 'count', 'timestamp',
+                    'file', 'bounds', 'minZoom', 'maxZoom'))
+                Ti.App.Properties.setObject('mbtiles', mbtiles);
 
-            self.internalAddTileSource(createTileSource(request.token));
+                self.internalAddTileSource(createTileSource(request.token));
+            });
+
         }
         if (e.runningRequestsCount === 0 && generatorService) {
             if (__APPLE__) {
                 generatorService.unregister();
-                generatorService = undefined;
+                generatorService = null;
             } else if (__ANDROID__) {
                 generatorService.stop();
-                generatorService = undefined;
+                generatorService = null;
             }
         }
 
@@ -75,10 +86,10 @@ exports.create = function(_context, _args, _additional) {
         if (e.runningRequestsCount === 0 && generatorService) {
             if (__APPLE__) {
                 generatorService.unregister();
-                generatorService = undefined;
+                generatorService = null;
             } else if (__ANDROID__) {
                 generatorService.stop();
-                generatorService = undefined;
+                generatorService = null;
             }
         }
     }).on('mbtiles_generator_state', function(e) {
@@ -198,23 +209,179 @@ exports.create = function(_context, _args, _additional) {
         if (!MBTilesUtils) {
             MBTilesUtils = require('lib/mbtilesgenerator/utils');
         }
-        sdebug('test', self.mapView.zoom);
-        var args = [JSON.parse(JSON.stringify(_tileSource)), _bounds, 1, 19];
-        var estimated = MBTilesUtils.computeInfoForMBTiles.apply(this, args);
-        sdebug('estimated', estimated);
-
-        app.confirmAction({
-            buttonNames: [trc('no'), trc('yes')],
-            message: trc('area') + ': ' + Math.round(estimated.area) + ' km²\n' +
+        var realMinZoom = _tileSource.minZoom > 0 ? _tileSource.minZoom : 1;
+        var realMaxZoom = Math.min(_tileSource.maxZoom || 22, 17); //prevent downloading under 17 because of bulk rules
+        var maxZoom = realMaxZoom;
+        var minZoom = Math.min(Math.max(Math.floor(self.mapView.zoom), realMinZoom), maxZoom);
+        var layer = JSON.parse(JSON.stringify(_tileSource));
+        var bounds = geolib.scaleBounds(_bounds, 0.2);
+        var center = geolib.getCenter([bounds.sw, bounds.ne]);
+        var formatScale = function(scale) {
+            return '1:' + app.utils.filesize(scale, {
+                // exponent: -2,
+                base: 10,
+                round: 0
+            }).slice(0, -1);
+        }
+        var estimatedData = function() {
+            var res = MBTilesUtils.computeInfoForMBTiles(layer, bounds, minZoom, maxZoom);
+            var minScale = geolib.getMapScaleAtZoom(res.minZoom, center);
+            var maxScale = geolib.getMapScaleAtZoom(res.maxZoom, center);
+            return _.assign(res, {
+                minScale: formatScale(minScale.realScale),
+                maxScale: formatScale(maxScale.realScale),
+            })
+        }
+        var estimatedText = function(estimated) {
+            return trc('area') + ': ' + Math.round(estimated.area) + ' km²\n' +
                 trc('count') + ': ' + estimated.count + ' tiles\n' +
-                trc('minZoom') + ': ' + estimated.minZoom + ' \n' +
-                trc('maxZoom') + ': ' + estimated.maxZoom + ' \n' +
+                trc('minZoom') + ': ' + estimated.minZoom + ' (' + estimated.minScale + ')\n' +
+                trc('maxZoom') + ': ' + estimated.maxZoom + ' (' + estimated.maxScale + ')\n' +
                 trc('count') + ': ' + estimated.count + ' tiles\n' +
                 trc('estimated_size') + ': ' + app.utils.filesize(estimated.size, {
                     round: 0
-                }),
-            title: trc('are_you_sure') + '?'
-        }, _.partial.apply(this, [startMBTilesGeneration].concat(args)));
+                })
+        }
+
+        var estimated = estimatedData();
+        app.confirmAction({
+            buttonNames: [trc('no'), trc('yes')],
+            message: estimatedText(estimated),
+            customView: {
+                properties: {
+                    layout: 'vertical',
+                    height: 'SIZE',
+                    clipChildren: false // for the slider shadow on ios
+                },
+                childTemplates: [{
+                    properties: {
+                        layout: 'horizontal',
+                        height: 'SIZE',
+                        clipChildren: false // for the slider shadow on ios
+                    },
+                    childTemplates: [{
+                        type: 'Ti.UI.Label',
+                        properties: {
+                            font: {
+                                size: 13
+                            },
+                            padding: {
+                                right: 4,
+                                left: 4
+                            },
+                            text: trc('min')
+                        }
+                    }, {
+                        type: 'Ti.UI.Slider',
+                        bindId: 'minSlider',
+                        properties: {
+                            height: 34,
+                            bubbleParent: true,
+                            tintColor: $cTheme.main,
+                            min: realMinZoom,
+                            max: maxZoom,
+                            value: minZoom
+                        }
+                    }, {
+                        type: 'Ti.UI.Label',
+                        bindId: 'minValue',
+                        properties: {
+                            width: '40%',
+                            textAlign: 'right',
+                            font: {
+                                size: 13
+                            },
+                            padding: {
+                                right: 4,
+                                left: 4
+                            },
+                            text: estimated.minScale + '(' + minZoom + ')'
+                        }
+                    }]
+                }, {
+                    properties: {
+                        layout: 'horizontal',
+                        height: 'SIZE',
+                        clipChildren: false // for the slider shadow on ios
+                    },
+                    childTemplates: [{
+                        type: 'Ti.UI.Label',
+                        properties: {
+                            font: {
+                                size: 13
+                            },
+                            padding: {
+                                right: 4,
+                                left: 4
+                            },
+                            text: trc('max')
+                        }
+                    }, {
+                        type: 'Ti.UI.Slider',
+                        bindId: 'maxSlider',
+                        properties: {
+                            height: 34,
+                            tintColor: $cTheme.main,
+                            bubbleParent: true,
+                            min: minZoom,
+                            max: realMaxZoom,
+                            value: maxZoom
+                        }
+                    }, {
+                        type: 'Ti.UI.Label',
+                        bindId: 'maxValue',
+                        properties: {
+                            width: '40%',
+                            textAlign: 'right',
+                            font: {
+                                size: 13
+                            },
+                            padding: {
+                                right: 4,
+                                left: 4
+                            },
+                            text: estimated.maxScale + '(' + maxZoom + ')'
+                        }
+                    }]
+                }],
+                events: {
+                    change: function(e) {
+                        sdebug('change', e.bindId);
+                        var estimated = estimatedData();
+                        if (e.bindId === 'minSlider') {
+                            minZoom = Math.round(e.value);
+                            e.source.parent.parent.parent.parent.applyProperties({
+                                minValue: {
+                                    text: estimated.minScale + '(' + minZoom + ')'
+                                },
+                                maxSlider: {
+                                    min: minZoom
+                                },
+                                message: {
+                                    text: estimatedText(estimated)
+                                }
+                            })
+                        } else if (e.bindId === 'maxSlider') {
+                            maxZoom = Math.round(e.value);
+                            e.source.parent.parent.parent.parent.applyProperties({
+                                maxValue: {
+                                    text: estimated.maxScale + '(' + maxZoom + ')'
+                                },
+                                minSlider: {
+                                    max: maxZoom
+                                },
+                                message: {
+                                    text: estimatedText(estimated)
+                                }
+                            })
+                        }
+                    }
+                }
+            },
+            title: trc('are_you_sure')
+        }, function() {
+            startMBTilesGeneration(layer, bounds, minZoom, maxZoom);
+        });
     }
 
     function zIndex(_index) {
@@ -238,14 +405,14 @@ exports.create = function(_context, _args, _additional) {
                 source: isMbTiles ? (app.getPath('mbtiles') + mbtiles[_id].file) : undefined,
                 layer: layer,
                 visible: enabled,
-                cacheable: !isMbTiles && (layer.options.cacheable || !!app.developerMode),
+                cacheable: !isMbTiles && (!layer.options || layer.options.cacheable !== false || !!app.developerMode),
                 maxZoom: 19,
                 zIndex: zIndex(_index),
                 autoHd: Ti.App.Properties.getBool(_id + '_hd', defaultHD),
                 // tileSize: layer.options.tileSize,
                 opacity: Ti.App.Properties.getDouble(_id + '_opacity', (layer.options && layer.options.opacity) ||
                     1),
-            }, _.omit(layer.options, 'url'));
+            }, isMbTiles ? mbtiles[_id] : _.omit(layer.options, 'url'));
             var result = new MapTileSource(props);
             // result.clearCache();
             sdebug('createTileSource', JSON.stringify(result));
@@ -325,26 +492,49 @@ exports.create = function(_context, _args, _additional) {
 
     function mbTilesSubTitle(_value, _showDate) {
         // return 'toto';
-        var result = Math.round(_value.area) + ' km²  -  ' + app.utils.filesize(_value.size, {
+        var result = Math.round(_value.area) + ' km² - ' + app.utils.filesize(_value.size, {
             round: 0
         });
-        if (!!_showDate) {
+        if (_showDate !== false) {
             // moment.duration(moment().valueOf() - _value.timestamp).format()
-            result += '  -  ' + app.utils.humanizeDuration(moment().valueOf() - _value.timestamp, {
+            result += ' - ' + app.utils.humanizeDuration(moment().valueOf() - _value.timestamp, {
                 largest: 1,
                 round: true
             });
         }
         return result;
     }
+
+    function mbTilesTitle(_value) {
+        sdebug('mbTilesTitle', _value);
+        var displayName = '';
+        if (_value.address) {
+            var address = _value.address;
+            var params = ['village', 'town', 'city', 'state', 'country'];
+            for (var i = 0; i < params.length; i++) {
+                if (address.address.hasOwnProperty(params[i])) {
+                    displayName = address.address[params[i]];
+                    break;
+                }
+            }
+        }
+
+        // if (e.address.hasOwnProperty('country') && displayName !== e.address['country']) {
+        //     displayName += ', ' + e.address['country'];
+        // }
+        return displayName;
+    }
+
     function mbTilesDownloadSubTitle(e) {
-        return mbTilesSubTitle(e.request) + '\n' + trc(!!e.request.paused ? 'paused' : 'downloading') + '  (' + e.progress.toFixed() + '%)';
+        return mbTilesSubTitle(e.request) + '\n' + trc(!!e.request.paused ? 'paused' : 'downloading') + '  (' + e.progress
+            .toFixed() + '%)';
     }
 
     function tileSourceItem(_value) {
 
         var id = _value.id;
-        var isMbTiles = !!mbtiles[id];
+        var mbTile = mbtiles[id];
+        var isMbTiles = !!mbTile;
         var layer = _value.layer;
         sdebug('tileSourceItem', id, isMbTiles, _value, app.developerMode);
         // if (id !== shadingId) {
@@ -352,10 +542,10 @@ exports.create = function(_context, _args, _additional) {
             true);
         return {
             title: {
-                html: isMbTiles ? ('mb: ' + sourceName(layer)) : sourceName(layer)
+                html: isMbTiles ? (mbTilesTitle(mbTile) + ': ' + sourceName(layer)) : sourceName(layer)
             },
             subtitle: {
-                html: isMbTiles ? '<small>' + mbTilesSubTitle(mbtiles[id], true) + '</small>' : undefined
+                html: isMbTiles ? mbTilesSubTitle(mbTile, true) : undefined
             },
             sourceId: id,
             enable: {
@@ -367,7 +557,8 @@ exports.create = function(_context, _args, _additional) {
                     '_opacity', 1)
             },
             download: {
-                visible: !isMbTiles && ((layer.options && !!layer.options.downloadable) || !!app.developerMode)
+                visible: !isMbTiles && (!layer.options || layer.options.cacheable !== false || !!app.developerMode),
+                // visible: !isMbTiles && ((layer.options && !!layer.options.downloadable) || !!app.developerMode)
             }
 
         };
@@ -375,7 +566,7 @@ exports.create = function(_context, _args, _additional) {
 
     {
         var isOverlay = function(providerName, layer) {
-            if (layer.options.opacity && layer.options.opacity < 1) {
+            if (!!layer.options.isOverlay || (layer.options.opacity && layer.options.opacity < 1)) {
                 return true;
             }
             var overlayPatterns = [
@@ -559,7 +750,7 @@ exports.create = function(_context, _args, _additional) {
                 },
                 childTemplates: actionButtons,
                 events: {
-                    'click': function(e) {
+                    'click': app.debounce(function(e) {
                         var callbackId = e.source.callbackId;
                         sdebug('click', callbackId);
                         if (callbackId) {
@@ -625,7 +816,7 @@ exports.create = function(_context, _args, _additional) {
                             }
                         }
 
-                    }
+                    })
                 }
 
             }],
@@ -707,9 +898,11 @@ exports.create = function(_context, _args, _additional) {
                                                 self.removeTileSource(sourceId);
                                                 break;
                                             case 'center_bounds':
-                                                sdebug(option, mbtiles[sourceId]);
-                                                self.parent.setRegion(mbtiles[sourceId].bounds,
-                                                    0.2);
+                                                var mbTile = mbtiles[sourceId];
+                                                self.parent.updateCamera({
+                                                    zoom: mbTile.minZoom,
+                                                    centerCoordinate:geolib.getCenter([mbTile.bounds.sw, mbTile.bounds.ne])
+                                                });
                                                 break;
                                         }
                                     }
@@ -718,7 +911,7 @@ exports.create = function(_context, _args, _additional) {
                             }
                         case 'download':
                             {
-                                createMBTiles(tileSourcesIndexed[sourceId], app.utils.geolib.scaleBounds(self.mapView.region, 0.2));
+                                createMBTiles(tileSourcesIndexed[sourceId], self.mapView.region);
                                 break;
                             }
                         case 'pause':
@@ -740,7 +933,7 @@ exports.create = function(_context, _args, _additional) {
                                 break;
                             }
                     }
-                }),
+                }, 100),
                 change: function(e) {
                     if (e.item) {
                         var sourceId = e.item.sourceId;
@@ -775,6 +968,8 @@ exports.create = function(_context, _args, _additional) {
     var self = new _context.MapModule(_args);
 
     _.assign(self, {
+        mbTilesSubTitle: mbTilesSubTitle,
+        mbTilesTitle: mbTilesTitle,
         GC: app.composeFunc(self.GC, function() {
             tileSources = null;
             tileSourcesIndexed = null;

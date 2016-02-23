@@ -572,7 +572,8 @@ $gfHeaderHeight = Math.round(app.deviceinfo.height*0.28);
 }
 
 .GFOptionRowSublabel {
-    rclass:'ListItemRowSublabel'
+    rclass:'ListItemRowSublabel',
+    left:0,
 }
 
 .GFOptionRowAccessory {

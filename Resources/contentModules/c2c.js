@@ -466,7 +466,7 @@ exports.create = function(_context, _args, _additional) {
         getItemTypes: function(memo) {
             memo['c2c'] = type;
         },
-        prepareDetailsListView: function(item, itemDesc, sections, createItem) {
+        prepareDetailsListView: function(item, itemDesc, sections, createItem, colors, iconicColor) {
             if (item.c2c) {
                 sections[0].items.push(createItem({
                     html: 'Camp2Camp' + '  ' + app.texts.ccopyright,
@@ -485,8 +485,8 @@ exports.create = function(_context, _args, _additional) {
                             type: 'Ti.UI.Label',
                             properties: {
                                 rclass: 'SectionHeaderLabel',
-                                backgroundColor: type.colors.color,
-                                color: type.colors.contrast,
+                                backgroundColor: colors.color,
+                                color: colors.contrast,
                                 html: htmlIcon(type.icon, 1) + ' Camp2Camp'
                             }
                         }),

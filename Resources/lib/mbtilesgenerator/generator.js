@@ -280,6 +280,8 @@ var processMBTiles = function(request, bounds, minZoom, maxZoom) {
         // required MetaData for mbtiles spec
         var metaData = {
           "name": layer.name,
+          maxzoom:maxZoom,
+          minzoom:minZoom,
           "type": "baselayer",
           "version": 1,
           "description": layer.attribution,
@@ -595,7 +597,7 @@ function getSubdomain(t, subdomains) {
 }
 
 function getTileUrl(request, t) {
-  var url = request.layer.url.replace('{s}', getSubdomain(t, request.layer.subdomains));
+  var url = request.layer.url.replace('{s}', getSubdomain(t, request.layer.subdomains || 'abc'));
   if (url.indexOf('{bbox}') >= 0) {
     var tileSize = WMS_MAP_SIZE / Math.pow(2, t.z);
     var minx = WMS_ORIGIN_X + t.x * tileSize;

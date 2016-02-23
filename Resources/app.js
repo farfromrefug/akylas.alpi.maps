@@ -59,7 +59,7 @@ app = require('akylas.commonjs').createApp(this, { // not using var seems very i
 });
 
 function main() {
-
+    Q = require('lib/q');
     __LIST__ = 'list';
     __MARKERS__ = 'markers';
     __ITEMS__ = 'items';
@@ -246,7 +246,7 @@ function main() {
         utils: {
             filesize: require('lib/filesize'),
             geolib: require('lib/geolib'),
-            FuzzySet: require('lib/fuzzyset'),
+            // FuzzySet: require('lib/fuzzyset'),
             // openingHours: require('lib/opening_hours'),
             convert: require('lib/convert'),
             humanizeDuration: require('lib/humanize-duration'),

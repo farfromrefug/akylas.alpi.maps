@@ -1,5 +1,6 @@
 ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
     var baseSources = _.remove(_args, 'baseSources'),
+        queryString = app.utilities.queryString,
         module = _.remove(_args, 'module'),
         overlaySources = _.remove(_args, 'overlaySources');
 
@@ -23,21 +24,6 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
             result = 'street';
         }
         return trc(result);
-    }
-
-    function mbTilesSubTitle(_value, _showDate) {
-        // return 'toto';
-        var result = Math.round(_value.area) + ' km² - ' + app.utils.filesize(_value.size, {
-            round: 0
-        });
-        if (_showDate !== false) {
-            // moment.duration(moment().valueOf() - _value.timestamp).format()
-            result += ' - ' + app.utils.humanizeDuration(moment().valueOf() - _value.timestamp, {
-                largest: 1,
-                round: true
-            });
-        }
-        return result;
     }
 
     function fillSections(_base) {
@@ -108,7 +94,7 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
                         if (value.options.variantName) {
                             subtitle = value.options.variantName;
                         }
-                        if (value.options.hasOwnProperty('maxZoom')) {
+                        if (!isMbTiles && value.options.hasOwnProperty('maxZoom')) {
                             subtitle = (subtitle ? (subtitle + '\n') : '') + 'maxZoom: ' +
                                 maxZoomToString(
                                     value.options.maxZoom);
@@ -143,18 +129,29 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
                     if (mbtiles) {
                         var url;
                         if (mbtiles.bounds) {
-                            var zoom = app.utils.geolib.getBoundsZoomLevel(mbtiles.bounds,
-                                app.deviceinfo);
-                            var center = app.utils.geolib.getCenter([mbtiles.bounds.sw,
-                                mbtiles.bounds.ne
-                            ]);
-                            url = 'http://tyler-alpimaps.rhcloud.com/?' + 'lat=' + center.latitude +
-                                '&lon=' + center.longitude + '&zoom=' + zoom + 
-                                '&width=500&height=500' + '&tile_url=' +
-                                value.url.replace('{s}', '[' + value.subdomains + ']').replace(/&/g, '%26');
-                            if (value.options && value.options.userAgent) {
-                                url += '&tile_url_headers={"User-Agent":"' + value.options.userAgent + '"}'
+                            var layers = [{
+                                url: value.url.replace(/&/g, '%26'),
+                                subdomains: value.options.subdomains,
+                                headers: (value.options.userAgent && {
+                                    'User-Agent': value.options
+                                        .userAgent
+                                })
+                            }];
+
+                            if (!!value.options.isOverlay ||
+                                (value.options.opacity && value.options
+                                    .opacity < 1)) {
+                                layers.unshift({
+                                    url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                                });
                             }
+                            url = queryString({
+                                layers: layers,
+                                width: 500,
+                                height: 500,
+                                bounds: mbtiles.bounds,
+                            }, app.api.osAPIURL + 'staticmap');
+
                             sdebug('url', url);
                         } else {
                             url =
@@ -168,11 +165,14 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
                                 visible: true
                             },
                             attribution: {
-                                text: mbTilesSubTitle(mbtiles, true)
+                                text: module.mbTilesSubTitle(mbtiles, true)
                             },
                             imageView: {
                                 image: url
                             },
+                            subtitle: {
+                                text:item.subtitle.text + '\n'+ module.mbTilesTitle(mbtiles)
+                            }
                         });
                     } else {
                         _.assign(item, {

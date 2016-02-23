@@ -1321,7 +1321,7 @@ exports.create = function(_context, _args, _additional) {
                                 text: '\ue288'
                             },
                             title: {
-                                text: file.title || file.fileName,
+                                text: file.title +  ' - ' + (file.fullTitle || file.fileName) ,
                             },
                             subtitle:{
                                 text:moment(file.timestamp).fromNow() + ' - ' + app.utils.filesize(file.fileSize, {round: 0})

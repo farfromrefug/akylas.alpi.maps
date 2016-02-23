@@ -279,6 +279,7 @@
     var getThumbnailImagePath = app.getThumbnailImagePath;
 
     function getAnnotImage(_markerType, _item, _selected) {
+        // sdebug('getAnnotImage', _markerType, _item, _selected);
         var selected = !!_selected;
 
         var colors = _markerType.colors;
@@ -347,7 +348,7 @@
             params.text = icon;
         }
         // view.applyProperties(params, true);
-        sdebug('creating annot image', params);
+        // sdebug('creating annot image', imageId, params, iconSettings);
         image = view.toImage(null, {
             properties: params
         });
@@ -1271,7 +1272,7 @@
                             chain.next(res);
                         });
                         var onDone = _.bind(function(changes) {
-                            // sdebug('onDone', changes);
+                            sdebug('onDone', changes);
                             _.each(['icon', 'settings'], function(value) {
                                 if (changes.hasOwnProperty(value) && !_item.hasOwnProperty(
                                         value) && _desc.hasOwnProperty(value) &&

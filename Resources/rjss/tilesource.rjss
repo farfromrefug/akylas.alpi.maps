@@ -127,14 +127,16 @@ TileSourceSelectWindow {
     font: {
         size: 15,
     },
+    minimumFontSize:10,
     height:'SIZE',
     maxLines:1
 }
 
 .TSSelectRowSubtitle {
     rclass:'TSSelectRowLabel',
-    maxLines: 2,
-    height:'SIZE',
+    maxLines: 3,
+    verticalAlign:'top',
+    height:'FILL',
     color:'gray'
 }
 .TSSelectRowAttribution {
@@ -145,7 +147,7 @@ TileSourceSelectWindow {
     },
     maxLines: 0,
     bottom:6,
-    height:'FILL',
+    height:'SIZE',
     verticalAlign:'bottom'
 }
 .TSSelectRowDeleteButton {

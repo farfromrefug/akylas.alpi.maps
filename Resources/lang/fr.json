@@ -82,7 +82,6 @@
     "open_chrome": "ouvrir dans Chrome",
     "open_safari": "ouvrir dans Safari",
     "share": "partager",
-    "are_you_sure": "êtes-vous sûr",
     "computing": "calcul en cours",
     "query_altitude": "demander l'altitude",
     "lookup_address": "rechercher l'adresse",
@@ -330,4 +329,6 @@
     "share_your_position_tutorial":"•<b>appui long:</b> partagez votre position ou copiez-la.",
     "gear":"équipement",
     "remarksremarques":"équipement",
+    "ptl_desc":"module experimental. Retourne des informations lors d'un clique sur la carte. Les données sont disponibles aussi hors-ligne.",
+
 }

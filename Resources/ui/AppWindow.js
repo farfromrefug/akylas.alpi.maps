@@ -472,6 +472,7 @@ ak.ti.constructors.createAppWindow = function(_args) {
 
         self.cancelRunningRequest = function() {
             if (currentRequest) {
+                sdebug('cancelRunningRequest');
                 currentRequest.abort();
                 currentRequest = null;
                 return true;

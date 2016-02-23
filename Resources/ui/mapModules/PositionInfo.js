@@ -12,9 +12,10 @@ exports.create = function(_context, _args, _additional) {
             opacity: 0,
             rclass: 'PCompassImageView'
         }),
+        scaleViewRealWidth = -1,
         scaleView = new View({
-            height: 20,
-            width: 100,
+            height: 40,
+            width: '1cm',
             bottom: 5,
             left: $nbButtonWidth + 10,
             childTemplates: [{
@@ -22,6 +23,7 @@ exports.create = function(_context, _args, _additional) {
                 type: 'Ti.UI.View',
                 properties: {
                     height: 10,
+                    top:11,
                     left: 0,
                     borderColor: $black,
                     borderPadding: [-2, 0, 0, 0],
@@ -32,8 +34,41 @@ exports.create = function(_context, _args, _additional) {
                 bindId: 'label',
                 type: 'Ti.UI.Label',
                 properties: {
-                    bottom: 5,
-                    height: 16,
+                    top:0,
+                    height: '50%',
+                    verticalAlign:'bottom',
+                    left: 3,
+                    width: 'FILL',
+                    textAlign: 'left',
+                    font: {
+                        size: 12,
+                        weight: 'bold'
+                    },
+                    shadowColor: '#fff',
+                    shadowOffset: [0, 0],
+                    shadowRadius: 1.5,
+                    color: $black
+                }
+
+            }, {
+                bindId: 'scale2',
+                type: 'Ti.UI.View',
+                properties: {
+                    height: 10,
+                    bottom:11,
+                    left: 0,
+                    borderColor: $black,
+                    borderPadding: [0, 0, -2, 0],
+                    borderWidth: 2,
+                }
+
+            }, {
+                bindId: 'label2',
+                type: 'Ti.UI.Label',
+                properties: {
+                    bottom:0,
+                    height: '50%',
+                    verticalAlign:'top',
                     left: 3,
                     width: 'FILL',
                     textAlign: 'left',
@@ -216,15 +251,29 @@ exports.create = function(_context, _args, _additional) {
         if (_force !== true && newMpp === currentMpp) {
             return;
         }
+        if (scaleViewRealWidth == -1) {
+            scaleViewRealWidth = scaleView.rect.width;
+        }
         currentMpp = newMpp;
-        // sdebug('updateScaleView', currentMpp);
-        var data = geolib.getMapScale(currentMpp, 100);
+        // var data = geolib.getMapScale(currentMpp, scaleViewRealWidth);
+        // sdebug('updateScaleView', self.mapView.zoom, newMpp, scaleViewRealWidth, data);
+        var metersPerCM = geolib.pxPerCM * currentMpp;
         scaleView.applyProperties({
-            scale: {
-                width: data.width,
-            },
+            // scale: {
+            //     width: data.width,
+            // },
             label: {
-                text: data.text
+                text: geolib.formatter.distance(metersPerCM)
+            },
+            // scale2: {
+            //     width: data.scaleWidth,
+            // },
+            label2: {
+                text: '1:' + app.utils.filesize(metersPerCM * 100, {
+                    // exponent: -2,
+                    base:10,
+                    round: 0
+                }).slice(0,-1)
             }
         }, true);
     }

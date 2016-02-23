@@ -265,17 +265,17 @@ exports.create = function(_context, _args, _additional) {
     }
 
     function instantSearch(_query) {
-        sdebug('test1', _query, !searchView);
+        // sdebug('test1', _query, !searchView);
         if (!searchView) {
             return;
         }
         _query = cleanUpString(_query);
-        sdebug('test2', _query);
+        // sdebug('test2', _query);
         if (searchAsTypeTimer) {
             clearTimeout(searchAsTypeTimer);
         }
         if (_query && _query.length > 0) {
-            sdebug('instantSearch', _query);
+            // sdebug('instantSearch', _query);
             searchAsTypeTimer = setTimeout(function() {
                 searchAsTypeTimer = null;
                 if (photonSearchRequest) {

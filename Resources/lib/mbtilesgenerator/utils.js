@@ -21,7 +21,7 @@ var latLngToTileXYForZoom = function(lat, lng, z) {
  */
 var boundsToArea = function(b) {
   var r2 = Math.pow(EARTH_RADIUS, 2);
-  sdebug('Earth radius is ' + r2);
+  // sdebug('Earth radius is ' + r2);
   // Area of lat bottom to the north-pole
   var alat1 = 2 * Math.PI * r2 * (1 - Math.sin(b.sw.latitude * Math.PI / 180));
   // Area of lat top to the north-pole
@@ -52,7 +52,7 @@ var countTiles = function(layer, bounds, minZoom, maxZoom) {
       (Math.max(coords1[1], coords2[1]) - Math.min(coords1[1], coords2[1]) + 1);
 
   }
-  sdebug('countTiles', bounds, minZoom, maxZoom, count);
+  // sdebug('countTiles', bounds, minZoom, maxZoom, count);
   return count;
 };
 
@@ -68,6 +68,6 @@ exports.computeInfoForMBTiles = function(layer, bounds, minZoom, maxZoom) {
     maxZoom: maxZoom
   }
   var width = layer.tileSize || 256;
-  result.size = 12700 * result.count;
+  result.size = 20000 * result.count;
   return result;
 };

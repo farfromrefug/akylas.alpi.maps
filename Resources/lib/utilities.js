@@ -27,10 +27,13 @@ exports.queryString = function(params, location) {
         if (typeof value === 'undefined') {
             delete obj[key];
         } else {
-            obj[key] = value;
+            if (typeof value === 'object') {
+                obj[key] = JSON.stringify(value);
+            } else {
+                obj[key] = value;
+            }
         }
     }
-
     parts = [];
     for (key in obj) {
         parts.push(key + (obj[key] === true ? '' : '=' + obj[key]));
