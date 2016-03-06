@@ -11,7 +11,7 @@ ak.ti.constructors.createAllFeaturesListWindow = function(_args) {
         return result;
     }
     var sections = _.reduce(['lists', 'items'], function(memo, type) {
-        memo[type] = new ListSection({
+        memo[type] = new CollectionSection({
             hideWhenEmpty: true,
             headerTitle: trc(type)
         });

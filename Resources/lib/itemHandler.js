@@ -382,7 +382,6 @@
             _type.selectedImage = getAnnotImage(_type, undefined, true);
             ak.ti.redux.fn.setDefault('.' + _type.rclass, {
                 // image: app.getImagePath(type.image),
-                type: _type,
                 calloutAnchorPoint: _type.calloutAnchorPoint
             });
             return _type;
@@ -425,6 +424,7 @@
             // sdebug('annotationParamsFromItem', _item, _markerType);
             var annot = {
                 item: _item,
+                type: _markerType,
                 rclass: _markerType.rclass,
                 latitude: _item.latitude,
                 longitude: _item.longitude
@@ -463,6 +463,7 @@
         routeParamsFromItem: function(_item, _routeType) {
             var route = {
                 item: _item,
+                type: _routeType,
                 visible: _routeType.visible,
                 points: _item.route ? _item.route.points : _item.points,
                 title: _item.title,

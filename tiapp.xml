@@ -19,7 +19,7 @@
             <dict>
                 <key>UIViewControllerBasedStatusBarAppearance</key>  
                 <false/>
-                <key>CFBundleVersion</key><string>59</string>
+                <key>CFBundleVersion</key><string>60</string>
                 <key>UIRequiresPersistentWiFi</key>
                 <true/>
                 <key>UIPrerenderedIcon</key>
@@ -61,7 +61,7 @@
     </ios>
     <theme>BaseTheme</theme>>
     <android xmlns:android="http://schemas.android.com/apk/res/android">
-        <manifest android:installLocation="auto" android:versionCode="23">
+        <manifest android:installLocation="auto" android:versionCode="28">
             <uses-sdk android:minSdkVersion="13" android:targetSdkVersion="23"/>
             <application
                 android:hardwareAccelerated="true">

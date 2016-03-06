@@ -221,15 +221,16 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
         //     color: $white,
         //     // tintColor: $cTheme.main,
         // });
-        var result = new View({
-            properties: {
-                title: trc(_title),
-                layout: 'vertical'
-            },
-            childTemplates: [{
+        var result = new CollectionView({
+            // properties: {
+                // title: trc(_title),
+            //     layout: 'vertical'
+            // },
+            // childTemplates: [{
                 type: 'Ti.UI.CollectionView',
                 bindId: 'listView',
                 properties: {
+                title: trc(_title),
                     rclass: 'TSSelectionListView',
                     scrollsToTop: !_isOverlay,
                     // searchViewExternal: searchView,
@@ -243,6 +244,9 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
                 },
                 events: {
                     longpress: function(e) {
+                        if (!e.item) {
+                            return;
+                        }
                         sdebug(e.item, e.source);
                         app.showViewFullScreen(
                             new View(
@@ -301,7 +305,7 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
                         }
                     })
                 }
-            }]
+            // }]
         });
 
         return result;
@@ -317,18 +321,18 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
     }).on('change', function(e) {
         if (e.oldView) {
             e.oldView.applyProperties({
-                listView: {
+                // listView: {
                     scrollsToTop: false,
                     // searchText: null
-                }
+                // }
             });
         }
 
         e.view.applyProperties({
-            listView: {
+            // listView: {
                 scrollsToTop: true,
                 // searchText: searchText
-            }
+            // }
         });
     });
     var self = _args.window = new AppWindow({
@@ -372,9 +376,9 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
                         var searchText = e.value;
                         _.each(tabView.getTabs(), function(_view) {
                             _view.applyProperties({
-                                listView: {
+                                // listView: {
                                     searchText: searchText
-                                }
+                                // }
                             });
                         });
                     }

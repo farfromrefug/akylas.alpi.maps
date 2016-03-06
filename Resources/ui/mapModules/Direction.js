@@ -124,7 +124,55 @@ exports.create = function(_context, _args, _additional) {
                                         rclass: 'DirectionListView',
                                         // bubbleParent: false,
                                         templates: {
-                                            'default': app.templates.row.direction
+                                            'default': ak.ti.prepareListViewTemplate({
+                                                properties: {
+                                                    rclass: 'DirectionRow',
+                                                    backgroundColor:directionsColors.color,
+                                                    rightSwipeButtons: [
+                                                        app.templates.row.createSwipeButton(
+                                                            'delete', 'red',
+                                                            false)
+                                                    ]
+                                                },
+                                                childTemplates: [{
+                                                    type: 'AkylasShapes.View',
+                                                    properties: {
+                                                        rclass: 'DirectionRowShapeView'
+                                                    },
+                                                    childTemplates: [{
+                                                        type: 'AkylasShapes.Line',
+                                                        bindId: 'topLine',
+                                                        properties: {
+                                                            rclass: 'DirectionRowShapeTopLine'
+                                                        }
+                                                    }, {
+                                                        type: 'AkylasShapes.Line',
+                                                        bindId: 'bottomLine',
+                                                        properties: {
+                                                            rclass: 'DirectionRowShapeBottomLine'
+                                                        }
+                                                    }, {
+                                                        type: 'Ti.UI.Label',
+                                                        bindId: 'icon',
+                                                        properties: {
+                                                            rclass: 'DirectionRowIcon'
+                                                        }
+                                                    }]
+                                                }, {
+                                                    type: 'Ti.UI.Label',
+                                                    bindId: 'title',
+                                                    properties: {
+                                                        rclass: 'DirectionRowLabel'
+                                                    }
+                                                }, {
+                                                    type: 'Ti.UI.Label',
+                                                    bindId: 'accessory',
+                                                    properties: {
+                                                        rclass: 'DirectionRowIcon',
+                                                        visible: false
+                                                    }
+                                                }]
+                                            })
                                         },
                                         defaultItemTemplate: 'default',
                                         sections: [{}]

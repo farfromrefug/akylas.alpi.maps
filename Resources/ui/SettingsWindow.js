@@ -89,6 +89,8 @@ ak.ti.constructors.createSettingsWindow = function(_args) {
                 templates: {
                     'default': app.templates.row.license
                 },
+                backgroundColor:$backgroundColor,
+                // backgroundColor:'blue',
                 disableHW: true,
                 noPullView: true,
                 defaultItemTemplate: 'default',
@@ -288,8 +290,15 @@ ak.ti.constructors.createSettingsWindow = function(_args) {
         });
     }
 
-
     function handleCallbackId(e) {
+        if (e.type == 'click' && e.item.template === 'switch') {
+            var newValue = e.value = !e.item.switch.value;
+            e.section.updateItemAt(e.itemIndex, {
+                switch: {
+                    value: newValue
+                },
+            });
+        }
         var callbackId = (e.item && e.item.callbackId) || e.bindId,
             currentValue;
         sdebug(callbackId, e.value);
@@ -373,7 +382,7 @@ ak.ti.constructors.createSettingsWindow = function(_args) {
                 app.tutorialManager.setEnabled(e.value);
                 break;
             case 'powered_by_akylas':
-                
+
                 self.manager.createAndOpenWindow('WebWindow', {
                     url: 'http://www.akylas.fr'
                 });

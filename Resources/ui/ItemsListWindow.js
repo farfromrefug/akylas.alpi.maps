@@ -102,7 +102,6 @@ ak.ti.constructors.createItemsListWindow = function(_args) {
             canEdit: true,
             // canMove: true,
             allowsMultipleSelectionDuringEditing: true,
-            columnWidth: '50%',
             templates: {
                 default: app.templates.row.listitem,
                 admob: app.templates.row.admob
@@ -145,7 +144,7 @@ ak.ti.constructors.createItemsListWindow = function(_args) {
 
                 },
                 click: app.debounce(function(e) {
-                    // sdebug('item click', e);
+                    sdebug('item click', e);
 
                     var item = e.item;
                     if (!item || item.template === 'admob' || !!editing) {
@@ -168,7 +167,10 @@ ak.ti.constructors.createItemsListWindow = function(_args) {
 
                 }),
                 longpress: function(e) {
+                    // if (!editing) {
+                        sdebug('longpress');
                     setEditing(!editing, e);
+                    // }
                 }
             }
         }

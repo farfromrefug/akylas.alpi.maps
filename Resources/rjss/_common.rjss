@@ -91,7 +91,7 @@ MainWindow {
 
 WebWindow {
     withLoadingIndicator:true,
-    backgroundColor:$white,
+    /*backgroundColor:$white,*/
     showBackButton: true,
     customNavBar:true,
     barColor:$cTheme.main,
@@ -131,9 +131,9 @@ AppTabView {
 /*$tabHeight = 30;*/
 .AppTabViewScrollableView {
     /*top:$tabHeight,*/
-    transition: {
+/*    transition: {
         style: Ti.UI.TransitionStyle.FADE
-    },
+    },*/
     width:'FILL',
     height:'FILL',
     scrollingEnabled:false,
@@ -217,7 +217,7 @@ ListView {
 
 CollectionView {
     allowsSelection:false,
-    columnWidth: '50%',
+    numColumns: 1,
     rowHeight:152,
     backgroundColor:'transparent',
     unHighlightOnSelect: false,

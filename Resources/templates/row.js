@@ -760,7 +760,9 @@ function create(_context) {
                     type: 'Ti.UI.Label',
                     properties: {
                         rclass: 'TSControlsLabel',
-                        font: {size:__APPLE__?12:14},
+                        font: {
+                            size: __APPLE__ ? 12 : 14
+                        },
                         color: 'lightgray',
                         bottom: 0,
                         height: '50%'
@@ -818,8 +820,8 @@ function create(_context) {
                     type: 'Ti.UI.Label',
                     properties: {
                         rclass: 'TSControlsLabel',
-                        verticalAlign:'middle',
-                        padding:null,
+                        verticalAlign: 'middle',
+                        padding: null,
                         maxLines: 1,
                         height: 'SIZE'
                     }
@@ -885,14 +887,14 @@ function create(_context) {
                         bindId: 'delete',
                         properties: {
                             rclass: 'EditPhotoRemoveBtn',
-                            visible:false
+                            visible: false
                         }
-                    //     type: 'Akylas.Googlemap.View',
-                    //     bindId: 'mapView',
-                    //     properties: {
-                    //         rclass: 'TSSelectRowMapView',
-                    //         visible: false
-                    //     }
+                        //     type: 'Akylas.Googlemap.View',
+                        //     bindId: 'mapView',
+                        //     properties: {
+                        //         rclass: 'TSSelectRowMapView',
+                        //         visible: false
+                        //     }
                     }]
                 }, {
                     type: 'Ti.UI.Label',
@@ -918,12 +920,12 @@ function create(_context) {
                     //     }
                     // },{
 
-                        type: 'Ti.UI.Label',
-                        bindId: 'attribution',
-                        properties: {
-                            rclass: 'TSSelectRowAttribution'
+                    type: 'Ti.UI.Label',
+                    bindId: 'attribution',
+                    properties: {
+                        rclass: 'TSSelectRowAttribution'
 
-                        }
+                    }
                     // }]
                 }]
             }]
@@ -1041,15 +1043,10 @@ function create(_context) {
                 properties: {
                     exclusiveTouch: true,
                     scrollsToTop: false,
+                    clipChildren:false,
                     scrollDirection: 'horizontal',
-                    // showHorizontalScrollIndicator:true,
-                    // pagingEnabled:false,
+                    stickyHeaders: true,
                     width: 'FILL',
-                    // height: 50,
-                    // contentWidth: 'SIZE',
-                    // cacheSize:20,
-                    // pageWidth:50,
-                    // pageOffset:0 ,
                     columnWidth: 59,
                     rowHeight: 60,
                     defaultItemTemplate: 'default',
@@ -1091,6 +1088,10 @@ function create(_context) {
                                 bindId: 'icon',
                                 properties: {
                                     scaleType: Ti.UI.SCALE_TYPE_ASPECT_FIT,
+                                    transition: {
+                                        style: Ti.UI.TransitionStyle.FADE,
+                                        duration: 200
+                                    },
                                     width: 35,
                                     height: 35,
                                 }
@@ -1176,52 +1177,6 @@ function create(_context) {
                 //         }]
                 //     };
                 // })
-            }]
-        },
-        direction: {
-            properties: {
-                rclass: 'DirectionRow',
-                rightSwipeButtons: [
-                    createSwipeButton('delete', 'red', false)
-                ]
-            },
-            childTemplates: [{
-                type: 'AkylasShapes.View',
-                properties: {
-                    rclass: 'DirectionRowShapeView'
-                },
-                childTemplates: [{
-                    type: 'AkylasShapes.Line',
-                    bindId: 'topLine',
-                    properties: {
-                        rclass: 'DirectionRowShapeTopLine'
-                    }
-                }, {
-                    type: 'AkylasShapes.Line',
-                    bindId: 'bottomLine',
-                    properties: {
-                        rclass: 'DirectionRowShapeBottomLine'
-                    }
-                }, {
-                    type: 'Ti.UI.Label',
-                    bindId: 'icon',
-                    properties: {
-                        rclass: 'DirectionRowIcon'
-                    }
-                }]
-            }, {
-                type: 'Ti.UI.Label',
-                bindId: 'title',
-                properties: {
-                    rclass: 'DirectionRowLabel'
-                }
-            }, {
-                type: 'Ti.UI.Label',
-                bindId: 'accessory',
-                properties: {
-                    rclass: 'DirectionRowIcon',
-                    visible: false
-                }
             }]
         },
         iteminfo: {

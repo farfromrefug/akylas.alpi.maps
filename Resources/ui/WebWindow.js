@@ -434,10 +434,13 @@ ak.ti.constructors.createWebWindow = function(_args) {
 
 	var hideLoadingTimer, loaded, currentTitle;
 
+	var currentProgress = -1;
 	function setProgress(_progress) {
-		if (webView == null) {
+		if (webView == null || currentProgress === _progress) {
 			return;
 		}
+		sdebug('setProgress', _progress);
+		currentProgress = _progress;
 		if (_progress === 0) {
 			loaded = false;
 			//start loading
@@ -528,7 +531,6 @@ ak.ti.constructors.createWebWindow = function(_args) {
 		// setProgress(1);
 	}).on('loadprogress', function(e) {
 		// if (e.progress !== 1) {
-		sdebug('loadprogress', e.progress);
 		setProgress(e.progress);
 		// }
 	}).on('error', function(e) {

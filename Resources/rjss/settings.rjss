@@ -103,7 +103,7 @@ SettingsWindow {
 
 
 .LicenseRowValue {
-    autoLink: Ti.UI.AUTOLINK_ALL,    
+    /*autoLink: Ti.UI.AUTOLINK_ALL,    */
     touchEnabled:false,
     visible:false,
     height:'SIZE',

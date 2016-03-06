@@ -148,7 +148,7 @@ function main() {
         if (__APPLE__) {
             app.modules.statusbarnotification.showMessage(args);
         } else {
-            Ti.UI.showNotification(_.assign(args, {
+            Ti.UI.showSnackbar(_.assign(args, {
                 gravity: 48
             }));
         }
@@ -422,12 +422,13 @@ function main() {
         'LocationButton',
         'TileSourceManager',
         'Wikitude',
-        'PointToLocation',
+        'PointToLocation', 
+        'Weather'
     ];
-    
-    if (__APPLE__) {
-        app.mapModules.push('Weather');
-    }
+
+    // if (__APPLE__) {
+    //     app.mapModules.push('Weather');
+    // }
     // app.contentModules = [
     //     'panoramio',
     //     'facebook',

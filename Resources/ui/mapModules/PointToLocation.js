@@ -1,5 +1,5 @@
 exports.settings = {
-    name: 'Point To Location',
+    name: trc('point_to_location'),
     description: 'ptl_desc'
 };
 exports.create = function(_context, _args, _additional) {

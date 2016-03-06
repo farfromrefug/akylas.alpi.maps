@@ -330,5 +330,8 @@
     "gear":"équipement",
     "remarksremarques":"équipement",
     "ptl_desc":"module experimental. Retourne des informations lors d'un clique sur la carte. Les données sont disponibles aussi hors-ligne.",
+    "print":"imprimer",
+    "download":"télécharger",
+    "point_to_location":"information localisation",
 
 }
