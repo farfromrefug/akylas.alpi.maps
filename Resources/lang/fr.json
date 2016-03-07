@@ -333,5 +333,8 @@
     "print":"imprimer",
     "download":"télécharger",
     "point_to_location":"information localisation",
-
+    "refreshing":"chargement",
+    "click_to_cancel":"cliquer pour annuler",
+    "document_created":"document créé",
+    "files":"fichiers",
 }

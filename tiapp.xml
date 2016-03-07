@@ -61,7 +61,7 @@
     </ios>
     <theme>BaseTheme</theme>>
     <android xmlns:android="http://schemas.android.com/apk/res/android">
-        <manifest android:installLocation="auto" android:versionCode="28">
+        <manifest android:installLocation="auto" android:versionCode="30">
             <uses-sdk android:minSdkVersion="13" android:targetSdkVersion="23"/>
             <application
                 android:hardwareAccelerated="true">
