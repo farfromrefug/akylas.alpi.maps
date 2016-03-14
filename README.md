@@ -10,12 +10,12 @@ This is the source repository for the Open Source [iOS](https://itunes.apple.com
 
 ### Installing the SDK
 
-* Get a built version of it [here](https://drive.google.com/open?id=0B6sfR-aIHi1oajFRcG0zNExGVFk)
+* Get a built version of it [here](http://www.googledrive.com/host/0B3Yso-gHq5-UbVVHeGt5Q25GeFk)
 
 
 ## Submodules
 To build **AlpiMaps** you will need to install titanium modules.
-Get them [here](https://drive.google.com/open?id=0B6sfR-aIHi1oRk1nZ0V2YkhpMDA)
+Get them [here](http://www.googledrive.com/host/0B3Yso-gHq5-UUDdScGpaRk1jZjg)
 To install them simply copy them directly in the project folder.
 
 Those modules are protected and won't work outside of this project
