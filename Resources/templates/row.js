@@ -872,7 +872,7 @@ function create(_context) {
                 rclass: 'TSSelectRow'
             },
             childTemplates: [{
-                type: 'Ti.UI.View',
+                type: __ANDROID__?'Ti.UI.Android.CardView':'Ti.UI.View',
                 properties: {
                     rclass: 'TSSelectRowHolder'
                 },
@@ -889,12 +889,6 @@ function create(_context) {
                             rclass: 'EditPhotoRemoveBtn',
                             visible: false
                         }
-                        //     type: 'Akylas.Googlemap.View',
-                        //     bindId: 'mapView',
-                        //     properties: {
-                        //         rclass: 'TSSelectRowMapView',
-                        //         visible: false
-                        //     }
                     }]
                 }, {
                     type: 'Ti.UI.Label',
@@ -909,24 +903,12 @@ function create(_context) {
                         rclass: 'TSSelectRowSubtitle'
                     }
                 }, {
-                    // type: 'Ti.UI.View',
-                    // touchPassThrough: true,
-                    // childTemplates: [{
-                    //     type: 'Ti.UI.Button',
-                    //     bindId: 'delete',
-                    //     properties: {
-                    //         rclass: 'TSSelectRowDeleteButton',
-                    //         visible:false
-                    //     }
-                    // },{
-
                     type: 'Ti.UI.Label',
                     bindId: 'attribution',
                     properties: {
                         rclass: 'TSSelectRowAttribution'
 
                     }
-                    // }]
                 }]
             }]
         },

@@ -6,7 +6,6 @@ MapWindow {
 }
 
 .AppMapViewChildrenHolder {
-    /*gesturesCanCancelClick:true,*/
     touchPassThrough:true,
 }
 

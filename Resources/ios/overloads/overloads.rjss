@@ -30,7 +30,18 @@ MapWindow {
         offset:{x:0,y:1},
         radius:2,
         color:'#88000000'
+    },
+    states: {
+        pressed: {
+            duration:100,
+            viewShadow:{
+                offset:{x:0,y:3},
+                radius:4,
+                color:'#88000000'
+            }
+        }
     }
+    
 }
 
 .MapButton {
@@ -45,21 +56,26 @@ MapWindow {
     listViewArgs:{
         separatorStyle:1,
         style:1,
-    },
-}
-
-.SettingsSelectionWindow {
-    listViewArgs:{
-        defaultItemTemplate:1,
+        },
     }
-}
-.NativeListWindow {
-    listViewArgs:{
-        separatorStyle:1,
-    },
-}
 
-.GeoFeatureListView {
-    canCancelEvents: false,
-    delaysContentTouches: true,
-}
+    .SettingsSelectionWindow {
+        listViewArgs:{
+            defaultItemTemplate:1,
+        }
+    }
+    .NativeListWindow {
+        listViewArgs:{
+            separatorStyle:1,
+            },
+        }
+
+        .GeoFeatureListView {
+            canCancelEvents: false,
+            delaysContentTouches: true,
+        }
+
+
+        .AppMapViewChildrenHolder {
+            gesturesCancelsTouches:false
+        }

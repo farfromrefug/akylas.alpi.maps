@@ -20,7 +20,6 @@ ak.ti.constructors.createItemInfoView = function(_args) {
             // backgroundColor: null
         }),
         self = new View({
-            type: 'Ti.UI.View',
             properties: _args,
 
             childTemplates: [{

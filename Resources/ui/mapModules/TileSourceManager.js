@@ -711,7 +711,7 @@ exports.create = function(_context, _args, _additional) {
                 visible: false,
             },
             childTemplates: [{
-                type: 'Ti.UI.CollectionView',
+                type: 'Ti.UI.ListView',
                 bindId: 'listView',
                 properties: {
                     rclass: 'TSControlListView',

@@ -10,6 +10,10 @@ Window {
     }
 }
 
+/*View {
+    gesturesCancelsTouches:false,
+}*/
+
 /*AppWindow {
     customNavBar: true,
     barColor: $cTheme.main,
@@ -219,8 +223,7 @@ CollectionView {
     allowsSelection:false,
     numColumns: 1,
     rowHeight:152,
-    backgroundColor:'transparent',
-    unHighlightOnSelect: false,
+    backgroundColor:'transparent'
 }
 
 

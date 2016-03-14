@@ -25,8 +25,18 @@ ak.ti.constructors.createActionButton = function(_args) {
     var args = {
         properties: _.assign(_args, {
             callbackId: id,
-            title: icon,
-            color: color
+            selector:color,
+            text: icon,
+            color: color,
+            states:{
+                pressed:{
+                    duration:100,
+                    transform:'s1.05',
+                    tutorial:{
+                        transform:'s1.05',
+                    }
+                }
+            }
         })
     };
     // if (app.tutorialManager.enabled) {
@@ -35,18 +45,18 @@ ak.ti.constructors.createActionButton = function(_args) {
         }
         args.properties.padding = {bottom:10};
         args. childTemplates = [{
-            type: 'Ti.UI.Button',
+            type: 'Ti.UI.Label',
             bindId: 'tutorial',
             properties: {
                 rclass: 'ActionButtonLabel',
                 width:'FILL',
-                title: trc(text).toUpperCase(),
+                text: trc(text).toUpperCase(),
                 color: color
             }
         }];
     // }
 
-    var self = new Button(args);
+    var self = new Label(args);
     self.setEnabled = function(_enabled) {
         var theColor = _enabled ? color : $gray;
         // sdebug('setEnabled', _enabled, theColor);
