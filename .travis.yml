@@ -13,7 +13,7 @@ before_install:
 install:
     - npm install -g git://github.com/Akylas/titanium.git
     - npm install -g tishadow gulp ticalabash
-    - npm install
+    # - npm install
 
     - titanium sdk install http://www.googledrive.com/host/0B3Yso-gHq5-UbVVHeGt5Q25GeFk --no-progress-bars
 
