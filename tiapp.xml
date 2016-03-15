@@ -59,7 +59,7 @@
             </dict>
         </plist>
     </ios>
-    <theme>BaseTheme</theme>>
+    <theme>BaseTheme</theme>
     <android xmlns:android="http://schemas.android.com/apk/res/android">
         <manifest android:installLocation="auto" android:versionCode="34">
             <uses-sdk android:minSdkVersion="13" android:targetSdkVersion="23"/>
@@ -107,7 +107,7 @@
     <property name="ti.android.debug" type="bool">true</property>
     <property name="ti.compilejs" type="bool">false</property>
     <property name="ti.android.bug2373.finishfalseroot" type="bool">true</property>
-    <property name="akylas.modules.key">cf739fd1658a4d50ee021071062e641ebf4ecc16</property>
     <property name="run-on-main-thread" type="bool">false</property>
+    <property name="akylas.modules.key">cf739fd1658a4d50ee021071062e641ebf4ecc16</property>
   
 </ti:app>
