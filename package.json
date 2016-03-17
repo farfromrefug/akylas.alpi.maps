@@ -1,14 +1,11 @@
 {
-
   "dependencies": {
-    "async": "^0.9.0",
-    "commander": "^2.8.1",
+    "cloudinary": "^1.2.1",
     "gulp": "^3.8.11",
-    "gulp-git": "^1.2.3",
+    "gulp-additional-utils": "git://github.com/thesmiths/gulp-additional-utils.git",
     "gulp-util": "^3.0.4",
-    "pkginfo": "^0.3.0",
-    "prompt": "^0.2.14",
-    "underscore": "^1.8.3"
-  },
-  "devDependencies": {},
+    "moment": "^2.10.2",
+    "underscore": "^1.8.3",
+    "xml2js": "^0.4.8"
+  }
 }
