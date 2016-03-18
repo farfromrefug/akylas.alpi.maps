@@ -6,7 +6,7 @@ module.exports = function (gulp, plugins) {
 
         (new plugins.xml2js.Parser()).parseString(content, function (err, result) {
             if (err) return plugins.utils.abort(err.message, done);
-
+            
             plugins._.each(
                 plugins._.extend(plugins.utils.env.config.global, plugins.utils.env.config['env:'+target]), 
                 function (value, key) {
