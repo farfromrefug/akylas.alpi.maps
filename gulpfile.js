@@ -22,7 +22,6 @@ var gulp = require('gulp'),
             global:{}
         }
     }
-    plugins.utils.log("test" + JSON.stringify(plugins.utils.env));
 
 /** Require all tasks defined in several gulpfiles **/
 var gulpfiles = plugins.fs.readdirSync(GULP_DIR);
