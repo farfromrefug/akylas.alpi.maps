@@ -13,7 +13,15 @@ var gulp = require('gulp'),
         cloudinary: require('cloudinary')
     },
     GULP_DIR = './.gulp';
-// plugins.utils.env.config = JSON.parse(plugins.fs.readFileSync(plugins.path.join(process.cwd(), 'app', 'config.json')));  
+
+    var configFilePath = plugins.path.join(process.cwd(), 'app', 'config.json');
+    if (plugins.fs.existsSync(configFilePath)) {
+        plugins.utils.env.config = JSON.parse(plugins.fs.readFileSync(configFilePath));  
+    } else {
+        plugins.utils.env.config = {
+            global:{}
+        }
+    }
 
 /** Require all tasks defined in several gulpfiles **/
 var gulpfiles = plugins.fs.readdirSync(GULP_DIR);
