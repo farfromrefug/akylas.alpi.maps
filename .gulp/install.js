@@ -4,7 +4,7 @@ module.exports = function (gulp, plugins) {
     });
 
     gulp.task('install:create_emulator', ['install:update_arm'], function (done) {
-        plugins.exec('echo no | android create avd --force -n test -t "Google Inc.:Google APIs:"' + process.env.ANDROID_VERSION + ' -b default/armeabi-v7a -d "Nexus 4"', done).stdout.pipe(process.stdout);
+        plugins.exec('echo no | android create avd --force -n test -t 0', done).stdout.pipe(process.stdout);
     });
 
     gulp.task('install:update_arm', ['install:update_addOnGoogle'], function (done) {
@@ -24,7 +24,7 @@ module.exports = function (gulp, plugins) {
     });
 
     gulp.task('install:update_buildTools', ['install:update_tools'], function (done) {
-        plugins.exec('echo yes | android -s update sdk --no-ui --all --filter build-tools-22.0.0', done).stdout.pipe(process.stdout);
+        plugins.exec('echo yes | android -s update sdk --no-ui --all --filter build-tools-', done).stdout.pipe(process.stdout);
     });
 
     gulp.task('install:update_tools', ['install:update_platformTools'], function (done) {
@@ -45,9 +45,9 @@ module.exports = function (gulp, plugins) {
     });
 
     gulp.task('install:getSDK', ['ensure:android'], function (done) {
-        plugins.exec("wget http://dl.google.com/android/android-sdk_r24.1.2-macosx.zip", function (err){
+        plugins.exec("wget http://dl.google.com/android/android-sdk_r24.4.1-macosx.zip", function (err){
             if (err) return plugins.utils.abort(err.message, done);
-            plugins.exec("unzip -q android-sdk_r24.1.2-macosx.zip", done).stdout.pipe(process.stdout);
+            plugins.exec("unzip -q android-sdk_r24.4.1-macosx.zip", done).stdout.pipe(process.stdout);
         }).stdout.pipe(process.stdout);
     });
 
