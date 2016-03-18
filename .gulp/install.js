@@ -4,7 +4,7 @@ module.exports = function (gulp, plugins) {
     });
 
     gulp.task('install:create_emulator', ['install:update_arm'], function (done) {
-        plugins.exec('echo no | aandroid list targets | ndroid create avd --force -n test -t 0', done).stdout.pipe(process.stdout);
+        plugins.exec('echo no | android list targets | android create avd --force -n test -t 0', done).stdout.pipe(process.stdout);
     });
 
     gulp.task('install:update_arm', ['install:update_addOnGoogle'], function (done) {
