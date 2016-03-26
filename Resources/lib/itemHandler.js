@@ -394,7 +394,7 @@
                 return;
             }
             var photo = _item.photos[0];
-            
+
             var ratio = photo.width / photo.height;
             // var scale = Math.min(400 / photo.width, 300 / photo.height);
             var banner = ratio > 2;
@@ -461,11 +461,27 @@
             return ak.ti.style(annot, 'MapAnnotation');
         },
         routeParamsFromItem: function(_item, _routeType) {
+            var points = _item.points;
+            if (_item.route) {
+                points = _item.route.points;
+                if (!!_item.route.encoded) {
+                    var decodeLine = app.api.decodeLine;
+                    var arrPush = Array.prototype.push;
+                    if (_.isArray(points)) {
+                        points = _.reduce(points, function(memo, value) {
+                            arrPush.apply(memo, decodeLine(value));
+                            return memo;
+                        }, []);
+                    } else {
+                        points = decodeLine(points);
+                    }
+                }
+            }
             var route = {
                 item: _item,
                 type: _routeType,
                 visible: _routeType.visible,
-                points: _item.route ? _item.route.points : _item.points,
+                points: points,
                 title: _item.title,
                 color: _item.color || _routeType.routeColor || _routeType.color,
                 selectedColor: _routeType.routeSelectedColor,
@@ -1527,16 +1543,16 @@
                         }
                         break;
                     }
-                // case 'searcharound':
-                //     _mapHandler.runMethodOnModules('spreadModuleAction', {
-                //         id: _option,
-                //         parent: _parent,
-                //         mapHandler: _mapHandler,
-                //         command: _option,
-                //         item: _item,
-                //         desc: _desc,
-                //     });
-                //     break;
+                    // case 'searcharound':
+                    //     _mapHandler.runMethodOnModules('spreadModuleAction', {
+                    //         id: _option,
+                    //         parent: _parent,
+                    //         mapHandler: _mapHandler,
+                    //         command: _option,
+                    //         item: _item,
+                    //         desc: _desc,
+                    //     });
+                    //     break;
                 case 'locate':
                 case 'select':
                     _mapHandler.runMethodOnModules('runActionOnItem', _item.type, _item, 'select');
@@ -1652,7 +1668,7 @@
                             parent: _parent,
                             mapHandler: _mapHandler,
                             command: _option,
-                            params:_params,
+                            params: _params,
                             item: _item,
                             desc: _desc,
                         });

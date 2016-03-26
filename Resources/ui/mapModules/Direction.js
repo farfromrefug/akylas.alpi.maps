@@ -127,7 +127,8 @@ exports.create = function(_context, _args, _additional) {
                                             'default': ak.ti.prepareListViewTemplate({
                                                 properties: {
                                                     rclass: 'DirectionRow',
-                                                    backgroundColor:directionsColors.color,
+                                                    backgroundColor: directionsColors
+                                                        .color,
                                                     rightSwipeButtons: [
                                                         app.templates.row.createSwipeButton(
                                                             'delete', 'red',
@@ -404,16 +405,19 @@ exports.create = function(_context, _args, _additional) {
         // view.editBtn.visible = false;
     }
 
-    function handleCreateRoute(_route) {
+    function handleCreateRoute(_route, firstPoint, lastPoint) {
+        sdebug('createRoute', firstPoint, lastPoint);
         var points = _route.points;
-        var firstPoint = points[0];
-        var lastPoint = _.last(points);
+        if (!!_route.encoded) {
+            points = app.api.decodeLine(_route.overview_points);
+        }
         hide();
+        sdebug('test', points[0], firstPoint, _.isEqual(points[0], firstPoint));
         var type = 'computed';
         var item = {
             start: firstPoint,
             startOnRoute: _.isEqual(points[0], firstPoint),
-            endOnRoute: _.isEqual(_.last(points), firstPoint),
+            endOnRoute: _.isEqual(_.last(points), lastPoint),
             end: lastPoint,
             waypoints: _.pluck(waypoints, 'id'),
             route: _route
@@ -445,7 +449,7 @@ exports.create = function(_context, _args, _additional) {
                     }
                 },
                 points: _points
-            });
+            }, _points[0], _.last(_points));
         } else {
             var firstPoint = _points[0];
             var lastPoint = _.last(_points);
@@ -455,7 +459,7 @@ exports.create = function(_context, _args, _additional) {
                 waypoints: _points.slice(1, -1)
             }, function(_result) {
                 if (!_result.error) {
-                    handleCreateRoute(_result);
+                    handleCreateRoute(_result, firstPoint, lastPoint);
                 } else {
                     // if (inPaintMode) {
                     //     leavePaintMode();

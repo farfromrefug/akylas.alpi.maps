@@ -15,15 +15,15 @@ function createApi(_context) {
 
     var cleanUpString = function(s) {
         return _.deburr(s).toLowerCase().replace(/^(the|le|la|el)\s/, '').trim();
-    }
+    };
 
     function overpassAPIURL() {
         index = (index + 1) % osmOverpassUrls.length;
         return osmOverpassUrls[index];
     }
 
-    function get_type(thing) {
-        if (thing === null) return "[object Null]"; // special case
+    function getType(thing) {
+        if (thing === null) return '[object Null]'; // special case
         return Object.prototype.toString.call(thing);
     }
 
@@ -97,14 +97,14 @@ function createApi(_context) {
         var x = lon * 20037508.34 / 180;
         var y = Math.log(Math.tan((90 + lat) * Math.PI / 360)) / (Math.PI / 180);
         y = y * 20037508.34 / 180;
-        return [x, y]
-    }
+        return [x, y];
+    };
 
     function latlongToString(_point) {
         if (_.isArray(_point) && _point.length == 2) {
             return _point[0].toFixed(4) + ',' + _point[1].toFixed(4);
         } else if (_point.hasOwnProperty('latitude')) {
-            return _point['latitude'].toFixed(4) + ',' + _point['longitude'].toFixed(4);
+            return _point.latitude.toFixed(4) + ',' + _point.longitude.toFixed(4);
         }
     }
 
@@ -113,7 +113,7 @@ function createApi(_context) {
             return 'bbox:' + _region[0].toFixed(4) + ',' + _region[1].toFixed(4) + ',' + _region[2].toFixed(
                 4) + ',' + _region[3].toFixed(4);
         } else if (_region.hasOwnProperty('ne')) {
-            return 'bbox:' + latlongToString(_region['sw']) + ',' + latlongToString(_region['ne']);
+            return 'bbox:' + latlongToString(_region.sw) + ',' + latlongToString(_region.ne);
         }
     }
 
@@ -122,7 +122,7 @@ function createApi(_context) {
         if (_.isArray(_point) && _point.length == 2) {
             result += _point[0].toFixed(4) + ',' + _point[1].toFixed(4);
         } else if (_point.hasOwnProperty('latitude')) {
-            result += _point['latitude'].toFixed(4) + ',' + _point['longitude'].toFixed(4);
+            result += _point.latitude.toFixed(4) + ',' + _point.longitude.toFixed(4);
         }
         return result;
     }
@@ -210,7 +210,7 @@ function createApi(_context) {
                 }
             }
         };
-        Chain()("done", function(res, chain) {
+        Chain()('done', function(res, chain) {
             sdebug('CallChain', 'done');
             obj._request = null;
             _callback(res, chain);
@@ -224,7 +224,7 @@ function createApi(_context) {
     }
 
     var api = new _context.MicroEvent({
-        osAPIURL:osAPIURL,
+        osAPIURL: osAPIURL,
         networkConnected: false,
         offlineMode: false,
         cleanUpString: cleanUpString,
@@ -292,7 +292,7 @@ function createApi(_context) {
                 dataToSend = JSON.stringify(options.postParamsString);
             }
             sdebug('dataToSend', dataToSend);
-            client.open(options.requestMethod || "GET", requestUrl);
+            client.open(options.requestMethod || 'GET', requestUrl);
             client.send(dataToSend);
             return client;
         },
@@ -377,19 +377,19 @@ function createApi(_context) {
                         var resultingWays = _.indexBy(ways, 'id');
                         sdebug('ways', resultingWays);
                         var canMerge = function(way1, way2) {
-                                if (way1.id === way2.id) {
+                            if (way1.id === way2.id) {
+                                return false;
+                            }
+                            var keys = _.uniq(_.keys(way1.tags).concat(_.keys(way2.tags)));
+                            for (var i = 0; i < keys.length; i++) {
+                                var key = keys[i];
+                                if (way1[key] && way2[key] && way1[key] !== way2[key]) {
                                     return false;
                                 }
-                                var keys = _.uniq(_.keys(way1.tags).concat(_.keys(way2.tags)));
-                                for (var i = 0; i < keys.length; i++) {
-                                    var key = keys[i];
-                                    if (way1[key] && way2[key] && way1[key] !== way2[key]) {
-                                        return false;
-                                    }
-                                }
-                                return true;
                             }
-                            // sdebug('nodes', nodes);
+                            return true;
+                        };
+                        // sdebug('nodes', nodes);
                         var wayId, comparing, start2, end2;
                         for (var i = 0; i < ways.length; i++) {
                             var current = ways[i];
@@ -525,6 +525,9 @@ function createApi(_context) {
                     }
 
                     if (_callback) {
+                        var arrPush = Array.prototype.push;
+                        var points = [];
+                        var stepPoints;
                         var route = result.routes[0];
                         var distance = 0;
                         var duration = 0;
@@ -532,6 +535,11 @@ function createApi(_context) {
                             distance += leg.distance.value;
                             duration += leg.duration.value;
                             _.each(leg.steps, function(step) {
+                                stepPoints = decodeLine(step.polyline.points);
+                                step.pointsStartIndex = points.length;
+                                step.pointsCount = stepPoints.length;
+                                // fullPolyline.push(step.polyline.points);
+                                arrPush.apply(points, stepPoints);
                                 delete step.polyline;
                             });
                         });
@@ -544,7 +552,9 @@ function createApi(_context) {
                                 ne: [bounds.northeast.lat, bounds.northeast.lng],
                                 sw: [bounds.southwest.lat, bounds.southwest.lng]
                             },
-                            points: decodeLine(route.overview_polyline.points)
+                            // encoded:true,
+                            // overview_points:route.overview_polyline.points,
+                            points: points
                         });
                     }
                 },
@@ -858,7 +868,7 @@ function createApi(_context) {
         //                     summary: {
         //                         region: [bbox.lr.lat, bbox.ul.lng, bbox.ul.lat, bbox.lr.lng],
         //                         distance: route.distance * 1000, // km => m
-        //                         duration: route.time * 1000, // min => ms 
+        //                         duration: route.time * 1000, // min => ms
         //                     },
         //                     legs: _.reduce(route.legs, function(memo, leg) {
         //                         memo.push({
@@ -901,7 +911,7 @@ function createApi(_context) {
         //                     },
         //                     // region: [bbox.lr.lat, bbox.ul.lng, bbox.ul.lat, bbox.lr.lng],
         //                     distance: route.distance * 1000, // km => m
-        //                     duration: route.time * 1000, // min => ms 
+        //                     duration: route.time * 1000, // min => ms
         //                     points: result.points
         //                 });
         //             }
@@ -971,7 +981,7 @@ function createApi(_context) {
                 url: 'http://open.mapquestapi.com/directions/v2/route',
                 params: params,
                 // silent:_params.silent,
-                requestMethod: "POST",
+                requestMethod: 'POST',
                 postParams: postParams,
                 onSuccess: function(e, _options) {
                     if (e.info.statuscode !== 0) {
@@ -986,7 +996,7 @@ function createApi(_context) {
                             summary: {
                                 region: [bbox.lr.lat, bbox.ul.lng, bbox.ul.lat, bbox.lr.lng],
                                 distance: route.distance * 1000, // km => m
-                                duration: route.time * 1000, // min => ms 
+                                duration: route.time * 1000, // min => ms
                             },
                             legs: _.reduce(route.legs, function(memo, leg) {
                                 memo.push({
@@ -1029,7 +1039,7 @@ function createApi(_context) {
                             },
                             // region: [bbox.lr.lat, bbox.ul.lng, bbox.ul.lat, bbox.lr.lng],
                             distance: route.distance * 1000, // km => m
-                            duration: route.time * 1000, // min => ms 
+                            duration: route.time * 1000, // min => ms
                             points: result.points
                         });
                     }
@@ -1059,7 +1069,7 @@ function createApi(_context) {
                 url: 'http://open.mapquestapi.com/elevation/v1/profile',
                 params: params,
                 // silent:_params.silent,
-                requestMethod: "POST",
+                requestMethod: 'POST',
                 postParams: postParams,
                 onSuccess: function(e, _options) {
                     if (e.info.statuscode !== 0) {
@@ -1128,7 +1138,6 @@ function createApi(_context) {
                 },
                 params: params,
                 onSuccess: function(e, _options) {
-                    sdebug(e);
                     if (e.error) {
                         onError({
                             code: e.error.code,
@@ -1139,11 +1148,12 @@ function createApi(_context) {
                             distance = 0;
                         // var profile = e.elevationProfile;
                         // var coords = e.elevations;
+                        var getDistanceSimple = geolib.getDistanceSimple;
                         var result = {
                             profile: _.reduce(e.elevations, function(memo, value, index) {
-                                // if (value.height === -32768) {
-                                //     return memo;
-                                // }
+                                if (Math.abs(value.z) > 10000) {
+                                    return memo;
+                                }
                                 // value.distance *= 1000;
                                 if (last) {
                                     if (last.lat === value.lat && last.lon ===
@@ -1156,14 +1166,8 @@ function createApi(_context) {
                                     } else if (zdistance < 0) {
                                         memo.dmin += zdistance;
                                     }
-                                    totalDistance += geolib.getDistanceSimple(last,
+                                    totalDistance += getDistanceSimple(last,
                                         value);
-                                }
-                                if (totalDistance > memo.max[0]) {
-                                    memo.max[0] = totalDistance;
-                                }
-                                if (totalDistance < memo.min[0]) {
-                                    memo.min[0] = totalDistance;
                                 }
                                 if (value.z > memo.max[1]) {
                                     memo.max[1] = value.z;
@@ -1179,8 +1183,8 @@ function createApi(_context) {
                                 last = value;
                                 return memo;
                             }, {
-                                max: [-1000, -1000],
-                                min: [100000, 100000],
+                                max: [0, -1000],
+                                min: [0, 100000],
                                 dplus: 0,
                                 dmin: 0,
                                 points: [],
@@ -1190,6 +1194,7 @@ function createApi(_context) {
                                 ]
                             })
                         };
+                        result.profile.max[0] = totalDistance;
                         result.profile.dmin = Math.round(result.profile.dmin);
                         result.profile.dplus = Math.round(result.profile.dplus);
                         _callback(result);
@@ -1220,7 +1225,7 @@ function createApi(_context) {
                 url: 'http://open.mapquestapi.com/elevation/v1/profile',
                 params: params,
                 // silent:_params.silent,
-                requestMethod: "POST",
+                requestMethod: 'POST',
                 // timeout: 30000,
                 postParams: postParams,
                 onSuccess: function(e, _options) {
@@ -1388,7 +1393,7 @@ function createApi(_context) {
                     _callback({
                         originalLink: _url,
                         file: e.responseData,
-                        type:_type,
+                        type: _type,
                         timestamp: timestamp,
                         fileSize: file.size,
                         fileName: path
@@ -1406,23 +1411,23 @@ function createApi(_context) {
                 requestMethod: 'POST',
                 headers: {
                     'User-Agent': Ti.defaultUserAgent,
-                    'Content-Type':'application/json'
+                    'Content-Type': 'application/json'
                 },
                 postParamsString: {
                     url: _url,
                     'viewport-size': app.deviceinfo.width + 'x' + app.deviceinfo.height,
                     // 'page-size':'A3',
-                    zoom:2,
+                    zoom: 2,
                     // 'page-width':11,
                     // 'page-height':15,
                     // dpi:app.deviceinfo.dpi,
-                    'disable-smart-shrinking':true,
-                    "encoding": "UTF-8",
+                    'disable-smart-shrinking': true,
+                    encoding: 'UTF-8',
 
-                    "T": 0,
-                    "B": 0,
-                    "L": 0,
-                    "R": 0
+                    T: 0,
+                    B: 0,
+                    L: 0,
+                    R: 0
                 }
             }, function(e) {
                 if (e.file) {
@@ -1431,13 +1436,13 @@ function createApi(_context) {
                     var title = _.last(matches);
                     var parts = title.split('.');
                     if (parts.length > 1) {
-                        title = parts[parts.length -2];
+                        title = parts[parts.length - 2];
                     } else {
                         title = parts[0];
                     }
                     _callback(_.assign(e, {
                         originalLink: _url,
-                        title:_.capitalize(title),
+                        title: _.capitalize(title),
                         fullTitle: _title
                     }));
                 } else {
@@ -1672,10 +1677,11 @@ function createApi(_context) {
                 },
                 onError: _callback
             });
-        }
+        },
+        decodeLine: decodeLine
     });
 
-    var onError = (function(e, failure_callback, _lastcall) {
+    var onError = (function(e, failureCallback, _lastcall) {
         var res = e,
             code = -1;
         if (_.isObject(e.error)) {
@@ -1687,13 +1693,13 @@ function createApi(_context) {
         }
         sdebug('HTTP onError', e);
 
-        if (failure_callback) {
-            failure_callback(e.error ? e : {
+        if (failureCallback) {
+            failureCallback(e.error ? e : {
                 error: e,
                 code: code
             });
         }
-        if (code !== 0) // cancel 
+        if (code !== 0) // cancel
         {
             app.emit('error', {
                 title: trc('error'),
@@ -1704,7 +1710,7 @@ function createApi(_context) {
 
     }).bind(api);
 
-    var onSuccess = (function(clientThis, e, completed_callback, failure_callback, _lastcall) {
+    var onSuccess = (function(clientThis, e, completedCallback, failureCallback, _lastcall) {
         var res = 'Unknown error';
         var result = clientThis.responseText || '{}';
         sdebug('statusCode:', e.code);
@@ -1722,7 +1728,7 @@ function createApi(_context) {
                         message: result.message
                     });
                 }
-                if (completed_callback) completed_callback(result, _lastcall);
+                if (completedCallback) completedCallback(result, _lastcall);
                 return;
             } else {
                 sdebug('error', result);
@@ -1734,7 +1740,7 @@ function createApi(_context) {
                 error: e.error || 'No response received.'
             };
         }
-        onError(res, failure_callback, _lastcall);
+        onError(res, failureCallback, _lastcall);
     }).bind(api);
     return api;
 }

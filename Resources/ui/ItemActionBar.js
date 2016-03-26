@@ -29,12 +29,13 @@ ak.ti.constructors.createItemActionBar = function(_args) {
             properties: {
                 rclass: 'ActionLine',
                 height: _args.height || 'FILL',
-                bottom:0,
+                bottom: 0,
                 contentHeight: isVertical ? 'SIZE' : 'FILL',
                 // contentWidth: isVertical ? 'FILL' : 'SIZE',
                 layout: layout
             },
-            childTemplates: _.reduce(itemHandler.actionsForItem(mapHandler, _item, _desc, onMap), function(memo, value,
+            childTemplates: _.reduce(itemHandler.actionsForItem(mapHandler, _item, _desc, onMap), function(memo,
+                value,
                 key) {
                 memo.push(new ActionButton(_.assign({
                     id: value[0]
@@ -85,20 +86,20 @@ ak.ti.constructors.createItemActionBar = function(_args) {
             itemHandler.handleItemAction(callbackId, item, desc, null, window, mapHandler);
         }
     });
-    // app.onDebounce(self, 'longpress', function(e) {
-    //     // cancelClick = true;
-    //     var callbackId = e.source.callbackId;
-    //     if (callbackId) {
-    //         itemHandler.handleItemAction(callbackId+'_long', item, desc, null, window, mapHandler);
-    //     }
-    // });
+    app.onDebounce(self, 'longpress', function(e) {
+        // cancelClick = true;
+        var callbackId = e.source.callbackId;
+        if (callbackId) {
+            itemHandler.handleItemAction(callbackId + '_long', item, desc, null, window, mapHandler);
+        }
+    });
 
     self.onInit = function(_window, _mapHandler) {
         window = _window;
         mapHandler = _mapHandler;
     };
 
-    //END OF CLASS. NOW GC 
+    //END OF CLASS. NOW GC
     self.GC = app.composeFunc(self.GC, function() {
         clearView(currentView);
         self = null;

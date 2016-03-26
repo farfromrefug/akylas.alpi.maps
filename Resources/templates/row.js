@@ -4,12 +4,12 @@ function create(_context) {
         prepareTemplate: ak.ti.prepareListViewTemplate
     });
     var icons = {
-        'share': '\ue6c0',
-        'delete': '\ue287',
-        'edit': '\ue076',
-        'clear': '\ue070',
-        'move': '\ue103',
-        'locate': '\ue604',
+        share: '\ue6c0',
+        delete: '\ue287',
+        edit: '\ue076',
+        clear: '\ue070',
+        move: '\ue103',
+        locate: '\ue604',
     };
 
     var onChartTouch = function(e) {
@@ -207,7 +207,7 @@ function create(_context) {
                     text: trc(_id),
                     ellipsize: Ti.UI.TEXT_ELLIPSIZE_WORD
                 }
-            }]
+            }];
         }
         return result;
     }
@@ -872,7 +872,7 @@ function create(_context) {
                 rclass: 'TSSelectRow'
             },
             childTemplates: [{
-                type: __ANDROID__?'Ti.UI.Android.CardView':'Ti.UI.View',
+                type: __ANDROID__ ? 'Ti.UI.Android.CardView' : 'Ti.UI.View',
                 properties: {
                     rclass: 'TSSelectRowHolder'
                 },
@@ -1025,7 +1025,7 @@ function create(_context) {
                 properties: {
                     exclusiveTouch: true,
                     scrollsToTop: false,
-                    clipChildren:false,
+                    clipChildren: false,
                     scrollDirection: 'horizontal',
                     stickyHeaders: true,
                     width: 'FILL',
@@ -1304,12 +1304,12 @@ function create(_context) {
             }]
         },
         admob: {
-            "properties": {
+            properties: {
                 height: 'SIZE',
                 canEdit: false,
                 canMove: false,
             },
-            "childTemplates": [{
+            childTemplates: [{
                 type: 'AkylasAdmob.View',
                 bindId: 'admob',
                 properties: {

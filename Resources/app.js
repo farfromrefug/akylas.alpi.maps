@@ -1,62 +1,64 @@
 var lang = Ti.App.Properties.getString('language');
-// app = require('akylas.commonjs.dev/akylas.commonjs').createApp(this, { // not using var seems very important, cant really see why!
+// app = require('akylas.commonjs.dev/akylas.commonjs').createApp(this, {
+        // not using var seems very important, cant really see why!
 app = require('akylas.commonjs').createApp(this, { // not using var seems very important, cant really see why!
-    modules: {
-        admob: 'akylas.admob',
-        shapes: 'akylas.shapes',
-        slidemenu: 'akylas.slidemenu',
-        map: 'akylas.googlemap',
-        charts: 'akylas.charts',
-        paint: 'ti.paint',
-        zoomableimage: 'akylas.zoomableimage',
-        ios: {
-            wikitude: 'com.wikitude.ti'
+        modules: {
+            admob: 'akylas.admob',
+            shapes: 'akylas.shapes',
+            slidemenu: 'akylas.slidemenu',
+            map: 'akylas.googlemap',
+            charts: 'akylas.charts',
+            paint: 'ti.paint',
+            zoomableimage: 'akylas.zoomableimage',
+            ios: {
+                wikitude: 'com.wikitude.ti'
+            }
+            // crosswalk: 'com.universalavenue.ticrosswalk',
+        },
+        showAds: Ti.App.Properties.getBool('show_ads', true),
+        offlineMode: Ti.App.Properties.getBool('offline', false),
+        servicesKeys: require('API_KEYS')
+            .keys,
+        defaultLanguage: 'en',
+        forceLanguage: lang,
+        commonjsOptions: {
+            underscore: 'lodash',
+            modules: ['ti', 'moment', 'lang'],
+            additions: ['string']
+        },
+        // templatesPreRjss: ['text'],
+        templates: ['row', 'view'],
+        utilities: true,
+        mappings: [
+            // ['crosswalk', 'WebView', 'WebView'],
+            ['slidemenu', 'SlideMenu', 'SlideMenu'],
+            ['map', 'View', 'MapView'],
+            ['map', 'Annotation', 'MapAnnotation'],
+            ['map', 'Route', 'MapRoute'],
+            ['map', 'TileSource', 'MapTileSource'],
+            ['map', 'Cluster', 'MapCluster'],
+            ['shapes', 'View', 'ShapeView'],
+            ['shapes', 'Circle', 'ShapeCircle'],
+            ['shapes', 'Arc', 'ShapeArc'],
+            ['shapes', 'PieSlice', 'ShapePieSlice'],
+            ['charts', 'LineChart', 'LineChart'],
+            ['charts', 'PlotLine', 'PlotLine'],
+            // ['admob', 'Interstitial', 'Interstitial']
+        ],
+        ifApple: function(app) {
+            if (app.info.deployType !== 'development') {
+                app.modules.plcrashreporter = require('akylas.plcrashreporter');
+                //     app.modules.testfairy = require('akylas.testfairy');
+            }
+            app.modules.statusbarnotification = require('akylas.statusbarnotification');
+        },
+        // ifAndroid: function(app) {
+        //     ak.ti.redux.fn.addNaturalConstructor(this, 'crosswalk', 'WebView', 'WebView');
+        // },
+        windowManager: {
+            androidNav: true
         }
-        // crosswalk: 'com.universalavenue.ticrosswalk',
-    },
-    showAds: Ti.App.Properties.getBool('show_ads', true),
-    offlineMode: Ti.App.Properties.getBool('offline', false),
-    servicesKeys: require('API_KEYS').keys,
-    defaultLanguage: 'en',
-    forceLanguage: lang,
-    commonjsOptions: {
-        underscore: 'lodash',
-        modules: ['ti', 'moment', 'lang'],
-        additions: ['string']
-    },
-    // templatesPreRjss: ['text'],
-    templates: ['row', 'view'],
-    utilities: true,
-    mappings: [
-        // ['crosswalk', 'WebView', 'WebView'],
-        ['slidemenu', 'SlideMenu', 'SlideMenu'],
-        ['map', 'View', 'MapView'],
-        ['map', 'Annotation', 'MapAnnotation'],
-        ['map', 'Route', 'MapRoute'],
-        ['map', 'TileSource', 'MapTileSource'],
-        ['map', 'Cluster', 'MapCluster'],
-        ['shapes', 'View', 'ShapeView'],
-        ['shapes', 'Circle', 'ShapeCircle'],
-        ['shapes', 'Arc', 'ShapeArc'],
-        ['shapes', 'PieSlice', 'ShapePieSlice'],
-        ['charts', 'LineChart', 'LineChart'],
-        ['charts', 'PlotLine', 'PlotLine'],
-        // ['admob', 'Interstitial', 'Interstitial']
-    ],
-    ifApple: function(app) {
-        if (app.info.deployType !== 'development') {
-            app.modules.plcrashreporter = require('akylas.plcrashreporter');
-            //     app.modules.testfairy = require('akylas.testfairy');
-        }
-        app.modules.statusbarnotification = require('akylas.statusbarnotification');
-    },
-    // ifAndroid: function(app) {
-    //     ak.ti.redux.fn.addNaturalConstructor(this, 'crosswalk', 'WebView', 'WebView');
-    // },
-    windowManager: {
-        androidNav: true
-    }
-});
+    });
 
 function main() {
     __LIST__ = 'list';
@@ -89,7 +91,7 @@ function main() {
     });
 
     Color = require('lib/tinycolor');
-    require("lib/string_score.min");
+    require('lib/string_score.min');
 
     function getContrastColor(_color) {
         var color = Color(_color);
@@ -104,12 +106,20 @@ function main() {
             luminance: color.getLuminance(),
             color: color.toHex8String(),
             contrast: color1.toHex8String(),
-            contrastGray: color1.clone()[method].apply(color1, [0.2]).toHex8String(),
-            darkerRel: color.clone()[method].apply(color, [0.2]).toHex8String(),
-            lightenRel: color.clone()[method].apply(color, [-0.2]).toHex8String(),
-            darker: color.clone().darken(8).toHex8String(),
-            darkest: color.clone().darken(20).toHex8String(),
-            darkestRel: color[method].apply(color, [20]).toHex8String()
+            contrastGray: color1.clone()[method].apply(color1, [0.2])
+                .toHex8String(),
+            darkerRel: color.clone()[method].apply(color, [0.2])
+                .toHex8String(),
+            lightenRel: color.clone()[method].apply(color, [-0.2])
+                .toHex8String(),
+            darker: color.clone()
+                .darken(8)
+                .toHex8String(),
+            darkest: color.clone()
+                .darken(20)
+                .toHex8String(),
+            darkestRel: color[method].apply(color, [20])
+                .toHex8String()
         };
         return result;
     }
@@ -126,7 +136,7 @@ function main() {
             theDir += '/';
         }
         paths[key] = theDir;
-    })
+    });
 
     function getDataPath(_dir, _path) {
         if (_.startsWith(_path, 'http')) {
@@ -157,21 +167,28 @@ function main() {
         mapModules: {},
         showMessage: showMessage,
         tutorial: Ti.App.Properties.getBool('tutorial', true),
-        icons: _.mapValues(require('data/icons').icons, function(value) {
-            return String.fromCharCode(value);
-        }),
+        icons: _.mapValues(require('data/icons')
+            .icons,
+            function(value) {
+                return String.fromCharCode(value);
+            }),
         colors: _.mapValues({
-            'red': '#B03621',
-            'green': '#82E182',
-            'blue': '#375EC6'
+            red: '#B03621',
+            green: '#82E182',
+            blue: '#375EC6'
         }, getContrastColor),
 
         getContrastColor: getContrastColor,
         createThemeColors: function(_mainColor) {
             return {
                 main: _mainColor,
-                semi: Color(_mainColor).darken(8).setAlpha(0.7).toHex8String(),
-                dark: Color(_mainColor).darken(15).toHex8String(),
+                semi: Color(_mainColor)
+                    .darken(8)
+                    .setAlpha(0.7)
+                    .toHex8String(),
+                dark: Color(_mainColor)
+                    .darken(15)
+                    .toHex8String(),
                 selector: _mainColor
             };
         },
@@ -186,8 +203,10 @@ function main() {
             return colors;
         },
         getFilteredImage: function(_image, _options) {
-            var filename = _image.split('/').pop();
-            var ext = filename.split('.').pop();
+            var filename = _image.split('/')
+                .pop();
+            var ext = filename.split('.')
+                .pop();
             var imageId = _.reduce(_options, function(memo, value, key) {
                 return memo + '_' + key + '_' + value;
             }, filename) + '.' + ext;
@@ -215,7 +234,7 @@ function main() {
 
     app.needsUpdate = function(_key) {
         return app.updates && !!app.updates[_key];
-    }
+    };
 
     if (Ti.App.Properties.getString('update.check.version', '') !== app.info.version) {
         app.updates = {
@@ -233,13 +252,16 @@ function main() {
     app.indexedIcons = _.sortBy(indexIcons, function(n) {
         return n[0];
     });
-    app.indexedColors = _(require('data/palette').colors).pairs().value();
+    app.indexedColors = _(require('data/palette')
+            .colors)
+        .pairs()
+        .value();
 
     // SunCalc = require('suncalc');
     _.assign(app, {
         developerMode: Ti.App.Properties.getBool('developerMode', __DEVELOPMENT__),
         texts: {
-            'ccopyright': '<small><font color="gray">' + app.utilities.htmlIcon($sCC) +
+            ccopyright: '<small><font color="gray">' + app.utilities.htmlIcon($sCC) +
                 'BY-SA 2.0</font></small>'
         },
         utils: {
@@ -254,13 +276,18 @@ function main() {
     });
     // SunCalc = undefined;
     app.modules.map.googleMapAPIKey = app.servicesKeys.google;
-    var openingHours = require('lib/opening_hours');
-    require('ui/mapModules/MapModule').init(this);
-    require("lib/moment-duration-format");
+
+    var OpeningHours = require('lib/opening_hours');
+
+    require('ui/mapModules/MapModule')
+        .init(this);
+    require('lib/moment-duration-format');
 
     _.assign(app, {
-        api: require('lib/api').init(this, app.global),
-        locationManager: require('lib/locationManager').create(this),
+        api: require('lib/api')
+            .init(this, app.global),
+        locationManager: require('lib/locationManager')
+            .create(this),
         itemHandler: require('lib/itemHandler'),
         setMetrics: function(_value) {
             if (app.utils.geolib.metrics !== _value) {
@@ -281,7 +308,7 @@ function main() {
         setDeveloperMode: function(_value) {
             if (app.developerMode !== _value) {
                 sdebug('setDeveloperMode', _value);
-                app.showMessage("may the force be with you!");
+                app.showMessage('may the force be with you!');
                 app.developerMode = _value;
                 Ti.App.Properties.setBool('developerMode', _value);
             }
@@ -304,7 +331,7 @@ function main() {
             }
         },
         openingHours: function(_value, _args) {
-            return new openingHours(_value, _args, 2);
+            return new OpeningHours(_value, _args, 2);
         },
         shouldShowAds: function() {
             sdebug('shouldShowAds', app.showAds, app.offlineMode);
@@ -333,8 +360,9 @@ function main() {
         showOptionsListDialog: function(_options, _callback) {
 
             app.ui.openWindow((new OptionsListWindow({
-                options: _options
-            }).on('click', _callback)));
+                    options: _options
+                })
+                .on('click', _callback)));
         },
         showViewFullScreen: function(_view, _fromView) {
             var originalWidth = _view.width || 'FILL';
@@ -344,17 +372,18 @@ function main() {
             var sourceRect = _fromView.absoluteRect;
             var win = new AppWindow({
 
-                blurredBackground: true,
-                navBarHidden: true,
-                customNavBar: false,
-                backgroundColor: 'transparent',
-                // underContainerView: backView,
-                lightweight: true,
-                verticalContainer: false,
-                containerView: _view
-            }).on('click', function() {
-                win.closeMe();
-            });
+                    blurredBackground: true,
+                    navBarHidden: true,
+                    customNavBar: false,
+                    backgroundColor: 'transparent',
+                    // underContainerView: backView,
+                    lightweight: true,
+                    verticalContainer: false,
+                    containerView: _view
+                })
+                .on('click', function() {
+                    win.closeMe();
+                });
             win.underContainer.opacity = 0;
             var startRect = {
                 left: sourceRect.x,
@@ -403,9 +432,11 @@ function main() {
     app.locationManager
         .watchPosition(app.setCurrentLocation);
 
-    app.contentModules = _.map(Ti.Filesystem.getFile('contentModules').getDirectoryListing(), function(value) {
-        return value.slice(0, -3);
-    });
+    app.contentModules = _.map(Ti.Filesystem.getFile('contentModules')
+        .getDirectoryListing(),
+        function(value) {
+            return value.slice(0, -3);
+        });
 
     app.mapModules = [
         'Tutorial',
@@ -422,7 +453,7 @@ function main() {
         'LocationButton',
         'TileSourceManager',
         'Wikitude',
-        'PointToLocation', 
+        'PointToLocation',
         'Weather'
     ];
 
@@ -448,7 +479,7 @@ function main() {
     if (app.tutorialManager) {
         app.showTutorials = app.tutorialManager.showTutorials;
     } else {
-        app.showTutorials = function() {}
+        app.showTutorials = function() {};
     }
 
     // if (app.tutorialManager.enabled) {
@@ -480,12 +511,14 @@ function main() {
         'rating_count', appRatingTimingCount);
 
     function showRatingAlert() {
-        var title = trc('rate').assign(app.info.name);
+        var title = trc('rate')
+            .assign(app.info.name);
         var dialog = Ti.UI.createAlertDialog({
             cancel: 1,
             persistent: true,
             buttonNames: [trc('rate_now'), trc('later'), trc('no_thanks')],
-            message: trc('rate_question').assign(app.info.name),
+            message: trc('rate_question')
+                .assign(app.info.name),
             title: title
         });
         dialog.addEventListener('click', function(e) {
@@ -568,7 +601,9 @@ function main() {
             if (!crashDir.exists()) {
                 crashDir.createDirectory();
             }
-            Ti.Filesystem.getFile(crashDir.resolve(), moment().toString() + '.log').write(_data);
+            Ti.Filesystem.getFile(crashDir.resolve(), moment()
+                    .toString() + '.log')
+                .write(_data);
         };
 
         var sendCrashLogs = function() {
@@ -579,38 +614,39 @@ function main() {
             sdebug('logs', logs);
             if (app.api.networkConnected) {
                 Ti.UI.createAlertDialog({
-                    cancel: 1,
-                    persistent: true,
-                    buttonNames: [trc('yes'), trc('later'), trc('no')],
-                    message: trc('send_crash_report'),
-                    title: trc('found_a_crash')
-                }).on('click', function(e) {
-                    if (e.index === 0) {
-                        var emailDialog = Ti.UI.createEmailDialog({
-                            subject: "[" + app.info.name + "][CrashReport]",
-                            toRecipients: ['contact@akylas.fr'],
-                            // barColor: $cTheme.main,
-                            // html:true,
-                            messageBody: (JSON.stringify(app.deviceinfo, null,
-                                    2) +
-                                '\n' + JSON.stringify(
-                                    app.info, null, 2))
-                        });
-                        emailDialog.on('complete', function(e2) {
-                            if (!!e2.success) {
-                                crashDir.deleteDirectory(true);
+                        cancel: 1,
+                        persistent: true,
+                        buttonNames: [trc('yes'), trc('later'), trc('no')],
+                        message: trc('send_crash_report'),
+                        title: trc('found_a_crash')
+                    })
+                    .on('click', function(e) {
+                        if (e.index === 0) {
+                            var emailDialog = Ti.UI.createEmailDialog({
+                                subject: '[' + app.info.name + '][CrashReport]',
+                                toRecipients: ['contact@akylas.fr'],
+                                // barColor: $cTheme.main,
+                                // html:true,
+                                messageBody: (JSON.stringify(app.deviceinfo, null, 2) +
+                                    '\n' + JSON.stringify(
+                                        app.info, null, 2))
+                            });
+                            emailDialog.on('complete', function(e2) {
+                                if (!!e2.success) {
+                                    crashDir.deleteDirectory(true);
+                                }
+                            });
+                            for (var i = 0; i < logs.length; i++) {
+                                emailDialog.addAttachment(Titanium.Filesystem.getFile(crashDir.resolve(),
+                                    logs[
+                                        i]));
                             }
-                        });
-                        for (var i = 0; i < logs.length; i++) {
-                            emailDialog.addAttachment(Titanium.Filesystem.getFile(crashDir.resolve(),
-                                logs[
-                                    i]));
+                            emailDialog.open();
+                        } else if (e.cancel === false) {
+                            crashDir.deleteDirectory(true);
                         }
-                        emailDialog.open();
-                    } else if (e.cancel === false) {
-                        crashDir.deleteDirectory(true);
-                    }
-                }).show();
+                    })
+                    .show();
             }
         };
         app.modules.plcrashreporter.enableCrashReporter();

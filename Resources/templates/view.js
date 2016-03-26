@@ -70,26 +70,26 @@ function create(_context) {
         },
         gfheader: {
             type: 'Ti.UI.View',
-            bindId:'gfheader',
+            bindId: 'gfheader',
             properties: {
-                bottom:0,
+                bottom: 0,
                 top: $navBarTop,
                 height: 'SIZE',
                 layout: 'vertical'
             },
             childTemplates: [{
                 type: 'Ti.UI.View',
-                height:'SIZE',
+                height: 'SIZE',
                 minHeight: $navBarHeight,
                 bindId: 'titleHolder',
-                layout:'horizontal',
+                layout: 'horizontal',
                 childTemplates: [{
-                    type:'Ti.UI.View',
-                    properties:{
-                        width:20,
-                        height:1
+                    type: 'Ti.UI.View',
+                    properties: {
+                        width: 20,
+                        height: 1
                     }
-                },{
+                }, {
                         type: 'Ti.UI.Label',
                         bindId: 'icon',
                         properties: {
@@ -106,7 +106,7 @@ function create(_context) {
             }, {
                 type: 'Ti.UI.View',
                 height: 30,
-                layout:'horizontal',
+                layout: 'horizontal',
                 childTemplates: [{
                     type: 'Ti.UI.Label',
                     bindId: 'subtitle',

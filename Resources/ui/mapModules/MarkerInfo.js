@@ -26,45 +26,45 @@ exports.create = function(_context, _args, _additional) {
                     onMap: true
                 });
                 view.on('action', function(e) {
-                    var callbackId = e.bindId || e.source.callbackId;
-                    // sdebug('action', callbackId);
-                    if (callbackId === 'type' || callbackId === 'accessory') {
-                        self.runAction('details');
+                        var callbackId = e.bindId || e.source.callbackId;
+                        // sdebug('action', callbackId);
+                        if (callbackId === 'type' || callbackId === 'accessory') {
+                            self.runAction('details');
 
-                    } else if (callbackId === 'chart') {
-                        if (currentTouchPoint) {
-                            self.parent.setHighlightPoint(true);
-                            self.parent.updateCamera({
-                                centerCoordinate: currentTouchPoint
-                            });
+                        } else if (callbackId === 'chart') {
+                            if (currentTouchPoint) {
+                                self.parent.setHighlightPoint(true);
+                                self.parent.updateCamera({
+                                    centerCoordinate: currentTouchPoint
+                                });
+                            }
+                        } else {
+                            moveToItem();
                         }
-                    } else {
-                        moveToItem();
-                    }
-                }).on('point', function(e) {
-                    sdebug('on point', e.line, ignorePointEvent);
-                    if (ignorePointEvent) {
-                        ignorePointEvent = false;
-                        return;
-                    }
-                    var pos = selectedItem.item.profile.points[e.line.index];
-                    if (selectedItem.isRoute) {
+                    })
+                    .on('point', function(e) {
+                        sdebug('on point', e.line, ignorePointEvent);
+                        if (ignorePointEvent) {
+                            ignorePointEvent = false;
+                            return;
+                        }
+                        var pos = selectedItem.item.profile.points[e.line.index];
+                        if (selectedItem.isRoute) {
 
-                        var data = selectedItem.mapItem.distanceFromLocation(pos);
-                        sdebug('pos', pos);
-                        sdebug('data', data);
-                        sdebug('dataPoint', data.latitude + ',' + data.longitude);
-                        currentTouchPoint = _.pick(data, 'latitude', 'longitude');
+                            var data = selectedItem.mapItem.distanceFromLocation(pos);
+                            sdebug('pos', pos);
+                            sdebug('data', data);
+                            sdebug('dataPoint', data.latitude + ',' + data.longitude);
+                            currentTouchPoint = _.pick(data, 'latitude', 'longitude');
 
-                    }
-                });
+                        }
+                    });
                 self.onModuleLoaded = view.update;
                 self.parent.mapBottomToolbar.add(view);
                 view.onInit(self.window, self.parent);
             }
             return view;
         };
-
 
     function unselectItem() {
         if (selectedItem) {
@@ -169,7 +169,8 @@ exports.create = function(_context, _args, _additional) {
                 self.onAnnotationPress = onAnnotationPress;
             }
             self.onLocation = onLocation;
-            getView().setSelectedItem(selectedItem);
+            getView()
+                .setSelectedItem(selectedItem);
             view.showMe();
         }
     }
@@ -225,7 +226,7 @@ exports.create = function(_context, _args, _additional) {
             e.route === selectedItem.mapItem) {
             currentTouchPoint = view.onItemTouched(e);
             // if (currentTouchPoint) {
-            //     ignorePointEvent = true; //there will be a point event that we can ignore 
+            //     ignorePointEvent = true; //there will be a point event that we can ignore
             // }
         }
     }

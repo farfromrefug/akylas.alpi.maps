@@ -23,7 +23,7 @@ exports.create = function(_context, _args, _additional) {
         cleanUpString = app.api.cleanUpString,
         isItemARoute = itemHandler.isItemARoute,
         getAnnotImage = itemHandler.getAnnotImage,
-        
+
         __movingItems,
         htmlIcon = app.utilities.htmlIcon,
         mapArgs = _additional.mapArgs,
@@ -276,10 +276,7 @@ exports.create = function(_context, _args, _additional) {
                                 //for the sake of avoiding duplicates, look in lists too
                                 _.each(lists, function(list, key) {
                                     if (_type !== key) {
-                                        existing = _.includes(__currentIds[key]
-                                            [
-                                                idKey
-                                            ],
+                                        existing = _.includes(__currentIds[key], [idKey],
                                             item.id);
                                         if (existing) {
                                             sdebug('found existing in list',
@@ -968,7 +965,7 @@ exports.create = function(_context, _args, _additional) {
                 }).show();
             }
         },
-        
+
         onMapLongPress: function(e) {
             var loc = _.pick(e, 'latitude', 'longitude', 'altitude');
             var extras = self.parent.runReduceMethodOnModules(true, 'getDroppedExtra', loc, e.zoom);
@@ -1302,7 +1299,7 @@ exports.create = function(_context, _args, _additional) {
         prepareDetailsListView: function(item, itemDesc, sections, createItem, colors, iconicColor) {
             if (item.files) { // });
                 sections.push({
-                    hideWhenEmpty:true,
+                    hideWhenEmpty: true,
                     headerView: ak.ti.style({
                         type: 'Ti.UI.Label',
                         properties: {
@@ -1314,18 +1311,21 @@ exports.create = function(_context, _args, _additional) {
                     }),
                     items: _.reduce(item.files, function(items, file) {
                         items.push({
-                            template:'file',
+                            template: 'file',
                             callbackId: 'file',
                             icon: {
                                 color: iconicColor,
                                 text: '\ue288'
                             },
                             title: {
-                                text: file.title +  ' - ' + (file.fullTitle || file.fileName) ,
+                                text: file.title + ' - ' + (file.fullTitle || file.fileName),
                             },
-                            subtitle:{
-                                text:moment(file.timestamp).fromNow() + ' - ' + app.utils.filesize(file.fileSize, {round: 0})
-                                // text:moment(file.timestamp).fromNow()
+                            subtitle: {
+                                text: moment(file.timestamp).fromNow() + ' - ' + app.utils
+                                    .filesize(file.fileSize, {
+                                        round: 0
+                                    })
+                                    // text:moment(file.timestamp).fromNow()
                             },
                             // accessory: {
                             //     color: iconicColor,
