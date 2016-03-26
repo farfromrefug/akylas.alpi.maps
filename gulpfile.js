@@ -1,9 +1,12 @@
 /******* Imports ********/
 var gulp = require('gulp'),
+    //testing
+    require('app-module-path').addPath('/Users/travis/Library/Application Support/Titanium/mobilesdk/osx/6.0.0.AKYLAS');
     _ = require('underscore'),
     plugins = {
         exec: require('child_process').exec,
         spawn: require('child_process').spawn,
+        tiappxml: require('titanium-sdk/lib/tiappxml'),
         path: require('path'),
         fs: require('fs'),
         _: _,
@@ -14,7 +17,7 @@ var gulp = require('gulp'),
     },
     GULP_DIR = './.gulp';
 
-    var configFilePath = plugins.path.join(process.cwd(), 'app', 'config.json');
+    var configFilePath = plugins.path.join(process.cwd(), 'config.json');
     if (plugins.fs.existsSync(configFilePath)) {
         plugins.utils.env.config = JSON.parse(plugins.fs.readFileSync(configFilePath));  
     } else {

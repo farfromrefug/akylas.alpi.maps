@@ -8,7 +8,7 @@ module.exports = function(gulp, plugins) {
         plugins.exec('echo no', function() {
             plugins.exec('android list targets', function() {
                 plugins.exec(
-                    'android create avd --force -n test -t 0',
+                    'android create avd --force -n test -t 2', //2 for Goolge API
                     done).stdout.pipe(process.stdout);
             }).stdout.pipe(process.stdout);
         }).stdout.pipe(process.stdout);
@@ -116,4 +116,5 @@ module.exports = function(gulp, plugins) {
             process.exit();
         }
     });
+
 };
