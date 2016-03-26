@@ -215,10 +215,9 @@ ak.ti.constructors.createMapWindow = function(_args) {
         region = Ti.App.Properties.hasProperty('last_region') ?
         Ti.App.Properties.getObject('last_region') : undefined,
         currentRegion,
-        
+
         hideDebugTimer,
         debugView;
-
 
     _.each(app.mapModules, function(value, index) {
         loadModule(value, index, false);
@@ -607,7 +606,7 @@ ak.ti.constructors.createMapWindow = function(_args) {
 
                 debugView.applyProperties({
                     text: _text
-                })
+                });
                 hideDebugTimer = setTimeout(function() {
                     if (debugView) {
                         debugView.animate({
@@ -784,7 +783,7 @@ ak.ti.constructors.createMapWindow = function(_args) {
         }
     };
 
-    //END OF CLASS. NOW GC 
+    //END OF CLASS. NOW GC
     self.GC = app.composeFunc(self.GC, function() {
         Ti.App.off('pause', onPause).off('resume', onResume);
         // self.off('focus', onFocus).off('blur', onBlur);
