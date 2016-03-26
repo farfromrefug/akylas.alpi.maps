@@ -2,7 +2,7 @@ var OSMIgnoredSubtypes = ['parking_entrance', 'tram_stop', 'platform', 'bus_stop
 var OSMIgnoredClasses = [];
 var OSMReplaceKeys = {
     'contact:phone': 'phone',
-    'via_ferrata_scale': 'difficulty'
+    via_ferrata_scale: 'difficulty'
 };
 var htmlIcon = app.utilities.htmlIcon;
 var OSMClassProps = ['amenity', 'natural', 'leisure', 'shop', 'sport', 'place', 'highway', 'waterway',
@@ -10,17 +10,17 @@ var OSMClassProps = ['amenity', 'natural', 'leisure', 'shop', 'sport', 'place', 
     'landuse', 'aeroway', 'boundary', 'office', 'tourism'
 ];
 var osmIcons = _.mapValues({
-    'administrative': 0xe639,
-    'drinking_water': 0xe611,
-    'wilderness_hut': 0xe29e,
-    'alpine_hut': 0xe29e,
-    'shelter': 0xe29e,
-    'saddle': 0xe605,
-    'tourism': 0xe69c,
-    'art_center': 0xe625,
-    'convention_center': 0xe62d,
-    'glacier': 0xe61e,
-    'railway': 0xe681,
+    administrative: 0xe639,
+    drinking_water: 0xe611,
+    wilderness_hut: 0xe29e,
+    alpine_hut: 0xe29e,
+    shelter: 0xe29e,
+    saddle: 0xe605,
+    tourism: 0xe69c,
+    art_center: 0xe625,
+    convention_center: 0xe62d,
+    glacier: 0xe61e,
+    railway: 0xe681,
 }, function(value) {
     return String.fromCharCode(value);
 });
@@ -119,7 +119,7 @@ function prepareOSMObject(ele, _withIcon, _testForGeoFeature) {
             return false;
         }
     });
-    //ignores 
+    //ignores
     if (_.contains(OSMIgnoredSubtypes, result.osm.subtype)) {
         return;
     }
@@ -270,11 +270,11 @@ function prepareUtfGridResult(ele) {
     if (!ele.osm_id) {
         return {
             title: ele.name
-        }
+        };
     }
     var id = isNaN(ele.osm_id) ? ele.osm_id : ele.osm_id.toString();
     var result = {
-        title:ele.name,
+        title: ele.name,
         osm: {
             id: ele.osm_id,
             type: ele.hasOwnProperty('way_area') ? 'way' : 'node'
@@ -292,7 +292,7 @@ function prepareUtfGridResult(ele) {
             return false;
         }
     });
-    //ignores 
+    //ignores
     if (osmSub && _.contains(OSMIgnoredSubtypes, osmSub)) {
         return;
     }
@@ -309,7 +309,7 @@ function prepareUtfGridResult(ele) {
 }
 
 function prepareNominatimResult(ele) {
-    //ignores 
+    //ignores
     if (_.contains(OSMIgnoredSubtypes, ele.type)) {
         return;
     }
@@ -353,7 +353,7 @@ function prepareNominatimResult(ele) {
 }
 
 function preparePhotonObject(ele) {
-    //ignores 
+    //ignores
     var osmType = ele.properties.osm_type;
     switch (osmType) {
         case 'W':
@@ -441,13 +441,13 @@ function osmTagsDetails(_item) {
 function parseBoolean(string) {
     if (_.isString(string)) {
         switch (string.toLowerCase().trim()) {
-            case "true":
-            case "yes":
-            case "1":
+            case 'true':
+            case 'yes':
+            case '1':
                 return true;
-            case "false":
-            case "no":
-            case "0":
+            case 'false':
+            case 'no':
+            case '0':
             case null:
                 return false;
             default:
