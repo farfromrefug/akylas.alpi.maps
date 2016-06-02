@@ -139,6 +139,7 @@ ak.ti.constructors.createMapWindow = function(_args) {
     }
 
     function loadModule(_id, _index, _isContent) {
+        console.debug('loadModule', _id, _index, _isContent);
         var enabledKey = 'module_' + _id + '_enabled';
         var moduleJS = require((_isContent ? '/contentModules' : '/ui/mapModules') + '/' + _id);
         if (!moduleJS) {
@@ -220,10 +221,11 @@ ak.ti.constructors.createMapWindow = function(_args) {
         debugView;
 
     _.each(app.mapModules, function(value, index) {
+        sdebug('test mapModules', value, index);
         loadModule(value, index, false);
     });
     _.each(app.contentModules, function(value, index) {
-        // sdebug('test contentModules', value, index);
+        sdebug('test contentModules', value, index);
         loadModule(value, index, true);
     });
 

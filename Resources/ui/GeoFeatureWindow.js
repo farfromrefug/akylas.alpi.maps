@@ -1010,7 +1010,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
     });
 
     self.handleArgs = function(_args) {
-        mapHandler = _.remove(_args, 'mapHandler', mapHandler);
+       mapHandler = _.remove(_args, 'mapHandler', mapHandler);
         currentItem = _.remove(_args, 'item', currentItem);
         itemDesc = _.remove(_args, 'itemDesc', itemDesc);
         isRoute = currentItem && !!currentItem.route;

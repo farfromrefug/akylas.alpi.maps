@@ -222,7 +222,7 @@ function createApi(_context) {
         }));
         return obj;
     }
-
+    
     var api = new _context.MicroEvent({
         osAPIURL: osAPIURL,
         networkConnected: false,
@@ -1144,56 +1144,70 @@ function createApi(_context) {
                             error: e.error.description
                         }, _callback, _options);
                     } else {
-                        var last, totalDistance = 0,
-                            distance = 0;
+                          sdebug(e.elevations);
+                      var last, totalDistance = 0,
+                        distance = 0,
+                        lastGradle = 0;
+                         var zdistance, grade, lastGradleDistance = 0;
                         // var profile = e.elevationProfile;
                         // var coords = e.elevations;
                         var getDistanceSimple = geolib.getDistanceSimple;
-                        var result = {
-                            profile: _.reduce(e.elevations, function(memo, value, index) {
-                                if (Math.abs(value.z) > 10000) {
+                         var result = {
+                                profile: _.reduce(e.elevations, function(memo, value, index) {
+                                  if (Math.abs(value.z) > 10000) {
                                     return memo;
-                                }
-                                // value.distance *= 1000;
-                                if (last) {
+                                  }
+                                  // value.distance *= 1000;
+                                  if (last) {
                                     if (last.lat === value.lat && last.lon ===
-                                        value.lon) {
-                                        return memo;
+                                      value.lon) {
+                                      return memo;
                                     }
-                                    var zdistance = value.z - last.z;
+                                    zdistance = value.z - last.z;
+                                    distance = getDistanceSimple(last, value);
+                                    gradle = Math.round(zdistance / distance * 10) / 10;
                                     if (zdistance > 0) {
-                                        memo.dplus += zdistance;
+                                      memo.dplus += zdistance;
                                     } else if (zdistance < 0) {
-                                        memo.dmin += zdistance;
+                                      memo.dmin += zdistance;
                                     }
-                                    totalDistance += getDistanceSimple(last,
-                                        value);
-                                }
-                                if (value.z > memo.max[1]) {
+                                    totalDistance += distance;
+                                    // if (lastGradle != gradle) {
+                                    //   memo.gradleRegions.push({
+                                    //     value: gradle,
+                                    //     from: lastGradleDistance,
+                                    //     to: totalDistance,
+                                    //   });
+                                    //   lastGradle = gradle;
+                                    //   lastGradleDistance = totalDistance;
+                                    // }
+                                  }
+                                  if (value.z > memo.max[1]) {
                                     memo.max[1] = value.z;
-                                }
-                                if (value.z < memo.min[1]) {
+                                  }
+                                  if (value.z < memo.min[1]) {
                                     memo.min[1] = value.z;
-                                }
-                                // totalDistance += distance;
+                                  }
+                                  // totalDistance += distance;
 
-                                memo.data[0].push(totalDistance);
-                                memo.data[1].push(value.z);
-                                memo.points.push([value.lat, value.lon]);
-                                last = value;
-                                return memo;
-                            }, {
-                                max: [0, -1000],
-                                min: [0, 100000],
-                                dplus: 0,
-                                dmin: 0,
-                                points: [],
-                                data: [
-                                    [],
-                                    []
-                                ]
-                            })
-                        };
+                                  // memo.data.push([totalDistance, value.z]);
+                                    memo.data[0].push(totalDistance);
+                                    memo.data[1].push(value.z);
+                                  memo.points.push([value.lat, value.lon]);
+                                  last = value;
+                                  return memo;
+                                }, {
+                                  version: 1,
+                                  max: [0, -1000],
+                                  min: [0, 100000],
+                                  dplus: 0,
+                                  dmin: 0,
+                                  points: [],
+                                  data: [[], []],
+                                  // data: [],
+                                  gradleRegions: null
+                                })
+                              };
                         result.profile.max[0] = totalDistance;
                         result.profile.dmin = Math.round(result.profile.dmin);
                         result.profile.dplus = Math.round(result.profile.dplus);

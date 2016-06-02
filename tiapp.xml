@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ti:app xmlns:ti="http://ti.appcelerator.org">
+    <sdk-version>6.0.0.AKYLAS</sdk-version>
     <id>akylas.alpi.maps</id>
     <name>Alpi Maps</name>
     <version>1.1</version>
@@ -10,16 +11,17 @@
     <icon>appicon.png</icon>
     <analytics>false</analytics>
     <guid>cb816e58-37f3-4cc2-adba-16b2dbea6a76</guid>
-    <property name="ti.ui.defaultunit" type="string">dp</property>
+    <run-on-main-thread>false</run-on-main-thread>
+    <use-babel>true</use-babel>
     <ios>
         <use-jscore-framework>true</use-jscore-framework>
         <!-- <use-app-thinning>true</use-app-thinning> -->
-        <min-ios-ver>8.0</min-ios-ver>
+        <min-ios-ver>7.0</min-ios-ver>
         <plist>
             <dict>
-                <key>UIViewControllerBasedStatusBarAppearance</key>  
+                <key>UIViewControllerBasedStatusBarAppearance</key>
                 <false/>
-                <key>CFBundleVersion</key><string>60</string>
+                <key>CFBundleVersion</key><string>64</string>
                 <key>UIRequiresPersistentWiFi</key>
                 <true/>
                 <key>UIPrerenderedIcon</key>
@@ -61,7 +63,7 @@
     </ios>
     <theme>BaseTheme</theme>
     <android xmlns:android="http://schemas.android.com/apk/res/android">
-        <manifest android:installLocation="auto" android:versionCode="34">
+        <manifest android:installLocation="auto" android:versionCode="35">
             <uses-sdk android:minSdkVersion="13" android:targetSdkVersion="23"/>
             <application
                 android:hardwareAccelerated="true">
@@ -102,12 +104,11 @@
         <target device="iphone">true</target>
         <target device="mobileweb">false</target>
     </deployment-targets>
-    <sdk-version>6.0.0.AKYLAS</sdk-version>
+
+    <property name="ti.ui.defaultunit" type="string">dp</property>
     <property name="ti.android.fastdev" type="bool">false</property>
     <property name="ti.android.debug" type="bool">true</property>
     <property name="ti.compilejs" type="bool">false</property>
     <property name="ti.android.bug2373.finishfalseroot" type="bool">true</property>
-    <property name="run-on-main-thread" type="bool">false</property>
     <property name="akylas.modules.key">cf739fd1658a4d50ee021071062e641ebf4ecc16</property>
-  
 </ti:app>

@@ -74,11 +74,11 @@ ak.ti.constructors.createWebWindow = function(_args) {
 
 	function onNetworkChange(e) {
 		if (e.connected) {
-			webview.applyProperties({
+			webView.applyProperties({
 				html: null,
 				url: url
 			});
-			api.off('networkchange', onNetworkChange);
+			app.api.off('networkchange', onNetworkChange);
 		}
 	}
 

@@ -23,3 +23,7 @@ william_files
 dist
 Resources/API_KEYS.js
 Resources/akylas.commonjs.dev
+typings
+tags
+node_modules
+browse.VC.db

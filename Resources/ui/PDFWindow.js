@@ -4,7 +4,6 @@ ak.ti.constructors.createPDFWindow = function(_args) {
         itemHandler = _.remove(_args, 'itemHandler'),
         itemDesc = _.remove(_args, 'itemDesc'),
         file = _.remove(_args, 'file'),
-        
 
     _args = _args || {};
     _args.title = file.title || file.fileName;
@@ -13,7 +12,7 @@ ak.ti.constructors.createPDFWindow = function(_args) {
     // var htmlData = String(Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, "data/pdf/index.html").read());
     // change the html to open the custom pdf file
     // htmlData = htmlData.replace(/#PDF_FILE#/gi, Ti.Filesystem.getFile(filePath).nativePath);
-    var url = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, "data/pdfjs/web/viewer.html").nativePath + '?file=' + Ti.Filesystem.getFile(filePath).nativePath
+    // var url = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'data/pdfjs/web/viewer.html').nativePath + '?file=' + Ti.Filesystem.getFile(filePath).nativePath;
 
     var webView = new WebView({
         rclass: 'AppWebView',
@@ -51,7 +50,7 @@ ak.ti.constructors.createPDFWindow = function(_args) {
     //  }
     // });
 
-    //END OF CLASS. NOW GC 
+    //END OF CLASS. NOW GC
     self.GC = app.composeFunc(self.GC, function() {
         webView = null;
         mapHandler = null;

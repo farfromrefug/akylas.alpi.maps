@@ -5,8 +5,7 @@ exports.create = function(_context, _args, _additional) {
         suncalc = app.utils.suncalc,
         utilities = app.utilities,
         animationDuration = 200,
-        type = itemHandler.initializeType('weather_station', _.cloneDeep(require('data/markertypes').data[
-            'weather_station'])),
+        type = itemHandler.initializeType('weather_station', _.cloneDeep(require('data/markertypes').data.weather_station)),
         stations = {},
         annotations = {},
         convertTemp = function(_temp, _unit) {
@@ -79,7 +78,8 @@ exports.create = function(_context, _args, _additional) {
     function getAnnotImage(_item) {
         iconStyleView.applyProperties({
             image: {
-                image: 'http://raw.githubusercontent.com/farfromrefug/akylas.alpi.maps/master/images/weather3/' + _item.weather[0].icon + '.png'
+                image: 'http://raw.githubusercontent.com/farfromrefug/akylas.alpi.maps/master/images/weather3/'
+                    + _item.weather[0].icon + '.png'
             },
             label: {
                 text: Math.round(_item.main.temp) + '˚'
@@ -114,16 +114,16 @@ exports.create = function(_context, _args, _additional) {
             delta = convertTemp((_data.main.temp_max - _data.main.temp_min) / 2);
         }
         var result = {
-            'hour': {
+            hour: {
                 text: timeText,
                 color: _color
             },
-            'temp': {
+            temp: {
                 html: (_specific && tr(_data.id)) || (
                     convertTemp(_data.main.temp) + '°' + (delta && ('<font color="#bbb">± ' +
                         delta + '</font>') || ''))
             },
-            'icon': {
+            icon: {
                 image: 'http://raw.githubusercontent.com/farfromrefug/akylas.alpi.maps/master/images/weather3/' + ((_specific &&
                     _data.id) || _data.weather[
                     0].icon) + '.png',
@@ -169,7 +169,7 @@ exports.create = function(_context, _args, _additional) {
             }]);
         },
         getSupplyTemplates: function(memo) {
-            memo['weather'] = app.templates.row.weather;
+            memo.weather = app.templates.row.weather;
         },
         getItemSupplViews: function(_item, _desc) {
             var data = itemWeatherData[_item.id];
@@ -274,7 +274,7 @@ exports.create = function(_context, _args, _additional) {
         },
         onModuleAction: function(_params) {
             if (_params.id === 'weather') {
-                
+
                 var request = app.api.openWeatherMapRegion({
                     region: self.mapView.region,
                     zoom: self.mapView.zoom,
@@ -317,7 +317,7 @@ exports.create = function(_context, _args, _additional) {
                     (_params.parent || self.window).hideLoading();
                 });
                 (_params.parent || self.window).showLoading({
-                    request:request,
+                    request: request,
                     label: {
                         html: utilities.htmlIcon(type.icon, 1) + ' ' + trc('loading') +
                             '...'
@@ -327,7 +327,7 @@ exports.create = function(_context, _args, _additional) {
 
                 var item = _params.item;
                 var isRoute = itemHandler.isItemARoute(item);
-                
+
                 var request = app.api.openWeatherForecast(item.start || item, function(_result) {
                     // sdebug(_result);
                     if (!_result.error) {
@@ -347,7 +347,7 @@ exports.create = function(_context, _args, _additional) {
                     (_params.parent || self.window).hideLoading();
                 });
                 (_params.parent || self.window).showLoading({
-                    request:request,
+                    request: request,
                     label: {
                         html: utilities.htmlIcon(type.icon, 1) + ' ' + trc('loading') +
                             '...'

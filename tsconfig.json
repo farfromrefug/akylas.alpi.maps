@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "moduleResolution": "classic",
+        "module": "commonjs",
+        "preserveConstEnums": true,
+        "declaration": true,
+        "noImplicitAny": false,
+        "removeComments": true,
+        "noLib": false,
+        "sourceMap": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "outDir": "build/ts"
+    },
+    "filesGlob": [
+        "./Resources/**/*.ts",
+        "./typings/**/*.ts"
+    ]
+}

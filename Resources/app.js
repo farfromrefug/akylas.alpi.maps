@@ -1,64 +1,67 @@
 var lang = Ti.App.Properties.getString('language');
-// app = require('akylas.commonjs.dev/akylas.commonjs').createApp(this, {
-        // not using var seems very important, cant really see why!
-app = require('akylas.commonjs').createApp(this, { // not using var seems very important, cant really see why!
-        modules: {
-            admob: 'akylas.admob',
-            shapes: 'akylas.shapes',
-            slidemenu: 'akylas.slidemenu',
-            map: 'akylas.googlemap',
-            charts: 'akylas.charts',
-            paint: 'ti.paint',
-            zoomableimage: 'akylas.zoomableimage',
-            ios: {
-                wikitude: 'com.wikitude.ti'
-            }
-            // crosswalk: 'com.universalavenue.ticrosswalk',
+app = require('akylas.commonjs.dev/akylas.commonjs').createApp(this, {
+    // app = require('akylas.commonjs').createApp(this, {
+    // not using var seems very important, cant really see why!
+    modules: {
+        admob: 'akylas.admob',
+        shapes: 'akylas.shapes',
+        slidemenu: 'akylas.slidemenu',
+        map: 'akylas.googlemap',
+        charts: 'akylas.charts',
+        paint: 'ti.paint',
+        zoomableimage: 'akylas.zoomableimage',
+        ios: {
+            wikitude: 'com.wikitude.ti'
         },
-        showAds: Ti.App.Properties.getBool('show_ads', true),
-        offlineMode: Ti.App.Properties.getBool('offline', false),
-        servicesKeys: require('API_KEYS')
-            .keys,
-        defaultLanguage: 'en',
-        forceLanguage: lang,
-        commonjsOptions: {
-            underscore: 'lodash',
-            modules: ['ti', 'moment', 'lang'],
-            additions: ['string']
-        },
-        // templatesPreRjss: ['text'],
-        templates: ['row', 'view'],
-        utilities: true,
-        mappings: [
-            // ['crosswalk', 'WebView', 'WebView'],
-            ['slidemenu', 'SlideMenu', 'SlideMenu'],
-            ['map', 'View', 'MapView'],
-            ['map', 'Annotation', 'MapAnnotation'],
-            ['map', 'Route', 'MapRoute'],
-            ['map', 'TileSource', 'MapTileSource'],
-            ['map', 'Cluster', 'MapCluster'],
-            ['shapes', 'View', 'ShapeView'],
-            ['shapes', 'Circle', 'ShapeCircle'],
-            ['shapes', 'Arc', 'ShapeArc'],
-            ['shapes', 'PieSlice', 'ShapePieSlice'],
-            ['charts', 'LineChart', 'LineChart'],
-            ['charts', 'PlotLine', 'PlotLine'],
-            // ['admob', 'Interstitial', 'Interstitial']
-        ],
-        ifApple: function(app) {
-            if (app.info.deployType !== 'development') {
-                app.modules.plcrashreporter = require('akylas.plcrashreporter');
-                //     app.modules.testfairy = require('akylas.testfairy');
-            }
-            app.modules.statusbarnotification = require('akylas.statusbarnotification');
-        },
-        // ifAndroid: function(app) {
-        //     ak.ti.redux.fn.addNaturalConstructor(this, 'crosswalk', 'WebView', 'WebView');
-        // },
-        windowManager: {
-            androidNav: true
+        // android: {
+            // crosswalk: 'com.universalavenue.ticrosswalk'
+        // }
+    },
+    showAds: Ti.App.Properties.getBool('show_ads', true),
+    offlineMode: Ti.App.Properties.getBool('offline', false),
+    servicesKeys: require('API_KEYS')
+        .keys,
+    defaultLanguage: 'en',
+    forceLanguage: lang,
+    commonjsOptions: {
+        underscore: 'lodash',
+        modules: ['ti', 'moment', 'lang'],
+        additions: ['string']
+    },
+    // templatesPreRjss: ['text'],
+    templates: ['row', 'view'],
+    utilities: true,
+    mappings: {
+        'SlideMenu': ['slidemenu', 'SlideMenu'],
+        'MapView': ['map', 'View', ],
+        'MapAnnotation': ['map', 'Annotation'],
+        'MapRoute': ['map', 'Route'],
+        'MapTileSource': ['map', 'TileSource'],
+        'MapCluster': ['map', 'Cluster'],
+        'ShapeView': ['shapes', 'View'],
+        'ShapeCircle': ['shapes', 'Circle'],
+        'ShapeArc': ['shapes', 'Arc'],
+        'ShapePieSlice': ['shapes', 'PieSlice'],
+        'LineChart': ['charts', 'LineChart'],
+        'PlotLine': ['charts', 'PlotLine'],
+    // },
+    // android: {
+        // 'WebView': ['crosswalk', 'WebView']
+    },
+    ifApple: function(app) {
+        if (app.info.deployType !== 'development') {
+            app.modules.plcrashreporter = require('akylas.plcrashreporter');
+            //     app.modules.testfairy = require('akylas.testfairy');
         }
-    });
+        app.modules.statusbarnotification = require('akylas.statusbarnotification');
+    },
+    // ifAndroid: function(app) {
+    //     ak.ti.redux.fn.addNaturalConstructor(this, 'crosswalk', 'WebView', 'WebView');
+    // },
+    windowManager: {
+        androidNav: true
+    }
+});
 
 function main() {
     __LIST__ = 'list';
@@ -86,7 +89,6 @@ function main() {
         },
         move: function(array, oldIndex, newIndex) {
             array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
-
         }
     });
 
@@ -143,7 +145,7 @@ function main() {
             return _path;
         }
         return paths[_dir] + _path;
-    };
+    }
 
     function showMessage(_text, _colors) {
         var args = {
@@ -276,13 +278,10 @@ function main() {
     });
     // SunCalc = undefined;
     app.modules.map.googleMapAPIKey = app.servicesKeys.google;
-
     var OpeningHours = require('lib/opening_hours');
+    Ti.include('ui/mapModules/MapModule.js');
 
-    require('ui/mapModules/MapModule')
-        .init(this);
     require('lib/moment-duration-format');
-
     _.assign(app, {
         api: require('lib/api')
             .init(this, app.global),
@@ -432,11 +431,13 @@ function main() {
     app.locationManager
         .watchPosition(app.setCurrentLocation);
 
-    app.contentModules = _.map(Ti.Filesystem.getFile('contentModules')
-        .getDirectoryListing(),
-        function(value) {
-            return value.slice(0, -3);
-        });
+    app.contentModules = Ti.Filesystem.getFile('contentModules')
+        .getDirectoryListing().filter(function(name) {
+            return _.endsWith(name, 'js');
+        }).map(
+            function(value) {
+                return value.slice(0, -3);
+            });
 
     app.mapModules = [
         'Tutorial',
@@ -590,7 +591,6 @@ function main() {
             fromView: _fromView,
         });
     };
-
     sdebug(app.deviceinfo);
     sdebug(app.info);
     sdebug(app.localeInfo);

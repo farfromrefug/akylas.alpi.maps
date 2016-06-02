@@ -1,6 +1,6 @@
 exports.data = {
     'RefugesInfo': {
-        category:'europe,topo',
+        category: 'europe,topo',
         url: '//maps.refuges.info/hiking/{z}/{x}/{y}.png',
         options: {
             attribution: '&copy; <a href="http://www.refuges.info/wiki/licence">Refuges.info</a>, {attribution.OpenStreetMap}',
@@ -22,7 +22,7 @@ exports.data = {
     //     }
     // },
     OpenSkiMap: {
-        category:'ski',
+        category: 'ski',
         url: '//tiles.skimap.org/openskimap2x/{z}/{x}/{y}.png',
         options: {
             attribution: '&copy; <a href="http://www.openskimap.org">OpenSkiMap</a>, {attribution.OpenStreetMap}',
@@ -30,16 +30,16 @@ exports.data = {
         },
     },
     OpenSnowMap: {
-        category:'ski',
+        category: 'ski',
         url: '//www.opensnowmap.org/opensnowmap-overlay/{z}/{x}/{y}.png',
         options: {
-            opacity:0.99,
+            opacity: 0.99,
             attribution: '&copy; <a href="http://www.opensnowmap.org">OpenSnowMap</a>, {attribution.OpenStreetMap}',
             forceHTTP: true
         },
     },
     IGN: {
-        category:'france',
+        category: 'france',
         url: '//gpp3-wxs.ign.fr/' + app.servicesKeys.ign +
             '/geoportail/wmts?LAYER={variant}&EXCEPTIONS=text/xml&FORMAT={format}&SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetTile&STYLE=normal&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}',
         options: {
@@ -53,7 +53,7 @@ exports.data = {
         variants: {
             Plan: {
                 options: {
-                    minZoom:6,
+                    minZoom: 6,
                     variant: 'GEOGRAPHICALGRIDSYSTEMS.PLANIGN',
                 }
 
@@ -91,10 +91,10 @@ exports.data = {
     OpenStreetMap: {
         url: '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
         options: {
-            subdomains:'abc',
+            subdomains: 'abc',
             minZoom: 2,
             maxZoom: 19,
-            downloadable:true,
+            downloadable: true,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         },
         variants: {
@@ -126,14 +126,14 @@ exports.data = {
         }
     },
     OpenSeaMap: {
-        category:'sea',
+        category: 'sea',
         url: 'http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',
         options: {
             attribution: 'Map data: &copy; <a href="http://www.openseamap.org">OpenSeaMap</a> contributors'
         }
     },
     OpenTopoMap: {
-        category:'topo,europe',
+        category: 'topo,europe',
         url: 'http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
         options: {
             maxZoom: 15,
@@ -141,7 +141,7 @@ exports.data = {
         }
     },
     Lonvia: {
-        category:'topo',
+        category: 'topo',
         options: {
             maxZoom: 16,
             attribution: 'Map data: {attribution.OpenStreetMap}, <Overlay from cycling.lonvia.de, <a href="http://cycling.lonvia.de/en/copyright"> Terms of Use</a> )'
@@ -428,7 +428,7 @@ exports.data = {
         }
     },
     OpenWeatherMap: {
-        category:'weather',
+        category: 'weather',
         url: 'http://{s}.tile.openweathermap.org/map/{variant}/{z}/{x}/{y}.png',
         options: {
             maxZoom: 19,
@@ -539,7 +539,7 @@ exports.data = {
         }
     },
     FreeMapSK: {
-        category:'slovenia',
+        category: 'slovenia',
         url: 'http://{s}.freemap.sk/T/{z}/{x}/{y}.jpeg',
         options: {
             minZoom: 8,
@@ -549,7 +549,7 @@ exports.data = {
         }
     },
     MtbMap: {
-        category:'europe',
+        category: 'europe',
         url: 'http://tile.mtbmap.cz/mtbmap_tiles/{z}/{x}/{y}.png',
         options: {
             maxZoom: 18,
@@ -571,7 +571,7 @@ exports.data = {
         }
     },
     HikeBike: {
-        category:'topo',
+        category: 'topo',
         url: 'http://{s}.tiles.wmflabs.org/{variant}/{z}/{x}/{y}.png',
         options: {
             maxZoom: 14,
@@ -580,7 +580,7 @@ exports.data = {
         },
         variants: {
             HillShading: {
-                category:'relief',
+                category: 'relief',
                 options: {
                     maxZoom: 15,
                     variant: 'hillshading'
@@ -590,7 +590,7 @@ exports.data = {
     },
 
     NASAGIBS: {
-        category:'other',
+        category: 'other',
         url: '//map1.vis.earthdata.nasa.gov/wmts-webmerc/{variant}/default/{time}/{tilematrixset}{maxZoom}/{z}/{y}/{x}.{format}',
         options: {
             attribution: 'Imagery provided by services from the Global Imagery Browse Services (GIBS), operated by the NASA/GSFC/Earth Science Data and Information System ' +
@@ -642,10 +642,10 @@ exports.data = {
         }
     },
     map1eu: {
-        category:'europe',
+        category: 'europe',
         url: '//beta.map1.eu/tiles/{z}/{x}/{y}.jpg',
         options: {
-            maxZoom:15,
+            maxZoom: 15,
             attribution: '&copy; <a href="http://beta.map1.eu/">map1.eu</a>, {attribution.OpenStreetMap}',
             forceHTTP: true
         }
@@ -661,7 +661,7 @@ exports.data = {
                 url: 'http://{s}.tile.geofabrik.de/549e80f319af070f8ea8d0f149a149c2/{z}/{x}/{y}.png'
             },
             Topo: {
-                category:'topo',
+                category: 'topo',
                 url: 'http://{s}.tile.geofabrik.de/15173cf79060ee4a66573954f6017ab0/{z}/{x}/{y}.png'
             },
         }
@@ -683,7 +683,7 @@ exports.data = {
         }
     },
     'Alltrails': {
-        category:'topo',
+        category: 'topo',
         url: 'http://alltrails.com/tiles/alltrailsOutdoors/{z}/{x}/{y}.png',
         options: {
             attribution: '{attribution.OpenStreetMap} &copy; <a href="http://alltrails.com">Alltrails</a>',
@@ -691,7 +691,7 @@ exports.data = {
         }
     },
     '4umaps': {
-        category:'europe,topo',
+        category: 'europe,topo',
         url: 'http://4umaps.eu/{z}/{x}/{y}.png',
         options: {
             attribution: '{attribution.OpenStreetMap} &copy; <a href="http://4umaps.eu">4umaps</a>',
@@ -700,7 +700,7 @@ exports.data = {
         }
     },
     'Maptoolkit': {
-        category:'europe,usa',
+        category: 'europe,usa',
         url: 'http://tile{s}.maptoolkit.net/{variant}/{z}/{x}/{y}.png',
         options: {
             attribution: '{attribution.OpenStreetMap} &copy; <a href="http://maptoolkit.net/">Maptoolkit</a>',
@@ -710,7 +710,7 @@ exports.data = {
         },
         variants: {
             Topo: {
-                url:'http://tile{s}.maptoolkit.net/terrain/{z}/{x}/{y}.png',
+                url: 'http://tile{s}.maptoolkit.net/terrain/{z}/{x}/{y}.png',
                 options: {
                     variant: 'terrain'
 
@@ -724,28 +724,38 @@ exports.data = {
             }
         }
     },
-    'slopes > 30%':{
-        category:'europe',
-        url:'http://www.skitrack.fr/cgi-bin/mapserv.fcgi?map=/srv/d_vttrack/vttrack/skitrack/mapserver/WMS-{variant}.map&SERVICE=WMS&VERSION=1.1.1&LAYERS=slope&FORMAT=image%2Fpng&TRANSPARENT=true&REQUEST=GetMap&STYLES=&SRS=EPSG%3A900913&BBOX={bbox}&WIDTH=512&HEIGHT=512',
+    'slopes > 30%': {
+        category: 'europe',
+        url: 'http://www.skitrack.fr/cgi-bin/mapserv.fcgi?map=/srv/d_vttrack/vttrack/skitrack/mapserver/WMS-{variant}.map&SERVICE=WMS&VERSION=1.1.1&LAYERS=slope&FORMAT=image%2Fpng&TRANSPARENT=true&REQUEST=GetMap&STYLES=&SRS=EPSG%3A900913&BBOX={bbox}&WIDTH=512&HEIGHT=512',
         options: {
             attribution: '{attribution.OpenStreetMap} &copy; <a href="http://maptoolkit.net/">Maptoolkit</a>',
             tileSize: 512,
-            devHidden:true,
+            devHidden: true,
             maxZoom: 15
         },
-        variants:{
-            IGN:{
+        variants: {
+            IGN: {
                 options: {
                     variant: 'slopeIGN75',
                     opacity: 0.99
                 }
             },
-            aster:{
+            aster: {
                 options: {
                     variant: 'slope-aster',
                     opacity: 0.99
                 }
             }
+        }
+    },
+    'piemonte': {
+        category: 'italie',
+
+        url: '//www.webgis.csi.it/cataloghiradex_f/cataloghi_TMS/sfondi/sfondo_europa_piemonte/{z}/{x}/{y}.png',
+        options: {
+            attribution: 'http://www.regione.piemonte.it/sentgis/jsp/cartografia/mappa.do',
+            forceHTTP: true,
+            maxZoom: 18
         }
     }
 };

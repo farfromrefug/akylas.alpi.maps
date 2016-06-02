@@ -88,6 +88,7 @@
     "nothing_to_update": "aucune nouvelle donnée",
     "profile": "profil",
     "query_profile": "calculer le profil d'élévation",
+    "update_profile": "calculer le profil d'élévation",
     "profile_found": "profil calculé",
     "items_moved_to_{title}": "marqueurs déplacés dans {title}",
     "preparing_hike": "préparation randonnée",
@@ -336,5 +337,5 @@
     "refreshing":"chargement",
     "click_to_cancel":"cliquer pour annuler",
     "document_created":"document créé",
-    "files":"fichiers",
+    "files":"fichiers"
 }

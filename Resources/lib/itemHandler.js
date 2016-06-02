@@ -1,7 +1,5 @@
 (function(global, undefined) {
 
-    "use strict";
-
     function ItemHandler() {}
     var convert = app.utils.convert,
         // openingHours = app.utils.openingHours,
@@ -11,75 +9,75 @@
         moveOnFirstChange = Ti.App.Properties.getBool('items.firstchangemove', true);
 
     var itemActions = {
-        'search_google': {
+        search_google: {
             icon: $sGoogle,
             color: '#5394F3',
             text: 'google'
         },
-        'wikipedia': {
+        wikipedia: {
             icon: app.icons.wikipedia,
             color: 'black'
         },
-        'images': {
+        images: {
             icon: app.icons.photo,
             color: '#DA4630'
         },
-        'reverse_geo': {
+        reverse_geo: {
             icon: $sPlace,
             color: '#2CA8C2',
             text: 'address'
         },
-        'consolidate_alt': {
+        consolidate_alt: {
             icon: $sElevation,
             color: '#99CB4A',
             text: 'altitude'
         },
-        'navigate': {
+        navigate: {
             icon: $sRouting,
             text: 'directions'
         },
-        'more': {
+        more: {
             icon: $sHOptions,
         },
-        'move': {
+        move: {
             icon: app.icons.folder,
             color: '#839098',
         },
-        'query_profile': {
+        query_profile: {
             icon: $sElevationProfile,
             color: '#99CB4A',
             text: 'profile'
         },
-        'phone': {
+        phone: {
             icon: app.icons.phone,
             text: 'call'
         },
-        'refresh_tags': {
+        refresh_tags: {
             icon: $sRefresh,
             text: 'details'
         },
-        'searcharound': {
+        searcharound: {
             icon: app.icons.details,
             text: 'details'
         },
-        'remove': {
+        remove: {
             icon: String.fromCharCode(0xe287),
             color: app.colors.red.color,
             text: 'delete'
         },
-        'locate': {
+        locate: {
             icon: String.fromCharCode(0xe604),
             color: app.colors.blue.color,
             text: 'locate'
         },
-        'directions': {
+        directions: {
             icon: $sDirections,
             color: '#0D83D4',
             text: 'directions'
         }
     };
     var iconStyleViews = {
-        '0': new Label({
+        0: new Label({
             properties: {
                 color: $white,
                 font: {
@@ -119,7 +117,7 @@
                 }
             }]
         }),
-        '1': new Label({
+        1: new Label({
             properties: {
                 width: __APPLE__ ? 50 : 32,
                 height: __APPLE__ ? 60 : 40,
@@ -163,7 +161,7 @@
                 }
             }]
         }),
-        '2': new Label({
+        2: new Label({
             properties: {
                 width: 50,
                 height: 50,
@@ -183,7 +181,7 @@
                 // shadowOffset: [0, 1],
             }
         }),
-        '10': new Label({
+        10: new Label({
             properties: {
                 color: $white,
                 font: {
@@ -209,7 +207,7 @@
                 text: app.icons.circle
             }
         }),
-        '11': new Label({
+        11: new Label({
             properties: {
                 color: $white,
                 font: {
@@ -225,7 +223,8 @@
 
     function showFloatingWebView(_title, _url, _item, _desc, _parent, _mapHandler) {
         var floating = app.ui.mainwindow.navWindow.stackSize == 1;
-        (floating ? app.ui : _parent.manager).createAndOpenWindow('WebWindow', {
+        (floating ? app.ui : _parent.manager)
+        .createAndOpenWindow('WebWindow', {
             floating: floating,
             mapHandler: _mapHandler,
             showBackButton: true,
@@ -302,7 +301,8 @@
             'annot',
             iconSettings.style,
             iconSettings.scale,
-            parseInt((colors.color).slice(1), 16),
+            parseInt((colors.color)
+                .slice(1), 16),
             icon.charCodeAt(0),
             selected ? 'on' : 'off'
         ].join('_');
@@ -323,10 +323,17 @@
         var textColor = (colors.luminance > 0.8) ? colors.contrast : $white;
         var view = iconStyleViews[iconSettings.style + ''];
         var color = colors.color,
-            darkenColor = Color(color).darken(20).saturate(10).toHex8String(),
+            darkenColor = Color(color)
+            .darken(20)
+            .saturate(10)
+            .toHex8String(),
             image, params = {
-                color: selected ? Color(color).saturate(8).toHex8String() : color,
-                strokeColor: selected ? textColor : Color(darkenColor).setAlpha(0.6).toHex8String(),
+                color: selected ? Color(color)
+                    .saturate(8)
+                    .toHex8String() : color,
+                strokeColor: selected ? textColor : Color(darkenColor)
+                    .setAlpha(0.6)
+                    .toHex8String(),
                 label: {
                     text: icon,
                     strokeColor: colors.darkest,
@@ -334,12 +341,15 @@
                 },
             };
 
-        if (iconSettings.style === 1) {
-            // params.strokeColor = selected ? textColor : Color(darkenColor).setAlpha(0.6).toHex8String();
-            // params.label.color = selected ? $white : darkenColor;
-            // params.label.color = textColor;
-        } else if (iconSettings.style === 2) {
-            params.strokeColor = selected ? colors.darkest : Color(darkenColor).setAlpha(0.6).toHex8String();
+        // if (iconSettings.style === 1) {
+        // params.strokeColor = selected ? textColor : Color(darkenColor).setAlpha(0.6).toHex8String();
+        // params.label.color = selected ? $white : darkenColor;
+        // params.label.color = textColor;
+        // } else
+        if (iconSettings.style === 2) {
+            params.strokeColor = selected ? colors.darkest : Color(darkenColor)
+                .setAlpha(0.6)
+                .toHex8String();
             // params.color = selected ? darkenColor : color;
             params.text = icon;
         } else if (iconSettings.style === 11) {
@@ -524,8 +534,9 @@
                 dmin: (_item.profile && _item.profile.dmin) || _item.tags.dmin
             });
             return trc('estimated') + ' ' + htmlIcon(String.fromCharCode(0xe08e), 0, $black) + moment.duration(
-                duration).format(
-                "h[h]m[m]");
+                    duration)
+                .format(
+                    'h[h]m[m]');
         },
         computeProfileEstimatedTime: function(_args) {
             // sdebug('computeProfileEstimatedTime', _args);
@@ -556,7 +567,8 @@
             return totalTime;
         },
         itemDetails: function(_item, _desc) {
-            return convert.osmTagsFastDetails(_item).join(', ');
+            return convert.osmTagsFastDetails(_item)
+                .join(', ');
         },
         itemIcons: function(_item, _color) {
             return convert.osmTagsIconsHTML(_item, _color);
@@ -579,16 +591,21 @@
                             route.distance);
                         if (route.duration > 0) {
                             subtitle += ' ' + htmlIcon(String.fromCharCode(0xe08e), 0, $black) + moment
-                                .duration(route.duration).format("h[h]mm");
+                                .duration(route.duration)
+                                .format('h[h]mm');
                         }
                         var profile = _item.profile || _item.tags;
                         if (profile) {
-                            profile.dplus && (subtitle += ' ' + htmlIcon($sDplus, 0, $black) + this.geolib
-                                .formatter
-                                .altitude(profile.dplus));
-                            profile.dmin && (subtitle += ' ' + htmlIcon($sDmin, 0, $black) + this.geolib
-                                .formatter
-                                .altitude(Math.abs(profile.dmin)));
+                            if (profile.dplus) {
+                                subtitle += ' ' + htmlIcon($sDplus, 0, $black) + this.geolib
+                                    .formatter
+                                    .altitude(profile.dplus);
+                            }
+                            if (profile.dmin) {
+                                subtitle += ' ' + htmlIcon($sDmin, 0, $black) + this.geolib
+                                    .formatter
+                                    .altitude(Math.abs(profile.dmin));
+                            }
                         }
                     } else {
                         subtitle = this.geolib.formatter.latLngString(_item, 2);
@@ -698,11 +715,7 @@
             var item = _.merge(_item, _changes);
             var isRoute = this.isItemARoute(_item);
             var i;
-            if (isRoute) {
-                // if (_changes.color) {
-                //     _changes.selectedColor = _changes.color;
-                // }
-            } else {
+            if (!isRoute) {
                 if (_changes.icon || _changes.color) {
                     item.image = getAnnotImage(_desc, item);
                     item.selectedImage = getAnnotImage(_desc, item, true);
@@ -713,8 +726,9 @@
 
             if (_changes.tags) {
                 if (_changes.tags.image) {
-                    _changes.newPhotos = (_changes.newPhotos || []).concat([{
-                        image: _changes.tags.image
+                    _changes.newPhotos = (_changes.newPhotos || [])
+                        .concat([{
+                            image: _changes.tags.image
                     }]);
                 }
                 if (_changes.tags.colour && !item.color) {
@@ -974,7 +988,8 @@
             //     item.id = now;
             // }
             // return item;
-            var now = moment().valueOf();
+            var now = moment()
+                .valueOf();
             var item = _.defaults(_data, {
                 type: _feature.id,
                 timestamp: now,
@@ -984,7 +999,8 @@
             return item;
         },
         createRouteItem: function(_routeType, _data, _id) {
-            var now = moment().valueOf();
+            var now = moment()
+                .valueOf();
             var item = _.defaults(_data, {
                 type: _routeType.id,
                 timestamp: now,
@@ -1004,66 +1020,29 @@
             if (_desc && _desc.options) {
                 options = options.concat(_desc.options);
             }
-            if (_item) {
-
-                if (!isRoute) {
-                    if (!_item.address) {
-                        options.push('reverse_geo');
-                    }
-                    if (!_item.hasOwnProperty('altitude')) {
-                        options.push('consolidate_alt');
-                    }
-                }
-
-                if (_item.tags) {
-                    if (_item.tags.phone) {
-                        options.unshift('phone');
-                    }
-                    // if (_item.tags.wikipedia) {
-                    //     options.push('wikipedia');
-                    // }
-                    // if (_item.tags.website) {
-                    //     options.push('website');
-                    // }
-                    // options.push('refresh_tags');
-                    // } else if (!isRoute) {
-                    // options.push('searcharound');
-                }
-
-                if (!isRoute) {
-                    options.push('searcharound');
-                    // } else  {
-                    // options.push('refresh_tags');
-                }
-
-                if (!isRoute) {
-                    options.push('search_google');
-                } else {
-                    if (!_item.profile) {
-                        options.push('query_profile');
-                    }
-                }
-                if (!_onMap) {
-                    options.push('locate');
-                }
-                // if (!isRoute && app.currentLocation) {
-                //     options.push('directions');
-                // }
-
-                // options.push('move');
-                options.push('more');
-
-            }
-
-            // if (!isRoute) {
-            // }
             options.push('remove');
 
-            var result = _.pairs(_.pick(itemActions, options));
-            _mapHandler.runMethodOnModules('actionsForItem', _item, _desc, _onMap, result);
-            return result;
+            _mapHandler.runMethodOnModules('actionsForItem', _item, _desc, _onMap, options);
+            sdebug('actionsForItem', options);
+            options = options.map(key => {
+                if (typeof key === 'string' && itemActions.hasOwnProperty(key)) {
+                    return [key, itemActions[key]];
+                }
+                return key;
+            })
+            // var result = _.mapValues(options, function(value, key){
+            //     sdebug('test', value, key);
+            //     if (!_.isArray(value) && itemActions.hasOwnProperty(key)) {
+            //         return [key, itemActions[key]];
+            //     }
+            //     return value;
+            // })
+            sdebug('actionsForItem2', options);
+            // var result = _.pairs(_.pick(itemActions, options));
+            return options;
         },
-        showMoreOptionMenuForItem: function(_item, _desc, _callback, _parent, _mapHandler) {
+        showMoreOptionMenuForItem: function(_item, _desc, _callback, _parent, _mapHandler, _params) {
+            _params = _params || {};
             // var options = ['add_photo', 'move', 'share'];
             var options = ['add_photo', 'move'];
             if (__APPLE__) {
@@ -1072,22 +1051,26 @@
                     options.push('open_google_maps');
                 }
             }
+            _mapHandler.runMethodOnModules('moreActionsForItem', _item, _desc, !!_params.onMap, options);
 
             new OptionDialog({
-                options: _.map(options, function(value,
-                    index) {
-                    return trc(value);
-                }),
-                buttonNames: [trc('cancel')],
-                cancel: 0,
-                tapOutDismiss: true
-            }).on('click', (function(e) {
-                if (!e.cancel) {
-                    var option = options[e.index];
-                    this.handleItemAction(option, _item, _desc, _callback, _parent,
-                        _mapHandler);
-                }
-            }).bind(this)).show();
+                    options: _.map(options, function(value,
+                        index) {
+                        return trc(value);
+                    }),
+                    buttonNames: [trc('cancel')],
+                    cancel: 0,
+                    tapOutDismiss: true
+                })
+                .on('click', (function(e) {
+                        if (!e.cancel) {
+                            var option = options[e.index];
+                            this.handleItemAction(option, _item, _desc, _callback, _parent,
+                                _mapHandler);
+                        }
+                    })
+                    .bind(this))
+                .show();
         },
         handlePhotoTaken: function(_parent, _callback, e) {
             _parent.showLoading({
@@ -1097,9 +1080,11 @@
             });
             sdebug(e);
             var image = e.media;
-            var imageId = moment().valueOf();
+            var imageId = moment()
+                .valueOf();
             var imageName = 'photo_' + imageId + '.jpg';
-            Ti.Filesystem.getFile(getImagePath(imageName)).write(image);
+            Ti.Filesystem.getFile(getImagePath(imageName))
+                .write(image);
             _callback(image, imageId, imageName);
 
             _parent.hideLoading();
@@ -1129,7 +1114,7 @@
             sdebug('handleItemAction', _option, _item.id, _item.title, _item.type);
 
             var colors = app.getColors(_item, _desc);
-            var url;
+            var url, request;
             switch (_option) {
                 case 'wikipedia':
                     url = _item.tags.wikipedia;
@@ -1139,7 +1124,7 @@
                     showFloatingWebView(_option, url, _item, _desc, _parent, _mapHandler);
                     break;
                 case 'more':
-                    this.showMoreOptionMenuForItem(_item, _desc, _callback, _parent, _mapHandler);
+                    this.showMoreOptionMenuForItem(_item, _desc, _callback, _parent, _mapHandler, _params);
 
                     break;
                 case 'edit':
@@ -1216,7 +1201,8 @@
                             title: trc(_option),
                             cancel: 0,
                             tapOutDismiss: true
-                        }).on('click', _.bind(function(e) {
+                        })
+                        .on('click', _.bind(function(e) {
                             sdebug(e);
                             if (!e.cancel) {
                                 if (e.index === 0) {
@@ -1232,14 +1218,18 @@
                                     });
                                 }
                             }
-                        }, this)).show();
+                        }, this))
+                        .show();
 
                         break;
                     }
                 case 'refresh_tags':
                     {
                         var clearUpString = function(s) {
-                            return _.deburr(s).toLowerCase().replace(/^(the|le|la|el)\s/, '').trim();
+                            return _.deburr(s)
+                                .toLowerCase()
+                                .replace(/^(the|le|la|el)\s/, '')
+                                .trim();
                         };
                         var q = clearUpString(_item.title || _desc.defaultTitle);
                         var hasChanged = false;
@@ -1275,8 +1265,7 @@
                                                     id);
                                                 if (existing === -1) {
                                                     hasChanged = true;
-                                                    value.newNotes = value.newNotes ||
-                                                        [];
+                                                    value.newNotes = value.newNotes || [];
                                                     value.newNotes.push(
                                                         note);
                                                 }
@@ -1327,10 +1316,11 @@
                                 _parent.hideLoading();
                             }
                         }, this);
-                        var request = app.api.chainCalls(calls, _.bind(function(res, chain) {
+                        request = app.api.chainCalls(calls, _.bind(function(res, chain) {
                             var result = {};
                             // sdebug(res);
-                            if (chain.error().length === 0) {
+                            if (chain.error()
+                                .length === 0) {
                                 if (res && res.photos) {
                                     result.newPhotos = result.newPhotos || [];
 
@@ -1408,7 +1398,7 @@
                 case 'open_google_maps':
                     {
                         url =
-                            'comgooglemaps://?zoom=14&q=';
+                        'comgooglemaps://?zoom=14&q=';
                         url += this.geolib.formatter.latLngString(_item, 0, ',');
                         Ti.Platform.openURL(url);
                         break;
@@ -1416,7 +1406,7 @@
                 case 'reverse_geo':
                     {
 
-                        var request = app.api.reverseGeocode(_item, _.bind(function(e) {
+                        request = app.api.reverseGeocode(_item, _.bind(function(e) {
                             if (!e.error) {
                                 var changes = {
                                     address: e
@@ -1464,7 +1454,7 @@
                 case 'consolidate_alt':
                     {
 
-                        var request = app.api.ignElevation(_item, _.bind(function(e) {
+                        request = app.api.ignElevation(_item, _.bind(function(e) {
                             if (!e.error) {
                                 var changes = {
                                     altitude: e.altitude
@@ -1492,6 +1482,7 @@
                         }
                         break;
                     }
+                case 'update_profile':
                 case 'query_profile':
                     {
 
@@ -1500,7 +1491,7 @@
                         var points = _item.route.points;
                         // var toUsePoints = this.simplify(_item.route.points, factor / 3779);
                         // sdebug(_option, points.length, toUsePoints.length);
-                        var request = app.api.ignElevationProfile(this, _item.route.points, _.bind(
+                        request = app.api.ignElevationProfile(this, _item.route.points, _.bind(
                             function(e) {
                                 if (!e.error) {
                                     var changes = {
@@ -1613,10 +1604,10 @@
                     {
                         sdebug('take_photo command', app.currentLocation);
                         if (app.currentLocation) {
-                            var that = this;
+                            var _this = this;
                             var currentPos = _.pick(app.currentLocation, 'latitude',
                                 'longitude', 'altitude');
-                            that.takePhoto(_parent, function(_image, _imageId, _imageName) {
+                            _this.takePhoto(_parent, function(_image, _imageId, _imageName) {
                                 if (!_image) {
                                     return;
                                 }
@@ -1626,7 +1617,7 @@
                                 sdebug('existingItem', existingItem);
                                 if (existingItem) {
                                     app.showMessage(trc('item_updated'), existingItem.desc.colors);
-                                    existingItem.item = that.updateItem(existingItem.item,
+                                    existingItem.item = _this.updateItem(existingItem.item,
                                         existingItem.desc, {
                                             newPhotos: [{
                                                 width: _image.width,
@@ -1654,9 +1645,9 @@
                                     existingItem = _mapHandler.runGetSingleMethodOnModules(
                                         'getItem', currentPos, type);
                                 }
-                                that.handleItemAction('select', existingItem.item, existingItem
+                                _this.handleItemAction('select', existingItem.item, existingItem
                                     .desc, _callback,
-                                    _parent, _mapHandler);
+                                    _parent, _mapHandler, _params);
                             });
                         }
                     }

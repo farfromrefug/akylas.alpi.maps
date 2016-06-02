@@ -126,10 +126,10 @@ ak.ti.constructors.createItemInfoView = function(_args) {
             // });
             updateGrabber(true);
         }
-    }
+    };
     self.suppViewsVisible = function(_visible) {
         return suppViewsVisible;
-    }
+    };
 
     self.animateChanges = function() {
         if (!needsAnimationChanges) {
@@ -148,7 +148,7 @@ ak.ti.constructors.createItemInfoView = function(_args) {
             },
             duration: 200
         });
-    }
+    };
 
     self.setActionBarVisible = function(_visible) {
         if (_visible !== actionHolderVisible && (!_visible || self.canShowActionButtons)) {
@@ -156,12 +156,11 @@ ak.ti.constructors.createItemInfoView = function(_args) {
             actionHolderVisible = _visible;
             needsAnimationChanges = true;
         }
-    }
+    };
 
     self.actionBarVisible = function(_visible) {
         return actionHolderVisible;
-    }
-
+    };
 
     function updateGrabber(_animated) {
         var points;
@@ -273,7 +272,7 @@ ak.ti.constructors.createItemInfoView = function(_args) {
         updateGrabber(true);
         self.applyProperties(args);
         actionBar.updateForItem(item, itemDesc, visible);
-    }
+    };
 
     function onItemSupplyViewUpdate(e) {
         if (selectedItem && selectedItem.item.id === e.item.id) {
@@ -304,10 +303,9 @@ ak.ti.constructors.createItemInfoView = function(_args) {
             self.show();
         }
         return didSelect;
-    }
+    };
 
     self.updateLocation = function(_location) {
-        sdebug('updateLocation', _location);
         if (_location === null) {
             return;
         }
@@ -347,14 +345,14 @@ ak.ti.constructors.createItemInfoView = function(_args) {
                 }
             }
         }
-    }
+    };
 
     self.setSelectedItem = function(_item) {
         selectedItem = _item;
         actionBar.updateForItem(selectedItem.item, selectedItem.desc, visible);
         self.update();
         // sdebug(TAG, 'setSelectedItem', _item, visible);
-    }
+    };
 
     self.hideMe = function() {
         // sdebug(TAG, 'hideMe', visible);
@@ -369,7 +367,7 @@ ak.ti.constructors.createItemInfoView = function(_args) {
 
             });
         }
-    }
+    };
 
     self.showMe = function() {
         // update();
@@ -387,7 +385,7 @@ ak.ti.constructors.createItemInfoView = function(_args) {
             ]);
 
         }
-    }
+    };
 
     app.on('distance_metric_changed', self.update);
     app.on('temp_metric_changed', updateSupplyView);
@@ -399,7 +397,7 @@ ak.ti.constructors.createItemInfoView = function(_args) {
         actionBar.onInit(_window, _mapHandler);
     };
 
-    //END OF CLASS. NOW GC 
+    //END OF CLASS. NOW GC
     self.GC = app.composeFunc(self.GC, function() {
         if (actionBar) {
             actionBar.GC();

@@ -1,29 +1,28 @@
-exports.init = function(_context) {
-    var MapModule = _context.MapModule = _context.MicroEvent.extend({
-        GC: function() {
-            this.markers = null;
-            this.window = null;
-            this.parent = null;
-            this.mapView = null;
-        },
-        
-        spreadModuleAction: function(_params) {
-            return (this.onModuleAction && this.onModuleAction(_params)) ||
-                (this.canSpreadModuleAction && !this.canSpreadModuleAction(_params));
-        },
-        spreadLongModuleAction: function(_params) {
-            return (this.onModuleLongAction && this.onModuleLongAction(_params)) ||
-                (this.canSpreadLongModuleAction && !this.canSpreadLongModuleAction(_params));
-        },
-        runAction: function(_action, _item, _desc, _callback) {
-            app.itemHandler.handleItemAction(_action, _item, _desc, _callback, this.window,
-                this.parent);
-        },
-    });
-    var ContentModule = _context.ContentModule = _context.MapModule.extend({
-        GC: function() {},
-        hasSettings: function() {
-            return true;
-        }
-    });
-};
+class MapModule extends MicroEvent {
+    GC() {
+        this.markers = null;
+        this.window = null;
+        this.parent = null;
+        this.mapView = null;
+    }
+    
+    spreadModuleAction(_params) {
+        return (this.onModuleAction && this.onModuleAction(_params)) ||
+            (this.canSpreadModuleAction && !this.canSpreadModuleAction(_params));
+    }
+    spreadLongModuleAction(_params) {
+        return (this.onModuleLongAction && this.onModuleLongAction(_params)) ||
+            (this.canSpreadLongModuleAction && !this.canSpreadLongModuleAction(_params));
+    }
+    runAction(_action, _item, _desc, _callback) {
+        app.itemHandler.handleItemAction(_action, _item, _desc, _callback, this.window,
+            this.parent);
+    }
+}
+
+class ContentModule extends MapModule {
+    GC() {}
+    hasSettings() {
+        return true;
+    }
+}

@@ -13,11 +13,12 @@ function create(_context) {
     };
 
     var onChartTouch = function(e) {
+        sdebug('onChartTouch', e);
         if (e.bindId === 'chart' && e.line) {
+            sdebug('onChartTouch', _.omit(e.line, 'plot'));
             if (!e.line.yValue) {
                 return;
             }
-            sdebug('onChartTouch', _.omit(e.line, 'plot'));
             var rect = e.source.rect;
             var params = {
                 popup: {
@@ -1009,6 +1010,25 @@ function create(_context) {
                     click: onChartTouch,
                     touchstart: onChartTouch,
                     touchmove: onChartTouch,
+                }
+            }]
+        },
+        elevationProfileHTML: {
+            properties: {
+                rclass: 'ElevationProfileRow',
+            },
+            childTemplates:[{
+                bindId: 'chartDesc',
+                type: 'Ti.UI.Label',
+                properties: {
+                    rclass: 'ElevationProfileRowLabel'
+                }
+            }, {
+                bindId:'chart',
+                type:'Ti.UI.WebView',
+                properties:{
+                    rclass:'ElevationProfileRowLineChart',
+                    url:'data/highcharts/index.html'
                 }
             }]
         },

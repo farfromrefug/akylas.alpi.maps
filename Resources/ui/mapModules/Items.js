@@ -1,6 +1,8 @@
 exports.create = function(_context, _args, _additional) {
     // Ti.App.Properties.removeProperty('lists');
-    var __types = _.assign(require('data/routetypes').data, require('data/markertypes').data),
+    var __types = _.assign(require('data/routetypes')
+            .data, require('data/markertypes')
+            .data),
         listDefaults = {
             modified: {
                 color: '#ef6c00',
@@ -33,7 +35,7 @@ exports.create = function(_context, _args, _additional) {
         indexer;
 
     mapArgs.calloutTemplates = mapArgs.calloutTemplates || {};
-    mapArgs.calloutTemplates['calloutPhoto'] = app.templates.view.cloneTemplateAndFill('calloutPhoto', {
+    mapArgs.calloutTemplates.calloutPhoto = app.templates.view.cloneTemplateAndFill('calloutPhoto', {
         properties: {
             bubbleParent: false
         }
@@ -222,7 +224,8 @@ exports.create = function(_context, _args, _additional) {
                 self.addItems(Ti.App.Properties.getObject(value.propertyKey, []), undefined,
                     false);
             });
-            self.mapView.addCluster(_.values(__clusters).reverse());
+            self.mapView.addCluster(_.values(__clusters)
+                .reverse());
         },
         GC: app.composeFunc(self.GC, function() {
             app.off(__ITEMS__ + 'Changed', self.onChanged);
@@ -315,7 +318,8 @@ exports.create = function(_context, _args, _additional) {
                     }
                     if (annots.length > 0) {
                         // sdebug('about to add annotations', annots);
-                        var added = self.getCluster(_type).addAnnotation(annots);
+                        var added = self.getCluster(_type)
+                            .addAnnotation(annots);
                         var addedLength = added.length;
                         if (addedLength !== annots.length) {
                             __items[_type] = __items[_type].concat(addedMarkers.slice(-
@@ -333,8 +337,9 @@ exports.create = function(_context, _args, _additional) {
                     }
                     if (routes.length > 0) {
                         // sdebug('about to add routes', routes);
-                        __routes[_type] = (__routes[_type] || []).concat(self.mapView
-                            .addRoute(routes));
+                        __routes[_type] = (__routes[_type] || [])
+                            .concat(self.mapView
+                                .addRoute(routes));
                         __items[_type] = __items[_type].concat(addedRoutes);
                         if (_save !== false) {
                             indexAddItems(addedRoutes);
@@ -398,11 +403,13 @@ exports.create = function(_context, _args, _additional) {
                                             delete photosDb[photo.image];
                                             sdebug('removing photo', photo);
                                             Ti.Filesystem.getFile(app.getImagePath(
-                                                photo.image)).deleteFile();
+                                                    photo.image))
+                                                .deleteFile();
                                             if (photo.thumbnailImage) {
                                                 Ti.Filesystem.getFile(app.getImagePath(
-                                                    photo.thumbnailImage
-                                                )).deleteFile();
+                                                        photo.thumbnailImage
+                                                    ))
+                                                    .deleteFile();
                                             }
                                         }
 
@@ -422,7 +429,8 @@ exports.create = function(_context, _args, _additional) {
                                             delete filesDb[file.filePath];
                                             sdebug('removing file', file);
                                             Ti.Filesystem.getFile(app.getFilePath(
-                                                file.filePath)).deleteFile();
+                                                    file.filePath))
+                                                .deleteFile();
 
                                         }
 
@@ -553,7 +561,8 @@ exports.create = function(_context, _args, _additional) {
             if (__types[_type]) {
                 var index = __currentIds[_type][__MARKERS__].indexOf(_id);
                 if (index >= 0) {
-                    return self.getCluster(_type).getAnnotation(index);
+                    return self.getCluster(_type)
+                        .getAnnotation(index);
                 }
             }
         },
@@ -574,8 +583,9 @@ exports.create = function(_context, _args, _additional) {
                 var index = __currentIds[_type][idKey].indexOf(_item.id);
                 // sdebug('getMapItem', isRoute, idKey, index);
                 if (index >= 0) {
-                    return isRoute ? __routes[_type][index] : self.getCluster(_type).getAnnotation(
-                        index);
+                    return isRoute ? __routes[_type][index] : self.getCluster(_type)
+                        .getAnnotation(
+                            index);
                 }
             }
         },
@@ -858,7 +868,8 @@ exports.create = function(_context, _args, _additional) {
         },
 
         clear: function(_key, _indexerClear) {
-            this.getCluster(_key).removeAllAnnotations();
+            this.getCluster(_key)
+                .removeAllAnnotations();
             if (_indexerClear !== false) {
                 indexRemoveList(_key);
             }
@@ -871,8 +882,117 @@ exports.create = function(_context, _args, _additional) {
             __items[_key] = [];
         },
         getSupplyTemplates: function(memo) {
-            memo['elprofile'] = app.templates.row.elevationProfile;
-            memo['file'] = app.templates.row.gfoptionfileitem;
+            memo.elprofile = app.templates.row.elevationProfile;
+            memo.elprofileHTML = app.templates.row.elevationProfileHTML;
+            memo.elprofileHTML.childTemplates[1].events = {
+                load:function(e) {
+                    // sdebug('load', e);
+                    e.source.evalJS('plotChart(' + JSON.stringify(e.source.chartdata) + ')');
+                }
+            };
+            memo.file = app.templates.row.gfoptionfileitem;
+        },
+        getChartData: function(_profile, _color) {
+            var getColor = function(value){
+                //value from 0 to 1
+                var hue=(Math.max((1-value*3)*120, 12)).toString(10);
+                return ["hsla(",hue,",100%,50%, 0.5)"].join("");
+            };
+            return {
+                chart: {
+                  zoomType: 'x',
+                  spacing:[5, 5, 5, 5],
+                  plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false
+                },
+                credits: {
+                enabled: false
+              },
+                title:{
+                    text:''
+                },
+                // tooltip: {
+                //     pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                // },
+                plotOptions: {
+                        line: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: false
+                            },
+                            showInLegend: false
+                        }
+                    },
+                xAxis: {
+                    labels: {
+                        formatter: function() {
+                            sdebug('formatter', this.value);
+                            return formatter.distance(this.value);
+                        }
+                    },
+                    // tickInterval: 20,
+                  //type: 'datetime'
+                  text: '',
+                  plotBands: _.reduce(_profile.gradleRegions, function(memo, value, index) {
+                    memo.push({
+                      from: value.from,
+                      to: value.to,
+                      color: getColor(Math.abs(value.value)),
+                      // label: {
+                      //   text: value.value * 100 + '%',
+                      //   style: {
+                      //     color: '#606060'
+                      //   }
+                      // }
+                    });
+                    return memo;
+                  }, [])
+
+                },
+                yAxis: {
+                  title: {
+                    text: ''
+                  }
+                },
+                legend: {
+                  enabled: false
+                },
+                plotOptions: {
+                  area: {
+                    fillColor:null,
+                    // fillColor: {
+                    //   linearGradient: {
+                    //     x1: 0,
+                    //     y1: 0,
+                    //     x2: 0,
+                    //     y2: 1
+                    //   },
+                    //   stops: [
+                    //     [0, '#B03621'],
+                    //     [1, '#00B03621']
+                    //   ]
+                    // },
+                    marker: {
+                      radius: 2
+                    },
+                    // lineWidth: 1,
+                    // states: {
+                    //   hover: {
+                    //     lineWidth: 1
+                    //   }
+                    // },
+                    // threshold: null
+                  }
+                },
+
+                series: [{
+                  type: 'line',
+                    color:_color,
+                  data: _profile.data
+                }]
+            };
         },
         getItemSupplViews: function(_item, _desc, _params) {
             if (isItemARoute(_item) && (_item.profile || (_item.tags &&
@@ -880,8 +1000,10 @@ exports.create = function(_context, _args, _additional) {
                 _params = _params || {};
                 var profile = _item.profile;
                 var color = _item.color || _desc.color;
+                var useHTML = profile && profile.version === 2;
+                // sdebug('version', profile.version);
                 var result = {
-                    template: 'elprofile',
+                    template: useHTML ? 'elprofileHTML' : 'elprofile',
                     properties: {},
                     chartDesc: {
                         visible: true,
@@ -892,6 +1014,16 @@ exports.create = function(_context, _args, _additional) {
                     }
                 };
                 if (profile) {
+                    if (useHTML) {
+                        _.assign(result, {
+                            chart:{
+                                height: (!!_params.small && 80) || undefined,
+                                visible: true,
+                                chartdata:this.getChartData(profile, color)
+                            }
+                        });
+                        return result;
+                    }
                     var heigthLength = profile.max[1] - profile.min[1];
                     var delta = heigthLength / 2;
                     // sdebug('heigthLength', heigthLength);
@@ -930,12 +1062,12 @@ exports.create = function(_context, _args, _additional) {
                                 },
                                 endPoint: {
                                     x: 0,
-                                    y: "100%"
+                                    y: '100%'
                                 },
                                 backFillStart: true
                             }
                         }
-                    })
+                    });
                     return result;
                 }
                 // return ;
@@ -947,22 +1079,24 @@ exports.create = function(_context, _args, _additional) {
                 var type = __types[key];
                 var options = ['clear', 'list'];
                 new OptionDialog({
-                    options: _.map(options, function(value,
-                        index) {
-                        return trc(value);
-                    }),
-                    buttonNames: [trc('cancel')],
-                    cancel: 0,
-                    tapOutDismiss: true
-                }).on('click', function(e) {
-                    if (!e.cancel) {
-                        var option = options[e.index];
-                        self.onModuleAction({
-                            id: key,
-                            command: option
-                        });
-                    }
-                }).show();
+                        options: _.map(options, function(value,
+                            index) {
+                            return trc(value);
+                        }),
+                        buttonNames: [trc('cancel')],
+                        cancel: 0,
+                        tapOutDismiss: true
+                    })
+                    .on('click', function(e) {
+                        if (!e.cancel) {
+                            var option = options[e.index];
+                            self.onModuleAction({
+                                id: key,
+                                command: option
+                            });
+                        }
+                    })
+                    .show();
             }
         },
 
@@ -1026,7 +1160,8 @@ exports.create = function(_context, _args, _additional) {
                     newItem.iconSettings = type.iconSettings;
                 }
                 if (type.options) {
-                    newItem.options = (newItem.options || []).concat(type.options);
+                    newItem.options = (newItem.options || [])
+                        .concat(type.options);
                 }
                 memo.push(newItem);
                 return memo;
@@ -1051,9 +1186,10 @@ exports.create = function(_context, _args, _additional) {
             self.removeItems(itemsToMove, false);
             __movingItems = null;
 
-            app.showMessage(trc('items_moved_to_{title}').assign({
-                title: newListType.title
-            }), newListType.colors);
+            app.showMessage(trc('items_moved_to_{title}')
+                .assign({
+                    title: newListType.title
+                }), newListType.colors);
 
         },
         onChanged: function(e) {
@@ -1091,7 +1227,8 @@ exports.create = function(_context, _args, _additional) {
                                 needsPhotoDbChange = true;
                                 delete photosDb[photoId];
                                 sdebug('removing photo', photoId);
-                                Ti.Filesystem.getFile(app.getImagePath(photoId)).deleteFile();
+                                Ti.Filesystem.getFile(app.getImagePath(photoId))
+                                    .deleteFile();
                             }
                         });
                     }
@@ -1117,7 +1254,8 @@ exports.create = function(_context, _args, _additional) {
                                 needsFileDbChange = true;
                                 delete filesDb[fileId];
                                 sdebug('removing file', fileId);
-                                Ti.Filesystem.getFile(app.getFilePath(fileId)).deleteFile();
+                                Ti.Filesystem.getFile(app.getFilePath(fileId))
+                                    .deleteFile();
                             }
                         });
                     }
@@ -1192,9 +1330,7 @@ exports.create = function(_context, _args, _additional) {
                         // reset all __items for images to be update
                         var theItems = __items[key];
                         _.forEach(theItems, function(item) {
-                            if (isItemARoute(item)) {
-
-                            } else {
+                            if (!isItemARoute(item)) {
                                 item.image = itemHandler.getAnnotImage(type, item);
                                 item.selectedImage = itemHandler.getAnnotImage(type, item, true);
                             }
@@ -1216,7 +1352,8 @@ exports.create = function(_context, _args, _additional) {
                 if (type) {
                     sdebug('onModuleUnLoaded', types);
                     if (__clusters[_moduleId]) {
-                        this.getCluster(_moduleId).removeAllAnnotations();
+                        this.getCluster(_moduleId)
+                            .removeAllAnnotations();
                         self.mapView.removeCluster(__clusters[_moduleId]);
                         delete __clusters[_moduleId];
                     }
@@ -1264,6 +1401,54 @@ exports.create = function(_context, _args, _additional) {
         },
         onWindowOpen: function(_enabled) {
             app.showTutorials(['map_drop_pin']);
+        },
+        actionsForItem: function(_item, _desc, _onMap, result) {
+            sdebug('items actionsForItem', _item.id, result);
+            if (_item) {
+                var isRoute = isItemARoute(_item);
+                var toAdd = [];
+                if (!isRoute) {
+                    if (!_item.address) {
+                        toAdd.push('reverse_geo');
+                    }
+                    if (!_item.hasOwnProperty('altitude')) {
+                        toAdd.push('consolidate_alt');
+                    }
+                }
+
+                if (_item.tags) {
+                    if (_item.tags.phone) {
+                        toAdd.unshift('phone');
+                    }
+                }
+
+                if (!isRoute) {
+                    toAdd.push('searcharound');
+                }
+
+                if (!isRoute) {
+                    toAdd.push('search_google');
+                } else {
+                    if (!_item.profile) {
+                        toAdd.push('query_profile');
+                    }
+                }
+                if (!_onMap) {
+                    toAdd.push('locate');
+                }
+                toAdd.push('more');
+                sdebug('items toAdd', toAdd);
+                Array.prototype.unshift.apply(result, toAdd);
+                sdebug('items result', result);
+            }
+        },
+        moreActionsForItem: function(_item, _desc, _onMap, result) {
+            if (_item) {
+                var isRoute = isItemARoute(_item);
+                if (isRoute && _item.profile) {
+                    result.push('update_profile');
+                }
+            }
         },
         runActionOnItem: function(_type, _item, _action) {
             var isRoute = isItemARoute(_item);
@@ -1321,7 +1506,8 @@ exports.create = function(_context, _args, _additional) {
                                 text: file.title + ' - ' + (file.fullTitle || file.fileName),
                             },
                             subtitle: {
-                                text: moment(file.timestamp).fromNow() + ' - ' + app.utils
+                                text: moment(file.timestamp)
+                                    .fromNow() + ' - ' + app.utils
                                     .filesize(file.fileSize, {
                                         round: 0
                                     })

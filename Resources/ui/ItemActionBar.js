@@ -56,6 +56,9 @@ ak.ti.constructors.createItemActionBar = function(_args) {
     }
 
     self.updateForItem = function(_item, _desc, _animated) {
+        if (item === _item && desc === _desc) {
+            return;
+        }
         item = _item;
         desc = _desc;
         var oldView = currentView;
@@ -90,7 +93,9 @@ ak.ti.constructors.createItemActionBar = function(_args) {
         // cancelClick = true;
         var callbackId = e.source.callbackId;
         if (callbackId) {
-            itemHandler.handleItemAction(callbackId + '_long', item, desc, null, window, mapHandler);
+            itemHandler.handleItemAction(callbackId + '_long', item, desc, null, window, mapHandler, {
+                onMap:onMap
+            });
         }
     });
 

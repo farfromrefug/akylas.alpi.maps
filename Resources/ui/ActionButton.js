@@ -1,11 +1,11 @@
 ak.ti.constructors.createActionButton = function(_args) {
-    // sdebug(_args);
+    sdebug(_args);
     var icon = _.remove(_args, 'icon');
     var color = _.remove(_args, 'color', $cTheme.main);
     var enabled = _.remove(_args, 'enabled', true);
     var id = _.remove(_args, 'id');
     var text = _.remove(_args, 'text', id);
-    // sdebug('ActionButton', text);
+    sdebug('ActionButton', id, text);
     // function highlight(e) {
     //     // sdebug('highlight');
     //     self.animate({

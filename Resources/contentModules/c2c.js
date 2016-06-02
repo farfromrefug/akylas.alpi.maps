@@ -514,6 +514,7 @@ exports.create = function(_context, _args, _additional) {
             }
         },
         actionsForItem: function(_item, _desc, _onMap, result) {
+            sdebug('actionsForItem', _onMap, result);
             if (_onMap) {
                 result.splice(result.length - 1, 0, ['c2c_around', {
                     icon: type.icon,

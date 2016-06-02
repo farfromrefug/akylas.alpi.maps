@@ -70,11 +70,11 @@ exports.htmlIcon = function(_icon, _size, _color) {
 
 exports.ohWeekString = function(oh) {
     var it = oh.getIterator();
-    var has_next_change = it.advance();
-    var date_today = new Date();
-    date_today.setHours(0, 0, 0, 0);
+    var hasNextChange = it.advance();
+    var dateToday = new Date();
+    dateToday.setHours(0, 0, 0, 0);
 
-    var date = new Date(date_today);
+    var date = new Date(dateToday);
     var row;
     date.setDate(date.getDate() - date.getDay()); // start at begin of the week
 
@@ -84,8 +84,8 @@ exports.ohWeekString = function(oh) {
         date.setHours(0, 0, 0, 0);
         it.setDate(date);
         var unknown = it.getUnknown();
-        var is_open = it.getState();
-        var state_string = it.getStateString(false);
+        var isOpen = it.getState();
+        var stateString = it.getStateString(false);
         var prevdate = date;
         var curdate = date;
         var fullTime = 24 * 60 * 60 * 1000;
@@ -95,7 +95,7 @@ exports.ohWeekString = function(oh) {
             hours: []
         };
 
-        while (has_next_change && it.advance()) {
+        while (hasNextChange && it.advance()) {
 
             curdate = it.getDate();
 
@@ -106,20 +106,20 @@ exports.ohWeekString = function(oh) {
             if ((curdate.getDay() !== date.getDay() && prevdate.getDay() !== date.getDay())) {
                 break;
             }
-            if (hoursPrev > 0 && is_open || unknown) {
+            if (hoursPrev > 0 && isOpen || unknown) {
                 table[row].hours.push([
                     [prevdate.getHours(), prevdate.getMinutes()],
                     [curdate.getHours(), curdate.getMinutes()]
                 ]);
             }
             prevdate = curdate;
-            is_open = it.getState();
+            isOpen = it.getState();
             unknown = it.getUnknown();
-            state_string = it.getStateString(false);
+            stateString = it.getStateString(false);
 
         }
-        if (!has_next_change && table[row].hours.length === 0) { // 24/7
-            if (is_open)
+        if (!hasNextChange && table[row].hours.length === 0) { // 24/7
+            if (isOpen)
                 table[row].hours.push([0, fullTime]);
         }
     }
