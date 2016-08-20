@@ -77,6 +77,7 @@ function create(_context, _args) {
             __locationServiceEnabled = Ti.Geolocation.locationServicesEnabled;
         },
         onLocation: function(e) {
+            console.log('onLocation', e);
             if (!e || !e.coords || e.success === false || e.error) {
                 __currentPosition = null;
                 if (e) {
@@ -95,7 +96,7 @@ function create(_context, _args) {
                 __currentPosition.coords);
             onSuccess(__currentPosition);
 
-            if (__needsOneTimestamp < __currentPosition.coords.timestamp && __currentPosition.coords.accuracy <=
+            if (__needsOneTimestamp && __needsOneTimestamp < __currentPosition.coords.timestamp && __currentPosition.coords.accuracy <=
                 self.getAccuracy()) {
                 __needsOneTimestamp = null;
                 self.stop();
@@ -129,6 +130,7 @@ function create(_context, _args) {
             return id;
         },
         clearWatch: function(_id) {
+            console.log('clearWatch', _id);
             delete __watchers[_id];
             if (Object.keys(__watchers).length === 0) {
                 self.stop();
@@ -143,6 +145,12 @@ function create(_context, _args) {
                 }
                 __needsOneTimestamp = moment().valueOf();
                 self.start(false);
+            }
+        },
+        cancelGetCurrentPosition: function() {
+            if (_started && __needsOneTimestamp) {
+                __needsOneTimestamp = null;
+                self.stop();
             }
         },
         getLastPosition: function() {

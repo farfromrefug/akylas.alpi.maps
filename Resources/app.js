@@ -1,6 +1,6 @@
 var lang = Ti.App.Properties.getString('language');
 app = require('akylas.commonjs.dev/akylas.commonjs').createApp(this, {
-    // app = require('akylas.commonjs').createApp(this, {
+// app = require('akylas.commonjs').createApp(this, {
     // not using var seems very important, cant really see why!
     modules: {
         admob: 'akylas.admob',

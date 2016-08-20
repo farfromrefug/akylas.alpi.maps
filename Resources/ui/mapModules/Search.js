@@ -29,6 +29,7 @@ exports.create = function(_context, _args, _additional) {
         searchHistory = Ti.App.Properties.getObject('search.history', []),
         searchWindow,
         searchView,
+        currentInstantSearch,
         getSearchView = function() {
             if (!searchView) {
                 var filters = self.parent.runGetMethodOnModules(true, 'getSearchFilters');
@@ -66,12 +67,14 @@ exports.create = function(_context, _args, _additional) {
                                 type: 'Ti.UI.TextField',
                                 bindId: 'textfield',
                                 properties: {
-                                    rclass: 'SearchTextField'
+                                    rclass: 'SearchTextField',
+                                    value:currentInstantSearch
                                 },
 
                                 events: {
                                     change: function(e) {
-                                        instantSearch(e.value);
+                                        currentInstantSearch = e.value;
+                                        instantSearch(currentInstantSearch);
                                     },
                                     focus: function() {
                                         if (searchFilters.length > 0) {
@@ -274,7 +277,7 @@ exports.create = function(_context, _args, _additional) {
         if (searchAsTypeTimer) {
             clearTimeout(searchAsTypeTimer);
         }
-        if (_query && _query.length > 0) {
+        if (_query && _query.length > 2) {
             // sdebug('instantSearch', _query);
             searchAsTypeTimer = setTimeout(function() {
                 searchAsTypeTimer = null;
@@ -709,10 +712,11 @@ exports.create = function(_context, _args, _additional) {
         if (searchWindow) {
             searchWindow.closeMe();
             searchWindow = null;
+            searchView = null;
         }
 
         searchRequest = null;
-        if (visible) {
+        if (searchView) {
             searchView.loading.hide();
         }
     }
@@ -790,6 +794,9 @@ exports.create = function(_context, _args, _additional) {
             });
             searchView.once('postlayout', function() {
                 searchView.textfield.focus();
+                if (currentInstantSearch) {
+                    instantSearch(currentInstantSearch);
+                }
 
             });
             app.ui.openWindow(searchWindow);
@@ -797,9 +804,9 @@ exports.create = function(_context, _args, _additional) {
     }
 
     function clearSearch(_clearField) {
-        sdebug('clearSearch', _clearField);
+        // sdebug('clearSearch', _clearField);
         if (searchWindow) {
-            sdebug('clearSearch', 'clearing searchWindow');
+            // sdebug('clearSearch', 'clearing searchWindow');
             if (visible) {
                 searchView.loading.hide();
             }

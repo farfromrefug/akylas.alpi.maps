@@ -883,13 +883,13 @@ exports.create = function(_context, _args, _additional) {
         },
         getSupplyTemplates: function(memo) {
             memo.elprofile = app.templates.row.elevationProfile;
-            memo.elprofileHTML = app.templates.row.elevationProfileHTML;
-            memo.elprofileHTML.childTemplates[1].events = {
-                load:function(e) {
-                    // sdebug('load', e);
-                    e.source.evalJS('plotChart(' + JSON.stringify(e.source.chartdata) + ')');
-                }
-            };
+            // memo.elprofileHTML = app.templates.row.elevationProfileHTML;
+            // memo.elprofileHTML.childTemplates[1].events = {
+            //     load:function(e) {
+            //         // sdebug('load', e);
+            //         e.source.evalJS('plotChart(' + JSON.stringify(e.source.chartdata) + ')');
+            //     }
+            // };
             memo.file = app.templates.row.gfoptionfileitem;
         },
         getChartData: function(_profile, _color) {
@@ -1003,7 +1003,8 @@ exports.create = function(_context, _args, _additional) {
                 var useHTML = profile && profile.version === 2;
                 // sdebug('version', profile.version);
                 var result = {
-                    template: useHTML ? 'elprofileHTML' : 'elprofile',
+                    template: 'elprofile',
+                   // template: useHTML ? 'elprofileHTML' : 'elprofile',
                     properties: {},
                     chartDesc: {
                         visible: true,
@@ -1169,6 +1170,7 @@ exports.create = function(_context, _args, _additional) {
 
             __movingItems = _.pluck(itemsToMove, 'id');
             sdebug('__movingItems', __movingItems);
+            self.removeItems(itemsToMove, false);
             self.addItems(newItems, false);
 
             //the order is important as anyone listening to it must be able to find the newly moved(added) annotation
@@ -1183,7 +1185,6 @@ exports.create = function(_context, _args, _additional) {
                 desc: newListType
             });
 
-            self.removeItems(itemsToMove, false);
             __movingItems = null;
 
             app.showMessage(trc('items_moved_to_{title}')

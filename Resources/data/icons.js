@@ -17,7 +17,7 @@ exports.icons = {
     'bus_station': 0xe62e,
     'cafe': 0xe62f,
     'camera': 0xe630,
-    'campsite': 0xe631,
+    'camp_site': 0xe631,
     'cemetery': 0xe633,
     'chemist': 0xe634,
     'cinema': 0xe635,

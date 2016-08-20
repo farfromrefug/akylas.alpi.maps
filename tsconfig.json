@@ -7,14 +7,15 @@
         "declaration": true,
         "noImplicitAny": false,
         "removeComments": true,
+        "allowJs": true,
         "noLib": false,
         "sourceMap": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "outDir": "build/ts"
     },
-    "filesGlob": [
-        "./Resources/**/*.ts",
-        "./typings/**/*.ts"
+    "exclude": [
+        "build",
+        "node_modules"
     ]
 }

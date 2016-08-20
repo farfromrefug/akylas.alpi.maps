@@ -528,6 +528,7 @@
             return toUsePoints;
         },
         itemProfileDesc: function(_item) {
+            if (_item.route_mode !== 'walking') return '';
             var duration = this.computeProfileEstimatedTime({
                 distance: _item.route.distance,
                 dplus: (_item.profile && _item.profile.dplus) || _item.tags.dplus,
@@ -590,9 +591,10 @@
                         subtitle = htmlIcon($sDist, 0, $black) + this.geolib.formatter.distance(
                             route.distance);
                         if (route.duration > 0) {
+                            console.log('duraation', route.duration);
                             subtitle += ' ' + htmlIcon(String.fromCharCode(0xe08e), 0, $black) + moment
                                 .duration(route.duration)
-                                .format('h[h]mm');
+                                .format(route.duration >= 60 * 60000 ? 'h[h]mm' : 'mm[m]');
                         }
                         var profile = _item.profile || _item.tags;
                         if (profile) {
@@ -681,7 +683,7 @@
                 var center = geolib.getCenter([region.sw, region.ne]);
                 if (_deltaScreen) {
                     zoom = geolib.getBoundsZoomLevel(region, app.deviceinfo);
-                    sdebug('updateCamera', region, center, zoom, _deltaScreen);
+                    // sdebug('updateCamera', region, center, zoom, _deltaScreen);
                     if (_deltaScreen.bottom) {
                         deltaSpan = geolib.getSpanFromPixels(_deltaScreen.bottom,
                             center, zoom);
@@ -692,7 +694,7 @@
                             center, zoom);
                         region.ne.latitude += deltaSpan;
                     }
-                    sdebug('updateCamera2', region);
+                    // sdebug('updateCamera2', region);
                 }
             } else if (_params.centerCoordinate) {
                 zoom = _params.zoom || _mapView.zoom;
@@ -729,7 +731,7 @@
                     _changes.newPhotos = (_changes.newPhotos || [])
                         .concat([{
                             image: _changes.tags.image
-                    }]);
+                        }]);
                 }
                 if (_changes.tags.colour && !item.color) {
                     item.color = _changes.tags.colour;
@@ -1023,22 +1025,22 @@
             options.push('remove');
 
             _mapHandler.runMethodOnModules('actionsForItem', _item, _desc, _onMap, options);
-            sdebug('actionsForItem', options);
+            // sdebug('actionsForItem', options);
             options = options.map(key => {
-                if (typeof key === 'string' && itemActions.hasOwnProperty(key)) {
-                    return [key, itemActions[key]];
-                }
-                return key;
-            })
-            // var result = _.mapValues(options, function(value, key){
-            //     sdebug('test', value, key);
-            //     if (!_.isArray(value) && itemActions.hasOwnProperty(key)) {
-            //         return [key, itemActions[key]];
-            //     }
-            //     return value;
-            // })
-            sdebug('actionsForItem2', options);
-            // var result = _.pairs(_.pick(itemActions, options));
+                    if (typeof key === 'string' && itemActions.hasOwnProperty(key)) {
+                        return [key, itemActions[key]];
+                    }
+                    return key;
+                })
+                // var result = _.mapValues(options, function(value, key){
+                //     sdebug('test', value, key);
+                //     if (!_.isArray(value) && itemActions.hasOwnProperty(key)) {
+                //         return [key, itemActions[key]];
+                //     }
+                //     return value;
+                // })
+                // sdebug('actionsForItem2', options);
+                // var result = _.pairs(_.pick(itemActions, options));
             return options;
         },
         showMoreOptionMenuForItem: function(_item, _desc, _callback, _parent, _mapHandler, _params) {
@@ -1094,24 +1096,31 @@
                 (_desc.settings && !!_desc.settings[prop]);
         },
         takePhoto: function(_parent, _callback) {
-            Titanium.Media.showCamera({
-                success: _.partial(this.handlePhotoTaken, _parent, _callback),
-                cancel: _callback,
-                error: function(error) {
-                    if (error.code == Titanium.Media.NO_CAMERA) {
-                        app.showAlert('Please run this on device');
-                    } else {
-                        app.showAlert('Unexpected error: ' + error.code);
-                    }
-                    _callback();
-                },
-                saveToPhotoGallery: true,
-                mediaTypes: [Ti.Media.MEDIA_TYPE_PHOTO]
+            var that = this;
+            Titanium.Media.requestCameraPermissions(function() {
+                Titanium.Media.showCamera({
+                    success: _.partial(that.handlePhotoTaken, _parent, _callback),
+                    cancel: _callback,
+                    error: function(error) {
+                        if (error.code == Titanium.Media.NO_CAMERA) {
+                            app.showAlert('Please run this on device');
+                        } else {
+                            app.showAlert('Unexpected error: ' + error.code);
+                        }
+                        _callback();
+                    },
+                    saveToPhotoGallery: true,
+                    mediaTypes: [Ti.Media.MEDIA_TYPE_PHOTO]
+                });
             });
+            
         },
         showFloatingWebView: showFloatingWebView,
         handleItemAction: function(_option, _item, _desc, _callback, _parent, _mapHandler, _params) {
-            sdebug('handleItemAction', _option, _item.id, _item.title, _item.type);
+            sdebug('handleItemAction', _option);
+            if (_item) {
+            sdebug('handleItemAction item:', _item.id, _item.title, _item.type);
+            }
 
             var colors = app.getColors(_item, _desc);
             var url, request;
@@ -1124,7 +1133,8 @@
                     showFloatingWebView(_option, url, _item, _desc, _parent, _mapHandler);
                     break;
                 case 'more':
-                    this.showMoreOptionMenuForItem(_item, _desc, _callback, _parent, _mapHandler, _params);
+                    this.showMoreOptionMenuForItem(_item, _desc, _callback, _parent, _mapHandler,
+                        _params);
 
                     break;
                 case 'edit':
@@ -1265,7 +1275,8 @@
                                                     id);
                                                 if (existing === -1) {
                                                     hasChanged = true;
-                                                    value.newNotes = value.newNotes || [];
+                                                    value.newNotes = value.newNotes ||
+                                                        [];
                                                     value.newNotes.push(
                                                         note);
                                                 }
@@ -1645,7 +1656,8 @@
                                     existingItem = _mapHandler.runGetSingleMethodOnModules(
                                         'getItem', currentPos, type);
                                 }
-                                _this.handleItemAction('select', existingItem.item, existingItem
+                                _this.handleItemAction('select', existingItem.item,
+                                    existingItem
                                     .desc, _callback,
                                     _parent, _mapHandler, _params);
                             });

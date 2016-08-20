@@ -14,6 +14,7 @@ exports.create = function(_context, _args, _additional) {
         waypoints = [],
         inPaintMode = false,
         directionsColors = app.getContrastColor('#0D83D4'),
+        maxPoints = 10,
         waypointType = {
             defaultTitle: trc('amenity'),
             iconSettings: {
@@ -406,19 +407,20 @@ exports.create = function(_context, _args, _additional) {
     }
 
     function handleCreateRoute(_route, firstPoint, lastPoint) {
-        sdebug('createRoute', firstPoint, lastPoint);
+        // sdebug('createRoute', firstPoint, lastPoint);
         var points = _route.points;
         if (!!_route.encoded) {
             points = app.api.decodeLine(_route.overview_points);
         }
         hide();
-        sdebug('test', points[0], firstPoint, _.isEqual(points[0], firstPoint));
+        // sdebug('test', points[0], firstPoint, _.isEqual(points[0], firstPoint));
         var type = 'computed';
         var item = {
             start: firstPoint,
             startOnRoute: _.isEqual(points[0], firstPoint),
             endOnRoute: _.isEqual(_.last(points), lastPoint),
             end: lastPoint,
+            route_mode:mode,
             waypoints: _.pluck(waypoints, 'id'),
             route: _route
         };
@@ -490,10 +492,6 @@ exports.create = function(_context, _args, _additional) {
         if (nb > 0 && _.last(waypoints).id === _item.id) {
             return;
         }
-        if (nb === 10) {
-            app.showAlert(trc('too_many_points'));
-            return;
-        }
         var items = [{
             item: _item,
             title: {
@@ -534,6 +532,10 @@ exports.create = function(_context, _args, _additional) {
 
     function onAnnotationPressOrSelected(e, _isPress) {
         if (e.route || !e.annotation) {
+            return;
+        }
+        if (wayPointsAnnotations.length >= maxPoints) {
+            app.showAlert(trc('too_many_points'));
             return;
         }
         var index = -1,
@@ -685,6 +687,10 @@ exports.create = function(_context, _args, _additional) {
 
     function onMapPress(e) {
         var nb = wayPointsAnnotations.length;
+        if (nb >= maxPoints) {
+            app.showAlert(trc('too_many_points'));
+            return;
+        }
         var loc = _.pick(e, 'latitude', 'longitude', 'altitude');
         var item = _.assign(loc, {
             title: trc('waypoint'),

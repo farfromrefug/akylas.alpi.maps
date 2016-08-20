@@ -25,6 +25,7 @@ MapWindow {
     /*zOrderOnTop:true,*/
     centerCoordinate: [45.2002, 5.7222],
     zoom: 10,
+    preferredFrameRate:1,
     regionFits:false,
     userLocationEnabled: false,
     animateChanges: true,

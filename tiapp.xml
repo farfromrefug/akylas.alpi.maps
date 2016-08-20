@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ti:app xmlns:ti="http://ti.appcelerator.org">
-    <sdk-version>6.0.0.AKYLAS</sdk-version>
+    <sdk-version>6.1.0.AKYLAS</sdk-version>
     <id>akylas.alpi.maps</id>
     <name>Alpi Maps</name>
     <version>1.1</version>
@@ -16,12 +16,13 @@
     <ios>
         <use-jscore-framework>true</use-jscore-framework>
         <!-- <use-app-thinning>true</use-app-thinning> -->
-        <min-ios-ver>7.0</min-ios-ver>
+        <min-ios-ver>8.0</min-ios-ver>
+        <enable-launch-screen-storyboard>false</enable-launch-screen-storyboard>
         <plist>
             <dict>
                 <key>UIViewControllerBasedStatusBarAppearance</key>
                 <false/>
-                <key>CFBundleVersion</key><string>64</string>
+                <key>CFBundleVersion</key><string>65</string>
                 <key>UIRequiresPersistentWiFi</key>
                 <true/>
                 <key>UIPrerenderedIcon</key>
@@ -63,7 +64,7 @@
     </ios>
     <theme>BaseTheme</theme>
     <android xmlns:android="http://schemas.android.com/apk/res/android">
-        <manifest android:installLocation="auto" android:versionCode="35">
+        <manifest android:installLocation="auto" android:versionCode="43">
             <uses-sdk android:minSdkVersion="13" android:targetSdkVersion="23"/>
             <application
                 android:hardwareAccelerated="true">
@@ -74,7 +75,7 @@
         <services>
             <service url="mbtilesgenerator.js"/>
         </services>
-        <abi>armeabi-v7a,x86</abi>
+        <!-- <abi>armeabi-v7a,x86</abi> -->
     </android>
     <plugins>
         <plugin>redux</plugin>
@@ -85,6 +86,7 @@
         <module>akylas.shapes</module>
         <module>akylas.googlemap</module>
         <module>akylas.charts</module>
+        <!-- <module>akylas.charts2</module> -->
         <module>akylas.admob</module>
         <module>akylas.zoomableimage</module>
         <module>ti.paint</module>

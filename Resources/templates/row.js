@@ -13,7 +13,7 @@ function create(_context) {
     };
 
     var onChartTouch = function(e) {
-        sdebug('onChartTouch', e);
+        // sdebug('onChartTouch', e);
         if (e.bindId === 'chart' && e.line) {
             sdebug('onChartTouch', _.omit(e.line, 'plot'));
             if (!e.line.yValue) {

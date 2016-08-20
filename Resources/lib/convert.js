@@ -79,7 +79,7 @@ function osmAddress(result) {
 };
 
 function osmIcon(osmClass, osmSub, osmSubValue) {
-    sdebug('osmIcon', osmClass, osmSub, osmSubValue);
+    // sdebug('osmIcon', osmClass, osmSub, osmSubValue);
     return osmIcons[osmSubValue] || app.icons[osmSubValue] || osmIcons[osmSub] || app.icons[osmSub] || osmIcons[osmClass] ||
         app.icons[osmClass];
 }

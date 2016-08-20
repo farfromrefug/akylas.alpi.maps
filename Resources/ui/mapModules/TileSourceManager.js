@@ -526,7 +526,7 @@ exports.create = function(_context, _args, _additional) {
     }
 
     function mbTilesDownloadSubTitle(e) {
-        return mbTilesSubTitle(e.request) + '\n' + trc(!!e.request.paused ? 'paused' : 'downloading') + '  (' + e.progress
+        return mbTilesSubTitle(e.request, false) + '\n' + trc(!!e.request.paused ? 'paused' : 'downloading') + '  (' + e.progress
             .toFixed() + '%)';
     }
 

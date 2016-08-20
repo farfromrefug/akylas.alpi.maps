@@ -73,6 +73,7 @@ exports.create = function(_context, _args, _additional) {
                                 //already searching. Thus we must be waiting for better accuracy
                                 //let's stop it
                                 stopLoading();
+                                app.locationManager.cancelGetCurrentPosition();
                             } else {
                                 app.locationManager.getCurrentPosition(true);
                             }

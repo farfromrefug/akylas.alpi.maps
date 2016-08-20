@@ -747,15 +747,15 @@ exports.data = {
                 }
             }
         }
-    },
-    'piemonte': {
-        category: 'italie',
+    // },
+    // 'piemonte': {
+    //     category: 'italie',
 
-        url: '//www.webgis.csi.it/cataloghiradex_f/cataloghi_TMS/sfondi/sfondo_europa_piemonte/{z}/{x}/{y}.png',
-        options: {
-            attribution: 'http://www.regione.piemonte.it/sentgis/jsp/cartografia/mappa.do',
-            forceHTTP: true,
-            maxZoom: 18
-        }
+    //     url: '//www.webgis.csi.it/cataloghiradex_f/cataloghi_TMS/sfondi/sfondo_europa_piemonte/{z}/{x}/{y}.png',
+    //     options: {
+    //         attribution: 'http://www.regione.piemonte.it/sentgis/jsp/cartografia/mappa.do',
+    //         forceHTTP: true,
+    //         maxZoom: 18
+    //     }
     }
 };

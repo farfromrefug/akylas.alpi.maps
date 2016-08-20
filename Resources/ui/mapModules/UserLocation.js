@@ -85,7 +85,7 @@ exports.create = function(_context, _args, _additional) {
             anchorPoint: [0.5, 0.5],
             // touchable:false,
             title: trc('your_location'),
-            // image: getAccuracyImage(currentAccuracyLevel)
+            image: getAccuracyImage(currentAccuracyLevel)
         });
 
     _.assign(self, {

@@ -60,7 +60,7 @@ exports.create = function(_context, _args, _additional) {
                         }
                     });
                 self.onModuleLoaded = view.update;
-                self.parent.mapBottomToolbar.add(view);
+                self.parent.mapBottomToolbar.add(view, 0);
                 view.onInit(self.window, self.parent);
             }
             return view;

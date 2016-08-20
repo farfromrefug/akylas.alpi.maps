@@ -195,10 +195,11 @@ exports.data = {
         }],
         icon: app.icons.tap,
         iconSettings: {
-            style: 2
+            style: 0,
+            scale:0.8
         },
-        minZoom: 16,
-        color: '#6395EE',
+        minZoom: 15,
+        color: '#0069CE',
         settings: {
             geofeature: true,
         }

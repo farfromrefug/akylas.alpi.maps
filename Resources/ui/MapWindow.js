@@ -685,20 +685,24 @@ ak.ti.constructors.createMapWindow = function(_args) {
     //
 
     function startLocationUpdate() {
+        console.log('startLocationUpdate');
         app.locationManager.start();
     }
 
     function stopLocationUpdate() {
+        console.log('stopLocationUpdate');
         app.locationManager.stop();
     }
 
     function onPause() {
+        console.log('onPause', settings.enabledGPS, mapView.userTrackingMode);
         mapView.userTrackingMode = 0;
         stopLocationUpdate();
         runMethodOnModules('onPause');
     };
 
     function onResume() {
+        console.log('onResume', settings.enabledGPS);
         if (settings.enabledGPS) {
             startLocationUpdate();
             mapView.userTrackingMode = 1;
