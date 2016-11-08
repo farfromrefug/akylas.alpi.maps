@@ -127,7 +127,7 @@ exports.create = function(_context, _args, _additional) {
                         domainIdentifier: item.type,
                         attributeSet: attributeSet
                     });
-                    sdebug(attributeSet);
+                    // sdebug(attributeSet);
                     return memo;
                 }, []));
             };
@@ -279,7 +279,9 @@ exports.create = function(_context, _args, _additional) {
                                 //for the sake of avoiding duplicates, look in lists too
                                 _.each(lists, function(list, key) {
                                     if (_type !== key) {
-                                        existing = _.includes(__currentIds[key], [idKey],
+                                        existing = _.includes(__currentIds[key], [
+                                                idKey
+                                            ],
                                             item.id);
                                         if (existing) {
                                             sdebug('found existing in list',
@@ -589,40 +591,47 @@ exports.create = function(_context, _args, _additional) {
                 }
             }
         },
-        getMarkersForRegion: function(_type, region, _window, _callback) {
+        getMarkersForRegion: function(_type, region, _window, _mapHandler, _callback) {
             sdebug('getMarkersForRegion', _type, region);
+            var calls = [];
+
             var request;
 
             if (_type.osm) {
-                request = app.api.queryGeoFeatures(_type.osm, region, _type, itemHandler, function(e) {
-                    if (!e.error) {
-                        if (e.result) {
-                            self.addItems(e.result);
-                        }
-                    }
-                    if (_callback) {
-                        _callback(!e.error);
-                    } else {
-                        _window.hideLoading();
-                    }
-                });
+                calls.push(_.partial(app.api.queryGeoFeatures, _type.osm, region, _type, itemHandler));
             } else {
-                request = _type.apiMethod.call(this, _.assign({
+                calls.push(_.partial(_type.apiMethod, _.assign({
                     region: region
-                }, _type.apiParams), _type, itemHandler, function(e) {
-                    var addedItems;
-                    if (!e.error) {
-                        if (e.result) {
-                            addedItems = self.addItems(e.result);
-                        }
-                    }
-                    if (_callback) {
-                        _callback(addedItems);
-                    } else {
-                        _window.hideLoading();
+                }, _type.apiParams), _type, itemHandler));
+            }
+
+            var contentModules = _mapHandler.getContentModules();
+            _.forEach(contentModules, function(module) {
+                if (module['getMarkersForRegion']) {
+                    calls.push(_.partial(module['getMarkersForRegion'], _type, region, itemHandler));
+                }
+            });
+            request = app.api.parallelRequests(calls).then(function(resultsList){
+                console.log('resultsList', resultsList);
+                var toAdd = [];
+                resultsList.forEach(function(results){
+                    if (results) {
+                        toAdd.push.apply(toAdd, results);
                     }
                 });
-            }
+                console.log('toAdd', toAdd);
+                var addedItems = self.addItems(toAdd);
+                if (_callback) {
+                    _callback(addedItems);
+                } else {
+                    _window.hideLoading();
+                }
+            }).catch(function(err) {
+                if (!_callback) {
+                    _window.hideLoading();
+                }
+                throw err;
+            });
             if (!_callback) {
                 _window.showLoading({
                     request: request,
@@ -721,6 +730,7 @@ exports.create = function(_context, _args, _additional) {
                 } else if (type.osm || type.apiMethod) {
                     var request = self.getMarkersForRegion(type, _params.region || self.mapView.region,
                         win,
+                        _params.mapHandler || self.parent,
                         function(_addedItems) {
                             if (_params.callback) {
                                 _params.callback(_addedItems);
@@ -787,6 +797,7 @@ exports.create = function(_context, _args, _additional) {
                             var request = self.getMarkersForRegion(type, _params.region || self
                                 .mapView.region,
                                 win,
+                                _params.mapHandler || self.parent,
                                 function(_addedItems) {
                                     if (_params.callback) {
                                         _params.callback(_addedItems);
@@ -834,7 +845,7 @@ exports.create = function(_context, _args, _additional) {
                 var queryFeatures = function(_onDone) {
                     if (index < geofeatureTypes.length) {
                         var type = geofeatureTypes[index++];
-                        self.getMarkersForRegion(__types[type], region, win, _.partial(
+                        self.getMarkersForRegion(__types[type], region, win, _params.mapHandler || self.parent, _.partial(
                             queryFeatures,
                             _onDone));
                     } else {
@@ -893,38 +904,38 @@ exports.create = function(_context, _args, _additional) {
             memo.file = app.templates.row.gfoptionfileitem;
         },
         getChartData: function(_profile, _color) {
-            var getColor = function(value){
+            var getColor = function(value) {
                 //value from 0 to 1
-                var hue=(Math.max((1-value*3)*120, 12)).toString(10);
-                return ["hsla(",hue,",100%,50%, 0.5)"].join("");
+                var hue = (Math.max((1 - value * 3) * 120, 12)).toString(10);
+                return ["hsla(", hue, ",100%,50%, 0.5)"].join("");
             };
             return {
                 chart: {
-                  zoomType: 'x',
-                  spacing:[5, 5, 5, 5],
-                  plotBackgroundColor: null,
-                        plotBorderWidth: null,
-                        plotShadow: false
+                    zoomType: 'x',
+                    spacing: [5, 5, 5, 5],
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false
                 },
                 credits: {
-                enabled: false
-              },
-                title:{
-                    text:''
+                    enabled: false
+                },
+                title: {
+                    text: ''
                 },
                 // tooltip: {
                 //     pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
                 // },
                 plotOptions: {
-                        line: {
-                            allowPointSelect: true,
-                            cursor: 'pointer',
-                            dataLabels: {
-                                enabled: false
-                            },
-                            showInLegend: false
-                        }
-                    },
+                    line: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: false
+                        },
+                        showInLegend: false
+                    }
+                },
                 xAxis: {
                     labels: {
                         formatter: function() {
@@ -933,64 +944,64 @@ exports.create = function(_context, _args, _additional) {
                         }
                     },
                     // tickInterval: 20,
-                  //type: 'datetime'
-                  text: '',
-                  plotBands: _.reduce(_profile.gradleRegions, function(memo, value, index) {
-                    memo.push({
-                      from: value.from,
-                      to: value.to,
-                      color: getColor(Math.abs(value.value)),
-                      // label: {
-                      //   text: value.value * 100 + '%',
-                      //   style: {
-                      //     color: '#606060'
-                      //   }
-                      // }
-                    });
-                    return memo;
-                  }, [])
+                    //type: 'datetime'
+                    text: '',
+                    plotBands: _.reduce(_profile.gradleRegions, function(memo, value, index) {
+                        memo.push({
+                            from: value.from,
+                            to: value.to,
+                            color: getColor(Math.abs(value.value)),
+                            // label: {
+                            //   text: value.value * 100 + '%',
+                            //   style: {
+                            //     color: '#606060'
+                            //   }
+                            // }
+                        });
+                        return memo;
+                    }, [])
 
                 },
                 yAxis: {
-                  title: {
-                    text: ''
-                  }
+                    title: {
+                        text: ''
+                    }
                 },
                 legend: {
-                  enabled: false
+                    enabled: false
                 },
                 plotOptions: {
-                  area: {
-                    fillColor:null,
-                    // fillColor: {
-                    //   linearGradient: {
-                    //     x1: 0,
-                    //     y1: 0,
-                    //     x2: 0,
-                    //     y2: 1
-                    //   },
-                    //   stops: [
-                    //     [0, '#B03621'],
-                    //     [1, '#00B03621']
-                    //   ]
-                    // },
-                    marker: {
-                      radius: 2
-                    },
-                    // lineWidth: 1,
-                    // states: {
-                    //   hover: {
-                    //     lineWidth: 1
-                    //   }
-                    // },
-                    // threshold: null
-                  }
+                    area: {
+                        fillColor: null,
+                        // fillColor: {
+                        //   linearGradient: {
+                        //     x1: 0,
+                        //     y1: 0,
+                        //     x2: 0,
+                        //     y2: 1
+                        //   },
+                        //   stops: [
+                        //     [0, '#B03621'],
+                        //     [1, '#00B03621']
+                        //   ]
+                        // },
+                        marker: {
+                            radius: 2
+                        },
+                        // lineWidth: 1,
+                        // states: {
+                        //   hover: {
+                        //     lineWidth: 1
+                        //   }
+                        // },
+                        // threshold: null
+                    }
                 },
 
                 series: [{
-                  type: 'line',
-                    color:_color,
-                  data: _profile.data
+                    type: 'line',
+                    color: _color,
+                    data: _profile.data
                 }]
             };
         },
@@ -1004,7 +1015,7 @@ exports.create = function(_context, _args, _additional) {
                 // sdebug('version', profile.version);
                 var result = {
                     template: 'elprofile',
-                   // template: useHTML ? 'elprofileHTML' : 'elprofile',
+                    // template: useHTML ? 'elprofileHTML' : 'elprofile',
                     properties: {},
                     chartDesc: {
                         visible: true,
@@ -1017,10 +1028,10 @@ exports.create = function(_context, _args, _additional) {
                 if (profile) {
                     if (useHTML) {
                         _.assign(result, {
-                            chart:{
+                            chart: {
                                 height: (!!_params.small && 80) || undefined,
                                 visible: true,
-                                chartdata:this.getChartData(profile, color)
+                                chartdata: this.getChartData(profile, color)
                             }
                         });
                         return result;
@@ -1069,6 +1080,7 @@ exports.create = function(_context, _args, _additional) {
                             }
                         }
                     });
+                    console.log('test', result);
                     return result;
                 }
                 // return ;
@@ -1404,7 +1416,7 @@ exports.create = function(_context, _args, _additional) {
             app.showTutorials(['map_drop_pin']);
         },
         actionsForItem: function(_item, _desc, _onMap, result) {
-            sdebug('items actionsForItem', _item.id, result);
+            // sdebug('items actionsForItem', _item.id, result);
             if (_item) {
                 var isRoute = isItemARoute(_item);
                 var toAdd = [];
@@ -1438,9 +1450,9 @@ exports.create = function(_context, _args, _additional) {
                     toAdd.push('locate');
                 }
                 toAdd.push('more');
-                sdebug('items toAdd', toAdd);
+                // sdebug('items toAdd', toAdd);
                 Array.prototype.unshift.apply(result, toAdd);
-                sdebug('items result', result);
+                // sdebug('items result', result);
             }
         },
         moreActionsForItem: function(_item, _desc, _onMap, result) {
@@ -1504,7 +1516,8 @@ exports.create = function(_context, _args, _additional) {
                                 text: '\ue288'
                             },
                             title: {
-                                text: file.title + ' - ' + (file.fullTitle || file.fileName),
+                                text: file.title + ' - ' + (file.fullTitle ||
+                                    file.fileName),
                             },
                             subtitle: {
                                 text: moment(file.timestamp)

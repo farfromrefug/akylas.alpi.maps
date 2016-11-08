@@ -343,60 +343,67 @@ exports.create = function(_context, _args, _additional) {
         return result;
     }
 
-    function getC2CResultsFromPage(_url, res, chain) {
+    function getC2CResultsFromPage(_url, res) {
+        res = res || {
+            type:type,
+            items:[]
+        };
         return app.api.call({
             url: _url,
-            onSuccess: function(result, _options) {
-                if (result.features && result.features.length > 0) {
-                    var items = _.mapIfDefined(result.features, parseObject);
-                    if (items.length > 0) {
-                        res = res || {};
-                        if (res.c2c) {
-                            res.c2c.items = res.c2c.items.concat(items);
-                        } else {
-                            res.c2c = {
-                                type: type,
-                                items: items
-                            };
-                        }
+            // onSuccess: function(result, _options) {
+            //     if (result.features && result.features.length > 0) {
+            //         var items = _.mapIfDefined(result.features, parseObject);
+            //         if (items.length > 0) {
+            //             res = res || {};
+            //             if (res.c2c) {
+            //                 res.c2c.items = res.c2c.items.concat(items);
+            //             } else {
+            //                 res.c2c = {
+            //                     type: type,
+            //                     items: items
+            //                 };
+            //             }
 
-                    }
-                }
-                if (result.metadata.nextPage) {
-                    getC2CResultsFromPage(result.metadata.nextPage, res, chain);
-                } else {
-                    chain.next(res);
-                }
-            },
+            //         }
+            //     }
+            //     if (result.metadata.nextPage) {
+            //         getC2CResultsFromPage(result.metadata.nextPage, res, chain);
+            //     } else {
+            //         chain.next(res);
+            //     }
+            // },
 
-            onError: chain.error
+            // onError: chain.error
+        }).then(function(result) {
+            if (result.features && result.features.length > 0) {
+                var items = _.mapIfDefined(result.features, parseObject);
+                if (items.length > 0) {
+                    res.items = res.c2c.items.concat(items);
+                }
+            }
+            if (result.metadata.nextPage) {
+                return getC2CResultsFromPage(result.metadata.nextPage, res);
+            } else {
+                return res;
+            }
         });
     }
 
-    function search(_params, res, chain) {
+    function search(_params) {
         var url = baseUrl + 'onam/' + encodeURIComponent(_params.query) +
             '/act/1-7-6-8-5-2-3-4/geom/yes/npp/100/format/json-track-full-html';
-        return getC2CResultsFromPage(url, res, chain);
+        return getC2CResultsFromPage(url);
     }
 
-    function getDetails(_item, res, chain) {
+    function getDetails(_item) {
         var url = baseUrl + 'id/' + _item.c2c.id +
             '/geom/yes/format/json-track-full-html';
         var id = _item.c2c && _item.c2c.id;
-        Chain()("done", function(res2, chain2) {
-            // sdebug(res2);
-            if (chain2.error().length > 0) {
-                chain.error(chain2.error()[0]);
-            } else {
-                if (res2 && res2.c2c) {
-                    res = res || {};
-                    res.c2c = res2.c2c.items[0];
-
-                }
-                chain.next(res);
+        return getC2CResultsFromPage(url).then(function(result) {
+            if (result && result.items.length > 0) {
+                return result.c2c.items[0];
             }
-
-        }).apply(this, [_.partial(getC2CResultsFromPage, url)]);
+        });
     }
 
     _.assign(self, {
@@ -514,7 +521,7 @@ exports.create = function(_context, _args, _additional) {
             }
         },
         actionsForItem: function(_item, _desc, _onMap, result) {
-            sdebug('actionsForItem', _onMap, result);
+            // sdebug('actionsForItem', _onMap, result);
             if (_onMap) {
                 result.splice(result.length - 1, 0, ['c2c_around', {
                     icon: type.icon,
@@ -529,12 +536,9 @@ exports.create = function(_context, _args, _additional) {
                 // sdebug('loc', loc);
                 var url = baseUrl + 'sarnd/' + loc.longitude + ',' + loc.latitude +
                     ',2000/geom/yes/npp/100/format/json-track-full-html';
-                var request = app.api.chainCalls([_.partial(getC2CResultsFromPage, url)], function(res,
-                    chain) {
-                    // sdebug(res);
-                    var module = self.parent.getModule('Search');
-                    module.showSearchResults(res, chain.error(), self.window.hideLoading);
-                });
+
+                var module = self.parent.getModule('Search');
+                var request = getC2CResultsFromPage(url).then(module.showSearchResults).then(self.window.hideLoading)
                 self.window.showLoading({
                     request: request,
                     label: {

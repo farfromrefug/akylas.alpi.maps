@@ -291,6 +291,9 @@ ak.ti.constructors.createSettingsWindow = function(_args) {
     }
 
     function handleCallbackId(e) {
+        if (!e.item) {
+            return;
+        }
         if (e.type == 'click' && e.item.template === 'switch') {
             var newValue = e.value = !e.item.switch.value;
             e.section.updateItemAt(e.itemIndex, {
@@ -299,7 +302,7 @@ ak.ti.constructors.createSettingsWindow = function(_args) {
                 },
             });
         }
-        var callbackId = (e.item && e.item.callbackId) || e.bindId,
+        var callbackId = e.item.callbackId || e.bindId,
             currentValue;
         sdebug(callbackId, e.value);
         // if (_.startsWith(callbackId, 'module_')) {

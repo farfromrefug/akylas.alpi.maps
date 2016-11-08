@@ -55,7 +55,7 @@ exports.create = function(_context, _args, _additional) {
         wbptterms: 'description',
     };
 
-    function geoSearch(_params, _feature, _itemHandler, _callback) {
+    function search(_params, _feature, _itemHandler) {
         var around = geolib.getAroundData(_params.region);
         return app.api.call({
             url: baseUrl,
@@ -65,22 +65,22 @@ exports.create = function(_context, _args, _additional) {
                 ggscoord: around.centerCoordinate.latitude + '|' + around.centerCoordinate.longitude,
                 ggsradius: Math.min(around.radius, 10000),
                 ggslimit: 50
-            }),
-            
-            onSuccess: function(result) {
-                sdebug('result', result);
-                _callback({
-                    result: result.query && _.reduce(result.query.pages, function(memo, page) {
-                        if (page.coordinates && page.coordinates[0].lat) {
-                            memo.push(_itemHandler.createAnnotItem(type, parseObject(
-                                page)));
-                        }
-                        return memo;
-                    }, [])
-                });
-            },
-            onError: _callback
+            })
+        }).then(function(result) {
+            if (result.query) {
+                return _.reduce(result.query.pages, function(memo, page) {
+                    if (page.coordinates && page.coordinates[0].lat) {
+                        memo.push(_itemHandler.createAnnotItem(type, parseObject(
+                            page)));
+                    }
+                    return memo;
+                }, []);
+            }
         });
+    }
+
+    function geoSearch(_params, _feature, _itemHandler) {
+        return search(_params, _feature, _itemHandler);
     }
     var type = itemHandler.initializeType(key, {
         icon: app.icons.wikipedia,
@@ -97,7 +97,7 @@ exports.create = function(_context, _args, _additional) {
         }
     });
 
-    function getDetails(_item, res, chain) {
+    function getDetails(_item) {
 
         var url = baseUrl;
         var params = _.clone(defaultParams);
@@ -111,27 +111,22 @@ exports.create = function(_context, _args, _additional) {
                 url = createBaseUrl(test[0]);
                 id = test[1];
             }
-            params.titles =id;
+            params.titles = id;
         }
         return app.api.call({
             url: url,
             params: params,
-            onSuccess: function(result, _options) {
-                sdebug('wpedia', result);
-                var data, item, items = [];
-                if (result.query && result.query.pages.length > 0) {
-                    for (var i = 0; i < result.query.pages.length; i++) {
-                        data = result.query.pages[i];
-                        if (data.coordinates && data.coordinates[0].lat) {
-                            res = res || {};
-                            res.wpedia = parseObject(data);
-                            break;
-                        }
+        }).then(function(result) {
+            var data, item, items = [];
+            if (result.query && result.query.pages.length > 0) {
+                for (var i = 0; i < result.query.pages.length; i++) {
+                    data = result.query.pages[i];
+                    if (data.coordinates && data.coordinates[0].lat) {
+                        res = res || {};
+                        return parseObject(data);
                     }
                 }
-                chain.next(res);
-            },
-            onError: chain.error
+            }
         });
     }
 
@@ -200,38 +195,31 @@ exports.create = function(_context, _args, _additional) {
             var isRoute = itemHandler.isItemARoute(_item);
             if (!isRoute) {
                 var region = geolib.getBoundsOfDistance(_item, 300);
-                memo[key] = function(res, chain) {
-                    geoSearch({
+                memo[key] = function() {
+                    return search({
                         // query: _query,
                         region: region
-                    }, type, itemHandler, function(result) {
-                        sdebug('getDetailsCalls wikipedia search', result);
-                        if (result.error) {
-                            chain.error(result);
-                        } else {
-                            if (result.length > 0) {
-                                var data;
-                                var bestScore = 0;
-                                var bestI = -1;
-                                for (var i = 0; i < result.length; i++) {
-                                    data = result[i];
-                                    distance = geolib.getDistanceSimple(_item, data);
-                                    var score = _query.score(data.title, 1);
-                                    var realScore = score / distance;
-                                    if (realScore > bestScore) {
-                                        bestScore = realScore;
-                                        bestI = i;
-                                    }
-                                    sdebug('found wikipedia', data.title, distance, score, realScore);
+                    }, type, itemHandler).then(function(result) {
+                        if (result && result.length > 0) {
+                            var data;
+                            var bestScore = 0;
+                            var bestI = -1;
+                            for (var i = 0; i < result.length; i++) {
+                                data = result[i];
+                                distance = geolib.getDistanceSimple(_item, data);
+                                var score = _query.score(data.title, 1);
+                                var realScore = score / distance;
+                                if (realScore > bestScore) {
+                                    bestScore = realScore;
+                                    bestI = i;
                                 }
-                                if (bestScore > 0.01) {
-                                    res.wpedia = result[bestI];
-                                    sdebug(data, res.wpedia);
-                                }
+                                sdebug('found wikipedia', data.title, distance, score,
+                                    realScore);
                             }
-                        chain.next(res);
+                            if (bestScore > 0.01) {
+                                return result[bestI];
+                            }
                         }
-
                     });
                 };
             }

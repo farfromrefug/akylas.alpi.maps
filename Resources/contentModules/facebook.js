@@ -53,9 +53,9 @@ exports.create = function(_context, _args, _additional) {
     function parseObject(obj) {
         sdebug(obj);
         var result = {
-            id:obj.id,
-            fb:{
-                id:obj.id,
+            id: obj.id,
+            fb: {
+                id: obj.id,
             },
             tags: _.assign({}, _.pick(obj, 'name')),
             latitude: obj.location.latitude,
@@ -98,22 +98,17 @@ exports.create = function(_context, _args, _additional) {
         return result;
     }
 
-    function getDetails(_id, res, chain) {
+    function getDetails(_id) {
         return app.api.call({
             url: 'https://graph.facebook.com/v2.4/' + _id,
             params: {
                 access_token: app.servicesKeys.facebook,
                 fields: 'hours,phone,name,location,cover,about,description,emails,food_styles,restaurant_services,restaurant_specialties,payment_options,link,price_range,website',
-            },
-            onSuccess: function(result, _options) {
-                if (result.location && result.location.latitude) {
-                    res = res || {};
-                    res.fb = parseObject(result);
-                }
-
-                chain.next(res);
-            },
-            onError: chain.error
+            }
+        }).then(function(result) {
+            if (result.location && result.location.latitude) {
+                return parseObject(result);
+            }
         });
     }
 
@@ -128,27 +123,24 @@ exports.create = function(_context, _args, _additional) {
                 center: (_params.center.latitude + ',' + _params.center.longitude),
                 distance: 20
             },
-            onSuccess: function(result, _options) {
-                var data, item, items = [];
-                if (result.data.length > 0) {
-                    var distance;
-                    _.each(result.data, function(data) {
-                        if (data.location && data.location.latitude) {
-                            var score = _params.query?(_params.query.score(data.name, 1)):1;
-                            sdebug(data.name, _params.query, score);
-                            if (score > 0.5) {
-                                item = parseObject(data);
-                                if (item) {
-                                    items.push(item);
-                                }
+        }).then(function(result) {
+            var data, item, items = [];
+            if (result.data.length > 0) {
+                var distance;
+                _.each(result.data, function(data) {
+                    if (data.location && data.location.latitude) {
+                        var score = _params.query ? (_params.query.score(data.name, 1)) : 1;
+                        if (score > 0.5) {
+                            item = parseObject(data);
+                            if (item) {
+                                items.push(item);
                             }
-
                         }
-                    });
-                }
-                _callback(items);
-            },
-            onError: _callback
+
+                    }
+                });
+            }
+            return items;
         });
     }
 
@@ -159,7 +151,7 @@ exports.create = function(_context, _args, _additional) {
         onInit: function() {
 
         },
-        shouldBeEnabledByDefault:function() {
+        shouldBeEnabledByDefault: function() {
             return false;
         },
         // getSearchCalls: function(memo, _params) {
@@ -190,38 +182,30 @@ exports.create = function(_context, _args, _additional) {
             }
             var isRoute = itemHandler.isItemARoute(_item);
             if (!isRoute) {
-                memo['fb'] = function(res, chain) {
-                    search({
+                memo['fb'] = function() {
+                    return search({
                         query: _query,
                         center: _.pick(_item, 'latitude', 'longitude')
-                    }, function(result) {
-                        if (result.error) {
-                            chain.error(result);
-                        } else {
-                            if (result.length > 0) {
-                                var data;
-                                var bestScore = 0;
-                                var bestI = -1;
-                                for (var i = 0; i < result.length; i++) {
-                                    data = result[i];
-                                    var score = _query.score(data.title);
-                                    distance = geolib.getDistanceSimple(_item, data);
-                                    var realScore = score/distance;
-                                    sdebug('scoring test', data.title, score, distance, realScore);
-                                   if (realScore > bestScore) {
-                                        bestScore = realScore;
-                                        bestI = i;
-                                    }
+                    }).then(function(result) {
+                        if (result.length > 0) {
+                            var data;
+                            var bestScore = 0;
+                            var bestI = -1;
+                            for (var i = 0; i < result.length; i++) {
+                                data = result[i];
+                                var score = _query.score(data.title);
+                                distance = geolib.getDistanceSimple(_item, data);
+                                var realScore = score / distance;
+                                if (realScore > bestScore) {
+                                    bestScore = realScore;
+                                    bestI = i;
+                                }
 
-                                }
-                                if (bestScore > 0.006) {
-                                    res.fb = result[bestI];
-                                    sdebug(data, res.fb);
-                                }
                             }
-                            chain.next(res);
+                            if (bestScore > 0.006) {
+                                return result[bestI];
+                            }
                         }
-
                     });
                 };
             }

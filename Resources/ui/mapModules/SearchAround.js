@@ -243,7 +243,7 @@ exports.create = function(_context, _args, _additional) {
             centerCoordinate: searchAroundItem,
             silent: true,
             radius: radiuses[radiusIndex]
-        }, onSearchAround);
+        }).then(onSearchAround, self.window.hideLoading);
         self.window.showLoading({
             request:request,
             label:{
@@ -281,15 +281,12 @@ exports.create = function(_context, _args, _additional) {
     }
 
     function onSearchAround(result) {
-        self.window.hideLoading();
-        if (!result.error) {
-            if (result && result.length > 0) {
-                onOSMSearchResults(radiuses[radiusIndex], radiuses[radiusIndex + 1], result);
-            } else {
-                handleNoResult();
-            }
+        if (result && result.length > 0) {
+            onOSMSearchResults(radiuses[radiusIndex], radiuses[radiusIndex + 1], result);
+        } else {
+            handleNoResult();
         }
-
+        self.window.hideLoading();
     }
 
     function onOSMSearchResults(_radius, _moreRadius, _results) {

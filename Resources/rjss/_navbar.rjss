@@ -25,7 +25,7 @@ $nbButtonWidth = 50;
     rclass:'NBButton',
     /*backgroundColor:'red',*/
     width:$nbButtonWidth,
-    font:{size:26, family:$iconicfontfamily},
+        font:{size:26, family:$iconicfontfamily},
 }
 
 .NavBarTextButton {

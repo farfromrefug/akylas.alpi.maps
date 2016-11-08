@@ -79,7 +79,7 @@ ak.ti.constructors.createItemActionBar = function(_args) {
     };
     app.onDebounce(self, 'click', function(e) {
         if (cancelClick) {
-            sdebug('actionbar', 'canceledClick');
+            // sdebug('actionbar', 'canceledClick');
             cancelClick = false;
             return;
         }

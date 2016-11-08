@@ -68,7 +68,7 @@ exports.create = function(_context, _args, _additional) {
                                 bindId: 'textfield',
                                 properties: {
                                     rclass: 'SearchTextField',
-                                    value:currentInstantSearch
+                                    value: currentInstantSearch
                                 },
 
                                 events: {
@@ -562,18 +562,15 @@ exports.create = function(_context, _args, _additional) {
         return args;
     }
 
-    function showSearchResults(res, chainOrError, onDone) {
-        // sdebug('showSearchResults', res, errors);
-        var errors = (chainOrError.error ? chainOrError.error() : chainOrError.error);
+    function showSearchResultsError(error) {
+        clearSearch(false);
+        return Promise.resolve();
+    }
+
+    function showSearchResults(res) {
         var hasResult = _.size(res) > 0;
-        var hasError = (errors && errors.length > 0);
-        if (!hasResult && !hasError) {
+        if (!hasResult) {
             app.showAlert(trc('no_result_found'));
-        }
-        if (hasError || !hasResult) {
-            clearSearch(false);
-            onDone();
-            return;
         }
         self.parent.runMethodOnModules('hideModule', {
             bottom: true,
@@ -595,6 +592,9 @@ exports.create = function(_context, _args, _additional) {
             color, existing, annot, itemDesc, clusterAnnots = [],
             value, i, sectionType, isRoute;
         var sections = _.reduce(res, function(memo, results) {
+            if (!results) {
+                return;
+            }
             sectionType = (results.type && _.defaults({
                 color: type.color,
                 colors: type.colors,
@@ -697,17 +697,6 @@ exports.create = function(_context, _args, _additional) {
                 sections: sections
             }
         }, true);
-        resultView.animate({
-            height: resultViewHeight,
-            // transform: null,
-            duration: animationDuration
-        }, function() {
-            self.mapView.addRoute(searchRoutes);
-            if (region) {
-                self.parent.setRegion(region, 0.1, true);
-            }
-            onDone();
-        });
 
         if (searchWindow) {
             searchWindow.closeMe();
@@ -719,6 +708,20 @@ exports.create = function(_context, _args, _additional) {
         if (searchView) {
             searchView.loading.hide();
         }
+        return new Promise(function(resolve) {
+            resultView.animate({
+                height: resultViewHeight,
+                // transform: null,
+                duration: animationDuration
+            }, function() {
+                self.mapView.addRoute(searchRoutes);
+                if (region) {
+                    self.parent.setRegion(region, 0.1, true);
+                }
+                resolve();
+            });
+
+        });
     }
 
     function search(_text) {
@@ -735,11 +738,13 @@ exports.create = function(_context, _args, _additional) {
             // radius: 5000
             region: geolib.scaleBounds(self.mapView.region, 0.2)
         };
-        var calls = _.values(_.pick(self.parent.runReduceMethodOnModules(true, 'getSearchCalls', params),
-            enabledSearchFilters));
+        var keys = [];
+        var calls = _.pick(self.parent.runReduceMethodOnModules(true, 'getSearchCalls', params),
+            enabledSearchFilters);
         calls = [_.partial(app.api.searchOSM, params)].concat(calls);
         self.window.showLoading();
-        searchRequest = app.api.chainCalls(calls, _.partialRight(showSearchResults, self.window.hideLoading));
+        searchRequest = app.api.parallelRequests(calls).then(showSearchResults, showSearchResultsError).then(self.window
+            .hideLoading);
     }
 
     // function onLocation(e) {
@@ -755,7 +760,7 @@ exports.create = function(_context, _args, _additional) {
     function show() {
         if (!visible) {
             searchWindow = new AppWindow({
-                rclass:'SearchWindow',
+                rclass: 'SearchWindow',
                 winOpeningArgs: {
                     from: {
                         opacity: 0,
@@ -901,6 +906,7 @@ exports.create = function(_context, _args, _additional) {
         },
 
         showSearchResults: showSearchResults,
+        showSearchResultsError: showSearchResultsError,
         onModuleAction: function(_params) {
             if (_params.id === 'search') {
                 if (!visible) {

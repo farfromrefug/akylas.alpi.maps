@@ -215,6 +215,7 @@ ak.ti.constructors.createItemInfoView = function(_args) {
                         value);
                 }
             }
+            // sdebug('supplViews2', supplViews);
             var newView = new View({
                 properties: {
                     layout: 'vertical',

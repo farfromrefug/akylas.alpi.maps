@@ -420,7 +420,7 @@ exports.create = function(_context, _args, _additional) {
             startOnRoute: _.isEqual(points[0], firstPoint),
             endOnRoute: _.isEqual(_.last(points), lastPoint),
             end: lastPoint,
-            route_mode:mode,
+            route_mode: mode,
             waypoints: _.pluck(waypoints, 'id'),
             route: _route
         };
@@ -459,31 +459,24 @@ exports.create = function(_context, _args, _additional) {
                 origin: firstPoint,
                 destination: lastPoint,
                 waypoints: _points.slice(1, -1)
-            }, function(_result) {
-                if (!_result.error) {
-                    handleCreateRoute(_result, firstPoint, lastPoint);
-                } else {
-                    // if (inPaintMode) {
-                    //     leavePaintMode();
-                    // }
-                    self.window.hideLoading();
-                }
-            });
+            }).then(function(_result) {
+                handleCreateRoute(_result, firstPoint, lastPoint);
+            }, self.window.hideLoading);
         }
 
     }
 
-    function queryRoute(_args, _callback) {
+    function queryRoute(_args) {
         sdebug('queryRoute', _args);
         var language = app.localeInfo.currentLocale.split('-')[0];
-        app.api.queryDirections({
+        return app.api.queryDirections({
             mode: mode,
             optimize: true,
             origin: _args.origin,
             destination: _args.destination,
             waypoints: _args.waypoints,
             lang: language,
-        }, _callback);
+        });
     }
 
     function addItemToListView(_item, _itemDesc, _userLocation) {

@@ -366,7 +366,7 @@ var createTables = function(db, _tables) {
       sdebug('createTables done');
       resolve();
     } catch (e) {
-      reject(e);
+      resolve(); //already done
     }
 
   });

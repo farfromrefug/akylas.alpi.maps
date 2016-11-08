@@ -594,10 +594,10 @@ function create(_context) {
                     rclass: 'GFOptionRowLabel',
                     touchPassThrough: false,
                     autoLink: Ti.UI.AUTOLINK_ALL,
-                    padding: {
-                        top: 10,
-                        bottom: 10
-                    },
+                    // padding: {
+                        // top: 10,
+                        // bottom: 10
+                    // },
                     height: 'SIZE'
                 }
             }, {

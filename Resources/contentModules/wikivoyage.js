@@ -59,7 +59,7 @@ exports.create = function(_context, _args, _additional) {
         // wbptterms: 'description',
     };
 
-    function geoSearch(_params, _feature, _itemHandler, _callback) {
+    function geoSearch(_params, _feature, _itemHandler) {
         var around = geolib.getAroundData(_params.region);
         return app.api.call({
             url: baseUrl,
@@ -69,21 +69,17 @@ exports.create = function(_context, _args, _additional) {
                 ggscoord: around.centerCoordinate.latitude + '|' + around.centerCoordinate.longitude,
                 ggsradius: Math.min(around.radius, 10000),
                 ggslimit: 50
-            }),
-
-            onSuccess: function(result) {
-                sdebug('result', result);
-                _callback({
-                    result: result.query && _.reduce(result.query.pages, function(memo, page) {
-                        if (page.coordinates && page.coordinates[0].lat) {
-                            memo.push(_itemHandler.createAnnotItem(type, parseObject(
-                                page)));
-                        }
-                        return memo;
-                    }, [])
-                });
-            },
-            onError: _callback
+            })
+        }).then(function(result) {
+            var results = result.query && _.reduce(result.query.pages, function(
+                memo, page) {
+                if (page.coordinates && page.coordinates[0].lat) {
+                    memo.push(_itemHandler.createAnnotItem(type, parseObject(
+                        page)));
+                }
+                return memo;
+            }, []);
+            return results;
         });
     }
     var type = itemHandler.initializeType(key, {
@@ -101,7 +97,7 @@ exports.create = function(_context, _args, _additional) {
         }
     });
 
-    function getDetails(_item, res, chain) {
+    function getDetails(_item) {
 
         var url = baseUrl;
         var params = _.clone(defaultParams);
@@ -123,26 +119,21 @@ exports.create = function(_context, _args, _additional) {
         }
         return app.api.call({
             url: url,
-            params: params,
-            onSuccess: function(result, _options) {
-                sdebug('wvoyage', result);
-                var data, item, items = [];
-                if (result.query && result.query.pages.length > 0) {
-                    for (var i = 0; i < result.query.pages.length; i++) {
-                        data = result.query.pages[i];
-                        if (data.missing !== true) {
-                            res = res || {};
-                            res.wvoyage = parseObject(data);
-                            break;
-                        }
-                        // if (data.coordinates && data.coordinates[0].lat) {
-
-                        // }
+            params: params
+        }).then(function(result, _options) {
+            sdebug('wvoyage', result);
+            var data, item, items = [];
+            if (result.query && result.query.pages.length > 0) {
+                for (var i = 0; i < result.query.pages.length; i++) {
+                    data = result.query.pages[i];
+                    if (data.missing !== true) {
+                        return parseObject(data);
                     }
+                    // if (data.coordinates && data.coordinates[0].lat) {
+
+                    // }
                 }
-                chain.next(res);
-            },
-            onError: chain.error
+            }
         });
     }
 

@@ -353,7 +353,7 @@ ak.ti.constructors.createWebWindow = function(_args) {
 							switch (option) {
 								case 'download':
 									self.showLoading({
-										request: app.api.webToPDF(url, currentTitle, function(e) {
+										request: app.api.webToPDF(url, currentTitle).then(function(e) {
 											if (e.file) {
 												sdebug(e);
 												app.showMessage(trc('document_created'), colors);
@@ -362,7 +362,7 @@ ak.ti.constructors.createWebWindow = function(_args) {
 												}, mapHandler);
 											}
 											self.hideLoading();
-										})
+										}, self.hideLoading)
 									});
 									break;
 								case 'share':
@@ -435,6 +435,7 @@ ak.ti.constructors.createWebWindow = function(_args) {
 	var hideLoadingTimer, loaded, currentTitle;
 
 	var currentProgress = -1;
+
 	function setProgress(_progress) {
 		if (webView == null || currentProgress === _progress) {
 			return;

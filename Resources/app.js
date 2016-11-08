@@ -1,9 +1,9 @@
 var lang = Ti.App.Properties.getString('language');
-app = require('akylas.commonjs.dev/akylas.commonjs').createApp(this, {
-// app = require('akylas.commonjs').createApp(this, {
+// app = require('akylas.commonjs.dev/akylas.commonjs').createApp(this, {
+app = require('akylas.commonjs').createApp(this, {
     // not using var seems very important, cant really see why!
     modules: {
-        admob: 'akylas.admob',
+        // admob: 'akylas.admob',
         shapes: 'akylas.shapes',
         slidemenu: 'akylas.slidemenu',
         map: 'akylas.googlemap',
@@ -210,7 +210,7 @@ function main() {
             var ext = filename.split('.')
                 .pop();
             var imageId = _.reduce(_options, function(memo, value, key) {
-                return memo + '_' + key + '_' + value;
+                return memo + '_' + key + '_' + value.toString().replace('#', '');
             }, filename) + '.' + ext;
             var result = app.getImagePath(imageId);
             var file = Ti.Filesystem.getFile(result);
@@ -282,6 +282,7 @@ function main() {
     Ti.include('ui/mapModules/MapModule.js');
 
     require('lib/moment-duration-format');
+    chain = require('lib/chain');
     _.assign(app, {
         api: require('lib/api')
             .init(this, app.global),
@@ -333,8 +334,9 @@ function main() {
             return new OpeningHours(_value, _args, 2);
         },
         shouldShowAds: function() {
-            sdebug('shouldShowAds', app.showAds, app.offlineMode);
-            return !__DEVELOPMENT__ && app.showAds && !app.offlineMode && app.api.networkConnected;
+            // sdebug('shouldShowAds', app.showAds, app.offlineMode);
+            return false;
+            // return !__DEVELOPMENT__ && app.showAds && !app.offlineMode && app.api.networkConnected;
             // return app.showAds && !app.offlineMode && app.api.networkConnected;
         },
         setCurrentLocation: function(e) {

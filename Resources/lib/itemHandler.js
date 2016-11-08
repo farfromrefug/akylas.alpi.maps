@@ -92,11 +92,11 @@
                 // shadowColor: '#44000000',
                 // shadowOffset: [0, 1],
                 // shadowRadius: 1,
+                // opacity: 0.5,
                 strokeWidth: 2,
                 text: app.icons.circle
             },
             childTemplates: [{
-
                 type: 'Ti.UI.Label',
                 bindId: 'label',
                 properties: {
@@ -330,9 +330,11 @@
             image, params = {
                 color: selected ? Color(color)
                     .saturate(8)
-                    .toHex8String() : color,
-                strokeColor: selected ? textColor : Color(darkenColor)
+                    .toHex8String() : Color(color)
                     .setAlpha(0.6)
+                    .toHex8String(),
+                strokeColor: selected ? textColor : Color(darkenColor)
+                    .setAlpha(0.4)
                     .toHex8String(),
                 label: {
                     text: icon,
@@ -348,7 +350,7 @@
         // } else
         if (iconSettings.style === 2) {
             params.strokeColor = selected ? colors.darkest : Color(darkenColor)
-                .setAlpha(0.6)
+                .setAlpha(0.7)
                 .toHex8String();
             // params.color = selected ? darkenColor : color;
             params.text = icon;
@@ -1113,13 +1115,13 @@
                     mediaTypes: [Ti.Media.MEDIA_TYPE_PHOTO]
                 });
             });
-            
+
         },
         showFloatingWebView: showFloatingWebView,
         handleItemAction: function(_option, _item, _desc, _callback, _parent, _mapHandler, _params) {
             sdebug('handleItemAction', _option);
             if (_item) {
-            sdebug('handleItemAction item:', _item.id, _item.title, _item.type);
+                sdebug('handleItemAction item:', _item.id, _item.title, _item.type);
             }
 
             var colors = app.getColors(_item, _desc);
@@ -1244,31 +1246,33 @@
                         var q = clearUpString(_item.title || _desc.defaultTitle);
                         var hasChanged = false;
 
-                        var calls = _.values(_mapHandler.runReduceMethodOnModules(
-                            'getDetailsCalls', q, _item, _desc));
-                        calls = [_.partial(app.api.osmDetails, _item)].concat(calls);
-                        calls.push(function(res, chain) {
-                            if (res) {
-                                _.each(_.omit(res, 'images'), function(value, key) {
+                        var calls = _mapHandler.runReduceMethodOnModules(
+                            'getDetailsCalls', q, _item, _desc);
+                        call.osm = _.partial(app.api.osmDetails, _item);
+
+                        var request = app.api.parallelMapRequests(calls).then(
+                            function(res) {
+                                var callsToAdd = [];
+                                _.forEach(res, function(value, key) {
                                     if (_.isObject(value)) {
                                         if (value.photos) {
-                                            _.each(value.photos, function(photo) {
+                                            _.forEach(value.photos, function(photo) {
                                                 var url = photo.url || photo;
                                                 var existing = _.findIndex(
                                                     _item.photos,
                                                     'url', url);
                                                 if (existing === -1) {
                                                     hasChanged = true;
-                                                    chain.add(_.partial(app.api
-                                                        .getPhoto,
-                                                        photo));
+                                                    console.log('downloading photo',
+                                                        photo);
+                                                    callsToAdd.push(app.api.getPhoto(photo));
                                                 }
                                             });
                                             delete value.photos;
                                         }
 
                                         if (value.notes) {
-                                            _.each(value.notes, function(note) {
+                                            _.forEach(value.notes, function(note) {
                                                 var id = note.title;
                                                 var existing = _.findIndex(
                                                     _item.notes, 'title',
@@ -1285,11 +1289,58 @@
                                         }
                                     }
                                 });
+                                console.log('callsToAdd', callsToAdd);
+                                if (callsToAdd.length > 0) {
+                                    return Promise.all(callsToAdd).then(function(photos) {
+                                        console.log('downloaded photos', photos);
+                                        photos = photos.filter(function(p) {
+                                            return !!p;
+                                        });
+                                        if (photos.length > 0) {
+                                            res.photos = photos;
+                                        }
+                                        return res;
+                                    });
+                                } else {
+                                    return res;
+                                }
+                            }).then(function(res) {
+                            console.log('res', JSON.stringify(res));
+                            var result = {};
+                            if (res && res.photos) {
+                                result.newPhotos = result.newPhotos || [];
+
+                                _.each(res.photos, function(photo) {
+                                    result.newPhotos.push(photo);
+                                    sdebug('adding newPhoto', photo);
+                                });
                             }
-                            chain.next(res);
-                        });
-                        var onDone = _.bind(function(changes) {
-                            sdebug('onDone', changes);
+                            var customizer = function(value, srcValue, key, object,
+                                source) {
+                                if (!value && srcValue) {
+                                    // hasChanged = true;
+                                    // sdebug('needChanges for', key, value, srcValue);
+                                    return srcValue;
+                                }
+                                return _.merge(value, srcValue, customizer);
+                            };
+                            _.each(res, function(value, key) {
+                                // if (result[key].hash !== value[key].hash) {
+                                // sdebug('update from', key, value);
+                                //     _.merge(result, value, customizer);
+                                // } else {
+                                _.merge(result, _.omit(value,
+                                    'id', 'title', 'address'
+                                ), customizer);
+                                if (!_item.address && value.address) {
+                                    result.address = value.address;
+                                }
+                                // }
+                            });
+                            console.log('about to return success', result);
+                            return result;
+                        }).then((function(changes) {
+                            console.log('changes', changes);
                             _.each(['icon', 'settings'], function(value) {
                                 if (changes.hasOwnProperty(value) && !_item.hasOwnProperty(
                                         value) && _desc.hasOwnProperty(value) &&
@@ -1300,7 +1351,8 @@
                             if (changes && _.size(changes) > 0) {
                                 if (!hasChanged) {
                                     var test = _.omit(_item, 'id', 'title', 'type',
-                                        'image', 'selectedImage', 'profile', 'timestamp',
+                                        'image', 'selectedImage', 'profile',
+                                        'timestamp',
                                         'settings', 'photos', 'notes', 'address');
                                     // sdebug('changes', changes);
                                     // var hashCode1 = convert.hashCode(JSON.stringify(test));
@@ -1326,46 +1378,12 @@
                             if (_parent) {
                                 _parent.hideLoading();
                             }
-                        }, this);
-                        request = app.api.chainCalls(calls, _.bind(function(res, chain) {
-                            var result = {};
-                            // sdebug(res);
-                            if (chain.error()
-                                .length === 0) {
-                                if (res && res.photos) {
-                                    result.newPhotos = result.newPhotos || [];
-
-                                    _.each(res.photos, function(photo) {
-                                        result.newPhotos.push(photo);
-                                        sdebug('adding newPhoto', photo);
-                                    });
-                                    delete res.photos;
-                                }
-                                var customizer = function(value, srcValue, key, object,
-                                    source) {
-                                    if (!value && srcValue) {
-                                        // hasChanged = true;
-                                        // sdebug('needChanges for', key, value, srcValue);
-                                        return srcValue;
-                                    }
-                                    return _.merge(value, srcValue, customizer);
-                                };
-                                _.each(res, function(value, key) {
-                                    // if (result[key].hash !== value[key].hash) {
-                                    // sdebug('update from', key, value);
-                                    //     _.merge(result, value, customizer);
-                                    // } else {
-                                    _.merge(result, _.omit(value,
-                                        'id', 'title', 'address'
-                                    ), customizer);
-                                    if (!_item.address && value.address) {
-                                        result.address = value.address;
-                                    }
-                                    // }
-                                });
+                        }).bind(this), function(error) {
+                            console.log('error', error);
+                            if (_parent) {
+                                _parent.hideLoading();
                             }
-                            onDone(result);
-                        }, this));
+                        });
                         if (_parent) {
                             _parent.showLoading({
                                 request: request,
@@ -1416,33 +1434,32 @@
                     }
                 case 'reverse_geo':
                     {
-
-                        request = app.api.reverseGeocode(_item, _.bind(function(e) {
-                            if (!e.error) {
-                                var changes = {
-                                    address: e
-                                };
-                                if (e.osm_type) {
-                                    if (!_item.title || _item.title === trc('dropped_pin')) {
-                                        changes.title = e.address[e.osm_type];
-                                    }
-                                    if (!_item.icon && app.icons[e.osm_type]) {
-                                        changes.icon = app.icons[e.osm_type];
-                                    }
+                        request = app.api.reverseGeocode(_item).then(_.bind(function(res) {
+                            var changes = {
+                                address: res
+                            };
+                            if (res.osm_type) {
+                                if (!_item.title || _item.title === trc('dropped_pin')) {
+                                    changes.title = res.address[res.osm_type];
                                 }
-
-                                showMessage(trc('address_found'), colors);
-                                var result = this.updateItem(_item, _desc, changes,
-                                    _mapHandler);
-                                if (_callback) {
-                                    _callback(_option, result);
+                                if (!_item.icon && app.icons[res.osm_type]) {
+                                    changes.icon = app.icons[res.osm_type];
                                 }
                             }
+
+                            showMessage(trc('address_found'), colors);
+                            var result = this.updateItem(_item, _desc, changes,
+                                _mapHandler);
                             if (_parent) {
                                 _parent.hideLoading();
                             }
+                            return result;
 
-                        }, this));
+                        }, this), function(error) {
+                            if (_parent) {
+                                _parent.hideLoading();
+                            }
+                        });
                         if (_parent) {
                             _parent.showLoading({
                                 request: request,
@@ -1464,25 +1481,23 @@
                     }
                 case 'consolidate_alt':
                     {
-
-                        request = app.api.ignElevation(_item, _.bind(function(e) {
-                            if (!e.error) {
-                                var changes = {
-                                    altitude: e.altitude
-                                };
-                                showMessage(trc('elevation_found'), colors);
-                                var result = this.updateItem(_item, _desc, changes,
-                                    _mapHandler);
-                                if (_callback) {
-                                    _callback(_option, result);
-                                }
-                                // } else {
-                                //     app.showAlert(e);
+                        request = app.api.ignElevation(_item).then(_.bind(function(changes) {
+                            showMessage(trc('elevation_found'), colors);
+                            var result = this.updateItem(_item, _desc, changes,
+                                _mapHandler);
+                            if (_callback) {
+                                _callback(_option, result);
                             }
+                            // } else {
+                            //     app.showAlert(e);
                             if (_parent) {
                                 _parent.hideLoading();
                             }
-                        }, this));
+                        }, this), function() {
+                            if (_parent) {
+                                _parent.hideLoading();
+                            }
+                        });
                         if (_parent) {
                             _parent.showLoading({
                                 request: request,
@@ -1502,25 +1517,24 @@
                         var points = _item.route.points;
                         // var toUsePoints = this.simplify(_item.route.points, factor / 3779);
                         // sdebug(_option, points.length, toUsePoints.length);
-                        request = app.api.ignElevationProfile(this, _item.route.points, _.bind(
-                            function(e) {
-                                if (!e.error) {
-                                    var changes = {
-                                        profile: e.profile
-                                    };
-                                    showMessage(trc('profile_found'), colors);
-                                    var result = this.updateItem(_item, _desc, changes,
-                                        _mapHandler);
-                                    if (_callback) {
-                                        _callback(_option, result);
-                                    }
-                                    // } else {
-                                    //     app.showAlert(e);
+                        request = app.api.ignElevationProfile(this, _item.route.points).then(_.bind(
+                            function(changes) {
+                                showMessage(trc('profile_found'), colors);
+                                var result = this.updateItem(_item, _desc, changes,
+                                    _mapHandler);
+                                if (_callback) {
+                                    _callback(_option, result);
                                 }
+                                // } else {
+                                //     app.showAlert(e);
                                 if (_parent) {
                                     _parent.hideLoading();
                                 }
-                            }, this));
+                            }, this), function() {
+                            if (_parent) {
+                                _parent.hideLoading();
+                            }
+                        });
                         if (_parent) {
                             _parent.showLoading({
                                 request: request,

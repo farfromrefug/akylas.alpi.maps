@@ -29,7 +29,7 @@ exports.create = function(_context, _args, _additional) {
 
     var baseUrl = 'http://www.panoramio.com/map/get_panoramas.php';
 
-    function geoSearch(_params, _feature, _itemHandler, _callback) {
+    function geoSearch(_params, _feature, _itemHandler) {
         var region = _.remove(_params, 'region');
         return app.api.call({
             url: 'http://www.panoramio.com/map/get_panoramas.php',
@@ -44,15 +44,12 @@ exports.create = function(_context, _args, _additional) {
                 miny: region.sw.latitude,
                 maxx: region.ne.longitude,
                 maxy: region.ne.latitude,
-            }, _params),
-            onSuccess: function(result) {
-                _callback({
-                    result: _.map(result.photos, function(photo) {
-                        return itemHandler.createAnnotItem(type, parseObject(photo));
-                    })
-                });
-            },
-            onError: _callback
+            }, _params)
+        }).then(function(result) {
+            var results = _.map(result.photos, function(photo) {
+                return itemHandler.createAnnotItem(type, parseObject(photo));
+            });
+            return results;
         });
     }
     var type = itemHandler.initializeType(key, {
@@ -117,7 +114,7 @@ exports.create = function(_context, _args, _additional) {
             view = null;
         }),
         onInit: function() {},
-        shouldBeEnabledByDefault:function() {
+        shouldBeEnabledByDefault: function() {
             return false;
         },
         // getSearchFilters: function() {
@@ -129,12 +126,12 @@ exports.create = function(_context, _args, _additional) {
         //     };
         // },
         // getSearchCalls: function(memo, _params) {
-            // memo[key] = _.partial(search, _params);
+        // memo[key] = _.partial(search, _params);
         // },
         // getDetailsCalls: function(memo, _query, _item, _desc) {
-            // if (_item.c2c) {
-            //     memo[key] = _.partial(getDetails, _item);
-            // }
+        // if (_item.c2c) {
+        //     memo[key] = _.partial(getDetails, _item);
+        // }
         // },
         getGeoFeatures: function(memo) {
             memo[key] = type;

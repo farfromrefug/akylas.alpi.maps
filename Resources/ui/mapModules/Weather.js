@@ -78,8 +78,8 @@ exports.create = function(_context, _args, _additional) {
     function getAnnotImage(_item) {
         iconStyleView.applyProperties({
             image: {
-                image: 'http://raw.githubusercontent.com/farfromrefug/akylas.alpi.maps/master/images/weather3/'
-                    + _item.weather[0].icon + '.png'
+                image: 'http://raw.githubusercontent.com/farfromrefug/akylas.alpi.maps/master/images/weather3/' +
+                    _item.weather[0].icon + '.png'
             },
             label: {
                 text: Math.round(_item.main.temp) + '˚'
@@ -124,9 +124,10 @@ exports.create = function(_context, _args, _additional) {
                         delta + '</font>') || ''))
             },
             icon: {
-                image: 'http://raw.githubusercontent.com/farfromrefug/akylas.alpi.maps/master/images/weather3/' + ((_specific &&
-                    _data.id) || _data.weather[
-                    0].icon) + '.png',
+                image: 'http://raw.githubusercontent.com/farfromrefug/akylas.alpi.maps/master/images/weather3/' +
+                    ((_specific &&
+                        _data.id) || _data.weather[
+                        0].icon) + '.png',
                 scaleType: Ti.UI.SCALE_TYPE_ASPECT_FIT
             }
         };
@@ -278,7 +279,7 @@ exports.create = function(_context, _args, _additional) {
                 var request = app.api.openWeatherMapRegion({
                     region: self.mapView.region,
                     zoom: self.mapView.zoom,
-                }, function(_stations) {
+                }).then(function(_stations) {
                     var annotsToAdd = [];
                     var count = _stations.length;
                     // var cluster = getCluster();
@@ -315,6 +316,8 @@ exports.create = function(_context, _args, _additional) {
                         ];
                     }
                     (_params.parent || self.window).hideLoading();
+                }, function(err) {
+                    (_params.parent || self.window).hideLoading();
                 });
                 (_params.parent || self.window).showLoading({
                     request: request,
@@ -328,22 +331,22 @@ exports.create = function(_context, _args, _additional) {
                 var item = _params.item;
                 var isRoute = itemHandler.isItemARoute(item);
 
-                var request = app.api.openWeatherForecast(item.start || item, function(_result) {
+                var request = app.api.openWeatherForecast(item.start || item).then(function(_result) {
                     // sdebug(_result);
-                    if (!_result.error) {
-                        itemWeatherData[item.id] = _.assign(_result, {
-                            timestamp: moment().valueOf()
-                        });
-                        save();
-                        app.emit('ItemSupplyViewUpdate', {
-                            item: item
-                        });
-                        if (isRoute) {
-                            app.showTutorials(['weather_route'], true);
-                        }
-                        // sdebug(itemWeatherData);
+                    itemWeatherData[item.id] = _.assign(_result, {
+                        timestamp: moment().valueOf()
+                    });
+                    save();
+                    app.emit('ItemSupplyViewUpdate', {
+                        item: item
+                    });
+                    if (isRoute) {
+                        app.showTutorials(['weather_route'], true);
                     }
+                    // sdebug(itemWeatherData);
 
+                    (_params.parent || self.window).hideLoading();
+                }, function(err) {
                     (_params.parent || self.window).hideLoading();
                 });
                 (_params.parent || self.window).showLoading({
@@ -353,7 +356,8 @@ exports.create = function(_context, _args, _additional) {
                             '...'
                     }
                 });
-            } else if (_params.command === 'weather_long') {
+            }
+            else if(_params.command === 'weather_long') {
 
                 var item = _params.item;
 
@@ -372,10 +376,12 @@ exports.create = function(_context, _args, _additional) {
                         var option = options[e.index];
                         switch (option) {
                             case 'meteoblue':
-                                var url = _.deburr('https://www.meteoblue.com/' + tr('en') +
+                                var url = _.deburr('https://www.meteoblue.com/' + tr(
+                                        'en') +
                                     '/' +
                                     tr(
-                                        'weather') + '/' + tr('forecast') + '/' + tr(
+                                        'weather') + '/' + tr('forecast') + '/' +
+                                    tr(
                                         'week') +
                                     '/' + item.latitude.toFixed(4) + 'N' + item.longitude
                                     .toFixed(
@@ -388,7 +394,8 @@ exports.create = function(_context, _args, _additional) {
                             case 'clear_data':
                                 if (itemWeatherData[item.id]) {
                                     delete itemWeatherData[item.id];
-                                    Ti.App.Properties.setObject('weather', itemWeatherData);
+                                    Ti.App.Properties.setObject('weather',
+                                        itemWeatherData);
                                     app.emit('ItemSupplyViewUpdate', {
                                         item: item
                                     });

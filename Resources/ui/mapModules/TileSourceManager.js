@@ -14,6 +14,7 @@ exports.create = function(_context, _args, _additional) {
         MBTILES_SECTION_INDEX = 0,
         mbtiles = Ti.App.Properties.getObject('mbtiles', {}),
         runningMbTiles = Ti.App.Properties.getObject('mbtiles_generating', {}),
+        runningMbTilesIndexes = [],
         generatorService,
         MBTilesUtils,
 
@@ -24,14 +25,18 @@ exports.create = function(_context, _args, _additional) {
         var request = e.request,
             running = runningMbTiles[request.token];
         if (running) {
-            view.listView.updateItemAt(MBTILES_SECTION_INDEX, running.index, {
-                progress: {
-                    value: e.progress
-                },
-                subtitle: {
-                    text: mbTilesDownloadSubTitle(e)
-                }
-            });
+            var index = runningMbTilesIndexes.indexOf(request.token);
+            if (index >= 0) {
+                view.listView.updateItemAt(MBTILES_SECTION_INDEX, index, {
+                    progress: {
+                        value: e.progress
+                    },
+                    subtitle: {
+                        text: mbTilesDownloadSubTitle(e)
+                    }
+                });
+            }
+
             running.query.doneCount = e.doneCount;
 
             saveRunningMBTiles();
@@ -47,10 +52,15 @@ exports.create = function(_context, _args, _additional) {
                 longitude: center.longitude,
                 // zoom:request.minZoom
             }, function(e) {
-                view.listView.deleteItemsAt(MBTILES_SECTION_INDEX, running.index, 1, {
-                    animated: true
-                });
+
                 delete runningMbTiles[request.token];
+                var index = runningMbTilesIndexes.indexOf(request.token);
+                if (index >= 0) {
+                    runningMbTilesIndexes.splice(index, 1);
+                    view.listView.deleteItemsAt(MBTILES_SECTION_INDEX, index, 1, {
+                        animated: true
+                    });
+                }
                 saveRunningMBTiles();
                 mbtiles[request.token] = _.assign({
                     address: e,
@@ -74,12 +84,18 @@ exports.create = function(_context, _args, _additional) {
         }
 
     }).on('mbtiles_generator_cancelled', function(e) {
+        console.debug('mbtiles_generator_cancelled', e.request, runningMbTilesIndexes);
         var request = e.request,
             running = runningMbTiles[request.token];
         if (running) {
-            view.listView.deleteItemsAt(MBTILES_SECTION_INDEX, running.index, 1, {
-                animated: true
-            });
+            var index = runningMbTilesIndexes.indexOf(request.token);
+            if (index >= 0) {
+                runningMbTilesIndexes.splice(index, 1);
+                view.listView.deleteItemsAt(MBTILES_SECTION_INDEX, index, 1, {
+                    animated: true
+                });
+            }
+
             delete runningMbTiles[request.token];
             saveRunningMBTiles();
         }
@@ -97,20 +113,25 @@ exports.create = function(_context, _args, _additional) {
             running = runningMbTiles[request.token];
         // sdebug('on state');
         if (running) {
-            // sdebug('on state', !!e.request.paused);
-            view.listView.updateItemAt(MBTILES_SECTION_INDEX, running.index, {
-                pause: {
-                    text: !!e.request.paused ? '\ue01b' : '\ue018'
-                },
-                subtitle: {
-                    text: mbTilesDownloadSubTitle(e)
-                }
-            });
+            var index = runningMbTilesIndexes.indexOf(request.token);
+            if (index >= 0) {
+                // sdebug('on state', !!e.request.paused);
+                view.listView.updateItemAt(MBTILES_SECTION_INDEX, index, {
+                    pause: {
+                        text: !!e.request.paused ? '\ue01b' : '\ue018'
+                    },
+                    subtitle: {
+                        text: mbTilesDownloadSubTitle(e)
+                    },
+                    loading: {
+                        visible: !!e.request.paused
+                    }
+                });
+            }
         }
     }).on('mbtiles_generator_start', function(e) {
         var request = e.request;
         runningMbTiles[request.token] = {
-            index: view.listView.getSectionItemsCount(MBTILES_SECTION_INDEX),
             doneCount: request.layer.doneCount,
             count: request.count,
             query: _.assign(request.layer, _.pick(request, 'token', 'timestamp', 'doneCount')),
@@ -122,6 +143,7 @@ exports.create = function(_context, _args, _additional) {
             maxZoom: request.maxZoom
         }
         saveRunningMBTiles();
+        runningMbTilesIndexes.push(request.token);
         // sdebug('adding mbtiles', runningMbTiles[request.token], request);
         view.listView.appendItems(MBTILES_SECTION_INDEX, [{
             template: 'mbtiles',
@@ -132,6 +154,12 @@ exports.create = function(_context, _args, _additional) {
                 text: mbTilesDownloadSubTitle(e)
             },
             token: request.token,
+            properties: {
+                canMove: false,
+            },
+            loading: {
+                visible: true
+            },
             progress: {
                 value: (request.doneCount > 0) ? (request.doneCount / request.count * 100) : 0
             },
@@ -526,7 +554,8 @@ exports.create = function(_context, _args, _additional) {
     }
 
     function mbTilesDownloadSubTitle(e) {
-        return mbTilesSubTitle(e.request, false) + '\n' + trc(!!e.request.paused ? 'paused' : 'downloading') + '  (' + e.progress
+        return mbTilesSubTitle(e.request, false) + '\n' + trc(!!e.request.paused ? 'paused' : 'downloading') +
+            '  (' + e.progress
             .toFixed() + '%)';
     }
 
@@ -729,7 +758,7 @@ exports.create = function(_context, _args, _additional) {
                 },
                 events: {
                     longpress: function(e) {
-                        // sdebug(e);
+                        sdebug('long press');
                         view.listView.editing = !view.listView.editing;
                     },
                     move: function(e) {
@@ -737,8 +766,8 @@ exports.create = function(_context, _args, _additional) {
                             return;
                         }
                         var sourceId = e.item.sourceId;
-                        sdebug(e);
-                        self.moveTileSourceToIndex(sourceId, e.targetItemIndex);
+                        sdebug('on move', e);
+                        self.moveTileSourceToIndex(sourceId, e.targetItemIndex, e.item.token);
                     }
                 }
 
@@ -833,6 +862,7 @@ exports.create = function(_context, _args, _additional) {
                         case 'delete':
                             {
                                 if (e.item.token && runningMbTiles[e.item.token]) {
+                                    console.debug('about to delete', e.item.token);
                                     var request = runningMbTiles[e.item.token].request;
                                     // request.stop();
                                     Ti.App.emit('mbtiles_generator_command', {
@@ -901,7 +931,10 @@ exports.create = function(_context, _args, _additional) {
                                                 var mbTile = mbtiles[sourceId];
                                                 self.parent.updateCamera({
                                                     zoom: mbTile.minZoom,
-                                                    centerCoordinate:geolib.getCenter([mbTile.bounds.sw, mbTile.bounds.ne])
+                                                    centerCoordinate: geolib.getCenter(
+                                                        [mbTile.bounds.sw, mbTile.bounds
+                                                            .ne
+                                                        ])
                                                 });
                                                 break;
                                         }
@@ -1063,12 +1096,18 @@ exports.create = function(_context, _args, _additional) {
                 tileSourcesIndexed[currentSources[i]].zIndex = zIndex(i);
             }
         },
-        moveTileSourceToIndex: function(_id, _index) {
+        moveTileSourceToIndex: function(_id, _index, _token) {
+            console.debug('moveTileSourceToIndex', _id, _index, _token);
             var tileSource = tileSourcesIndexed[_id];
             var index = currentSources.indexOf(_id);
             _.move(currentSources, index, _index);
             Ti.App.Properties.setObject('tilesources', currentSources);
             self.updateZIndexes();
+            if (_token && runningMbTiles[_token]) {
+                console.debug('updating runningMbTiles', runningMbTiles[_token].index, _index);
+                runningMbTiles[_token].index = _index;
+                saveRunningMBTiles();
+            }
             // tileSource.zIndex = zIndex(_index)-1;
             // self.mapView.removeTileSource(tileSource);
             // self.mapView.addTileSource(tileSource, _index);

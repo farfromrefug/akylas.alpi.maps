@@ -50,7 +50,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
             canSelectRoute: true,
             animateChanges: false,
             regionFits: true,
-            // touchEnabled: false,
+            touchEnabled: false,
             buildings: false,
             mapType: app.modules.map.MapType.satellite,
         }),
@@ -106,8 +106,8 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
                 text: _args.icon
             },
             title: {
-                text: _args.text,
-                html: _args.html,
+                // text: _args.text,
+                html: _args.html || _args.text,
                 padding: _args.padding,
                 touchPassThrough: !!!_args.selectable,
                 color: !!_args.isLink ? $cLink : undefined
@@ -807,6 +807,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
                             if (!isShowingFull) {
                                 title += '<br>' + note.text;
                             }
+                            console.log('updating showing note', isShowingFull);
                             e.section.updateItemAt(e.itemIndex, {
                                 properties: {
                                     height: isShowingFull ? 44 : 'SIZE'

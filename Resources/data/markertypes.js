@@ -193,12 +193,12 @@ exports.data = {
             type: 'node',
             features: '[natural=spring][drinking_water=yes]'
         }],
-        icon: app.icons.tap,
+        icon: app.icons.water,
         iconSettings: {
-            style: 0,
+            style: 2,
             scale:0.8
         },
-        minZoom: 15,
+        // minZoom: 15,
         color: '#0069CE',
         settings: {
             geofeature: true,

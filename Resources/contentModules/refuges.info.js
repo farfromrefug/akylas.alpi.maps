@@ -20,6 +20,14 @@ exports.lang = {
     }
 };
 
+function typeToRiType(type) {
+    switch (type) {
+        case 'water':
+            return 23;
+            break;
+    }
+}
+
 exports.create = function(_context, _args, _additional) {
     var itemHandler = app.itemHandler,
         geolib = itemHandler.geolib,
@@ -43,7 +51,7 @@ exports.create = function(_context, _args, _additional) {
             poele: 'stove'
         };
 
-    function getDetails(_id, res, chain) {
+    function getDetails(_id) {
         return app.api.call({
             url: 'http://www.refuges.info/api/point',
             params: {
@@ -52,31 +60,25 @@ exports.create = function(_context, _args, _additional) {
                 nb_coms: 10,
                 format_texte: 'html',
                 format: 'geojson'
-            },
-            onSuccess: function(result, _options) {
-                res = res || {};
-                var data, item, items = [];
-                if (result.features && result.features.length > 0) {
-                    res = res || {};
-                    for (var i = 0; i < result.features.length; i++) {
-                        data = result.features[i];
-                        if (data.geometry && data.geometry.coordinates) {
-                            res.ri = parseObject(data);
-                            break;
-                        }
+            }
+        }).then(function(result, _options) {
+            var data, item, items = [];
+            if (result.features && result.features.length > 0) {
+                for (var i = 0; i < result.features.length; i++) {
+                    data = result.features[i];
+                    if (data.geometry && data.geometry.coordinates) {
+                        return parseObject(data);
                     }
                 }
-                chain.next(res);
-            },
-            onError: chain.error
+            }
         });
     }
 
-    function search(_params, _callback) {
+    function search(_params) {
         return app.api.call({
             url: 'http://www.refuges.info/api/bbox',
             params: {
-                type_points: 'all',
+                type_points: _params.type || 'all',
                 detail: 'complet',
                 nb_points: 121,
                 nb_coms: 10,
@@ -85,29 +87,27 @@ exports.create = function(_context, _args, _additional) {
                 bbox: _params.region.sw.longitude + ',' + _params.region.sw.latitude + ',' +
                     _params.region.ne.longitude +
                     ',' + _params.region.ne.latitude
-            },
-            onSuccess: function(result, _options) {
-                var data, item, items = [];
-                if (result.features && result.features.length > 0) {
-                    var i;
-                    for (i = 0; i < result.features.length; i++) {
-                        data = result.features[i];
-                        if (data.geometry && data.geometry.coordinates) {
-                            // var score = (_params.query && _params.query.score(data.properties.nom)) ||
-                            // 1;
+            }
+        }).then(function(result, _options) {
+            var data, item, items = [];
+            if (result.features && result.features.length > 0) {
+                var i;
+                for (i = 0; i < result.features.length; i++) {
+                    data = result.features[i];
+                    if (data.geometry && data.geometry.coordinates) {
+                        // var score = (_params.query && _params.query.score(data.properties.nom)) ||
+                        // 1;
 
-                            // if (score > 0.5) {
-                            item = parseObject(data);
-                            if (item) {
-                                items.push(item);
-                            }
-                            // }
+                        // if (score > 0.5) {
+                        item = parseObject(data);
+                        if (item) {
+                            items.push(item);
                         }
+                        // }
                     }
                 }
-                _callback(items);
-            },
-            onError: _callback
+            }
+            return items;
         });
     }
 
@@ -211,23 +211,13 @@ exports.create = function(_context, _args, _additional) {
         //     };
         // },
         getSearchCalls: function(memo, _params) {
-            memo[key] = function(res, chain) {
-                search(_params, function(result) {
-                    if (result.error) {
-                        chain.error(result);
-                    } else {
-                        if (result.length > 0) {
-                            res = res || {};
-                            if (res.ri) {
-                                res.ri.items = res.ri.items.concat(result);
-                            } else {
-                                res.ri = {
-                                    type: type,
-                                    items: result
-                                };
-                            }
-                        }
-                        chain.next(res);
+            memo[key] = function() {
+                return search(_params).then(function(result) {
+                    if (result.length > 0) {
+                        return {
+                            type: type,
+                            items: result
+                        };
                     }
                 });
             };
@@ -240,36 +230,31 @@ exports.create = function(_context, _args, _additional) {
             var isRoute = itemHandler.isItemARoute(_item);
             if (!isRoute) {
                 var region = geolib.getBoundsOfDistance(_item, 300);
-                memo[key] = function(res, chain) {
-                    search({
+                memo[key] = function() {
+                    return search({
+                        type:typeToRiType(_desc.id),
                         // query: _query,
                         region: region
-                    }, function(result) {
-                        if (result.error) {
-                            chain.error(result);
-                        } else {
-                            if (result.length > 0) {
-                                var data;
-                                var bestScore = 0;
-                                var bestI = -1;
-                                for (var i = 0; i < result.length; i++) {
-                                    data = result[i];
-                                    distance = geolib.getDistanceSimple(_item, data);
-                                    var score = _query.score(data.title, 1);
-                                    var realScore = score / distance;
-                                    if (realScore > bestScore) {
-                                        bestScore = realScore;
-                                        bestI = i;
-                                    }
-                                    sdebug('found refuge', data.title, distance, score,
-                                        realScore);
+                    }).then(function(result) {
+                        if (result.length > 0) {
+                            var data;
+                            var bestScore = 0;
+                            var bestI = -1;
+                            for (var i = 0; i < result.length; i++) {
+                                data = result[i];
+                                distance = geolib.getDistanceSimple(_item, data);
+                                var score = _query.score(data.title, 1);
+                                var realScore = score / distance;
+                                if (realScore > bestScore) {
+                                    bestScore = realScore;
+                                    bestI = i;
                                 }
-                                if (bestScore > 0.01) {
-                                    res.ri = result[bestI];
-                                    sdebug(data, res.ri);
-                                }
+                                sdebug('found refuge', data.title, distance, score,
+                                    realScore);
                             }
-                            chain.next(res);
+                            if (bestScore > 0.01) {
+                                return result[bestI];
+                            }
                         }
 
                     });
@@ -278,7 +263,6 @@ exports.create = function(_context, _args, _additional) {
         },
         prepareDetailsListView: function(item, itemDesc, sections, createItem) {
             if (item.refugeInfo) {
-                sdebug('test has refugeInfo');
                 sections[0].items.push(createItem({
                     html: 'refuges.info' + '  ' + app.texts.ccopyright,
                     icon: app.icons.website,
@@ -290,6 +274,46 @@ exports.create = function(_context, _args, _additional) {
                     isLink: true
                 }));
             }
+        },
+        getMarkersForRegion: function(_type, region, itemHandler) {
+            var type = typeToRiType(_type.id);
+            if (!type) {
+                return Promise.resolve();
+            }
+            return app.api.call({
+                url: 'http://www.refuges.info/api/bbox',
+                params: {
+                    type_points: type,
+                    detail: 'complet',
+                    nb_points: 200,
+                    nb_coms: 10,
+                    format_texte: 'html',
+                    format: 'geojson',
+                    bbox: region.sw.longitude + ',' + region.sw.latitude + ',' +
+                        region.ne.longitude +
+                        ',' + region.ne.latitude
+                }
+            }).then(function(result) {
+                var data, item, items = [];
+                if (result.features && result.features.length > 0) {
+                    var i;
+                    for (i = 0; i < result.features.length; i++) {
+                        data = result.features[i];
+                        if (data.geometry && data.geometry.coordinates) {
+                            // var score = (_params.query && _params.query.score(data.properties.nom)) ||
+                            // 1;
+
+                            // if (score > 0.5) {
+                            item = parseObject(data);
+                            if (item) {
+                                items.push(itemHandler.createAnnotItem(_type, item));
+                            }
+                            // }
+                        }
+                    }
+                }
+                return items;
+            });
         }
 
     });

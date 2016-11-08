@@ -97,7 +97,7 @@ exports.create = function(_context, _args, _additional) {
                     var item = convert.prepareUtfGridResult(data.features[i]);
                     if (item) {
                         return item;
-                        break;
+                        // break;
                     }
                 }
             }

@@ -19,9 +19,12 @@ $TSCountrolsHeight='50%';
 
 .TSControlsLabel {
     left:0,
-    padding:__APPLE__?{top:3}:undefined,
+    /*padding:__APPLE__?{top:3}:undefined,
     font: {size:__APPLE__?14:16,},
-    verticalAlign:__APPLE__?'top':'middle',
+    verticalAlign:__APPLE__?'top':'middle',*/
+    padding:{top:3},
+    font: {size:14},
+    verticalAlign:'top',
     height:'FILL',
     width:'FILL',
 /*    touchEnabled:false,
@@ -38,7 +41,7 @@ $TSCountrolsHeight='50%';
 
 .TSControlSlider {
     min: 0,
-    visible: __APPLE__,
+    /*visible: __APPLE__,*/
     max: 1,
     height:'FILL',
     /*left: 5,*/
