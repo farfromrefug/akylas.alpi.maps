@@ -35,6 +35,21 @@ CustomAlertView {
     verticalContainer:false
 }
 
+.CustomAlertTF {
+    width:'FILL',
+    height:44,
+    font: {size:15},
+    hintColor:'gray',
+    borderPadding: [-1, -1, 0, -1],
+    borderColor: '#ddd',
+    color:$black,
+    padding: {
+        left: 10
+    },
+    clearButtonMode:Ti.UI.INPUT_BUTTONMODE_ONFOCUS,
+    returnKeyType:Ti.UI.RETURNKEY_DONE
+}
+
 
 FullscreenImageWindow {
     orientationModes:[Ti.UI.UPSIDE_PORTRAIT, Ti.UI.PORTRAIT, Ti.UI.LANDSCAPE_LEFT, Ti.UI.LANDSCAPE_RIGHT],
@@ -118,6 +133,9 @@ WebWindow {
 }
 
 .BorderedView {
+    test:rgba(255, 0,0, 1),
+    test:rgba(255, 0,0, 0.5),
+    test:rgba(255, 0,0, 0.1),
     borderColor:'#88dddddd',
     borderPadding:[-1,-1,0,-1],
 }
@@ -179,21 +197,6 @@ $appTabBorderWidth=3;
     color:'#88ffffff',
     disabledColor:$white,
     selectedColor:$white
-}
-
-.CustomAlertTF {
-    width:'FILL',
-    height:44,
-    font: {size:15},
-    hintColor:'gray',
-    borderPadding: [-1, -1, 0, -1],
-    borderColor: '#ddd',
-    color:$black,
-    padding: {
-        left: 10
-    },
-    clearButtonMode:Ti.UI.INPUT_BUTTONMODE_ONFOCUS,
-    returnKeyType:Ti.UI.RETURNKEY_DONE
 }
 
 Label {

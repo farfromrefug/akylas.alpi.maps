@@ -14,7 +14,7 @@ app = require('akylas.commonjs').createApp(this, {
             wikitude: 'com.wikitude.ti'
         },
         // android: {
-            // crosswalk: 'com.universalavenue.ticrosswalk'
+        // crosswalk: 'com.universalavenue.ticrosswalk'
         // }
     },
     showAds: Ti.App.Properties.getBool('show_ads', true),
@@ -33,7 +33,7 @@ app = require('akylas.commonjs').createApp(this, {
     utilities: true,
     mappings: {
         'SlideMenu': ['slidemenu', 'SlideMenu'],
-        'MapView': ['map', 'View', ],
+        'MapView': ['map', 'View',],
         'MapAnnotation': ['map', 'Annotation'],
         'MapRoute': ['map', 'Route'],
         'MapTileSource': ['map', 'TileSource'],
@@ -44,11 +44,11 @@ app = require('akylas.commonjs').createApp(this, {
         'ShapePieSlice': ['shapes', 'PieSlice'],
         'LineChart': ['charts', 'LineChart'],
         'PlotLine': ['charts', 'PlotLine'],
-    // },
-    // android: {
+        // },
+        // android: {
         // 'WebView': ['crosswalk', 'WebView']
     },
-    ifApple: function(app) {
+    ifApple: function (app) {
         if (app.info.deployType !== 'development') {
             app.modules.plcrashreporter = require('akylas.plcrashreporter');
             //     app.modules.testfairy = require('akylas.testfairy');
@@ -70,13 +70,13 @@ function main() {
     __ROUTES__ = 'routes';
 
     _.mixin({
-        getKeyByValue: function(object, value) {
-            return _.findKey(object, function(hashValue) {
+        getKeyByValue: function (object, value) {
+            return _.findKey(object, function (hashValue) {
                 return value === hashValue;
             });
         },
-        mapIfDefined: function(array, func) {
-            return _.reduce(array, function(memo, value, key) {
+        mapIfDefined: function (array, func) {
+            return _.reduce(array, function (memo, value, key) {
                 var item = func(value, key);
                 if (item) {
                     memo.push(item);
@@ -84,10 +84,10 @@ function main() {
                 return memo;
             }, []);
         },
-        mod: function(n, m) {
+        mod: function (n, m) {
             return ((n % m) + m) % m;
         },
-        move: function(array, oldIndex, newIndex) {
+        move: function (array, oldIndex, newIndex) {
             array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
         }
     });
@@ -128,7 +128,7 @@ function main() {
 
     var dataDir = Ti.Filesystem.applicationDataDirectory;
     var paths = {};
-    _.each(['images', 'files', 'mbtiles'], function(key) {
+    _.each(['images', 'files', 'mbtiles'], function (key) {
         var holdingDir = Ti.Filesystem.getFile(dataDir, key);
         if (!holdingDir.exists()) {
             holdingDir.createDirectory();
@@ -171,7 +171,7 @@ function main() {
         tutorial: Ti.App.Properties.getBool('tutorial', true),
         icons: _.mapValues(require('data/icons')
             .icons,
-            function(value) {
+            function (value) {
                 return String.fromCharCode(value);
             }),
         colors: _.mapValues({
@@ -181,7 +181,7 @@ function main() {
         }, getContrastColor),
 
         getContrastColor: getContrastColor,
-        createThemeColors: function(_mainColor) {
+        createThemeColors: function (_mainColor) {
             return {
                 main: _mainColor,
                 semi: Color(_mainColor)
@@ -194,7 +194,7 @@ function main() {
                 selector: _mainColor
             };
         },
-        getColors: function(_item, _desc) {
+        getColors: function (_item, _desc) {
             var colors = _desc && _desc.colors;
             if (_item && _item.color) {
                 colors = app.getContrastColor(_item.color);
@@ -204,12 +204,12 @@ function main() {
             }
             return colors;
         },
-        getFilteredImage: function(_image, _options) {
+        getFilteredImage: function (_image, _options) {
             var filename = _image.split('/')
                 .pop();
             var ext = filename.split('.')
                 .pop();
-            var imageId = _.reduce(_options, function(memo, value, key) {
+            var imageId = _.reduce(_options, function (memo, value, key) {
                 return memo + '_' + key + '_' + value.toString().replace('#', '');
             }, filename) + '.' + ext;
             var result = app.getImagePath(imageId);
@@ -222,10 +222,10 @@ function main() {
         },
         getImagePath: _.partial(getDataPath, 'images'),
         getFilePath: _.partial(getDataPath, 'files'),
-        getPath: function(_path) {
+        getPath: function (_path) {
             return paths[_path];
         },
-        getThumbnailImagePath: function(_photo) {
+        getThumbnailImagePath: function (_photo) {
             return app.getImagePath(_photo.thumbnailImage || _photo.thumbnail || _photo.image);
         }
 
@@ -234,7 +234,7 @@ function main() {
     // ak.locale.storeMissingTranslations = true;
     app.main();
 
-    app.needsUpdate = function(_key) {
+    app.needsUpdate = function (_key) {
         return app.updates && !!app.updates[_key];
     };
 
@@ -251,11 +251,11 @@ function main() {
     for (var key in app.icons) {
         indexIcons.push([trc(key), app.icons[key]]);
     }
-    app.indexedIcons = _.sortBy(indexIcons, function(n) {
+    app.indexedIcons = _.sortBy(indexIcons, function (n) {
         return n[0];
     });
     app.indexedColors = _(require('data/palette')
-            .colors)
+        .colors)
         .pairs()
         .value();
 
@@ -264,7 +264,7 @@ function main() {
         developerMode: Ti.App.Properties.getBool('developerMode', __DEVELOPMENT__),
         texts: {
             ccopyright: '<small><font color="gray">' + app.utilities.htmlIcon($sCC) +
-                'BY-SA 2.0</font></small>'
+            'BY-SA 2.0</font></small>'
         },
         utils: {
             filesize: require('lib/filesize'),
@@ -289,7 +289,7 @@ function main() {
         locationManager: require('lib/locationManager')
             .create(this),
         itemHandler: require('lib/itemHandler'),
-        setMetrics: function(_value) {
+        setMetrics: function (_value) {
             if (app.utils.geolib.metrics !== _value) {
                 sdebug('setMetrics', _value);
                 app.utils.geolib.metrics = _value;
@@ -297,7 +297,7 @@ function main() {
                 app.emit('distance_metric_changed');
             }
         },
-        setTempMetrics: function(_value) {
+        setTempMetrics: function (_value) {
             if (app.tempMetrics !== _value) {
                 sdebug('setTempMetrics', _value);
                 app.tempMetrics = _value;
@@ -305,7 +305,7 @@ function main() {
                 app.emit('temp_metric_changed');
             }
         },
-        setDeveloperMode: function(_value) {
+        setDeveloperMode: function (_value) {
             if (app.developerMode !== _value) {
                 sdebug('setDeveloperMode', _value);
                 app.showMessage('may the force be with you!');
@@ -315,7 +315,7 @@ function main() {
         },
         localeInfo: ak.getLocaleInfo(),
         offlineMode: false,
-        setOfflineMode: function(_value) {
+        setOfflineMode: function (_value) {
             if (app.offlineMode !== _value) {
                 sdebug('setOfflineMode', _value);
                 app.offlineMode = _value;
@@ -330,16 +330,16 @@ function main() {
                 });
             }
         },
-        openingHours: function(_value, _args) {
+        openingHours: function (_value, _args) {
             return new OpeningHours(_value, _args, 2);
         },
-        shouldShowAds: function() {
+        shouldShowAds: function () {
             // sdebug('shouldShowAds', app.showAds, app.offlineMode);
             return false;
             // return !__DEVELOPMENT__ && app.showAds && !app.offlineMode && app.api.networkConnected;
             // return app.showAds && !app.offlineMode && app.api.networkConnected;
         },
-        setCurrentLocation: function(e) {
+        setCurrentLocation: function (e) {
             // sdebug('setCurrentLocation', e);
             var coords = e.coords;
             app.currentLocation = coords;
@@ -347,7 +347,7 @@ function main() {
                 location: coords
             });
         },
-        getBluredScreenshot: function(_args) {
+        getBluredScreenshot: function (_args) {
             return Ti.Image.getFilteredScreenshot(_.merge({
                 scale: 0.4,
                 filters: [{
@@ -358,14 +358,14 @@ function main() {
                 blend: Ti.UI.BlendMode.DARKEN
             }, _args));
         },
-        showOptionsListDialog: function(_options, _callback) {
+        showOptionsListDialog: function (_options, _callback) {
 
             app.ui.openWindow((new OptionsListWindow({
-                    options: _options
-                })
+                options: _options
+            })
                 .on('click', _callback)));
         },
-        showViewFullScreen: function(_view, _fromView) {
+        showViewFullScreen: function (_view, _fromView) {
             var originalWidth = _view.width || 'FILL';
             var originalHeight = _view.height || 'FILL';
             var originalLeft = _view.left || null;
@@ -373,16 +373,16 @@ function main() {
             var sourceRect = _fromView.absoluteRect;
             var win = new AppWindow({
 
-                    blurredBackground: true,
-                    navBarHidden: true,
-                    customNavBar: false,
-                    backgroundColor: 'transparent',
-                    // underContainerView: backView,
-                    lightweight: true,
-                    verticalContainer: false,
-                    containerView: _view
-                })
-                .on('click', function() {
+                blurredBackground: true,
+                navBarHidden: true,
+                customNavBar: false,
+                backgroundColor: 'transparent',
+                // underContainerView: backView,
+                lightweight: true,
+                verticalContainer: false,
+                containerView: _view
+            })
+                .on('click', function () {
                     win.closeMe();
                 });
             win.underContainer.opacity = 0;
@@ -394,21 +394,21 @@ function main() {
             };
             sdebug('startRect', startRect);
             _view.applyProperties(startRect);
-            win.closeMe = function() {
+            win.closeMe = function () {
                 win.animate({
                     underContainer: {
                         opacity: 0
                     },
                     container: startRect,
                     duration: 200
-                }, function() {
+                }, function () {
                     app.ui.closeWindow(win, {
                         animated: false
                     });
                     win = null;
                 });
             };
-            win.once('open', function() {
+            win.once('open', function () {
                 win.animate({
                     underContainer: {
                         opacity: 1
@@ -434,12 +434,12 @@ function main() {
         .watchPosition(app.setCurrentLocation);
 
     app.contentModules = Ti.Filesystem.getFile('contentModules')
-        .getDirectoryListing().filter(function(name) {
+        .getDirectoryListing().filter(function (name) {
             return _.endsWith(name, 'js');
         }).map(
-            function(value) {
-                return value.slice(0, -3);
-            });
+        function (value) {
+            return value.slice(0, -3);
+        });
 
     app.mapModules = [
         'Tutorial',
@@ -482,16 +482,16 @@ function main() {
     if (app.tutorialManager) {
         app.showTutorials = app.tutorialManager.showTutorials;
     } else {
-        app.showTutorials = function() {};
+        app.showTutorials = function () { };
     }
 
     // if (app.tutorialManager.enabled) {
-    app.ui.slidemenu.once('openmenu', function() {
+    app.ui.slidemenu.once('openmenu', function () {
         app.showTutorials(['offline_mode']);
     });
     // }
 
-    app.showAlert = _.flowRight(app.showAlert, function(_args) {
+    app.showAlert = _.flowRight(app.showAlert, function (_args) {
         if (_.isString(_args)) {
             return {
                 message: _args,
@@ -502,7 +502,7 @@ function main() {
         return _args;
     });
     var oldFunc = app.confirmAction;
-    app.confirmAction = function(_args, _c1, _c2) {
+    app.confirmAction = function (_args, _c1, _c2) {
         _args.constructorName = 'CustomAlertView';
         return oldFunc.apply(this, [_args, _c1, _c2]);
     };
@@ -524,7 +524,7 @@ function main() {
                 .assign(app.info.name),
             title: title
         });
-        dialog.addEventListener('click', function(e) {
+        dialog.addEventListener('click', function (e) {
             if (e.index === 2) {
                 Ti.App.Properties.setBool('show_rating_alert', false);
                 alert(tr('rate_expl_false'));
@@ -541,7 +541,7 @@ function main() {
     /// !RATING
 
     /// !ADMOB
-    app.showInterstitialIfNecessary = function() {};
+    app.showInterstitialIfNecessary = function () { };
     // if (app.showAds) {
     // var interstitialTimingCount = 0;
     // var interstitial = new Interstitial();
@@ -559,7 +559,7 @@ function main() {
     // };
 
     // }
-    Ti.App.on('resume', function(e) {
+    Ti.App.on('resume', function (e) {
         appRatingTimingCount++;
         if (shouldShowRatingAlert && appRatingTimingCount % 10 === 0) {
             showRatingAlert();
@@ -568,13 +568,13 @@ function main() {
     });
 
     /// !ADMOB
-    app.ui.slidemenu.once('open', function() {
+    app.ui.slidemenu.once('open', function () {
         Ti.App.emit('resume');
     });
     app.ui.openWindow(app.ui.slidemenu);
 
     Ti.Network.on('change', app.api.updateNetwork);
-    app.on('error', function(e) {
+    app.on('error', function (e) {
         sdebug(e);
         if (!e.silent) {
             if (app.api.networkConnected && !app.offlineMode) {
@@ -586,7 +586,7 @@ function main() {
     });
     app.api.updateNetwork();
 
-    app.showImageFullscreen = function(_photos, _index, _fromView) {
+    app.showImageFullscreen = function (_photos, _index, _fromView) {
         app.ui.createAndOpenWindow('FullscreenImageWindow', {
             photos: _photos,
             photoIndex: _index,
@@ -597,18 +597,23 @@ function main() {
     sdebug(app.info);
     sdebug(app.localeInfo);
 
+    Promise.unhandledRejection = function(reason) {
+        sdebug(reason);
+        throw reason;
+    };
+
     if (app.modules.plcrashreporter) {
-        var writeCrashLog = function(_data) {
+        var writeCrashLog = function (_data) {
             var crashDir = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'crashlogs');
             if (!crashDir.exists()) {
                 crashDir.createDirectory();
             }
             Ti.Filesystem.getFile(crashDir.resolve(), moment()
-                    .toString() + '.log')
+                .toString() + '.log')
                 .write(_data);
         };
 
-        var sendCrashLogs = function() {
+        var sendCrashLogs = function () {
             var crashDir = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'crashlogs');
             var logs = crashDir.getDirectoryListing();
             if (!logs || logs.length === 0)
@@ -616,13 +621,13 @@ function main() {
             sdebug('logs', logs);
             if (app.api.networkConnected) {
                 Ti.UI.createAlertDialog({
-                        cancel: 1,
-                        persistent: true,
-                        buttonNames: [trc('yes'), trc('later'), trc('no')],
-                        message: trc('send_crash_report'),
-                        title: trc('found_a_crash')
-                    })
-                    .on('click', function(e) {
+                    cancel: 1,
+                    persistent: true,
+                    buttonNames: [trc('yes'), trc('later'), trc('no')],
+                    message: trc('send_crash_report'),
+                    title: trc('found_a_crash')
+                })
+                    .on('click', function (e) {
                         if (e.index === 0) {
                             var emailDialog = Ti.UI.createEmailDialog({
                                 subject: '[' + app.info.name + '][CrashReport]',
@@ -633,7 +638,7 @@ function main() {
                                     '\n' + JSON.stringify(
                                         app.info, null, 2))
                             });
-                            emailDialog.on('complete', function(e2) {
+                            emailDialog.on('complete', function (e2) {
                                 if (!!e2.success) {
                                     crashDir.deleteDirectory(true);
                                 }
@@ -641,7 +646,7 @@ function main() {
                             for (var i = 0; i < logs.length; i++) {
                                 emailDialog.addAttachment(Titanium.Filesystem.getFile(crashDir.resolve(),
                                     logs[
-                                        i]));
+                                    i]));
                             }
                             emailDialog.open();
                         } else if (e.cancel === false) {

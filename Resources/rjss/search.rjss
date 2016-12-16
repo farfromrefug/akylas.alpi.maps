@@ -1,5 +1,6 @@
 .SearchWindow {
     backgroundColor: 'transparent',
+    withLoadingIndicator:true,
     blurredBackground: true,
     navBarHidden: true,
     verticalContainer: true,

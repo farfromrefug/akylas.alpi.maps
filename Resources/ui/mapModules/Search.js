@@ -1,4 +1,4 @@
-exports.create = function(_context, _args, _additional) {
+exports.create = function (_context, _args, _additional) {
     var settings = _args.settings,
         visible = false,
         itemHandler = app.itemHandler,
@@ -30,7 +30,7 @@ exports.create = function(_context, _args, _additional) {
         searchWindow,
         searchView,
         currentInstantSearch,
-        getSearchView = function() {
+        getSearchView = function () {
             if (!searchView) {
                 var filters = self.parent.runGetMethodOnModules(true, 'getSearchFilters');
                 searchView = new View({
@@ -72,11 +72,11 @@ exports.create = function(_context, _args, _additional) {
                                 },
 
                                 events: {
-                                    change: function(e) {
+                                    change: function (e) {
                                         currentInstantSearch = e.value;
                                         instantSearch(currentInstantSearch);
                                     },
-                                    focus: function() {
+                                    focus: function () {
                                         if (searchFilters.length > 0) {
                                             if (visible) {
                                                 searchView.filtersHolder.animate({
@@ -86,7 +86,7 @@ exports.create = function(_context, _args, _additional) {
                                             }
                                         }
                                     },
-                                    blur: function() {
+                                    blur: function () {
                                         if (searchFilters.length > 0) {
                                             if (visible) {
                                                 searchView.filtersHolder.animate({
@@ -97,7 +97,7 @@ exports.create = function(_context, _args, _additional) {
 
                                         }
                                     },
-                                    return: function(e) {
+                                    return: function (e) {
 
                                         clearInstantSearch();
                                         if (e.value && e.value.length > 0) {
@@ -135,7 +135,7 @@ exports.create = function(_context, _args, _additional) {
                                     // visible: false,
                                     visible: filters.length > 0,
                                 },
-                                childTemplates: _.reduce(filters, function(memo,
+                                childTemplates: _.reduce(filters, function (memo,
                                     value) {
                                     searchFilters.push(value.id);
                                     enabledSearchFilters.push(value.id);
@@ -144,7 +144,7 @@ exports.create = function(_context, _args, _additional) {
                                 }, [])
                             }],
                             events: {
-                                click: function(e) {
+                                click: function (e) {
                                     sdebug(e.source);
                                     var id = e.source.callbackId;
                                     if (!id) {
@@ -153,7 +153,7 @@ exports.create = function(_context, _args, _additional) {
                                     var enabled = e.source.isEnabled();
                                     sdebug(id, enabled);
                                     if (enabled) {
-                                        _.remove(enabledSearchFilters, function(n) {
+                                        _.remove(enabledSearchFilters, function (n) {
                                             return n === id;
                                         });
                                     } else {
@@ -179,7 +179,7 @@ exports.create = function(_context, _args, _additional) {
                             sections: [satSection]
                         },
                         events: {
-                            click: app.debounce(function(e) {
+                            click: app.debounce(function (e) {
                                 if (e.item) {
                                     if (e.bindId === 'accessory') {
                                         self.parent.updateCamera({
@@ -197,7 +197,7 @@ exports.create = function(_context, _args, _additional) {
                     }],
                     events: {
 
-                        click: function(e) {
+                        click: function (e) {
                             if (e.bindId === 'cancel') {
                                 hide();
                             }
@@ -279,7 +279,7 @@ exports.create = function(_context, _args, _additional) {
         }
         if (_query && _query.length > 2) {
             // sdebug('instantSearch', _query);
-            searchAsTypeTimer = setTimeout(function() {
+            searchAsTypeTimer = setTimeout(function () {
                 searchAsTypeTimer = null;
                 if (photonSearchRequest) {
                     photonSearchRequest.abort();
@@ -289,8 +289,8 @@ exports.create = function(_context, _args, _additional) {
                 var items = [];
                 var instantItems = self.parent.runReduceMethodOnModules('searchItems', _query);
                 sdebug(instantItems);
-                _.each(instantItems, function(list) {
-                    _.each(list.items, function(item) {
+                _.each(instantItems, function (list) {
+                    _.each(list.items, function (item) {
                         items.push(satItem(item, list.desc));
                     });
                 });
@@ -307,10 +307,8 @@ exports.create = function(_context, _args, _additional) {
                 // sdebug('search photon');
                 searchView.loading.show();
                 photonSearchRequest = app.api.photonSearch(_.assign({
-                        query: _query,
-                    }, settings.currentLocation),
-                    onPhotonSearch);
-
+                    query: _query,
+                }, settings.currentLocation)).then(onPhotonSearch);
             }, 400);
         } else {
             clearInstantSearch();
@@ -331,7 +329,7 @@ exports.create = function(_context, _args, _additional) {
         }
         // sdebug('onPhotonSearch', _results);
         var existing, itemDesc, item;
-        var newItems = _.reduce(_results, function(memo, value) {
+        var newItems = _.reduce(_results, function (memo, value) {
             existing = self.parent.runGetSingleMethodOnModules('getItem', value);
             if (existing) {
                 // value = existing.item;
@@ -432,7 +430,7 @@ exports.create = function(_context, _args, _additional) {
             } else {
                 if (cluster) {
                     annots = cluster.annotations;
-                    index = _.findIndex(annots, function(theA) {
+                    index = _.findIndex(annots, function (theA) {
                         return theA.item.id === item.id;
                     });
                     if (index >= 0) {
@@ -458,7 +456,7 @@ exports.create = function(_context, _args, _additional) {
 
     }
 
-    var onAccessory = app.debounce(function(e) {
+    var onAccessory = app.debounce(function (e) {
         handleOnAdd(e, true);
     });
 
@@ -483,7 +481,7 @@ exports.create = function(_context, _args, _additional) {
                         defaultItemTemplate: 'default',
                     },
                     events: {
-                        click: function(e) {
+                        click: function (e) {
                             if (e.item) {
                                 var annots, index,
                                     item = e.item.item,
@@ -502,7 +500,7 @@ exports.create = function(_context, _args, _additional) {
                                             self.parent.setRegion(route.region, 0.3, true);
                                         } else {
                                             annots = cluster.annotations;
-                                            index = _.findIndex(annots, function(theA) {
+                                            index = _.findIndex(annots, function (theA) {
                                                 return theA.item.id === item.id;
                                             });
                                             self.mapView.selectAnnotation(annots[index]);
@@ -568,6 +566,7 @@ exports.create = function(_context, _args, _additional) {
     }
 
     function showSearchResults(res) {
+        console.log('showSearchResults', res);
         var hasResult = _.size(res) > 0;
         if (!hasResult) {
             app.showAlert(trc('no_result_found'));
@@ -591,7 +590,7 @@ exports.create = function(_context, _args, _additional) {
             sectionItems, items = [],
             color, existing, annot, itemDesc, clusterAnnots = [],
             value, i, sectionType, isRoute;
-        var sections = _.reduce(res, function(memo, results) {
+        var sections = _.reduce(res, function (memo, results) {
             if (!results) {
                 return;
             }
@@ -708,12 +707,12 @@ exports.create = function(_context, _args, _additional) {
         if (searchView) {
             searchView.loading.hide();
         }
-        return new Promise(function(resolve) {
+        return new Promise(function (resolve) {
             resultView.animate({
                 height: resultViewHeight,
                 // transform: null,
                 duration: animationDuration
-            }, function() {
+            }, function () {
                 self.mapView.addRoute(searchRoutes);
                 if (region) {
                     self.parent.setRegion(region, 0.1, true);
@@ -739,12 +738,11 @@ exports.create = function(_context, _args, _additional) {
             region: geolib.scaleBounds(self.mapView.region, 0.2)
         };
         var keys = [];
-        var calls = _.pick(self.parent.runReduceMethodOnModules(true, 'getSearchCalls', params),
-            enabledSearchFilters);
+        var calls = _.values(_.pick(self.parent.runReduceMethodOnModules(true, 'getSearchCalls', params),
+            enabledSearchFilters));
         calls = [_.partial(app.api.searchOSM, params)].concat(calls);
-        self.window.showLoading();
-        searchRequest = app.api.parallelRequests(calls).then(showSearchResults, showSearchResultsError).then(self.window
-            .hideLoading);
+        searchWindow.showLoading();
+        searchRequest = app.api.parallelRequests(calls).then(showSearchResults, showSearchResultsError).then(searchWindow.hideLoading);
     }
 
     // function onLocation(e) {
@@ -797,7 +795,7 @@ exports.create = function(_context, _args, _additional) {
                 },
                 duration: animationDuration
             });
-            searchView.once('postlayout', function() {
+            searchView.once('postlayout', function () {
                 searchView.textfield.focus();
                 if (currentInstantSearch) {
                     instantSearch(currentInstantSearch);
@@ -843,7 +841,7 @@ exports.create = function(_context, _args, _additional) {
                 height: 0,
                 // transform: 'ot0,100%',
                 duration: animationDuration
-            }, function() {
+            }, function () {
                 self.parent.mapBottomToolbar.remove(resultView);
                 resultView = null;
                 if (cluster) {
@@ -888,17 +886,17 @@ exports.create = function(_context, _args, _additional) {
         }
     }
     _.assign(self, {
-        GC: app.composeFunc(self.GC, function() {
+        GC: app.composeFunc(self.GC, function () {
             cluster = null;
             searchView = null;
             resultView = null;
         }),
-        onStartExclusiveAction: function(_id) {
+        onStartExclusiveAction: function (_id) {
             if (_id !== 'search') {
                 hide();
             }
         },
-        onWindowBack: function() {
+        onWindowBack: function () {
             if (visible || resultsVisible) {
                 hide();
                 return true;
@@ -907,7 +905,7 @@ exports.create = function(_context, _args, _additional) {
 
         showSearchResults: showSearchResults,
         showSearchResultsError: showSearchResultsError,
-        onModuleAction: function(_params) {
+        onModuleAction: function (_params) {
             if (_params.id === 'search') {
                 if (!visible) {
                     show();

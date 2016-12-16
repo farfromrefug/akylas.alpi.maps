@@ -415,6 +415,9 @@ ak.ti.constructors.createAppWindow = function(_args) {
         });
         self.addPropertiesToGC('loadingView');
         self.showLoading = function(_args, _animated) {
+            if (!self) {
+                return;
+            }
             sdebug('showLoading', _args);
             _args = _args || {};
             if (currentRequest) {
@@ -457,6 +460,9 @@ ak.ti.constructors.createAppWindow = function(_args) {
         };
 
         self.hideLoading = function() {
+            if (!self) {
+                return;
+            }
             sdebug('hideLoading');
             currentRequest = null;
             self.loadingView.animate({

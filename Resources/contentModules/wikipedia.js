@@ -122,7 +122,6 @@ exports.create = function(_context, _args, _additional) {
                 for (var i = 0; i < result.query.pages.length; i++) {
                     data = result.query.pages[i];
                     if (data.coordinates && data.coordinates[0].lat) {
-                        res = res || {};
                         return parseObject(data);
                     }
                 }

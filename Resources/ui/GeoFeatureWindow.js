@@ -27,7 +27,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
             geoinfo: app.templates.row.itemgeoinfo,
             text: app.templates.row.gfoptionttextitem,
             hours: app.templates.row.gfoptionthoursitem,
-            admob: app.templates.row.admob
+            // admob: app.templates.row.admob
         }, mapHandler.runReduceMethodOnModules('getSupplyTemplates')),
         contentTemplates,
         actionBar = new ItemActionBar({

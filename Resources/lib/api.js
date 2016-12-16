@@ -217,21 +217,34 @@ function createApi(_context) {
             requests.push(r);
             return r;
         }));
-        theR.abort = function() {
+        var abort = function() {
             requests.forEach(function(r) {
                 r.abort();
             });
         };
+        theR.abort = abort;
+
+        function newThen(p) {
+            var oldThen = p.then;
+            return function(resolve, reject) {
+                var result = oldThen.call(p, resolve, reject);
+                result.abort = abort;
+                result.then = newThen(result);
+                return result;
+            };
+        }
+        theR.then = newThen(theR);
         return theR;
     }
 
     function parallelMapRequests(_calls) {
         var keys = [];
-        return parallelRequests(_.map(_calls, function(f, key) {
+        return parallelRequests(_.reduce(_calls, function(memo, f, key) {
             keys.push(key);
-            return f;
-        })).then(function(results) {
-            var res = {};
+            memo.push(f);
+            return memo;
+        }, [])).then(function(results) {
+           var res = {};
             var result;
             for (var i = results.length - 1; i >= 0; i--) {
                 result = results[i];
@@ -637,8 +650,8 @@ function createApi(_context) {
                     email: contactEmail
                 }
             }).then(function(result) {
+                console.log('on search', result);
                 if (result.length > 0) {
-                    res = res || {};
                     result = _.mapIfDefined(result, convert.prepareNominatimResult);
                     result = _.uniq(result, function(value) {
                         if (value.osm.class === 'highway') {
@@ -647,7 +660,9 @@ function createApi(_context) {
                             return value.osm.id;
                         }
                     });
-                    return result;
+                    return {
+                        items:result
+                    }
                 }
             });
         },

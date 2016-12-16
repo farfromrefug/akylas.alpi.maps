@@ -104,7 +104,7 @@ ak.ti.constructors.createItemsListWindow = function(_args) {
             allowsMultipleSelectionDuringEditing: true,
             templates: {
                 default: app.templates.row.listitem,
-                admob: app.templates.row.admob
+                // admob: app.templates.row.admob
             },
             defaultItemTemplate: 'default',
             events: {

@@ -1,6 +1,6 @@
-(function(global, undefined) {
+(function (global, undefined) {
 
-    function ItemHandler() {}
+    function ItemHandler() { }
     var convert = app.utils.convert,
         // openingHours = app.utils.openingHours,
         localImageCache = {},
@@ -224,17 +224,17 @@
     function showFloatingWebView(_title, _url, _item, _desc, _parent, _mapHandler) {
         var floating = app.ui.mainwindow.navWindow.stackSize == 1;
         (floating ? app.ui : _parent.manager)
-        .createAndOpenWindow('WebWindow', {
-            floating: floating,
-            mapHandler: _mapHandler,
-            showBackButton: true,
-            title: trc(_title),
-            item: _item,
-            itemDesc: _desc,
-            itemHandler: obj,
-            // barColor:_mapItem.item.color,
-            url: _url
-        });
+            .createAndOpenWindow('WebWindow', {
+                floating: floating,
+                mapHandler: _mapHandler,
+                showBackButton: true,
+                title: trc(_title),
+                item: _item,
+                itemDesc: _desc,
+                itemHandler: obj,
+                // barColor:_mapItem.item.color,
+                url: _url
+            });
     }
     // Setting readonly defaults
     var obj = Object.create(ItemHandler.prototype, {
@@ -242,10 +242,10 @@
             value: app.utils.geolib
         },
         moveOnFirstChange: {
-            get: function() {
+            get: function () {
                 return moveOnFirstChange;
             },
-            set: function(_value) {
+            set: function (_value) {
                 moveOnFirstChange = _value;
                 Ti.App.Properties.setBool('items.firstchangemove', _value);
             }
@@ -260,7 +260,7 @@
             value: ItemHandler.prototype
         },
         extend: {
-            value: function(methods, overwrite) {
+            value: function (methods, overwrite) {
                 for (var prop in methods) {
                     if (typeof obj.prototype[prop] === 'undefined' || overwrite === true) {
                         if (typeof methods[prop] === 'function' && typeof methods[prop].bind ===
@@ -324,15 +324,15 @@
         var view = iconStyleViews[iconSettings.style + ''];
         var color = colors.color,
             darkenColor = Color(color)
-            .darken(20)
-            .saturate(10)
-            .toHex8String(),
+                .darken(20)
+                .saturate(10)
+                .toHex8String(),
             image, params = {
                 color: selected ? Color(color)
                     .saturate(8)
                     .toHex8String() : Color(color)
-                    .setAlpha(0.6)
-                    .toHex8String(),
+                        .setAlpha(0.6)
+                        .toHex8String(),
                 strokeColor: selected ? textColor : Color(darkenColor)
                     .setAlpha(0.4)
                     .toHex8String(),
@@ -376,13 +376,13 @@
     }
 
     obj.extend({
-        initializeType: function(_id, _type) {
+        initializeType: function (_id, _type) {
             if (_type.getPrefKey) {
                 return _type; //already done
             }
             // sdebug('initializeType', _id);
             _type.propertyKey = _id + '_items';
-            _type.getPrefKey = function(_suffix) {
+            _type.getPrefKey = function (_suffix) {
                 return this.id + '_' + _suffix;
             };
             _type.visible = Ti.App.Properties.getBool(_type.getPrefKey('visible'), true);
@@ -401,7 +401,7 @@
         getFormattedDistance: obj.geolib.getFormattedDistance,
         getAnnotImage: getAnnotImage,
         // getImagePath: app.getImagePath,
-        customViewForAnnot: function(_item, _needsLoading) {
+        customViewForAnnot: function (_item, _needsLoading) {
             if (!_item.photos) {
                 return;
             }
@@ -420,7 +420,7 @@
                     scaleType: banner ? Ti.UI.SCALE_TYPE_ASPECT_FIT : Ti.UI.SCALE_TYPE_ASPECT_FILL,
                     filterOptions: {
                         colorArt: banner
-                            // scale: scale
+                        // scale: scale
                     },
                     image: getThumbnailImagePath(photo)
                 },
@@ -432,7 +432,7 @@
                 // }
             };
         },
-        annotationParamsFromItem: function(_item, _markerType) {
+        annotationParamsFromItem: function (_item, _markerType) {
             // sdebug('annotationParamsFromItem', _item, _markerType);
             var annot = {
                 item: _item,
@@ -472,7 +472,7 @@
             }
             return ak.ti.style(annot, 'MapAnnotation');
         },
-        routeParamsFromItem: function(_item, _routeType) {
+        routeParamsFromItem: function (_item, _routeType) {
             var points = _item.points;
             if (_item.route) {
                 points = _item.route.points;
@@ -480,7 +480,7 @@
                     var decodeLine = app.api.decodeLine;
                     var arrPush = Array.prototype.push;
                     if (_.isArray(points)) {
-                        points = _.reduce(points, function(memo, value) {
+                        points = _.reduce(points, function (memo, value) {
                             arrPush.apply(memo, decodeLine(value));
                             return memo;
                         }, []);
@@ -502,7 +502,7 @@
             };
             return ak.ti.style(route, 'MapRoute');
         },
-        itemTitle: function(_item, _desc) {
+        itemTitle: function (_item, _desc) {
             var result = _item.title || _desc.defaultTitle || '';
             if (_item.tags) {
                 var tags = _item.tags;
@@ -515,7 +515,7 @@
             }
             return result;
         },
-        simplifyToNB: function(points, nb, tolerance) {
+        simplifyToNB: function (points, nb, tolerance) {
             if (points.length <= nb) {
                 return points;
             }
@@ -529,7 +529,7 @@
             }
             return toUsePoints;
         },
-        itemProfileDesc: function(_item) {
+        itemProfileDesc: function (_item) {
             if (_item.route_mode !== 'walking') return '';
             var duration = this.computeProfileEstimatedTime({
                 distance: _item.route.distance,
@@ -537,11 +537,11 @@
                 dmin: (_item.profile && _item.profile.dmin) || _item.tags.dmin
             });
             return trc('estimated') + ' ' + htmlIcon(String.fromCharCode(0xe08e), 0, $black) + moment.duration(
-                    duration)
+                duration)
                 .format(
-                    'h[h]m[m]');
+                'h[h]m[m]');
         },
-        computeProfileEstimatedTime: function(_args) {
+        computeProfileEstimatedTime: function (_args) {
             // sdebug('computeProfileEstimatedTime', _args);
             var meters = _args.distance,
                 fudge = (_args.fudge || 0.1) * meters,
@@ -569,14 +569,14 @@
             // sdebug('totalTime', totalTime);
             return totalTime;
         },
-        itemDetails: function(_item, _desc) {
+        itemDetails: function (_item, _desc) {
             return convert.osmTagsFastDetails(_item)
                 .join(', ');
         },
-        itemIcons: function(_item, _color) {
+        itemIcons: function (_item, _color) {
             return convert.osmTagsIconsHTML(_item, _color);
         },
-        itemSubtitle: function(_item, _desc) {
+        itemSubtitle: function (_item, _desc) {
             var subtitle;
             if (_item.description) {
                 subtitle = _item.description;
@@ -619,7 +619,7 @@
 
             return subtitle;
         },
-        getAddressSearchTermOSM: function(_item) {
+        getAddressSearchTermOSM: function (_item) {
             var address = _item.address.address || _item.address;
             sdebug('getAddressSearchTermOSM', address);
             if (_item.osm && address[_item.osm.subtype]) {
@@ -632,10 +632,10 @@
                 ['city', 'town', 'village']
             ];
             var count = 0;
-            return _.reduce(params, function(memo, value, index) {
+            return _.reduce(params, function (memo, value, index) {
                 if (count < 3 || index < 5) {
                     if (_.isArray(value)) {
-                        _.forEach(value, function(key) {
+                        _.forEach(value, function (key) {
                             var toAdd = address[key];
                             if (toAdd) {
                                 memo += toAdd;
@@ -657,7 +657,7 @@
                 return memo;
             }, '');
         },
-        itemSearchTerm: function(_item) {
+        itemSearchTerm: function (_item) {
             sdebug('itemSearchTerm', _item);
             if (_item.tags && _item.tags.name) {
                 return _item.tags.name;
@@ -670,14 +670,14 @@
                 return this.geolib.formatter.latLngString(_item, 0, ',');
             }
         },
-        setMapRegion: function(_mapView, _region, _deltaFactor, _animated, _deltaScreen) {
+        setMapRegion: function (_mapView, _region, _deltaFactor, _animated, _deltaScreen) {
             sdebug('setMapRegion', _region, _deltaFactor, _animated, _deltaScreen);
             this.updateCamera(_mapView, {
                 region: this.geolib.scaleBounds(_region, _deltaFactor),
                 animated: _animated
             }, _deltaScreen);
         },
-        updateCamera: function(_mapView, _params, _deltaScreen) {
+        updateCamera: function (_mapView, _params, _deltaScreen) {
             var geolib = this.geolib,
                 zoom, deltaSpan;
             if (_params.region) {
@@ -714,7 +714,7 @@
 
             _mapView.updateCamera(_params);
         },
-        updateItem: function(_item, _desc, _changes, _mapHandler) {
+        updateItem: function (_item, _desc, _changes, _mapHandler) {
             var currentFirstPhoto = _item && _item.photos && _item.photos[0];
             var item = _.merge(_item, _changes);
             var isRoute = this.isItemARoute(_item);
@@ -758,7 +758,7 @@
                 delete item.newPhotos;
             }
             if (_changes.deletedPhotos) {
-                _.forEach(_changes.deletedPhotos, function(photoName) {
+                _.forEach(_changes.deletedPhotos, function (photoName) {
                     item.photos = _.reject(item.photos, 'image', photoName);
                 });
                 if (item.photos.length === 0) {
@@ -778,7 +778,7 @@
                 delete item.newNotes;
             }
             if (_changes.deletedNotes) {
-                _.forEach(_changes.deletedNotes, function(noteId) {
+                _.forEach(_changes.deletedNotes, function (noteId) {
                     item.notes = _.reject(item.notes, 'id', noteId);
                 });
                 if (item.notes.length === 0) {
@@ -795,7 +795,7 @@
                 delete item.newFiles;
             }
             if (_changes.deletedFiles) {
-                _.forEach(_changes.deletedFiles, function(fileId) {
+                _.forEach(_changes.deletedFiles, function (fileId) {
                     item.files = _.reject(item.files, 'fileName', fileId);
                 });
                 if (item.files.length === 0) {
@@ -831,7 +831,7 @@
 
             return item;
         },
-        updateParamsForLocation: function(_item, _location) {
+        updateParamsForLocation: function (_item, _location) {
             var args = {};
             if (!_item) {
                 return args;
@@ -858,7 +858,7 @@
                 // _location.altitude = Math.round(Math.random() * 1000);
                 if (args.altitude && _location.hasOwnProperty('altitude')) {
                     args.altitude.text += ' (' + geolib.formatter.altitude(startPoint.altitude -
-                            _location.altitude) +
+                        _location.altitude) +
                         ')';
                 }
 
@@ -876,7 +876,7 @@
 
             return args;
         },
-        itemOHInfos: function(_item) {
+        itemOHInfos: function (_item) {
             if (_item.tags && _item.tags.opening_hours) {
                 var result = {};
                 var now = moment();
@@ -907,7 +907,7 @@
                 return result;
             }
         },
-        infoRowItemForItem: function(_item, _itemDesc, _defaults, _currentLocation) {
+        infoRowItemForItem: function (_item, _itemDesc, _defaults, _currentLocation) {
             if (_currentLocation === undefined) {
                 _currentLocation = app.currentLocation;
             }
@@ -970,7 +970,7 @@
             }
             return args;
         },
-        createAnnotItem: function(_feature, _data, _id) {
+        createAnnotItem: function (_feature, _data, _id) {
             // sdebug('createAnnotItem', _data);
             // var item = {
             //     type: _feature.id,
@@ -1002,7 +1002,7 @@
 
             return item;
         },
-        createRouteItem: function(_routeType, _data, _id) {
+        createRouteItem: function (_routeType, _data, _id) {
             var now = moment()
                 .valueOf();
             var item = _.defaults(_data, {
@@ -1013,11 +1013,11 @@
 
             return item;
         },
-        isItemARoute: function(_item) {
+        isItemARoute: function (_item) {
             return !!_item.route || !!_item.points;
         },
 
-        actionsForItem: function(_mapHandler, _item, _desc, _onMap) {
+        actionsForItem: function (_mapHandler, _item, _desc, _onMap) {
             var isRoute = this.isItemARoute(_item);
             // var options = ['search_google', 'images'];
             var options = [];
@@ -1029,23 +1029,23 @@
             _mapHandler.runMethodOnModules('actionsForItem', _item, _desc, _onMap, options);
             // sdebug('actionsForItem', options);
             options = options.map(key => {
-                    if (typeof key === 'string' && itemActions.hasOwnProperty(key)) {
-                        return [key, itemActions[key]];
-                    }
-                    return key;
-                })
-                // var result = _.mapValues(options, function(value, key){
-                //     sdebug('test', value, key);
-                //     if (!_.isArray(value) && itemActions.hasOwnProperty(key)) {
-                //         return [key, itemActions[key]];
-                //     }
-                //     return value;
-                // })
-                // sdebug('actionsForItem2', options);
-                // var result = _.pairs(_.pick(itemActions, options));
+                if (typeof key === 'string' && itemActions.hasOwnProperty(key)) {
+                    return [key, itemActions[key]];
+                }
+                return key;
+            })
+            // var result = _.mapValues(options, function(value, key){
+            //     sdebug('test', value, key);
+            //     if (!_.isArray(value) && itemActions.hasOwnProperty(key)) {
+            //         return [key, itemActions[key]];
+            //     }
+            //     return value;
+            // })
+            // sdebug('actionsForItem2', options);
+            // var result = _.pairs(_.pick(itemActions, options));
             return options;
         },
-        showMoreOptionMenuForItem: function(_item, _desc, _callback, _parent, _mapHandler, _params) {
+        showMoreOptionMenuForItem: function (_item, _desc, _callback, _parent, _mapHandler, _params) {
             _params = _params || {};
             // var options = ['add_photo', 'move', 'share'];
             var options = ['add_photo', 'move'];
@@ -1058,25 +1058,25 @@
             _mapHandler.runMethodOnModules('moreActionsForItem', _item, _desc, !!_params.onMap, options);
 
             new OptionDialog({
-                    options: _.map(options, function(value,
-                        index) {
-                        return trc(value);
-                    }),
-                    buttonNames: [trc('cancel')],
-                    cancel: 0,
-                    tapOutDismiss: true
+                options: _.map(options, function (value,
+                    index) {
+                    return trc(value);
+                }),
+                buttonNames: [trc('cancel')],
+                cancel: 0,
+                tapOutDismiss: true
+            })
+                .on('click', (function (e) {
+                    if (!e.cancel) {
+                        var option = options[e.index];
+                        this.handleItemAction(option, _item, _desc, _callback, _parent,
+                            _mapHandler);
+                    }
                 })
-                .on('click', (function(e) {
-                        if (!e.cancel) {
-                            var option = options[e.index];
-                            this.handleItemAction(option, _item, _desc, _callback, _parent,
-                                _mapHandler);
-                        }
-                    })
                     .bind(this))
                 .show();
         },
-        handlePhotoTaken: function(_parent, _callback, e) {
+        handlePhotoTaken: function (_parent, _callback, e) {
             _parent.showLoading({
                 label: {
                     html: trc('saving_photo') + '...'
@@ -1093,17 +1093,17 @@
 
             _parent.hideLoading();
         },
-        getItemSetting: function(prop, _item, _desc) {
+        getItemSetting: function (prop, _item, _desc) {
             return (_item.settings && !!_item.settings[prop]) ||
                 (_desc.settings && !!_desc.settings[prop]);
         },
-        takePhoto: function(_parent, _callback) {
+        takePhoto: function (_parent, _callback) {
             var that = this;
-            Titanium.Media.requestCameraPermissions(function() {
+            Titanium.Media.requestCameraPermissions(function () {
                 Titanium.Media.showCamera({
                     success: _.partial(that.handlePhotoTaken, _parent, _callback),
                     cancel: _callback,
-                    error: function(error) {
+                    error: function (error) {
                         if (error.code == Titanium.Media.NO_CAMERA) {
                             app.showAlert('Please run this on device');
                         } else {
@@ -1118,7 +1118,7 @@
 
         },
         showFloatingWebView: showFloatingWebView,
-        handleItemAction: function(_option, _item, _desc, _callback, _parent, _mapHandler, _params) {
+        handleItemAction: function (_option, _item, _desc, _callback, _parent, _mapHandler, _params) {
             sdebug('handleItemAction', _option);
             if (_item) {
                 sdebug('handleItemAction item:', _item.id, _item.title, _item.type);
@@ -1167,7 +1167,7 @@
                                 buttonNames: [trc('cancel'), trc('call')],
                                 message: phone,
                                 title: null
-                            }, function() {
+                            }, function () {
                                 Ti.Platform.openURL('tel:' + phone);
                             });
                         }
@@ -1175,7 +1175,7 @@
                     }
                 case 'add_photo':
                     {
-                        this.handleItemAction('acquire_photo', _item, _desc, _.bind(function(option,
+                        this.handleItemAction('acquire_photo', _item, _desc, _.bind(function (option,
                             result,
                             image) {
                             if (result) {
@@ -1191,7 +1191,7 @@
                     }
                 case 'acquire_photo':
                     {
-                        var onSuccess = _.bind(function(_image, _imageId, _imageName) {
+                        var onSuccess = _.bind(function (_image, _imageId, _imageName) {
                             var result;
                             if (_imageId) {
                                 result = {
@@ -1214,30 +1214,30 @@
                             cancel: 0,
                             tapOutDismiss: true
                         })
-                        .on('click', _.bind(function(e) {
-                            sdebug(e);
-                            if (!e.cancel) {
-                                if (e.index === 0) {
-                                    this.takePhoto(_parent, onSuccess);
-                                } else if (e.index === 1) {
-                                    Titanium.Media.openPhotoGallery({
-                                        success: _.partial(this.handlePhotoTaken,
-                                            _parent,
-                                            onSuccess),
-                                        cancel: onSuccess,
-                                        // allowEditing: true,
-                                        mediaTypes: [Ti.Media.MEDIA_TYPE_PHOTO]
-                                    });
+                            .on('click', _.bind(function (e) {
+                                sdebug(e);
+                                if (!e.cancel) {
+                                    if (e.index === 0) {
+                                        this.takePhoto(_parent, onSuccess);
+                                    } else if (e.index === 1) {
+                                        Titanium.Media.openPhotoGallery({
+                                            success: _.partial(this.handlePhotoTaken,
+                                                _parent,
+                                                onSuccess),
+                                            cancel: onSuccess,
+                                            // allowEditing: true,
+                                            mediaTypes: [Ti.Media.MEDIA_TYPE_PHOTO]
+                                        });
+                                    }
                                 }
-                            }
-                        }, this))
-                        .show();
+                            }, this))
+                            .show();
 
                         break;
                     }
                 case 'refresh_tags':
                     {
-                        var clearUpString = function(s) {
+                        var clearUpString = function (s) {
                             return _.deburr(s)
                                 .toLowerCase()
                                 .replace(/^(the|le|la|el)\s/, '')
@@ -1250,72 +1250,71 @@
                             'getDetailsCalls', q, _item, _desc);
                         call.osm = _.partial(app.api.osmDetails, _item);
 
-                        var request = app.api.parallelMapRequests(calls).then(
-                            function(res) {
-                                var callsToAdd = [];
-                                _.forEach(res, function(value, key) {
-                                    if (_.isObject(value)) {
-                                        if (value.photos) {
-                                            _.forEach(value.photos, function(photo) {
-                                                var url = photo.url || photo;
-                                                var existing = _.findIndex(
-                                                    _item.photos,
-                                                    'url', url);
-                                                if (existing === -1) {
-                                                    hasChanged = true;
-                                                    console.log('downloading photo',
-                                                        photo);
-                                                    callsToAdd.push(app.api.getPhoto(photo));
-                                                }
-                                            });
-                                            delete value.photos;
-                                        }
-
-                                        if (value.notes) {
-                                            _.forEach(value.notes, function(note) {
-                                                var id = note.title;
-                                                var existing = _.findIndex(
-                                                    _item.notes, 'title',
-                                                    id);
-                                                if (existing === -1) {
-                                                    hasChanged = true;
-                                                    value.newNotes = value.newNotes ||
-                                                        [];
-                                                    value.newNotes.push(
-                                                        note);
-                                                }
-                                            });
-                                            delete value.notes;
-                                        }
-                                    }
-                                });
-                                console.log('callsToAdd', callsToAdd);
-                                if (callsToAdd.length > 0) {
-                                    return Promise.all(callsToAdd).then(function(photos) {
-                                        console.log('downloaded photos', photos);
-                                        photos = photos.filter(function(p) {
-                                            return !!p;
+                        var request = app.api.parallelMapRequests(calls).then(function (res) {
+                            var callsToAdd = [];
+                            _.forEach(res, function (value, key) {
+                                if (_.isObject(value)) {
+                                    if (value.photos) {
+                                        _.forEach(value.photos, function (photo) {
+                                            var url = photo.url || photo;
+                                            var existing = _.findIndex(
+                                                _item.photos,
+                                                'url', url);
+                                            if (existing === -1) {
+                                                hasChanged = true;
+                                                console.log('downloading photo',
+                                                    photo);
+                                                callsToAdd.push(app.api.getPhoto(photo));
+                                            }
                                         });
-                                        if (photos.length > 0) {
-                                            res.photos = photos;
-                                        }
-                                        return res;
-                                    });
-                                } else {
-                                    return res;
+                                        delete value.photos;
+                                    }
+
+                                    if (value.notes) {
+                                        _.forEach(value.notes, function (note) {
+                                            var id = note.title;
+                                            var existing = _.findIndex(
+                                                _item.notes, 'title',
+                                                id);
+                                            if (existing === -1) {
+                                                hasChanged = true;
+                                                value.newNotes = value.newNotes ||
+                                                    [];
+                                                value.newNotes.push(
+                                                    note);
+                                            }
+                                        });
+                                        delete value.notes;
+                                    }
                                 }
-                            }).then(function(res) {
+                            });
+                            console.log('callsToAdd', callsToAdd);
+                            if (callsToAdd.length > 0) {
+                                return Promise.all(callsToAdd).then(function (photos) {
+                                    console.log('downloaded photos', photos);
+                                    photos = photos.filter(function (p) {
+                                        return !!p;
+                                    });
+                                    if (photos.length > 0) {
+                                        res.photos = photos;
+                                    }
+                                    return res;
+                                });
+                            } else {
+                                return res;
+                            }
+                        }).then(function (res) {
                             console.log('res', JSON.stringify(res));
                             var result = {};
                             if (res && res.photos) {
                                 result.newPhotos = result.newPhotos || [];
 
-                                _.each(res.photos, function(photo) {
+                                _.each(res.photos, function (photo) {
                                     result.newPhotos.push(photo);
                                     sdebug('adding newPhoto', photo);
                                 });
                             }
-                            var customizer = function(value, srcValue, key, object,
+                            var customizer = function (value, srcValue, key, object,
                                 source) {
                                 if (!value && srcValue) {
                                     // hasChanged = true;
@@ -1324,7 +1323,7 @@
                                 }
                                 return _.merge(value, srcValue, customizer);
                             };
-                            _.each(res, function(value, key) {
+                            _.each(res, function (value, key) {
                                 // if (result[key].hash !== value[key].hash) {
                                 // sdebug('update from', key, value);
                                 //     _.merge(result, value, customizer);
@@ -1339,11 +1338,11 @@
                             });
                             console.log('about to return success', result);
                             return result;
-                        }).then((function(changes) {
+                        }).then((function (changes) {
                             console.log('changes', changes);
-                            _.each(['icon', 'settings'], function(value) {
+                            _.each(['icon', 'settings'], function (value) {
                                 if (changes.hasOwnProperty(value) && !_item.hasOwnProperty(
-                                        value) && _desc.hasOwnProperty(value) &&
+                                    value) && _desc.hasOwnProperty(value) &&
                                     _.isEqual(_desc[value], changes[value])) {
                                     delete changes[value];
                                 }
@@ -1378,7 +1377,7 @@
                             if (_parent) {
                                 _parent.hideLoading();
                             }
-                        }).bind(this), function(error) {
+                        }).bind(this), function (error) {
                             console.log('error', error);
                             if (_parent) {
                                 _parent.hideLoading();
@@ -1427,14 +1426,14 @@
                 case 'open_google_maps':
                     {
                         url =
-                        'comgooglemaps://?zoom=14&q=';
+                            'comgooglemaps://?zoom=14&q=';
                         url += this.geolib.formatter.latLngString(_item, 0, ',');
                         Ti.Platform.openURL(url);
                         break;
                     }
                 case 'reverse_geo':
                     {
-                        request = app.api.reverseGeocode(_item).then(_.bind(function(res) {
+                        request = app.api.reverseGeocode(_item).then(_.bind(function (res) {
                             var changes = {
                                 address: res
                             };
@@ -1455,7 +1454,7 @@
                             }
                             return result;
 
-                        }, this), function(error) {
+                        }, this), function (error) {
                             if (_parent) {
                                 _parent.hideLoading();
                             }
@@ -1473,7 +1472,7 @@
                 case 'images':
                     {
                         showFloatingWebView(_option, 'http://www.google.com/images?q=' + escape(app.itemSearchTerm(
-                                _item)),
+                            _item)),
                             _item, _desc,
                             _parent, _mapHandler);
 
@@ -1481,7 +1480,7 @@
                     }
                 case 'consolidate_alt':
                     {
-                        request = app.api.ignElevation(_item).then(_.bind(function(changes) {
+                        request = app.api.ignElevation(_item).then(_.bind(function (changes) {
                             showMessage(trc('elevation_found'), colors);
                             var result = this.updateItem(_item, _desc, changes,
                                 _mapHandler);
@@ -1493,7 +1492,7 @@
                             if (_parent) {
                                 _parent.hideLoading();
                             }
-                        }, this), function() {
+                        }, this), function () {
                             if (_parent) {
                                 _parent.hideLoading();
                             }
@@ -1518,7 +1517,7 @@
                         // var toUsePoints = this.simplify(_item.route.points, factor / 3779);
                         // sdebug(_option, points.length, toUsePoints.length);
                         request = app.api.ignElevationProfile(this, _item.route.points).then(_.bind(
-                            function(changes) {
+                            function (changes) {
                                 showMessage(trc('profile_found'), colors);
                                 var result = this.updateItem(_item, _desc, changes,
                                     _mapHandler);
@@ -1530,11 +1529,11 @@
                                 if (_parent) {
                                     _parent.hideLoading();
                                 }
-                            }, this), function() {
-                            if (_parent) {
-                                _parent.hideLoading();
-                            }
-                        });
+                            }, this), function () {
+                                if (_parent) {
+                                    _parent.hideLoading();
+                                }
+                            });
                         if (_parent) {
                             _parent.showLoading({
                                 request: request,
@@ -1559,16 +1558,16 @@
                         }
                         break;
                     }
-                    // case 'searcharound':
-                    //     _mapHandler.runMethodOnModules('spreadModuleAction', {
-                    //         id: _option,
-                    //         parent: _parent,
-                    //         mapHandler: _mapHandler,
-                    //         command: _option,
-                    //         item: _item,
-                    //         desc: _desc,
-                    //     });
-                    //     break;
+                // case 'searcharound':
+                //     _mapHandler.runMethodOnModules('spreadModuleAction', {
+                //         id: _option,
+                //         parent: _parent,
+                //         mapHandler: _mapHandler,
+                //         command: _option,
+                //         item: _item,
+                //         desc: _desc,
+                //     });
+                //     break;
                 case 'locate':
                 case 'select':
                     _mapHandler.runMethodOnModules('runActionOnItem', _item.type, _item, 'select');
@@ -1580,13 +1579,13 @@
                 case 'move':
                     {
                         var lists = _.filter(_.pluck(_.flatten(_mapHandler.runGetMethodOnModules(
-                                'getLists')),
+                            'getLists')),
                             'description'), 'isList', true);
                         // _.filter(_mapHandler.runGetMethodOnModules('getLists'));
                         // var isRoute = this.isItemARoute(_item);
                         app.showOptionsListDialog({
                             title: trc('choose_list'),
-                            items: _.reduce(lists, function(memo, _list, type) {
+                            items: _.reduce(lists, function (memo, _list, type) {
                                 if (_list.id !== _item.type) {
                                     memo.push({
                                         list: _list,
@@ -1608,7 +1607,7 @@
 
                                 return memo;
                             }, [])
-                        }, function(e) {
+                        }, function (e) {
                             var result = false;
                             if (e.cancel === false) {
                                 result = _mapHandler.runMethodOnModules('spreadModuleAction', {
@@ -1632,7 +1631,7 @@
                             var _this = this;
                             var currentPos = _.pick(app.currentLocation, 'latitude',
                                 'longitude', 'altitude');
-                            _this.takePhoto(_parent, function(_image, _imageId, _imageName) {
+                            _this.takePhoto(_parent, function (_image, _imageId, _imageName) {
                                 if (!_image) {
                                     return;
                                 }
@@ -1672,7 +1671,7 @@
                                 }
                                 _this.handleItemAction('select', existingItem.item,
                                     existingItem
-                                    .desc, _callback,
+                                        .desc, _callback,
                                     _parent, _mapHandler, _params);
                             });
                         }
@@ -1695,4 +1694,4 @@
     });
     module.exports = obj;
 
-}(this));
+} (this));

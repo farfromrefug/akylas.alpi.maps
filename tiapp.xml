@@ -3,7 +3,7 @@
     <sdk-version>6.1.0.AKYLAS</sdk-version>
     <id>akylas.alpi.maps</id>
     <name>Alpi Maps</name>
-    <version>1.1</version>
+    <version>1.2.1</version>
     <publisher>Akylas</publisher>
     <url>http://www.akylas.fr</url>
     <description></description>
@@ -22,16 +22,24 @@
             <dict>
                 <key>UIViewControllerBasedStatusBarAppearance</key>
                 <false/>
-                <key>CFBundleVersion</key><string>65</string>
+                <key>CFBundleVersion</key><string>73</string>
                 <key>UIRequiresPersistentWiFi</key>
                 <true/>
                 <key>UIPrerenderedIcon</key>
                 <true/>
                 <key>UIStatusBarStyle</key><string>UIStatusBarStyleLightContent</string>
+                <key>NSContactsUsageDescription</key>
+                <string>Can we use your contacts?</string>
+                <key>NSCameraUsageDescription</key>
+                <string>Can we use your camera?</string>
+                <key>NSCalendarUsageDescription</key>
+                <string>Can we use your calendar?</string>
+                <key>NSPhotoLibraryUsageDescription</key>
+                <string>Can we save to your library?</string>
                 <key>NSLocationWhenInUseUsageDescription</key>
-                <string>   </string>
+                <string>Can we use your location?</string>
                 <key>NSLocationAlwaysUsageDescription</key>
-                <string>   </string>
+                <string>Can we use your location?</string>
                 <key>UIBackgroundModes</key>
                 <array>
                     <string>location</string>
@@ -64,7 +72,7 @@
     </ios>
     <theme>BaseTheme</theme>
     <android xmlns:android="http://schemas.android.com/apk/res/android">
-        <manifest android:installLocation="auto" android:versionCode="49">
+        <manifest android:installLocation="auto" android:versionCode="53">
             <uses-sdk android:minSdkVersion="13" android:targetSdkVersion="23"/>
             <uses-feature android:name="android.hardware.location.gps" />
             <application
