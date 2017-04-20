@@ -16,7 +16,7 @@ exports.create = function(_context, _args, _additional) {
             left: 8
         });
 
-    self = new _context.MapModule(_args);
+    var self = new _context.MapModule(_args);
     if (__APPLE__ && app.modules.wikitude.isDeviceSupported(["geo"])) {
         _additional.mapPaddedChildren.push(button);
     }
@@ -42,9 +42,9 @@ exports.create = function(_context, _args, _additional) {
                 duration: 200
             },
             showBackButton: true,
-            ownBackButtonTitle: $sClose,
+            ownBackButtonTitle: $.sClose,
             customNavBar: true,
-            barColor: '#55000000',
+            barColor: '#00000055',
             rightNavButtons: [{
                 icon: app.icons.nature,
                 callback: function() {
@@ -193,7 +193,7 @@ exports.create = function(_context, _args, _additional) {
         //     // arView.injectLocation(_location);
         // }
     }
-    _.assign(self, {
+    Object.assign(self, {
         GC: app.composeFunc(self.GC, function() {}),
         onInit: function() {},
         onLocation: function(_location) {

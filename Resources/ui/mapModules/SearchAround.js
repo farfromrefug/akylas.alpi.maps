@@ -13,7 +13,7 @@ exports.create = function(_context, _args, _additional) {
         OSMIgnoredClass = ['highway', 'waterway', 'historic', 'railway', 'landuse', 'aeroway', 'boundary' ],
         infoRowItemForItem = itemHandler.infoRowItemForItem,
         updateParamsForLocation = itemHandler.updateParamsForLocation,
-        type = itemHandler.initializeType('searchitem', _.assign(_.cloneDeep(require('data/markertypes').data[
+        type = itemHandler.initializeType('searchitem', Object.assign(_.cloneDeep(require('data/markertypes').data[
             'searchitem']), {
             id: 'searchitem',
             iconSettings: {
@@ -103,7 +103,7 @@ exports.create = function(_context, _args, _additional) {
                         allowsSelection: true,
                         bubbleParent: false,
                         disableBounce: true,
-                        backgroundColor: $white,
+                        backgroundColor: $.white,
                         height: 'FILL',
                         templates: {
                             'default': app.templates.row.cloneTemplateAndFill('iteminfosmall', {
@@ -120,7 +120,7 @@ exports.create = function(_context, _args, _additional) {
                             'more': {
                                 properties: {
                                     height: 42,
-                                    backgroundColor: $white
+                                    backgroundColor: $.white
                                 },
                                 childTemplates: [{
                                     bindId: 'title',
@@ -128,7 +128,7 @@ exports.create = function(_context, _args, _additional) {
                                     properties: {
                                         width: 'FILL',
                                         height: 'FILL',
-                                        color: $black,
+                                        color: $.black,
                                         textAlign: 'center'
                                     }
 
@@ -209,7 +209,7 @@ exports.create = function(_context, _args, _additional) {
                         bubbleParent: false,
                         color: app.colors.red.color,
                         height: 40,
-                        backgroundColor: $white,
+                        backgroundColor: $.white,
                         backgroundSelectedColor: app.colors.red.darker,
                     },
                     events: {
@@ -374,13 +374,13 @@ exports.create = function(_context, _args, _additional) {
                     backgroundGradient: {
                         type: 'radial',
                         colors: [{
-                            color: '#33000000',
+                            color: '#00000033',
                             offset: 0
                         }, {
-                            color: '#33000000',
+                            color: '#00000033',
                             offset: 0.8
                         }, {
-                            color: '#aa000000',
+                            color: '#000000aa',
                             offset: 1
                         }]
                     },
@@ -451,7 +451,7 @@ exports.create = function(_context, _args, _additional) {
             });
         }
     }
-    _.assign(self, {
+    Object.assign(self, {
         GC: app.composeFunc(self.GC, function() {
             cluster = null;
             searchView = null;
@@ -473,7 +473,7 @@ exports.create = function(_context, _args, _additional) {
                 searchAroundItem = _params.item;
                 searchAroundItemDesc = _params.desc;
                 radiusIndex = 0;
-                if (searchAroundItem.osm && !_.contains(OSMIgnoredClass, searchAroundItem.osm.class)) {
+                if (searchAroundItem.osm && !_. includes(OSMIgnoredClass, searchAroundItem.osm.class)) {
                     // sdebug('test', _.keys(_params));
                     // self.runAction('refresh_tags', searchAroundItem, searchAroundItemDesc);
                     app.itemHandler.handleItemAction('refresh_tags', searchAroundItem, searchAroundItemDesc, undefined, _params.parent || self.window,

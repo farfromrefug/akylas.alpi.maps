@@ -10,7 +10,7 @@ exports.create = function(_context, _args, _additional) {
         actionsVisibleBeforeHide = false,
         supplViewVisibleBeforeHide = false,
         currentTouchPoint,
-        self = _.assign(new _context.MapModule(_args), {
+        self = Object.assign(new _context.MapModule(_args), {
             runAction: function(_action, _callback) {
                 itemHandler.handleItemAction(_action, selectedItem.item, selectedItem.desc, _callback, self
                     .window,
@@ -239,7 +239,7 @@ exports.create = function(_context, _args, _additional) {
             view.updateLocation(_location);
         }
     }
-    _.assign(self, {
+    Object.assign(self, {
         GC: app.composeFunc(self.GC, function() {
             unselectItem();
             view = null;

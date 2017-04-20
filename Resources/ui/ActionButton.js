@@ -1,6 +1,6 @@
 ak.ti.constructors.createActionButton = function(_args) {
     var icon = _.remove(_args, 'icon');
-    var color = _.remove(_args, 'color', $cTheme.main);
+    var color = _.remove(_args, 'color', $.cTheme.main);
     var enabled = _.remove(_args, 'enabled', true);
     var id = _.remove(_args, 'id');
     var text = _.remove(_args, 'text', id);
@@ -22,7 +22,7 @@ ak.ti.constructors.createActionButton = function(_args) {
     //     });
     // }
     var args = {
-        properties: _.assign(_args, {
+        properties: Object.assign(_args, {
             callbackId: id,
             selector:color,
             text: icon,
@@ -57,7 +57,7 @@ ak.ti.constructors.createActionButton = function(_args) {
 
     var self = new Label(args);
     self.setEnabled = function(_enabled) {
-        var theColor = _enabled ? color : $gray;
+        var theColor = _enabled ? color : $.gray;
         // sdebug('setEnabled', _enabled, theColor);
         self.applyProperties({
             color: theColor,

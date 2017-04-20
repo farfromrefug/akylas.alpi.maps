@@ -192,7 +192,7 @@ exports.create = function(_context, _args, _additional) {
         return result;
     }
 
-    _.assign(self, {
+    Object.assign(self, {
         GC: app.composeFunc(self.GC, function() {
             view = null;
         }),

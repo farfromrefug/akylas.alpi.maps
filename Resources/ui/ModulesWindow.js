@@ -1,7 +1,8 @@
-ak.ti.constructors.createModulesWindow = function(_args) {
+ak.ti.constructors.createModulesWindow = function (_args) {
+    var modules = {};
 
     function createSectionItem(_id, _text, _subtitle, _data) {
-        return _.assign({
+        return Object.assign({
             callbackId: _id,
             // icon: {
             //     text: _icon
@@ -85,6 +86,8 @@ ak.ti.constructors.createModulesWindow = function(_args) {
     function handlePropertyChange(_moduleId, _id, _value) {
         sdebug('handlePropertyChange', _moduleId, _id, _value);
         Ti.App.Properties.setObject('module_' + _moduleId + '_' + _id, _value);
+
+
         app.emit('module_prop', {
             moduleId: _moduleId,
             id: _id,
@@ -104,36 +107,51 @@ ak.ti.constructors.createModulesWindow = function(_args) {
         }
     }
 
-    function showModulesSetting(_id, _settings) {
-        var enabled = Ti.App.Properties.getBool('module_' + _id + '_enabled', false);
+    function getSections(moduleId, enabled, settings) {
+        if (_.isFunction(settings)) {
+            settings = settings(enabled);
+        }
         var sections = [{
             items: [
                 createSwitchItem('enabled', 'enabled', enabled),
             ],
-            footerTitle: _settings.description && trc(_settings.description)
+            footerTitle: settings.description && trc(settings.description)
 
         }];
-        _.forEach(_settings.preferencesSections, function(section) {
+        _.forEach(settings.preferencesSections, function (section) {
             sections.push({
                 headerTitle: section.title,
-                items: _.reduce(section.items, function(memo, value) {
-                    switch (value.type) {
-                        case 'link':
-                            {
-                                memo.push(createSectionItem(value.type, value.title ||
-                                    value.id, value.subtitle, {
-                                        url: value.url
-                                    }));
-                                break;
-                            }
+                items: _.reduce(section.items, function (memo, value) {
+                    if (value.type) {
+                        switch (value.type) {
+                            case 'link':
+                                {
+                                    memo.push(createSectionItem(value.type, value.title ||
+                                        value.id, value.subtitle, {
+                                            url: value.url
+                                        }));
+                                    break;
+                                }
+                        }
+                    } else {
+                        memo.push(value);
                     }
+
                     return memo;
                 }, [])
             });
         });
+        return sections;
+    }
+
+    function showModulesSetting(_id) {
+        var enabled = Ti.App.Properties.getBool('module_' + _id + '_enabled', false);
+        var module = modules[_id];
+        var settings = module.settings;
+        var sections = getSections(_id, enabled, settings);
         var win = new AppWindow({
             rclass: 'ModulesSettingsWindow',
-            title: _settings.name || _id,
+            title: settings.name || _id,
             listViewArgs: {
                 templates: {
                     'default': app.templates.row.settings,
@@ -144,10 +162,10 @@ ak.ti.constructors.createModulesWindow = function(_args) {
                 sections: sections
             },
             events: {
-                change: function(e) {
+                change: function (e) {
                     handlePropertyChange(_id, e.item.callbackId, e.value);
                 },
-                click: app.debounce(function(e) {
+                click: app.debounce(function (e) {
                     if (!e.item) {
                         return;
                     }
@@ -162,14 +180,24 @@ ak.ti.constructors.createModulesWindow = function(_args) {
                             });
                             break;
                         default:
-                            if (e.item.template === 'switch') {
+                            if (e.item.template === 'switch' && e.item.callbackId == 'enabled') {
                                 var newValue = !e.item.switch.value;
                                 handlePropertyChange(_id, e.item.callbackId, newValue);
+                                var settings = modules[_moduleId].settings;
+                                if (_.isFunction(settings)) {
+                                    app.once(_value ? 'module_loaded' : 'module_unloaded', function () {
+                                        win.listView.sections = getSections(_moduleId, _value, settings);
+                                    });
+                                }
                                 e.section.updateItemAt(e.itemIndex, {
                                     switch: {
                                         value: newValue
                                     },
                                 });
+                                return;
+                            }
+                            if (_.isFunction(module.onSettingsClick)) {
+                                module.onSettingsClick(e);
                             }
                             break;
                     }
@@ -180,12 +208,18 @@ ak.ti.constructors.createModulesWindow = function(_args) {
     }
 
     function addModule(_isContent, memo, moduleKey) {
-        sdebug('addModule',  moduleKey, _isContent);
-        var settings = require((_isContent ? '/contentModules' : '/ui/mapModules') + '/' + moduleKey).settings;
+        sdebug('addModule', moduleKey, _isContent);
+        var module = modules[moduleKey] = require((_isContent ? '/contentModules' : '/ui/mapModules') + '/' + moduleKey);
+        var settings = module.settings;
+        var enabled = Ti.App.Properties.getBool('module_' + moduleKey +
+            '_enabled', false);
         if (_isContent || settings) {
-            settings = settings || {};
-            var enabled = Ti.App.Properties.getBool('module_' + moduleKey +
-                '_enabled', false);
+            if (_.isFunction(settings)) {
+                settings = settings(enabled);
+            } else {
+                settings = settings || {};
+            }
+
             memo.push({
                 settings: settings,
                 id: moduleKey,
@@ -215,15 +249,16 @@ ak.ti.constructors.createModulesWindow = function(_args) {
             }]
         }
     });
-    app.onDebounce(self.listView, 'click', function(e) {
+    app.onDebounce(self.listView, 'click', function (e) {
         if (e.item) {
-            showModulesSetting(e.item.id, e.item.settings);
+            showModulesSetting(e.item.id);
         }
     });
     var navWindow = new AppWindow(_args);
 
     //END OF CLASS. NOW GC
-    self.GC = app.composeFunc(self.GC, function() {
+    self.GC = app.composeFunc(self.GC, function () {
+        modules = null;
         navWindow = null;
         self = null;
     });

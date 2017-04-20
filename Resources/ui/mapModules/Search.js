@@ -35,7 +35,7 @@ exports.create = function (_context, _args, _additional) {
                 var filters = self.parent.runGetMethodOnModules(true, 'getSearchFilters');
                 searchView = new View({
                     properties: {
-                        top: $navBarTop,
+                        top: $.navBarTop,
                         rclass: 'SearchView',
                         bubbleParent: false
                     },
@@ -43,7 +43,7 @@ exports.create = function (_context, _args, _additional) {
                         type: 'Ti.UI.View',
                         properties: {
                             rclass: 'InternalElevatedView',
-                            backgroundColor: $white,
+                            backgroundColor: $.white,
                             borderRadius: 2,
                             zIndex: 10,
                             layout: 'vertical',
@@ -61,7 +61,7 @@ exports.create = function (_context, _args, _additional) {
                                 type: 'Ti.UI.Label',
                                 properties: {
                                     rclass: 'WhiteOptionButton',
-                                    text: $sClose
+                                    text: $.sClose
                                 }
                             }, {
                                 type: 'Ti.UI.TextField',
@@ -306,7 +306,7 @@ exports.create = function (_context, _args, _additional) {
                 }
                 // sdebug('search photon');
                 searchView.loading.show();
-                photonSearchRequest = app.api.photonSearch(_.assign({
+                photonSearchRequest = app.api.photonSearch(Object.assign({
                     query: _query,
                 }, settings.currentLocation)).then(onPhotonSearch);
             }, 400);
@@ -536,7 +536,7 @@ exports.create = function (_context, _args, _additional) {
                         bubbleParent: false,
                         color: app.colors.red.color,
                         height: 40,
-                        backgroundColor: $white,
+                        backgroundColor: $.white,
                         backgroundSelectedColor: app.colors.red.darker,
                     },
                     events: {
@@ -554,7 +554,7 @@ exports.create = function (_context, _args, _additional) {
         var args = infoRowItemForItem(_item, _itemDesc);
         args.existing = _existing;
         args.accessory = {
-            title: _existing ? $sRight : $sAdd,
+            title: _existing ? $.sRight : $.sAdd,
             color: args.icon.color
         }
         return args;
@@ -578,7 +578,7 @@ exports.create = function (_context, _args, _additional) {
         resultsVisible = true;
         // if (visible) {
         //     searchView.cancel.applyProperties({
-        //         text: $sClose,
+        //         text: $.sClose,
         //         visible: true
         //     });
         // } else {
@@ -885,7 +885,7 @@ exports.create = function (_context, _args, _additional) {
             // });
         }
     }
-    _.assign(self, {
+    Object.assign(self, {
         GC: app.composeFunc(self.GC, function () {
             cluster = null;
             searchView = null;

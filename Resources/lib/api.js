@@ -256,7 +256,7 @@ function createApi(_context) {
         });
     }
 
-    var api = new _context.MicroEvent({
+    var api = new _context.EventEmitter({
         osAPIURL: osAPIURL,
         networkConnected: false,
         offlineMode: false,
@@ -333,13 +333,13 @@ function createApi(_context) {
             if (newConnected != api.networkConnected) {
                 sdebug('updateNetwork ' + newConnected);
                 api.networkConnected = newConnected;
-                api.fireEvent('networkchange', {
+                api.emit('networkchange', {
                     connected: api.networkConnected
                 });
             }
         },
         queryImages: function(_query) {
-            var params = _.assign({
+            var params = Object.assign({
                 api_key: app.servicesKeys.flickr,
                 format: 'json',
                 // tag_mode: 'AND',
@@ -712,7 +712,7 @@ function createApi(_context) {
                     }
                     return result;
                 });
-                return _.sortBy(results, 'distance');
+                return _.orderBy(results, 'distance');
                 // }
             });
         },
@@ -734,7 +734,7 @@ function createApi(_context) {
             return api.call({
                 url: 'http://www.panoramio.com/map/get_panoramas.php',
                 silent: _.remove(_params, 'silent'),
-                params: _.assign({
+                params: Object.assign({
                     set: 'public',
                     from: 0,
                     to: Ti.App.Properties.getInt('panoramio.max', 50),
@@ -751,7 +751,7 @@ function createApi(_context) {
                         'http://mw2.google.com/mw-panoramio/photos/thumbnail/' +
                         photo.photo_id + '.jpg';
                     var original = photo.photo_file_url;
-                    var item = _.assign(_itemHandler.createAnnotItem(
+                    var item = Object.assign(_itemHandler.createAnnotItem(
                         _feature,
                         photo, photo.photo_id), {
                         title: photo.photo_title,
@@ -800,9 +800,9 @@ function createApi(_context) {
         //     var langs = ['ar','ast','bg','ca','cs_CZ','da_DK','de_DE','el','en_US','es','fa','fi','fil','fr','gl','he','hsb','hu_HU','it','ja','lt_LT','ne','nl','pl_PL','pt_BR','pt_PT','ro','ru','si','sk','sv_SE','tr','uk','vi_VI','zh_CN'];
         //     var lang = app.localeInfo.currentLocale.replace('-', '_');
         //     sdebug('lang', lang);
-        //     if (!_.contains(langs, lang)) {
+        //     if (!_.includes(langs, lang)) {
         //         lang = app.localeInfo.currentLanguage;
-        //         if (!_.contains(langs, lang)) {
+        //         if (!_.includes(langs, lang)) {
         //             lang = langs[0];
         //         }
         //     }
@@ -930,9 +930,9 @@ function createApi(_context) {
             var langs = ['en_US', 'en_GB', 'fr_CA', 'fr_FR', 'de_DE', 'es_ES', 'es_MX', 'ru_RU'];
             var lang = ak.locale.currentLanguage.replace('-', '_');
             sdebug('lang', lang);
-            if (!_.contains(langs, lang)) {
+            if (!_.includes(langs, lang)) {
                 lang = ak.locale.currentLanguage + '_' + ak.locale.currentLanguage.toUpperCase();
-                if (!_.contains(langs, lang)) {
+                if (!_.contincludesains(langs, lang)) {
                     lang = langs[0];
                 }
             }
@@ -1319,7 +1319,7 @@ function createApi(_context) {
                 }
 
                 return _.reduce(result.results, function(memo, value) {
-                    if (!_.contains(['route', 'neighborhood'], value.types[
+                    if (!_. includes(['route', 'neighborhood'], value.types[
                             0])) {
                         memo.push({
                             latitude: value.geometry.location.lat,
@@ -1381,7 +1381,7 @@ function createApi(_context) {
             });
         },
         downloadAndSaveFile: function(_url, _type, _params) {
-            return api.call(_.assign({
+            return api.call(Object.assign({
                 url: _url,
                 forData: true
             }, _params)).then(function(data) {
@@ -1437,7 +1437,7 @@ function createApi(_context) {
                     } else {
                         title = parts[0];
                     }
-                    return _.assign(e, {
+                    return Object.assign(e, {
                         originalLink: _url,
                         title: _.capitalize(title),
                         fullTitle: _title
@@ -1467,7 +1467,7 @@ function createApi(_context) {
                 console.log('getPhotodone', e);
                 if (e.image) {
                     var result = _.omit(_photo, 'url', 'image');
-                    result = _.assign(result, {
+                    result = Object.assign(result, {
                         width: e.image.width,
                         height: e.image.height,
                         url: url,
@@ -1587,7 +1587,7 @@ function createApi(_context) {
         photonSearch: function(_params) {
             var langs = ['en', 'it', 'fr', 'de'];
             var lang = ak.locale.currentLanguage.split('-')[0].toLowerCase();
-            if (!_.contains(langs, lang)) {
+            if (!_.includes(langs, lang)) {
                 lang = langs[0];
             }
             return api.call({
@@ -1615,7 +1615,7 @@ function createApi(_context) {
                         return value.osm.id;
                     }
                 });
-                return _.sortBy(results, 'distance');
+                return _.orderBy(results, 'distance');
             });
         },
         decodeLine: decodeLine
@@ -1663,7 +1663,7 @@ function createApi(_context) {
             if (!result || !result.error) {
                 // res = result.result || result;
                 if (result.message) {
-                    api.fireEvent('message', {
+                    api.emit('message', {
                         // title: res,
                         message: result.message
                     });

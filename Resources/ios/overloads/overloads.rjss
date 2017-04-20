@@ -19,17 +19,17 @@ MapWindow {
     viewShadow:{
         radius:1.5,
         offset:[0,1],
-        color:'#88333333'
+        color:'#33333388'
     }
 }
 
 .FloatingAction {
-    /*backgroundSelectedColor:$cTheme.selector,*/
-    selectedColor:$cTheme.main,
+    /*backgroundSelectedColor:$.cTheme.selector,*/
+    selectedColor:$.cTheme.main,
     viewShadow:{
         offset:{x:0,y:1},
         radius:2,
-        color:'#88000000'
+        color:'#00000088'
     },
     states: {
         pressed: {
@@ -37,7 +37,7 @@ MapWindow {
             viewShadow:{
                 offset:{x:0,y:3},
                 radius:4,
-                color:'#88000000'
+                color:'#00000088'
             }
         }
     }
@@ -47,7 +47,7 @@ MapWindow {
 .MapButton {
     padding:{top:2},
     viewShadow:{
-        color:'#44000000',
+        color:'#00000044',
         radius:0.5,
     }
 }

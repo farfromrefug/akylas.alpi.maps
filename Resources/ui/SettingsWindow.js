@@ -2,7 +2,7 @@ ak.ti.constructors.createSettingsWindow = function(_args) {
     var distance_units = ['kilometers', 'miles'],
         temp_units = ['°C (degrees)', '°F (fahrenheit)'],
         formatter = app.utils.geolib.formatter,
-        gpsLevels = _(app.locationManager.getLevels()).pluck('distanceFilter').map(function(d) {
+        gpsLevels = _(app.locationManager.getLevels()).map('distanceFilter').map(function(d) {
             return formatter.distance(d);
         }).value();
 
@@ -89,7 +89,7 @@ ak.ti.constructors.createSettingsWindow = function(_args) {
                 templates: {
                     'default': app.templates.row.license
                 },
-                backgroundColor:$backgroundColor,
+                backgroundColor:$.backgroundColor,
                 // backgroundColor:'blue',
                 disableHW: true,
                 noPullView: true,
@@ -236,8 +236,8 @@ ak.ti.constructors.createSettingsWindow = function(_args) {
                                     text: trc(value)
                                 },
                                 accessory: {
-                                    color: $cTheme.main,
-                                    text: (index === _selectedIndex) ? $sCheck : ''
+                                    color: $.cTheme.main,
+                                    text: (index === _selectedIndex) ? $.sCheck : ''
                                 },
                             });
                             return memo;

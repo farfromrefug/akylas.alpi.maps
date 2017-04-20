@@ -1,6 +1,7 @@
-Window {
-    tintColor:$white,
-	backgroundColor:$backgroundColor,
+Window, NavigationWindow {
+    opacity:1,
+    tintColor:$.white,
+	backgroundColor:$.backgroundColor,
 	orientationModes:[Ti.UI.UPSIDE_PORTRAIT, Ti.UI.PORTRAIT]
 }
 
@@ -16,12 +17,12 @@ Window {
 
 /*AppWindow {
     customNavBar: true,
-    barColor: $cTheme.main,
+    barColor: $.cTheme.main,
 }*/
 
 .NativeListWindow {
     customNavBar: true,
-    barColor: $cTheme.main,
+    barColor: $.cTheme.main,
     listViewArgs:{
     },
 }
@@ -42,7 +43,7 @@ CustomAlertView {
     hintColor:'gray',
     borderPadding: [-1, -1, 0, -1],
     borderColor: '#ddd',
-    color:$black,
+    color:$.black,
     padding: {
         left: 10
     },
@@ -110,10 +111,10 @@ MainWindow {
 
 WebWindow {
     withLoadingIndicator:true,
-    /*backgroundColor:$white,*/
+    /*backgroundColor:$.white,*/
     showBackButton: true,
     customNavBar:true,
-    barColor:$cTheme.main,
+    barColor:$.cTheme.main,
     withAd:true,
 }
 
@@ -128,31 +129,28 @@ WebWindow {
 /*    viewShadow:{
         radius:1,
         offset:[0,-1],
-        color:'#88333333'
+        color:'#33333388'
     }*/
 }
 
 .BorderedView {
-    test:rgba(255, 0,0, 1),
-    test:rgba(255, 0,0, 0.5),
-    test:rgba(255, 0,0, 0.1),
-    borderColor:'#88dddddd',
+    borderColor:'#dddddd88',
     borderPadding:[-1,-1,0,-1],
 }
 
 .AppWebView {
     /*scalesPageToFit:true,*/
     hideLoadIndicator:true,
-    backgroundColor: $white
+    backgroundColor: $.white
 }
 
 
 AppTabView {
     layout:'vertical'
 }
-/*$tabHeight = 30;*/
+/*$.tabHeight = 30;*/
 .AppTabViewScrollableView {
-    /*top:$tabHeight,*/
+    /*top:$.tabHeight,*/
 /*    transition: {
         style: Ti.UI.TransitionStyle.FADE
     },*/
@@ -177,7 +175,7 @@ AppTabController {
 }
 
 
-$appTabBorderWidth=3;
+$.appTabBorderWidth=3;
 .AppTabOff {
     /*font: {size:14, weight:'normal'}*/
 }
@@ -189,14 +187,14 @@ $appTabBorderWidth=3;
     width:'FILL',
     height:'FILL',
     textAlign:'center',
-    borderDisabledColor:$white,
-    /*borderSelectedColor:$white,*/
+    borderDisabledColor:$.white,
+    /*borderSelectedColor:$.white,*/
     borderColor:'transparent',
-    borderWidth:$appTabBorderWidth,
-    borderPadding:{left:-$appTabBorderWidth,top:-$appTabBorderWidth,right:-$appTabBorderWidth},
-    color:'#88ffffff',
-    disabledColor:$white,
-    selectedColor:$white
+    borderWidth:$.appTabBorderWidth,
+    borderPadding:{left:-$.appTabBorderWidth,top:-$.appTabBorderWidth,right:-$.appTabBorderWidth},
+    color:'#ffffff88',
+    disabledColor:$.white,
+    selectedColor:$.white
 }
 
 Label {
@@ -204,7 +202,7 @@ Label {
 }
 
 TextField {
-    tintColor:$cTheme.main,
+    tintColor:$.cTheme.main,
     padding:0,
     backgroundColor:'transparent',
     includeFontPadding:false,
@@ -213,7 +211,7 @@ TextField {
 }
 
 ListView {
-    tintColor:$cTheme.main,
+    tintColor:$.cTheme.main,
     allowsSelection:false,
     /*asyncDelete:true,*/
     unHighlightOnSelect: false,
@@ -238,7 +236,7 @@ ImageView {
     preventDefaultImage:true
 }
 
-$leftMenuWidth=220;
+$.leftMenuWidth=220;
 SlideMenu {
     actionBarOverlay:true,
     navBarHidden:true,
@@ -247,8 +245,8 @@ SlideMenu {
     exitOnClose:true,
     shadowWidth:2,
     leftViewDisplacement: -40,
-    backgroundColor:$cMenuBack,
-    leftViewWidth:$leftMenuWidth
+    backgroundColor:$.cMenuBack,
+    leftViewWidth:$.leftMenuWidth
 }
 
 ButtonBar {
@@ -261,9 +259,9 @@ ButtonBar {
     width: 52,
     height: 52,
     textAlign:'center',
-    font: {family: $iconicfontfamily, size: 24},
+    font: {family: $.iconicfontfamily, size: 24},
     borderRadius: 26,
-    backgroundColor: $white,
+    backgroundColor: $.white,
     backgroundDisabledColor: '#545454',
     color: '#737373'
 }
@@ -272,10 +270,10 @@ ButtonBar {
     width: 40,
     height: 40,
     textAlign:'center',
-    font: {family: $iconicfontfamily, size: 24},
-    color: $white,
+    font: {family: $.iconicfontfamily, size: 24},
+    color: $.white,
     preventListViewSelection:true,
-    selectedColor:$cTheme.selector
+    selectedColor:$.cTheme.selector
 }
 
 .Button {
@@ -283,27 +281,27 @@ ButtonBar {
     padding:{left:10,right:10},
     height: 40,
     textAlign:'center',
-    color: $white,
-    selectedColor:$cTheme.selector
+    color: $.white,
+    selectedColor:$.cTheme.selector
 }
 
 .WhiteOptionButton {
     width: 40,
     height: 40,
     textAlign:'center',
-    font: {family: $iconicfontfamily, size: 24},
+    font: {family: $.iconicfontfamily, size: 24},
     color: 'darkgray',
     preventListViewSelection:true,
-    selectedColor:$cTheme.selector
+    selectedColor:$.cTheme.selector
 }
 
 /*LoadingView {
-    top:$navBarTop+$navBarHeight,
+    top:$.navBarTop+$.navBarHeight,
 }*/
 .LoadingViewHolder {
     borderRadius:5,
     layout:'vertical',
-    backgroundColor:'#bb000000',
+    backgroundColor:'#000000bb',
     maxWidth:240,
     maxHeight:300,
     width:'SIZE',
@@ -312,7 +310,7 @@ ButtonBar {
 
 .LoadingViewLabel {
     font:{size:15, weight:'bold'},
-    color:$white,
+    color:$.white,
     textAlign:'center',
     maxWidth:200,
     maxLines:2,
@@ -326,15 +324,15 @@ ButtonBar {
     left:20,
     right:20,
     style:Ti.UI.ActivityIndicatorStyle.BIG,
-    color:$white
+    color:$.white
 }
 
 .WebToolbarButton {
     font: {
-        family: $iconicfontfamily,
+        family: $.iconicfontfamily,
         size: 28
     },
-    color: $white,
+    color: $.white,
     width:50,
     disabledColor: 'lightgray'
 }
@@ -343,21 +341,21 @@ ButtonBar {
     rclass:'BorderedView',
     layout:'horizontal',
     height:44,
-    backgroundColor:$white
+    backgroundColor:$.white
 }
 
 .ListRowBorderLine {
-    backgroundColor:'#88dddddd',
+    backgroundColor:'#dddddd88',
     height:1,
 }
 .ListRowIcon {
     font: {
-        family: $iconicfontfamily,
+        family: $.iconicfontfamily,
         size: 26
     },
     width:40,
     textAlign:'center',
-    color:$black
+    color:$.black
 }
 
 .ListRowLabel {
@@ -365,7 +363,7 @@ ButtonBar {
     height:'FILL',
     width:'FILL',
     font: {size:17},
-    color:$black
+    color:$.black
 }
 
 .ListRowSublabel {
@@ -375,7 +373,7 @@ ButtonBar {
     maxLines:1,
     padding:[0,0,4,0],
     font: {size:13},
-    color:$gray
+    color:$.gray
 }
 
 .ListRowCountLabel {
@@ -388,33 +386,33 @@ ButtonBar {
     /*borderRadius:6,*/
     /*padding:[3,5,2,5],*/
     /*textAlign:'center',*/
-    /*color:$white*/
+    /*color:$.white*/
 }
 
 .ListRowSwitch {
     bubbleParent:true,
     isrounded:false,
-    onTintColor:$cTheme.main,
+    onTintColor:$.cTheme.main,
 }
 
 .ListRowAccessory {
     font: {
-        family: $iconicfontfamily,
+        family: $.iconicfontfamily,
         size: 20
     },
     width:30,
     textAlign:'center',
-    color:$gray,
-    text:$sRight
+    color:$.gray,
+    text:$.sRight
 }
 
-$listItemRowHeight = 58;
+$.listItemRowHeight = 58;
 
 .ListItemRow {
     rclass:'BorderedView',
     layout:'horizontal',
-    backgroundColor:$white,
-    height:$listItemRowHeight
+    backgroundColor:$.white,
+    height:$.listItemRowHeight
 }
 
 .ListItemRowBorderLine {
@@ -434,13 +432,13 @@ $listItemRowHeight = 58;
 
 .ListItemRowIcon {
     font: {
-        family: $iconicfontfamily,
+        family: $.iconicfontfamily,
         size: 26
     },
     height:'FILL',
     width:40,
     textAlign:'center',
-    color:$black
+    color:$.black
 }
 
 .ListItemRowLabel {
@@ -449,7 +447,7 @@ $listItemRowHeight = 58;
     height:'FILL',
     width:'FILL',
     font: {size:17},
-    color:$black,
+    color:$.black,
     ellipsize:Ti.UI.TEXT_ELLIPSIZE_TAIL
 }
 
@@ -461,13 +459,13 @@ $listItemRowHeight = 58;
     maxLines:1,
     padding:[0,0,4,0],
     font: {size:13},
-    color:$gray,
+    color:$.gray,
     ellipsize:Ti.UI.TEXT_ELLIPSIZE_TAIL
 }
 
 .ListItemRowAccessory {
     font: {
-        family: $iconicfontfamily,
+        family: $.iconicfontfamily,
         size: 15
     },
     width:25,
@@ -477,33 +475,33 @@ $listItemRowHeight = 58;
     rigth:5,
     textAlign:'center',
     /*verticalAlign:'top',*/
-    color:$gray,
-    text:$sRight
+    color:$.gray,
+    text:$.sRight
 }
 
-$gfHeaderHeight = Math.round(app.deviceinfo.height*0.28);
+$.gfHeaderHeight = Math.round(app.deviceinfo.height*0.28);
 .GFHeader {
-    top: $navBarTop,
-    height: $gfHeaderHeight,
+    top: $.navBarTop,
+    height: $.gfHeaderHeight,
 }
 .GFHeaderScrollableView {
     overlayEnabled: true,
     disableBounce:true,
     currentPage:1,
     cacheSize:1,
-    pagingControlColor: '#44000000',
+    pagingControlColor: '#00000044',
 }
 
 .GFHeaderIcon {
-    color: $white,
+    color: $.white,
     font: {
-        family: $iconicfontfamily,
+        family: $.iconicfontfamily,
         size: 22
     }
 }
 
 .GFHeaderTitle {
-    color: $white,
+    color: $.white,
     left:0,
     /*padding: {
         left: 44,
@@ -538,7 +536,7 @@ $gfHeaderHeight = Math.round(app.deviceinfo.height*0.28);
 
 .GFHeaderInfo
 {
-    color: $gray,
+    color: $.gray,
     height:30,
     bottom:0,
     padding: {
@@ -549,7 +547,7 @@ $gfHeaderHeight = Math.round(app.deviceinfo.height*0.28);
     textAlign:'right',
     verticalAlign:'bottom',
     font: {
-        family: $iconicfontfamily,
+        family: $.iconicfontfamily,
         size: 16
     },
 }
@@ -566,7 +564,7 @@ $gfHeaderHeight = Math.round(app.deviceinfo.height*0.28);
 .GFOptionRowIcon {
     rclass:'ListItemRowIcon',
     width:30,
-    font: {family: $iconicfontfamily,size:22},
+    font: {family: $.iconicfontfamily,size:22},
     height:44,
     top:0,
 }
@@ -587,7 +585,7 @@ $gfHeaderHeight = Math.round(app.deviceinfo.height*0.28);
     font: {size:20},
     height:44,
     
-    text:$sExpand,
+    text:$.sExpand,
 }
 
 
@@ -604,7 +602,7 @@ $gfHeaderHeight = Math.round(app.deviceinfo.height*0.28);
 .ItemGeoInfoIcon {
     rclass:'ListItemRowIcon',
     width:30,
-    font: {family: $iconicfontfamily,size:20},
+    font: {family: $.iconicfontfamily,size:20},
     height:'FILL',
     left:0,
 }
@@ -616,7 +614,7 @@ $gfHeaderHeight = Math.round(app.deviceinfo.height*0.28);
     width:30,
     height:30,
     borderWidth:2,
-    borderColor:$black,
+    borderColor:$.black,
     borderRadius:15
 }
 
@@ -624,7 +622,7 @@ $gfHeaderHeight = Math.round(app.deviceinfo.height*0.28);
     rclass:'BorderedView',
     selector:true,
     height:70,
-    backgroundColor:$white
+    backgroundColor:$.white
 }
 
 .ItemInfoRowIcon {
@@ -634,12 +632,12 @@ $gfHeaderHeight = Math.round(app.deviceinfo.height*0.28);
     height: 24,
     /*textAlign: 'center',*/
     font: {
-        family: $iconicfontfamily,
+        family: $.iconicfontfamily,
         size: 22
     },
     /*padding:{bottom:5},*/
     /*verticalAlign:'top',*/
-    color: $white,
+    color: $.white,
 }
 
 .ItemInfoRowLabelHolder {
@@ -661,12 +659,12 @@ $gfHeaderHeight = Math.round(app.deviceinfo.height*0.28);
     padding:{right:10},
     textAlign:'right',
     height:'FILL',
-    color:$cTheme.main,
+    color:$.cTheme.main,
     font: {
         size:16,
-        family: $iconicfontfamily
+        family: $.iconicfontfamily
     },
-    title:$sRight
+    title:$.sRight
 
 }
 
@@ -674,14 +672,14 @@ $gfHeaderHeight = Math.round(app.deviceinfo.height*0.28);
     width: 'FILL',
     height: 'FILL',
     ellipsize:Ti.UI.TEXT_ELLIPSIZE_TAIL,
-    color: $black,
+    color: $.black,
     /*maxLines:1*/
 }
 
 .ItemInfoRowExtraLabel {
     rclass:'ItemInfoRowLabel',
     /*width:'SIZE',*/
-    color:$cTheme.main,
+    color:$.cTheme.main,
     font: {
         size:13,
         weight:'bold'
@@ -703,10 +701,10 @@ $gfHeaderHeight = Math.round(app.deviceinfo.height*0.28);
 
 .ItemInfoRowExtraIcon {
     rclass:'ItemInfoRowLabel',
-    color:$cTheme.main,
+    color:$.cTheme.main,
     font: {
         size:14,
-        family: $iconicfontfamily
+        family: $.iconicfontfamily
     },
     right:1,
     width:14
@@ -752,7 +750,7 @@ $gfHeaderHeight = Math.round(app.deviceinfo.height*0.28);
     rclass:'ItemInfoRowExtraLabel',
     verticalAlign:'top',
     width:'SIZE',
-    color:$black,
+    color:$.black,
     font: {
         size: 12,
         weight:'normal'

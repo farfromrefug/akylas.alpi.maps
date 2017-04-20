@@ -2,7 +2,7 @@
 .TSControlRow {
     layout: 'horizontal',
     borderPadding:[-1,-1,0,-1],
-    borderColor:'#11dddddd',
+    borderColor:'#dddddd11',
 }
 
 .TSControlLine {
@@ -10,10 +10,10 @@
     right:0,
     backgroundColor:'#20201f',
 }
-$TSCountrolsHeight='50%';
+$.TSCountrolsHeight='50%';
 .TSControls {
     layout: 'vertical',
-    height: $TSCountrolsHeight,
+    height: $.TSCountrolsHeight,
     bottom: 0
 }
 
@@ -28,7 +28,7 @@ $TSCountrolsHeight='50%';
     height:'FILL',
     width:'FILL',
 /*    touchEnabled:false,
-*/    color:$white
+*/    color:$.white
 }
 
 .TSControlListView {
@@ -61,10 +61,10 @@ TileSourceSelectWindow {
     dontElevateTopBar:true,
     title:trc('map_sources'),
     showBackButton: true,
-    backgroundColor:$cTheme.main,
-    ownBackButtonTitle: $sClose,
+    backgroundColor:$.cTheme.main,
+    ownBackButtonTitle: $.sClose,
     customNavBar: true,
-    barColor: $cTheme.main,
+    barColor: $.cTheme.main,
 }
 .TSSelectRow {
     /*height:50,*/
@@ -72,7 +72,7 @@ TileSourceSelectWindow {
 
 .TSSelectRowHolder {
     layout:'vertical',
-    backgroundColor:$white,
+    backgroundColor:$.white,
     backgroundSelectedColor:'#ecf2fb',
     top:2,
     left:2,
@@ -90,7 +90,7 @@ TileSourceSelectWindow {
 .TSSelectRowMapView {
     animateChanges:false,
     touchEnabled:false,
-    backgroundColor:$white,
+    backgroundColor:$.white,
     mapType:'none',
     top:6,
     left:6,
@@ -104,7 +104,7 @@ TileSourceSelectWindow {
     onlyTransitionIfRemote: false,
     transition: {style: Ti.UI.TransitionStyle.FADE},
     touchPassThrough:true,
-    backgroundColor:$white,
+    backgroundColor:$.white,
     top:6,
     left:6,
     right:6,
@@ -116,7 +116,7 @@ TileSourceSelectWindow {
     left:6,right:6,
     width: 'FILL',
     height:'SIZE',
-    color: $black,
+    color: $.black,
     touchEnabled:false,
     font: {
         size: 13,
@@ -155,7 +155,7 @@ TileSourceSelectWindow {
 }
 .TSSelectRowDeleteButton {
     title:trc('delete'),
-    color:$white,
+    color:$.white,
     width:'FILL',
     height:40,
     bottom:0,
@@ -164,7 +164,7 @@ TileSourceSelectWindow {
 .TSSelectionTabController {
     /*rclass:'ElevatedView',*/
     top:5,
-    color:$white,
-    indicatorColor:$white,
+    color:$.white,
+    indicatorColor:$.white,
     /*bottom:5,*/
 }

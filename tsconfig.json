@@ -1,21 +1,23 @@
 {
     "compilerOptions": {
         "target": "es6",
-        "moduleResolution": "classic",
+        "moduleResolution": "node",
         "module": "commonjs",
         "preserveConstEnums": true,
         "declaration": true,
         "noImplicitAny": false,
         "removeComments": true,
-        "allowJs": true,
         "noLib": false,
         "sourceMap": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "outDir": "build/ts"
-    },
+   },
     "exclude": [
+        "node_modules",
+        ".git",
         "build",
-        "node_modules"
+        "dist",
+        "test"
     ]
 }

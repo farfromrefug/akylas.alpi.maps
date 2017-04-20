@@ -3,7 +3,7 @@ exports.data = {
         defaultTitle: trc('dropped_pin'),
         title: trc('dropped'),
         icon: app.icons.circle,
-        color: $cTheme.main,
+        color: $.cTheme.main,
         canBeHidden: true,
         settings: {}
     },
@@ -30,7 +30,7 @@ exports.data = {
         title: trc('search_results'),
         defaultTitle: trc('amenity'),
         color: '#EA4C32',
-        routeColor: '#88EA4C32',
+        routeColor: '#EA4C3288',
         routeSelectedColor: '#EA4C32',
         routeClass:'SearchRoute',
         icon: app.icons.search,
@@ -55,7 +55,7 @@ exports.data = {
         hidden: true,
         title: trc('search_results'),
         defaultTitle: trc('amenity'),
-        color: $white,
+        color: $.white,
         icon: app.icons.search,
         settings: {}
     },

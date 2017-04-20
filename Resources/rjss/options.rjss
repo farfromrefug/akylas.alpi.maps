@@ -19,9 +19,9 @@ OptionsListWindow {
 
 
 .OptionsListHeader {
-    color: $white,
+    color: $.white,
     font:{size:17},
-    padding:[$navBarTop,15,0,15],
+    padding:[$.navBarTop,15,0,15],
     width:'FILL',
-    height:$navBarTop+$navBarHeight
+    height:$.navBarTop+$.navBarHeight
 }

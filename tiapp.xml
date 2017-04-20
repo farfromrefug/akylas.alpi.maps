@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ti:app xmlns:ti="http://ti.appcelerator.org">
-    <sdk-version>6.1.0.AKYLAS</sdk-version>
+    <sdk-version>6.2.0.AKYLAS</sdk-version>
     <id>akylas.alpi.maps</id>
     <name>Alpi Maps</name>
     <version>1.2.1</version>
@@ -72,13 +72,13 @@
     </ios>
     <theme>BaseTheme</theme>
     <android xmlns:android="http://schemas.android.com/apk/res/android">
-        <manifest android:installLocation="auto" android:versionCode="53">
+        <manifest android:installLocation="auto" android:versionCode="59">
             <uses-sdk android:minSdkVersion="13" android:targetSdkVersion="23"/>
             <uses-feature android:name="android.hardware.location.gps" />
             <application
                 android:hardwareAccelerated="true">
                 <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyB3S2bww_0PrPmpCO8NgGuEmgGs6DxnQ78"/>
-                <meta-data android:name="com.google.android.gms.version" android:value="9877000" />
+                <meta-data android:name="com.google.android.gms.version" android:value="10298000" />
             </application>
         </manifest>
         <services>
@@ -87,7 +87,6 @@
         <!-- <abi>armeabi-v7a,x86</abi> -->
     </android>
     <plugins>
-        <plugin>redux</plugin>
     </plugins>
     <modules>
         <module>akylas.commonjs</module>
@@ -102,6 +101,7 @@
         <module platform="iphone">com.wikitude.ti</module>
         <module platform="iphone">akylas.statusbarnotification</module>
         <module platform="iphone">akylas.plcrashreporter</module>
+        <!--<module platform="android">akylas.connectiq</module>-->
     </modules>
     <deployment-targets>
         <target device="tizen">false</target>
@@ -112,6 +112,7 @@
         <target device="mobileweb">false</target>
     </deployment-targets>
 
+    <property name="ti.hexColorFormat">rgba</property>
     <property name="ti.ui.defaultunit" type="string">dp</property>
     <property name="ti.android.fastdev" type="bool">false</property>
     <property name="ti.android.debug" type="bool">true</property>

@@ -6,7 +6,7 @@ exports.create = function(_context, _args, _additional) {
             'off': 'gray',
             'bad': 'red',
             'middle': 'orange',
-            'good': $cTheme.main
+            'good': $.cTheme.main
         },
 
         accuracyImages = {},
@@ -29,7 +29,7 @@ exports.create = function(_context, _args, _additional) {
             // updateArgs.customView = {
             //     template: 'userLocation',
             //     type: {
-            //         html: utilities.htmlIcon($sGps, 4) + ((_location.altitude >= 0) ? ('<br>' + _location.altitude.toFixed() + 'm') : '')
+            //         html: utilities.htmlIcon($.sGps, 4) + ((_location.altitude >= 0) ? ('<br>' + _location.altitude.toFixed() + 'm') : '')
             //     },
             //     line1: {
             //         text: _location.latitude.toFixed(4) + "° N, " + _location.longitude.toFixed(4) + "° E"
@@ -66,7 +66,7 @@ exports.create = function(_context, _args, _additional) {
                 updateArgs.visible = true;
                 visible = true;
             }
-            _.assign(updateArgs, _location);
+            Object.assign(updateArgs, _location);
             // sdebug('userLocationAnnot update', updateArgs);
             userLocationAnnot.applyProperties(updateArgs);
             self.parent.updateUserLocation();
@@ -88,7 +88,7 @@ exports.create = function(_context, _args, _additional) {
             image: getAccuracyImage(currentAccuracyLevel)
         });
 
-    _.assign(self, {
+    Object.assign(self, {
         GC: app.composeFunc(self.GC, function() {
             userLocationAnnot = null;
             delete settings.userAnnotation;
@@ -126,9 +126,9 @@ exports.create = function(_context, _args, _additional) {
     //         bindId: 'type',
     //         properties: {
     //             rclass: 'MarkerInfoType',
-    //             backgroundColor: $cTheme.main,
-    //             color: $white,
-    //             text: $sGps
+    //             backgroundColor: $.cTheme.main,
+    //             color: $.white,
+    //             text: $.sGps
     //         }
     //     }, {
     //         type: 'Ti.UI.View',
@@ -164,7 +164,7 @@ exports.create = function(_context, _args, _additional) {
     //         bindId: 'options',
     //         properties: {
     //             rclass: 'MarkerInfoButton',
-    //             text: $sOptions
+    //             text: $.sOptions
     //         }
     //     }]
     // });

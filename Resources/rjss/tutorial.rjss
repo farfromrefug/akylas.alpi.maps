@@ -29,8 +29,8 @@
 }
 
 .TutorialLabel {
-    backgroundColor:$cTheme.main,
-    color:$white,
+    backgroundColor:$.cTheme.main,
+    color:$.white,
     minWidth:100,
     minHeight:40,
     font:{size:13},
@@ -43,11 +43,11 @@
     antialiasing: true,
     lineWidth:0,
     fillInversed: true,
-    fillColor: '#cc000000',
+    fillColor: '#000000cc',
 }
 
 .TutorialArrow {
-    color:$cTheme.main,
+    color:$.cTheme.main,
     font:{size:16},
     width:16,
     height:11,
@@ -56,8 +56,8 @@
 
 .TutorialQuitLabel {
     bottom:20,
-    color: $white,
-    selectedColor:$gray,
+    color: $.white,
+    selectedColor:$.gray,
     height:30,
     textAlign:'center',
     font:{size:13},

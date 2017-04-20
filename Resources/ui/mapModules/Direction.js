@@ -13,7 +13,7 @@ exports.create = function(_context, _args, _additional) {
         tempRoute = null,
         waypoints = [],
         inPaintMode = false,
-        directionsColors = app.getContrastColor('#0D83D4'),
+        directionsColors = app.getContrastColors('#0D83D4'),
         maxPoints = 10,
         waypointType = {
             defaultTitle: trc('amenity'),
@@ -27,12 +27,12 @@ exports.create = function(_context, _args, _additional) {
         wayPointsAnnotations = [],
         view,
         paintView,
-        barHeight = $navBarTop + $navBarHeight + 100,
+        barHeight = $.navBarTop + $.navBarHeight + 100,
         rightNavButton = function(_id, _icon, _props, _bindId) {
             return {
                 type: 'Ti.UI.Button',
                 bindId: _bindId,
-                properties: _.assign({
+                properties: Object.assign({
                     callbackId: _id,
                     rclass: 'NavBarRightButton',
                     title: _icon
@@ -43,7 +43,7 @@ exports.create = function(_context, _args, _additional) {
             return {
                 type: 'Ti.UI.Button',
                 bindId: _bindId,
-                properties: _.assign({
+                properties: Object.assign({
                     callbackId: _id,
                     rclass: 'NavBarRightButton',
                     width: 36,
@@ -51,8 +51,8 @@ exports.create = function(_context, _args, _additional) {
                     font: {
                         size: 22
                     },
-                    disabledColor: $white,
-                    color: $gray,
+                    disabledColor: $.white,
+                    color: $.gray,
                     title: _icon,
                     enabled: mode !== _id
                 }, _props)
@@ -78,16 +78,16 @@ exports.create = function(_context, _args, _additional) {
                         childTemplates: [{
                             type: 'Ti.UI.View',
                             properties: {
-                                top: $navBarTop,
-                                height: $navBarHeight,
+                                top: $.navBarTop,
+                                height: $.navBarHeight,
                                 layout: 'horizontal'
                             },
                             childTemplates: [
-                                rightNavButton('close', $sClose), {
+                                rightNavButton('close', $.sClose), {
                                     type: 'Ti.UI.View',
                                     rclass: 'NavBarButtonSeparator'
                                 },
-                                rightNavButton('paintmode', $sPaint, {
+                                rightNavButton('paintmode', $.sPaint, {
                                     visible: __APPLE__
                                 }), {
                                     type: 'Ti.UI.View',
@@ -98,10 +98,10 @@ exports.create = function(_context, _args, _additional) {
                                     layout: 'horizontal',
                                     width: 'SIZE',
                                     childTemplates: [
-                                        segmentButton('raw', $sLine),
-                                        segmentButton('walking', $sWalking),
-                                        segmentButton('bicycling', $sCycling),
-                                        segmentButton('driving', $sDriving)
+                                        segmentButton('raw', $.sLine),
+                                        segmentButton('walking', $.sWalking),
+                                        segmentButton('bicycling', $.sCycling),
+                                        segmentButton('driving', $.sDriving)
                                     ]
                                 }, {
                                     //     type: 'Ti.UI.View',
@@ -109,7 +109,7 @@ exports.create = function(_context, _args, _additional) {
                                     // }, {
                                     type: 'Ti.UI.View'
                                 },
-                                rightNavButton('next', $sCheck, {
+                                rightNavButton('next', $.sCheck, {
                                     visible: false,
                                 }, 'nextBtn')
                             ]
@@ -262,7 +262,7 @@ exports.create = function(_context, _args, _additional) {
                                         })
                                     }
                                 },
-                                // rightNavButton('edit', $sEditMove, {
+                                // rightNavButton('edit', $.sEditMove, {
                                 //     bottom: 0,
                                 //     right: 0,
                                 //     visible: false
@@ -290,7 +290,7 @@ exports.create = function(_context, _args, _additional) {
                                     case 'next':
                                         self.window.showLoading({
                                             label: {
-                                                html: htmlIcon($sTrace, 1) + ' ' +
+                                                html: htmlIcon($.sTrace, 1) + ' ' +
                                                     trc('computing') + '...'
                                             }
                                         });
@@ -421,7 +421,7 @@ exports.create = function(_context, _args, _additional) {
             endOnRoute: _.isEqual(_.last(points), lastPoint),
             end: lastPoint,
             route_mode: mode,
-            waypoints: _.pluck(waypoints, 'id'),
+            waypoints: _.map(waypoints, 'id'),
             route: _route
         };
         self.parent.runMethodOnModules('spreadModuleAction', {
@@ -539,7 +539,7 @@ exports.create = function(_context, _args, _additional) {
             userLocation = true;
             item = {
                 id: 'user_location',
-                icon: $sNav,
+                icon: $.sNav,
                 title: trc('current_location'),
                 latitude: mapItem.latitude,
                 longitude: mapItem.longitude,
@@ -580,7 +580,7 @@ exports.create = function(_context, _args, _additional) {
             bottom: true
         });
         if (!paintView) {
-            var color = Color($cTheme.main);
+            var color = Color($.cTheme.main);
             paintView = app.modules.paint.createPaintView({
                 // eraseMode:true,
                 // strokeWidth (float), strokeColor (string), strokeAlpha (int, 0-255)
@@ -607,14 +607,14 @@ exports.create = function(_context, _args, _additional) {
                 sdebug('onpaint');
                 self.window.showLoading({
                     label: {
-                        html: htmlIcon($sTrace, 1) + ' ' +
+                        html: htmlIcon($.sTrace, 1) + ' ' +
                             trc('computing') + '...'
                     }
                 });
                 paintView.touchEnabled = false;
                 var path = e.path;
                 for (var i = path.length - 1; i >= 0; i--) {
-                    path[i][1] += $navBarTop + $navBarHeight;
+                    path[i][1] += $.navBarTop + $.navBarHeight;
                 }
                 var points = self.mapView.coordinateForPoints(path);
 
@@ -651,7 +651,7 @@ exports.create = function(_context, _args, _additional) {
             duration: 200
         });
         view.bar.animate({
-            height: $navBarHeight + $navBarTop,
+            height: $.navBarHeight + $.navBarTop,
             duration: 200
         }, reset);
     }
@@ -685,12 +685,12 @@ exports.create = function(_context, _args, _additional) {
             return;
         }
         var loc = _.pick(e, 'latitude', 'longitude', 'altitude');
-        var item = _.assign(loc, {
+        var item = Object.assign(loc, {
             title: trc('waypoint'),
             id: 'waypoint_' + nb,
             icon: nb + ''
         });
-        var annot = new MapAnnotation(_.assign({
+        var annot = new MapAnnotation(Object.assign({
             anchorPoint: [0.5, 0.5],
             hasInfo: false,
             image: app.getImagePath(itemHandler.getAnnotImage(waypointType, item))
@@ -781,7 +781,7 @@ exports.create = function(_context, _args, _additional) {
         }
     }
 
-    _.assign(self, {
+    Object.assign(self, {
         GC: app.composeFunc(self.GC, function() {
             view = null;
             // selectedMarker = null;

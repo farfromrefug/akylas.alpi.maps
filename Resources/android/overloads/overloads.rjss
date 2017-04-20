@@ -5,7 +5,7 @@ ListItem {
 .FloatingAction {
     antiAlias: true,
     elevation: 3,
-    selector:$cTheme.selector,
+    selector:$.cTheme.selector,
 }
 
 .AppMapView {
@@ -13,10 +13,10 @@ ListItem {
 }
 
 Button {
-    color: $cTheme.main
+    color: $.cTheme.main
 }
 .NBButton {
-    color:$white
+    color:$.white
 }
 
 .InternalElevatedView {

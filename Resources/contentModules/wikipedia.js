@@ -60,7 +60,7 @@ exports.create = function(_context, _args, _additional) {
         return app.api.call({
             url: baseUrl,
             silent: _.remove(_params, 'silent'),
-            params: _.assign(_.clone(defaultParams), {
+            params: Object.assign(_.clone(defaultParams), {
                 generator: 'geosearch',
                 ggscoord: around.centerCoordinate.latitude + '|' + around.centerCoordinate.longitude,
                 ggsradius: Math.min(around.radius, 10000),
@@ -170,12 +170,12 @@ exports.create = function(_context, _args, _additional) {
         return result;
     }
 
-    _.assign(self, {
+    Object.assign(self, {
         GC: app.composeFunc(self.GC, function() {
             view = null;
         }),
         onInit: function() {
-            // _.assign(app.icons, icons);
+            // Object.assign(app.icons, icons);
 
         },
         // getSearchFilters: function() {

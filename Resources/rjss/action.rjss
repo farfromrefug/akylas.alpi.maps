@@ -1,8 +1,8 @@
 ItemActionBar {
     /*rclass:'ElevatedView',*/
-    backgroundColor:$white,
+    backgroundColor:$.white,
     bubbleParent: false,
-    height:$itemActionBarHeight,
+    height:$.itemActionBarHeight,
 }
 .ActionButtonLabel {
     touchEnabled:false,
@@ -17,11 +17,11 @@ ItemActionBar {
     maxLines:1,
     textAlign:'center',
     verticalAlign:'bottom',
-    color:$cTheme.main,
-    /*selectedColor:$white,*/
+    color:$.cTheme.main,
+    /*selectedColor:$.white,*/
     padding:{bottom:3, left:1, right:1},
     ellipsize:Ti.UI.TEXT_ELLIPSIZE_WORD
-    /*disabledColor:$gray*/
+    /*disabledColor:$.gray*/
 }
 
 ActionButton {
@@ -30,7 +30,7 @@ ActionButton {
     height:'FILL',
     minWidth:56,
     font: {
-        family:$iconicfontfamily,
+        family:$.iconicfontfamily,
         size:30,
         weight:null
     },

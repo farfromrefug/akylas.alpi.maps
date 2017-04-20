@@ -9,8 +9,8 @@ exports.create = function(_context, _args, _additional) {
         button = new Label({
             properties: {
                 rclass: 'FloatingAction',
-                color: $white,
-                selectedColor: $gray,
+                color: $.white,
+                selectedColor: $.gray,
                 bottom: 0,
                 zIndex: 101,
                 transition: {
@@ -29,15 +29,15 @@ exports.create = function(_context, _args, _additional) {
                 bindId: 'photoBtn',
                 type: 'Ti.UI.Label',
                 properties: {
-                    backgroundColor: '#66000000',
+                    backgroundColor: '#00000066',
                     font: {
-                        family: $iconicfontfamily,
+                        family: $.iconicfontfamily,
                         size: 22
                     },
                     callbackId: 'take_photo',
                     textAlign: 'center',
-                    color: $white,
-                    selectedColor: $gray,
+                    color: $.white,
+                    selectedColor: $.gray,
                     verticalAlign: 'top',
                     padding: {
                         top: 15
@@ -58,7 +58,7 @@ exports.create = function(_context, _args, _additional) {
                     var enabled = settings.enabledGPS;
 
                     var current = self.mapView.userTrackingMode;
-                    sdebug('location singletap', enabled, current);
+                    sdebug('location singletap', enabled, current, searching, app.locationManager.isLocationServicesEnabled());
                     if (current === 1) {
                         self.parent.updateUserLocation();
                     } else {
@@ -124,11 +124,11 @@ exports.create = function(_context, _args, _additional) {
         var enabled = settings.enabledGPS && app.locationManager.isLocationServicesEnabled();
         // sdebug('updateButton', settings.enabledGPS, app.locationManager.isLocationServicesEnabled(), enabled);
         var args = {
-            backgroundColor: enabled ? $cTheme.main : app.colors.red.color
+            backgroundColor: enabled ? $.cTheme.main : app.colors.red.color
         };
         if (!searching) {
-            args.text = !!settings.currentLocation ? (settings.updateBearing ? $sCompass : $sGps) :
-                $sGpsOff;
+            args.text = !!settings.currentLocation ? (settings.updateBearing ? $.sCompass : $.sGps) :
+                $.sGpsOff;
         }
 
         button.applyProperties(args);
@@ -136,7 +136,7 @@ exports.create = function(_context, _args, _additional) {
 
     function onInterval() {
         if (searching) {
-            button.text = (intervalIndex % 2 === 0) ? $sGps : $sGps2;
+            button.text = (intervalIndex % 2 === 0) ? $.sGps : $.sGps2;
             intervalIndex++;
         }
 
@@ -242,7 +242,7 @@ exports.create = function(_context, _args, _additional) {
         }
     }
 
-    _.assign(self, {
+    Object.assign(self, {
         onInit: function() {
             app.locationManager.on('state', onLocManagerState);
 

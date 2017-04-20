@@ -1,7 +1,7 @@
 ak.ti.constructors.createOptionsListWindow = function(_args) {
     var options = _.remove(_args, 'options'),
         hideOnClick = _args.hideOnClick !== false,
-        color = options.color || $cTheme.main,
+        color = options.color || $.cTheme.main,
         blurBackground = options.blurBackground,
         count = options.items.length,
         small = !!options.small,
@@ -36,7 +36,7 @@ ak.ti.constructors.createOptionsListWindow = function(_args) {
         bubbleParent: false,
         color: app.colors.red.color,
         height: 40,
-        backgroundColor: $white,
+        backgroundColor: $.white,
         backgroundSelectedColor: app.colors.red.darker,
         events: {
             click: cancel
@@ -59,7 +59,7 @@ ak.ti.constructors.createOptionsListWindow = function(_args) {
             rclass: 'OptionsListListView',
             // touchPassThrough: true,
             bubbleParent: false,
-            // backgroundColor:'#77000000',
+            // backgroundColor:'#00000077',
             // transform: 'ot0,100%',
 
             templates: templates,
@@ -97,7 +97,7 @@ ak.ti.constructors.createOptionsListWindow = function(_args) {
     });
     var rowHeight = templates.default.properties.height || listView.rowHeight;
     var heightForListView = topRect.height - 40;
-    var listViewHeight = (count) * rowHeight + ($navBarHeight + $navBarTop); // the end is the section header height
+    var listViewHeight = (count) * rowHeight + ($.navBarHeight + $.navBarTop); // the end is the section header height
     var percent = Math.min(Math.floor(listViewHeight / heightForListView * 100), 60);
     listView.headerView = {
         type: 'Ti.UI.View',

@@ -57,13 +57,13 @@ ak.ti.constructors.createItemsListWindow = function(_args) {
             if (__ANDROID__) {
                 e.section.updateItemAt(index, {
                     properties: {
-                        backgroundColor: $cTheme.semi
+                        backgroundColor: $.cTheme.semi
                     }
                 });
             }
         }
         selectedItemIndexes = _.keys(selectedItems);
-        // selectedItemIndexes = _.pluck(self.listView.selectedItems, 'index');
+        // selectedItemIndexes = _.map(self.listView.selectedItems, 'index');
         sdebug('selectedItemIndexes', selectedItemIndexes);
         var count = selectedItemIndexes.length;
         sdebug('multiselect', count);
@@ -76,7 +76,7 @@ ak.ti.constructors.createItemsListWindow = function(_args) {
 
             // multiSelectView.animate({
             //     cancelRunningAnimations: true,
-            //     height: $navBarHeight,
+            //     height: $.navBarHeight,
             //     duration: 100
             // });
             // } else {
@@ -91,7 +91,7 @@ ak.ti.constructors.createItemsListWindow = function(_args) {
     }
 
     // sdebug('items', items);
-    _.assign(_args, {
+    Object.assign(_args, {
         title: htmlIcon(desc.icon, 1) + ' ' + desc.title,
         showBackButton: true,
         customNavBar: true,
@@ -177,12 +177,12 @@ ak.ti.constructors.createItemsListWindow = function(_args) {
     });
     if (!!desc.isList) {
         _args.rightNavButtons = [{
-            //     icon: $sEditMove,
+            //     icon: $.sEditMove,
             //     callback: function() {
             //         self.listView.editing = !self.listView.editing;
             //     }
             // }, {
-            icon: $sEdit,
+            icon: $.sEdit,
             callback: function() {
                 self.manager.createAndOpenWindow('EditListWindow', {
                     mapHandler: mapHandler,
@@ -193,13 +193,13 @@ ak.ti.constructors.createItemsListWindow = function(_args) {
     }
     var multiSelectView = _args.bottomToolbar = new View({
         layout: 'horizontal',
-        height: $navBarHeight,
-        childTemplates: [app.templates.row.createToolbarButton('close', $sClose, false), {
+        height: $.navBarHeight,
+        childTemplates: [app.templates.row.createToolbarButton('close', $.sClose, false), {
                 type: 'Ti.UI.Label',
                 bindId: 'countLabel',
                 properties: {
                     width: 'FILL',
-                    color: $black,
+                    color: $.black,
                     left: 5,
                     height: 'FILL'
                 }
@@ -213,7 +213,7 @@ ak.ti.constructors.createItemsListWindow = function(_args) {
                     setEditing(false);
                     return;
                 }
-                var theItems = _.pluck(_.at(items, selectedItemIndexes), 'item');
+                var theItems = _.map(_.at(items, selectedItemIndexes), 'item');
                 sdebug('click', callbackId, theItems,e);
                 itemHandler.handleItemAction(callbackId, theItems, desc, function(_result) {
                     // setTimeout(function() {

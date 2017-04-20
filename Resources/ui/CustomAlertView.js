@@ -3,9 +3,9 @@ ak.ti.constructors.createCustomAlertView = function(_args) {
         hideOnClick = _.remove(_args, 'hideOnClick'),
         tapOutDismiss = _.remove(_args, 'tapOutDismiss', true),
         buttonNames = _.remove(_args, 'buttonNames', [trc('ok').toUpperCase()]),
-        message = _.remove(_args, 'message'),
+        message = _.remove(_args, 'message', _.remove(_args, 'error')),
         image = _.remove(_args, 'image'),
-        color = _.remove(_args, 'color', $cTheme.main),
+        color = _.remove(_args, 'color', $.cTheme.main),
         title = _.remove(_args, 'title'),
         customView = _.remove(_args, 'customView'),
         textAlign = _.remove(_args, 'textAlign', 'center'),
@@ -25,7 +25,7 @@ ak.ti.constructors.createCustomAlertView = function(_args) {
             },
             textAlign: textAlign,
             backgroundColor: color,
-            color: $white,
+            color: $.white,
             visible: !!title,
             html: title,
             padding: {
@@ -52,7 +52,7 @@ ak.ti.constructors.createCustomAlertView = function(_args) {
             },
             visible: !!message,
             html: message,
-            color: $black,
+            color: $.black,
             left: 10,
             right: 10,
             maxHeight: 250,
@@ -109,11 +109,11 @@ ak.ti.constructors.createCustomAlertView = function(_args) {
         childTemplates: [{
             type: 'Ti.UI.View',
             properties: {
-                backgroundColor: '#77000000',
+                backgroundColor: '#00000077',
             }
         }]
     });
-    var self = new AppWindow(_.assign(_args, {
+    var self = new AppWindow(Object.assign(_args, {
         backgroundColor: 'transparent',
         underContainerView: backView,
         verticalContainer: false
@@ -123,7 +123,7 @@ ak.ti.constructors.createCustomAlertView = function(_args) {
         // type:__APPLE__?'Ti.UI.iOS.Toolbar':'Ti.UI.View',
         properties: {
             borderRadius: 2,
-            backgroundColor: $white,
+            backgroundColor: $.white,
             // backgroundOpacity:0.5,
             // extendBackground:true,
             width: 'SIZE',

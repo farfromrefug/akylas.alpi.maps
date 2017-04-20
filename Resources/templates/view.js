@@ -37,14 +37,14 @@ function create(_context) {
                 //     type: 'Ti.UI.Label',
                 //     bindId: 'time',
                 //     properties: {
-                //         color: $white,
+                //         color: $.white,
                 //         font: {
                 //             size: 14
                 //         },
                 //         padding: {
                 //             left: 5
                 //         },
-                //         backgroundColor: '#88000000',
+                //         backgroundColor: '#00000088',
                 //         bottom: 0,
                 //         left: 0,
                 //         width: 'FILL',
@@ -73,14 +73,14 @@ function create(_context) {
             bindId: 'gfheader',
             properties: {
                 bottom: 0,
-                top: $navBarTop,
+                top: $.navBarTop,
                 height: 'SIZE',
                 layout: 'vertical'
             },
             childTemplates: [{
                 type: 'Ti.UI.View',
                 height: 'SIZE',
-                minHeight: $navBarHeight,
+                minHeight: $.navBarHeight,
                 bindId: 'titleHolder',
                 layout: 'horizontal',
                 childTemplates: [{

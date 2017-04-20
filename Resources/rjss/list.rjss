@@ -2,7 +2,7 @@ EditListWindow {
     showBackButton: true,
     customNavBar:true,
     withLoadingIndicator:true,
-    ownBackButtonTitle: $sClose,
+    ownBackButtonTitle: $.sClose,
     barHeight:120,
 }
 
@@ -14,7 +14,7 @@ EditListWindow {
     height:'FILL',
     width: 'FILL',
     bottom:10,
-    color:$white,
+    color:$.white,
     verticalAlign:'bottom',
     padding:{bottom:40},
     font:{size:12,}
@@ -24,11 +24,11 @@ EditListWindow {
     bottom: 0,
     height:42,
     width:'FILL',
-    borderColor:$white,
-    color:$white,
+    borderColor:$.white,
+    color:$.white,
     borderPadding:[-1,-1,0,-1],
-    tintColor:$white,
-    hintColor:$gray,
+    tintColor:$.white,
+    hintColor:$.gray,
     hintText:trc('choose_name'),
     ellipsize:Ti.UI.TEXT_ELLIPSIZE_HEAD,
     autocapitalization:Ti.UI.TEXT_AUTOCAPITALIZATION_ALL,
@@ -40,12 +40,12 @@ EditListWindow {
 
 .EditListTitleIcon {
     font: {
-        family: $iconicfontfamily,
+        family: $.iconicfontfamily,
         size: 30
     },
     top:0,
-    height:$navBarHeight,
-    color:$white,
+    height:$.navBarHeight,
+    color:$.white,
 }
 
 
@@ -67,7 +67,7 @@ EditListWindow {
     right:5,
     width:'FILL',
     height:'FILL',
-    borderColor:$gray,
+    borderColor:$.gray,
     borderWidth:2,
     localLoadSync: false,
     onlyTransitionIfRemote: false,
@@ -86,7 +86,7 @@ EditListWindow {
     color:'lightgray',
     selectedColor:'gray',
     padding:4,
-    html:app.utilities.htmlIcon($sAdd, 2) + '<br>' + trc('add_photo'),
+    html:app.utilities.htmlIcon($.sAdd, 2) + '<br>' + trc('add_photo'),
     height:'FILL',
     width:100,
     textAlign:'center',
@@ -100,13 +100,13 @@ EditListWindow {
     width:30,
     height:30,
     borderRadius:15,
-    color:$white,
+    color:$.white,
     font: {
-        family: $iconicfontfamily,
+        family: $.iconicfontfamily,
         size: 22
     },
     textAlign:'center',
-    text:$sClose,
+    text:$.sClose,
     backgroundColor:app.colors.red.color,
     backgroundSelectedColor:app.colors.red.darker
 }

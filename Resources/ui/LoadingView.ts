@@ -1,3 +1,7 @@
+declare class LoadingView extends View {
+    stopLoading()
+    startLoading(args?)
+}
 ak.ti.constructors.createLoadingView = function(_args) {
 
     var self = new View({
@@ -30,7 +34,7 @@ ak.ti.constructors.createLoadingView = function(_args) {
                 }
             }]
         }]
-    });
+    }) as LoadingView;
 
     self.startLoading = function(_args) {
         _args = _args || {};

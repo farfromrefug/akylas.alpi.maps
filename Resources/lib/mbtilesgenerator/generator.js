@@ -83,7 +83,7 @@ function Tile(x, y, z) {
 }
 
 var mbTilesStatusService = (function() {
-  var self = new MicroEvent({
+  var self = new EventEmitter({
     mbtilesStatus: {},
     /**
      * Add new MBTiles to map
@@ -161,7 +161,7 @@ var initMBTilesRequest = function(layer, data) {
   // var db = Ti.Database.open(DB_DIR + file);
   // var db = new sqlite3.Database(file);
   sdebug('initMBTilesRequest', token, layer, data);
-  var request = new MicroEvent(_.assign(data, {
+  var request = new EventEmitter(Object.assign(data, {
     layer: _.omit(layer, 'token', 'count', 'doneCount', 'timestamp'),
     timestamp: layer.timestamp || (new Date()).getTime(),
     db: db,

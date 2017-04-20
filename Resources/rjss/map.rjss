@@ -10,7 +10,7 @@ MapWindow {
 }
 
 .AppMapHolder {
-    backgroundColor: $white,
+    backgroundColor: $.white,
 }
 
 
@@ -71,11 +71,11 @@ MapCluster {
     width:'FILL',
     color:'darkgray',
     font: {
-        family: $iconicfontfamily,
+        family: $.iconicfontfamily,
         size: 30
     },
     textAlign:'center',
-    text:$sHOptions
+    text:$.sHOptions
 }
 
 
@@ -94,19 +94,19 @@ MapCluster {
         weight: 'bold'
     },
     textAlign: 'center',
-    color: $cTheme.main,
+    color: $.cTheme.main,
     maxLines: 1
 
 }*/
 
 .MapActionLabel {
-    width:$mapActionBtnWidth,
-    /*height:$mapActionBtnWidth,*/
+    width:$.mapActionBtnWidth,
+    /*height:$.mapActionBtnWidth,*/
     height:'FILL',
-    color:$white,
+    color:$.white,
     selectedColor:'gray',
     textAlign:'center',
-    font: {family: $iconicfontfamily, size: 28},
+    font: {family: $.iconicfontfamily, size: 28},
 }
 
 .MapActionButton {
@@ -126,6 +126,6 @@ AllFeaturesListWindow {
     backgroundColor: '#ffffff',
     width:40,
     height:40,
-    font: {family: $iconicfontfamily, size: 22},
+    font: {family: $.iconicfontfamily, size: 22},
     borderRadius: 20,
 }

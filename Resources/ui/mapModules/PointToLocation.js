@@ -52,7 +52,7 @@ exports.create = function(_context, _args, _additional) {
     }
     self = new _context.MapModule(_args);
 
-    _.assign(self, {
+    Object.assign(self, {
         GC: app.composeFunc(self.GC, function() {
             self.mapView.removeTileSource(utfGrid);
             utfGrid = null;

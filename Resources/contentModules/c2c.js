@@ -406,12 +406,12 @@ exports.create = function(_context, _args, _additional) {
         });
     }
 
-    _.assign(self, {
+    Object.assign(self, {
         GC: app.composeFunc(self.GC, function() {
             view = null;
         }),
         onInit: function() {
-            _.assign(app.icons, icons);
+            Object.assign(app.icons, icons);
 
         },
         getSearchFilters: function() {

@@ -65,7 +65,7 @@ ak.ti.constructors.createAllFeaturesListWindow = function(_args) {
     });
 
     _args.rightNavButtons = [{
-        icon: $sAdd,
+        icon: $.sAdd,
         callback: function() {
             self.manager.createAndOpenWindow('EditListWindow', {
                 mapHandler: mapHandler

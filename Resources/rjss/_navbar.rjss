@@ -1,31 +1,31 @@
-$nbButtonWidth = 50;
+$.nbButtonWidth = 50;
 
 .NavBar {
     top:0,
-    backgroundColor:$cTheme.main,
+    backgroundColor:$.cTheme.main,
     zIndex:100,
     /*rclass:'ElevatedView'*/
 }
 
 .NavBarHolder {
-    top:$navBarTop ,
-    height:$navBarHeight,
+    top:$.navBarTop ,
+    height:$.navBarHeight,
 }
 
 .NBButton {
-    selectedColor:$gray,
+    selectedColor:$.gray,
     textAlign:'center',
-    minWidth:$nbButtonWidth,
+    minWidth:$.nbButtonWidth,
     top:0,
-    height:$navBarHeight,
+    height:$.navBarHeight,
     verticalAlign:'middle'
 }
 
 .NavBarButton {
     rclass:'NBButton',
     /*backgroundColor:'red',*/
-    width:$nbButtonWidth,
-        font:{size:26, family:$iconicfontfamily},
+    width:$.nbButtonWidth,
+        font:{size:26, family:$.iconicfontfamily},
 }
 
 .NavBarTextButton {
@@ -46,7 +46,7 @@ $nbButtonWidth = 50;
 }
 
 .NavBarButtonSeparator {
-    backgroundColor:'#55ffffff',
+    backgroundColor:'#ffffff55',
     width:1,
     height:20,
 }
@@ -62,9 +62,9 @@ $nbButtonWidth = 50;
 }
 
 .NBTitle {
-    color:$white,
+    color:$.white,
     maxLines:2,
-    height:$navBarHeight,
+    height:$.navBarHeight,
     textAlign:'center',
     touchEnabled:false,
     ellipsize:Ti.UI.TEXT_ELLIPSIZE_TAIL,
@@ -73,10 +73,10 @@ $nbButtonWidth = 50;
 
 #menuBtn {
    rclass:'NavBarLeftButton',
-   text:$sMenu,
+   text:$.sMenu,
 }
 
 #closeBtn {
    rclass:'NavBarLeftButton',
-   text:$sClose
+   text:$.sClose
 }

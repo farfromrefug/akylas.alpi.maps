@@ -17,7 +17,7 @@ LineChart {
             width: 1.0,
             labels: {
                 offset:-16,
-                color: $gray,
+                color: $.gray,
                 font: {
                     size: 10
                 },
@@ -39,11 +39,11 @@ LineChart {
                 cap:1,
                 join:1,
                 width: 1,
-                color: $gray
+                color: $.gray
             },
             labels: {
                 offset:-35,
-                color: $gray,
+                color: $.gray,
                 font: {
                     size: 10
                 },
@@ -88,7 +88,7 @@ LineChart {
 
 .ElevationProfileRowPlotLine {
     lineWidth: 3,
-    lineColor:$cTheme.main,
+    lineColor:$.cTheme.main,
     lineCap:1,
     lineJoin:1,
 }

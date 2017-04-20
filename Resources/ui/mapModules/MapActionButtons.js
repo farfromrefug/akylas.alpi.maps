@@ -1,16 +1,16 @@
 exports.create = function(_context, _args, _additional) {
     var leftButtons = [{
             id: 'menu',
-            text: $sMenu
+            text: $.sMenu
                 // }, {
                 //     id: 'positioninfo',
-                //     text: $sSubtitles
+                //     text: $.sSubtitles
                 // }, {
                 // id: 'tilesources',
-                // text: $sMap
+                // text: $.sMap
         }, {
             id: 'search',
-            text: $sSearch
+            text: $.sSearch
         }],
         itemHandler = app.itemHandler,
         rightButtons = [{
@@ -21,17 +21,17 @@ exports.create = function(_context, _args, _additional) {
             text: app.icons.nature
         }, {
             id: 'list',
-            text: $sList
+            text: $.sList
         }, {
             id: 'direction',
-            text: $sRouting
+            text: $.sRouting
         }],
         visibleMultipleAction = null;
 
     // function createMultipleActionButton(_right, _id, _buttons, _args) {
     //     return {
     //         type: 'Ti.UI.View',
-    //         properties: _.assign({
+    //         properties: Object.assign({
     //             rclass: 'NavBarButton',
     //             layout: 'horizontal'
     //         }, _args),
@@ -54,7 +54,7 @@ exports.create = function(_context, _args, _additional) {
     function createButton(_right, _id, _text, _args) {
         return {
             type: 'Ti.UI.Button',
-            properties: _.assign({
+            properties: Object.assign({
                 rclass: 'MapActionButton',
                 callbackId: _id,
                 title: _text
@@ -85,24 +85,24 @@ exports.create = function(_context, _args, _additional) {
     var visible = true,
         view = new View({
             properties: {
-                height: $navBarTop + $navBarHeight,
+                height: $.navBarTop + $.navBarHeight,
                 top: 0,
                 width: 'FILL',
-                backgroundColor: $cTheme.main,
+                backgroundColor: $.cTheme.main,
                 // layout:'horizontal',
-                borderColor: '#33000000',
+                borderColor: '#00000033',
                 // borderWidth: 2,
                 borderPadding: [-1, -1, 0, -1]
                     // touchPassThrough: true
             },
             // childTemplates: [
-            // // createButton(false, 'menu', $sMenu, {
+            // // createButton(false, 'menu', $.sMenu, {
             // //     width:45
             // // }), 
             // {
             //     bindId: 'holder',
             //     properties: {
-            //         top: $navBarTop,
+            //         top: $.navBarTop,
             //         touchPassThrough: true
             //     },
             childTemplates: [{
@@ -112,7 +112,7 @@ exports.create = function(_context, _args, _additional) {
                     touchPassThrough: true,
                     layout: 'horizontal',
                     bottom: 0,
-                    height:$navBarHeight,
+                    height:$.navBarHeight,
                     width: 'SIZE',
                     left: 0
                 },
@@ -128,7 +128,7 @@ exports.create = function(_context, _args, _additional) {
                     layout: 'horizontal',
                     bottom: 0,
                     width: 'SIZE',
-                    height:$navBarHeight,
+                    height:$.navBarHeight,
                     // top: 60,
                     right: 0
                 },
@@ -150,7 +150,7 @@ exports.create = function(_context, _args, _additional) {
                 //     }, [{
                 //         id: 'geo_search',
                 //         isMultipleActionTrigger: true,
-                //         text: $sSearch
+                //         text: $.sSearch
                 //     }]))])
             }],
             //     }
@@ -182,7 +182,7 @@ exports.create = function(_context, _args, _additional) {
     //     if (visibleMultipleAction != null) {
     //         visibleMultipleAction.animate({
     //             duration: 100,
-    //             width: $mapActionBtnWidth
+    //             width: $.mapActionBtnWidth
     //         });
     //         visibleMultipleAction = null;
     //     }
@@ -194,7 +194,7 @@ exports.create = function(_context, _args, _additional) {
         view.animate({
             // transform: visible ? null : '0t0,-100%',
             // opacity: visible ? 1 : 0,
-            height: visible ? ($navBarHeight + $navBarTop) : 0,
+            height: visible ? ($.navBarHeight + $.navBarTop) : 0,
             duration: _duration || 150
         });
     }
@@ -203,7 +203,7 @@ exports.create = function(_context, _args, _additional) {
         // hideCurrentMultipleAction();
         if (visible) {
             // self.parent.setMapFakePadding('mapactions', {
-            //     top: -($navBarHeight + $navBarTop),
+            //     top: -($.navBarHeight + $.navBarTop),
             // });
             showhide(_duration);
         }
@@ -216,10 +216,10 @@ exports.create = function(_context, _args, _additional) {
         }
     }
 
-    _.assign(self, {
+    Object.assign(self, {
         onInit: function() {
             self.parent.setMapPadding('navbar', {
-                top: $navBarTop + $navBarHeight
+                top: $.navBarTop + $.navBarHeight
             }, 0);
         },
         GC: app.composeFunc(self.GC, function() {
@@ -270,7 +270,7 @@ exports.create = function(_context, _args, _additional) {
                 //             if (visibleMultipleAction !== null) {
                 //                 visibleMultipleAction.animate({
                 //                     duration: 100,
-                //                     width: $mapActionBtnWidth
+                //                     width: $.mapActionBtnWidth
                 //                 });
                 //             }
                 //             var parent = source.parent;

@@ -57,7 +57,7 @@ exports.create = function(_context, _args, _additional) {
             fb: {
                 id: obj.id,
             },
-            tags: _.assign({}, _.pick(obj, 'name')),
+            tags: Object.assign({}, _.pick(obj, 'name')),
             latitude: obj.location.latitude,
             longitude: obj.location.longitude,
         };
@@ -144,7 +144,7 @@ exports.create = function(_context, _args, _additional) {
         });
     }
 
-    _.assign(self, {
+    Object.assign(self, {
         GC: app.composeFunc(self.GC, function() {
             view = null;
         }),

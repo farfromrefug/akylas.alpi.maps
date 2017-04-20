@@ -30,24 +30,24 @@ exports.tutorials = {
     'menu': {
         title: 'menu',
         text: 'menu_tutorial',
-        radius: $nbButtonWidth / 2 + 10,
+        radius: $.nbButtonWidth / 2 + 10,
         anchor: 'topleft',
-        center: [$nbButtonWidth / 2, $navBarTop + $navBarHeight / 2]
+        center: [$.nbButtonWidth / 2, $.navBarTop + $.navBarHeight / 2]
     },
     'offline_mode': {
         title: 'offline_mode',
         text: 'offline_mode_tutorial',
         radius: 40,
         anchor: 'bottomright',
-        center: [-$leftMenuWidth + 30, ((app.info.deployType === 'development' && app.modules.plcrashreporter) ?
+        center: [-$.leftMenuWidth + 30, ((app.info.deployType === 'development' && app.modules.plcrashreporter) ?
             3.5 : 2.5) * 50]
     },
     'map_settings': {
         title: 'map_settings',
         text: 'map_settings_tutorial',
-        radius: $nbButtonWidth / 2 + 10,
+        radius: $.nbButtonWidth / 2 + 10,
         anchor: 'bottomleft',
-        center: [$nbButtonWidth / 2, $nbButtonWidth / 2]
+        center: [$.nbButtonWidth / 2, $.nbButtonWidth / 2]
     },
     'gmaps_settings': {
         title: 'gmaps_settings',
@@ -68,21 +68,21 @@ exports.tutorials = {
         text: 'map_sources_listview_tutorial',
         radius: 34,
         anchor: 'bottom',
-        center: [0, $TSCountrolsHeight - 20]
+        center: [0, $.TSCountrolsHeight - 20]
     },
     'direction_listview': {
         title: 'initerary_points',
         text: 'direction_listview_tutorial',
         radius: 35,
         anchor: 'topleft',
-        center: [90, $navBarTop + $navBarHeight + 20]
+        center: [90, $.navBarTop + $.navBarHeight + 20]
     },
     'direction_compute': {
         title: 'compute_initerary',
         text: 'compute_initerary_tutorial',
         radius: 20,
         anchor: 'topright',
-        center: [0.5 * $nbButtonWidth, $navBarTop + $nbButtonWidth / 2]
+        center: [0.5 * $.nbButtonWidth, $.navBarTop + $.nbButtonWidth / 2]
     },
     'direction_select': {
         title: 'direction_select',
@@ -96,7 +96,7 @@ exports.tutorials = {
         text: 'direction_paint_tutorial',
         radius: 20,
         anchor: 'topleft',
-        center: [1.5 * $nbButtonWidth, $navBarTop + $nbButtonWidth / 2]
+        center: [1.5 * $.nbButtonWidth, $.navBarTop + $.nbButtonWidth / 2]
     },
     'user_location': {
         title: 'user_location',
@@ -104,14 +104,14 @@ exports.tutorials = {
         radius: 50,
         anchor: 'center',
         onMap: true,
-        center: [0, -(2 * $navBarTop)]
+        center: [0, -(2 * $.navBarTop)]
     },
     'items_listview': {
         title: 'items_list',
         text: 'items_listview_tutorial',
         radius: 30,
         anchor: 'top',
-        center: [0, $navBarTop + $navBarHeight + 50 + 40] //50 is for the ad
+        center: [0, $.navBarTop + $.navBarHeight + 50 + 40] //50 is for the ad
     },
     'item.firstchangemoved': {
         title: 'item_moved_on_update',
@@ -125,7 +125,7 @@ exports.tutorials = {
         text: 'share_your_position_tutorial',
         radius: 30,
         anchor: 'top',
-        center: [0, $navBarTop + $navBarHeight + 40]
+        center: [0, $.navBarTop + $.navBarHeight + 40]
     },
     'map_drop_pin': {
         title: 'adding_item',

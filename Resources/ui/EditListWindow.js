@@ -1,4 +1,4 @@
-ak.ti.constructors.createEditListWindow = function(_args) {
+ak.ti.constructors.createEditListWindow = function (_args) {
     var list = _.remove(_args, 'list'),
         currentItem = _.remove(_args, 'item'),
         mapHandler = _.remove(_args, 'mapHandler'),
@@ -47,7 +47,7 @@ ak.ti.constructors.createEditListWindow = function(_args) {
                     rclass: 'EditListTitleTF',
                 },
                 events: {
-                    change: function(e) {
+                    change: function (e) {
                         changes.title = e.value;
                     }
                 }
@@ -55,8 +55,8 @@ ak.ti.constructors.createEditListWindow = function(_args) {
         }]
     };
     _args.rightNavButtons = [{
-        icon: $sCheck,
-        callback: function() {
+        icon: $.sCheck,
+        callback: function () {
             var theTitle = changes.title || title;
             if (!theTitle || theTitle.length === 0) {
                 app.emit('error', {
@@ -90,7 +90,7 @@ ak.ti.constructors.createEditListWindow = function(_args) {
                         mapHandler.runMethodOnModules('spreadModuleAction', {
                             id: __ITEMS__,
                             command: 'create_list',
-                            list: _.assign(list, changes)
+                            list: Object.assign(list, changes)
 
                         });
                     }
@@ -150,14 +150,14 @@ ak.ti.constructors.createEditListWindow = function(_args) {
                 }]
             },
             events: {
-                indexclick: function(e) {
+                indexclick: function (e) {
                     e.source.scrollToItem(0, e.sectionIndex, {
                         animated: true,
                         position: 1
                     });
-                }, 
-                first_load: function(e) {
-                    var colorItems = _.reduce(colors, function(memo, pair) {
+                },
+                first_load: function (e) {
+                    var colorItems = _.reduce(colors, function (memo, pair) {
                         memo.push({
                             colorBubble: {
                                 backgroundColor: pair[1]
@@ -170,7 +170,10 @@ ak.ti.constructors.createEditListWindow = function(_args) {
                         });
                         return memo;
                     }, []);
-                    e.source.appendItems(0, colorItems);
+                    e.source.sections = [{
+                        items: colorItems
+                    }];
+                    // e.source.appendItems(0, colorItems);
                 }
             }
         }, {
@@ -183,17 +186,17 @@ ak.ti.constructors.createEditListWindow = function(_args) {
                 },
                 defaultItemTemplate: 'default',
                 sections: [{
-                    items:[]
+                    items: []
                 }]
             },
             events: {
-                indexclick: function(e) {
+                indexclick: function (e) {
                     e.source.scrollToItem(0, e.sectionIndex, {
                         animated: true,
                         position: 1
                     });
-                }, 
-                first_load: function(e) {
+                },
+                first_load: function (e) {
                     sdebug('first_load');
                     for (i = 0; i < icons.length; i++) {
                         pair = icons[i];
@@ -230,23 +233,27 @@ ak.ti.constructors.createEditListWindow = function(_args) {
                             searchableText: key,
                             iconValue: value
                         });
-                    }
-                    e.source.sectionIndexTitles = iconIndexes;
-
-                    e.source.appendItems(0, iconItems);
+                    }                    
+                    e.source.applyProperties({
+                        sectionIndexTitles: iconIndexes,
+                        sections: [{
+                            items: colorItems
+                        }]
+                    });
+                    // e.source.appendItems(0, iconItems);
                     // e.source.sections[0].items = colorItems;
                 }
             }
 
         }]
-    }).on('change', function(e) {
+    }).on('change', function (e) {
         self.blur();
     });
 
     var self = new AppWindow(_args);
-    self.closeMe = app.composeFunc(self.closeMe, function() {
+    self.closeMe = app.composeFunc(self.closeMe, function () {
         if (cancelled) {
-            _.forEach(changes.newPhotos, function(photo) {
+            _.forEach(changes.newPhotos, function (photo) {
                 Ti.Filesystem.getFile(app.getImagePath(photo.image)).deleteFile();
             });
         }
@@ -255,7 +262,7 @@ ak.ti.constructors.createEditListWindow = function(_args) {
     if (currentItem) {
         var nbPhotos = 0;
         var photos = [];
-        var photoItem = function(_photo, _index, _aboutToAnimate) {
+        var photoItem = function (_photo, _index, _aboutToAnimate) {
             return {
                 type: 'Ti.UI.View',
                 properties: {
@@ -292,7 +299,7 @@ ak.ti.constructors.createEditListWindow = function(_args) {
             properties: {
                 rclass: 'EditPhotoScrollView'
             },
-            childTemplates: _.reduce(currentItem.photos, function(memo, photo, index) {
+            childTemplates: _.reduce(currentItem.photos, function (memo, photo, index) {
                 nbPhotos++;
                 photos.push(photo);
                 memo.push(photoItem(photo, index));
@@ -305,7 +312,7 @@ ak.ti.constructors.createEditListWindow = function(_args) {
                 }
             }),
             events: {
-                click: app.debounce(function(e) {
+                click: app.debounce(function (e) {
                     var callbackId = e.source.callbackId;
                     if (callbackId == 'photo') {
                         app.showImageFullscreen(photos, e.source.imageIndex, e.source);
@@ -323,12 +330,12 @@ ak.ti.constructors.createEditListWindow = function(_args) {
                         holder.parent.animate({
                             width: 0,
                             duration: 200
-                        }, function() {
+                        }, function () {
                             holder.parent.removeFromParent();
                         });
                         nbPhotos--;
                     } else if (callbackId == 'add') {
-                        itemHandler.handleItemAction('acquire_photo', currentItem, list, function(
+                        itemHandler.handleItemAction('acquire_photo', currentItem, list, function (
                             options, newPhoto, image) {
                             if (newPhoto) {
                                 if (!changes.newPhotos) {
@@ -372,11 +379,11 @@ ak.ti.constructors.createEditListWindow = function(_args) {
                 color: colors.contrast
             }
         });
-        var current = tabView.pager.strip;
+        var current = tabView.pager.strip || {};
         tabView.applyProperties({
-            tintColor:colors.color,
+            tintColor: colors.color,
             pager: {
-                strip: _.assign(current, {
+                strip: Object.assign(current, {
                     backgroundColor: colors.color,
                     indicatorColor: colors.contrast,
                     color: colors.contrast
@@ -386,7 +393,7 @@ ak.ti.constructors.createEditListWindow = function(_args) {
         });
     }
 
-    self.on('click', function(e) {
+    self.on('click', function (e) {
         var item = e.item;
         if (!item) {
             return;
@@ -406,7 +413,7 @@ ak.ti.constructors.createEditListWindow = function(_args) {
 
     if (!isItem && !list) {
         list = {
-            icon: $sPlace
+            icon: $.sPlace
         };
     }
 
@@ -422,50 +429,50 @@ ak.ti.constructors.createEditListWindow = function(_args) {
     if (color) {
         updateForColor(color);
     } else {
-        updateForColor($cTheme.main);
+        updateForColor($.cTheme.main);
     }
-    self.container.tf.once('postlayout', function(e) {
+    self.container.tf.once('postlayout', function (e) {
         e.source.focus();
     });
 
     // self.once('open', function() {
-        // var views = tabView.pager.views;
-        // for (i = 0; i < icons.length; i++) {
-        //     pair = icons[i];
-        //     key = pair[0];
-        //     value = pair[1];
-        //     firstLetter = key.charAt(0).toLowerCase();
-        //     if (firstLetter !== currentLetter) {
-        //         letterIndex = letters.indexOf(firstLetter);
-        //         for (j = currentLetterIndex + 1; j < letterIndex; j++) {
-        //             iconIndexes.push({
-        //                 title: currentLetter.toUpperCase(),
-        //                 index: currentIndex
-        //             });
-        //         }
-        //         iconIndexes.push({
-        //             title: firstLetter.toUpperCase(),
-        //             index: i
-        //         });
-        //         currentLetterIndex = letterIndex;
-        //         currentLetter = firstLetter;
-        //         currentIndex = i;
-        //     }
-        //     iconItems.push({
-        //         icon: {
-        //             text: value,
-        //             visible: true
-        //         },
-        //         delete: {
-        //             visible: false
-        //         },
-        //         title: {
-        //             text: key
-        //         },
-        //         searchableText: key,
-        //         iconValue: value
-        //     });
-        // }
+    // var views = tabView.pager.views;
+    // for (i = 0; i < icons.length; i++) {
+    //     pair = icons[i];
+    //     key = pair[0];
+    //     value = pair[1];
+    //     firstLetter = key.charAt(0).toLowerCase();
+    //     if (firstLetter !== currentLetter) {
+    //         letterIndex = letters.indexOf(firstLetter);
+    //         for (j = currentLetterIndex + 1; j < letterIndex; j++) {
+    //             iconIndexes.push({
+    //                 title: currentLetter.toUpperCase(),
+    //                 index: currentIndex
+    //             });
+    //         }
+    //         iconIndexes.push({
+    //             title: firstLetter.toUpperCase(),
+    //             index: i
+    //         });
+    //         currentLetterIndex = letterIndex;
+    //         currentLetter = firstLetter;
+    //         currentIndex = i;
+    //     }
+    //     iconItems.push({
+    //         icon: {
+    //             text: value,
+    //             visible: true
+    //         },
+    //         delete: {
+    //             visible: false
+    //         },
+    //         title: {
+    //             text: key
+    //         },
+    //         searchableText: key,
+    //         iconValue: value
+    //     });
+    // }
 
     //     var index = _.findIndex(colors, function(c) {
     //         return c[1] == color;
@@ -486,7 +493,7 @@ ak.ti.constructors.createEditListWindow = function(_args) {
     // });
 
     //END OF CLASS. NOW GC
-    self.GC = app.composeFunc(self.GC, function() {
+    self.GC = app.composeFunc(self.GC, function () {
         tabView = null;
         mapHandler = null;
         self = null;

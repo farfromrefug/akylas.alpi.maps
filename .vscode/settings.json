@@ -3,4 +3,6 @@
     "files.exclude": {
 		"build": true
 	}
+,
+"vsicons.presets.angular": true
 }

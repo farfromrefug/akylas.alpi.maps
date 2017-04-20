@@ -29,7 +29,7 @@ ak.ti.constructors.createFullscreenImageWindow = function(_args) {
 
         // delta = (contentHeight - topRect.height) / 2 * minScale;
         // if (_current === true) {
-        //     var delta = ((topRect.height - (minScale * height)) / 2 - (__APPLE__ ? $navBarTop : 0)); //because of auto center
+        //     var delta = ((topRect.height - (minScale * height)) / 2 - (__APPLE__ ? $.navBarTop : 0)); //because of auto center
         //     left = sourceRect.x / minScale;
         //     top = (sourceRect.y - delta) / minScale;
         //     width = sourceRect.width / minScale;
@@ -72,7 +72,7 @@ ak.ti.constructors.createFullscreenImageWindow = function(_args) {
                 // childTemplates: [{
                 type: 'Akylas.ZoomableImageView',
                 bindId: 'imageView',
-                properties: _.assign({
+                properties: Object.assign({
                     // backgroundColor: 'red',
                     // width:'FILL',
                     // height:'FILL',
@@ -84,7 +84,7 @@ ak.ti.constructors.createFullscreenImageWindow = function(_args) {
                     // touchEnabled: false
                 }, (_current && __APPLE__) ? {
                     left: sourceRect.x,
-                    top: sourceRect.y + (__APPLE__ ? $navBarTop : 0),
+                    top: sourceRect.y + (__APPLE__ ? $.navBarTop : 0),
                     width: sourceRect.width,
                     height: sourceRect.height
                 } : undefined),
@@ -138,7 +138,7 @@ ak.ti.constructors.createFullscreenImageWindow = function(_args) {
                     // }, {
                     //     type: 'Ti.UI.Label',
                     //     properties: {
-                    //         color: $white,
+                    //         color: $.white,
                     //         width: 'FILL',
                     //         height: 52,
                     //         bottom: 0,
@@ -149,7 +149,7 @@ ak.ti.constructors.createFullscreenImageWindow = function(_args) {
                     //             size: 14
                     //         },
                     //         verticalAlign: 'top',
-                    //         backgroundColor: '#aa000000',
+                    //         backgroundColor: '#000000aa',
                     //         visible: !!_photo.attribution,
                     //         html: app.utilities.photoAttribution(_photo)
                     //     }
@@ -257,6 +257,9 @@ ak.ti.constructors.createFullscreenImageWindow = function(_args) {
             scrollend: function(e) {
                 sdebug('scrollend', canPan);
                 var view = getCurrentView();
+                if (!view) {
+                    return;
+                }
                 if (view !== currentView) {
                     sdebug('view changed');
                     currentView.zoomScale = 0;
@@ -273,7 +276,7 @@ ak.ti.constructors.createFullscreenImageWindow = function(_args) {
     var topToolbar = _args.topToolbar = new View({
         properties: {
             layout: 'horizontal',
-            height: $navBarHeight,
+            height: $.navBarHeight,
             bottom: 0
         },
         childTemplates: [{
@@ -297,7 +300,7 @@ ak.ti.constructors.createFullscreenImageWindow = function(_args) {
             type: 'Ti.UI.Button',
             properties: {
                 rclass: 'NBBackButton',
-                title: $sClose
+                title: $.sClose
             },
             events: {
                 'click': app.debounce(function() {
@@ -312,7 +315,7 @@ ak.ti.constructors.createFullscreenImageWindow = function(_args) {
             height: 'SIZE',
             maxHeight: 100,
             layout: 'vertical',
-            backgroundColor: '#aa000000',
+            backgroundColor: '#000000aa',
             contentHeight: 'SIZE'
         },
         childTemplates: [{
@@ -326,7 +329,7 @@ ak.ti.constructors.createFullscreenImageWindow = function(_args) {
                     bottom: 5,
                     top: 5
                 },
-                color: $white,
+                color: $.white,
                 height: 'SIZE',
                 width: 'FILL',
                 font: {
@@ -353,7 +356,7 @@ ak.ti.constructors.createFullscreenImageWindow = function(_args) {
         }]
     });
     _args.bottomToolbarVisible = _args.topToolbarVisible = optionsVisible;
-    var self = new AppWindow(_.assign(_args, {
+    var self = new AppWindow(Object.assign(_args, {
         // blurredBackground: true,
         backgroundColor:'transparent',
         underContainerView:{

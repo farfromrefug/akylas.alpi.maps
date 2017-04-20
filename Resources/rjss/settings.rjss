@@ -7,16 +7,16 @@ SettingsWindow {
     /*backgroundColor:'#555555',*/
     title:trc('settings'),
     showBackButton: true,
-    ownBackButtonTitle: $sClose,
+    ownBackButtonTitle: $.sClose,
     customNavBar: true,
-    barColor: $cTheme.main,
+    barColor: $.cTheme.main,
     listViewArgs:{
     },
 }
 
 
 .SettingsRow {
-    backgroundColor:$white,
+    backgroundColor:$.white,
     layout:'horizontal',
     height: 44
 }
@@ -31,7 +31,7 @@ SettingsWindow {
     left:15,
     width:'SIZE',
     maxWidth:200,
-    color: $black
+    color: $.black
 }
 
 
@@ -42,6 +42,7 @@ SettingsWindow {
     font:{size:16},
     textAlign:'right',
     width:'FILL',
+    right:10,
     /*maxWidth:150,*/
     color: 'gray'
 }
@@ -52,14 +53,14 @@ SettingsWindow {
     textAlign:'right',
     right:10,
     color: '#CECED2',
-    font: {family:$iconicfontfamily,size:16},
-    text:$sRight,
+    font: {family:$.iconicfontfamily,size:16},
+    text:$.sRight,
     touchEnabled:false
 }
 
 .SettingsRowSwitch {
     right:15,
-    onTintColor:$cTheme.main,
+    onTintColor:$.cTheme.main,
     preventListViewSelection:true,
     bubbleParent:true,
 }
@@ -67,17 +68,17 @@ SettingsWindow {
 .SettingsSelectionWindow, .ModulesSettingsWindow {
     showBackButton: true,
     customNavBar: true,
-    barColor: $cTheme.main,
+    barColor: $.cTheme.main,
 }
 
 
 .LicenseRow {
     rclass:'BottomSeparatorView',
-    backgroundSelectedColor:$cTheme.main,
+    backgroundSelectedColor:$.cTheme.main,
     width:'FILL',
     height:'SIZE',
     layout:'vertical',
-    borderColor:'#88dddddd',
+    borderColor:'#dddddd88',
     borderPadding:[-1,-1,0,-1],
 }
 
@@ -87,7 +88,7 @@ SettingsWindow {
     height:18,
     touchEnabled:false,
     font: {size:16},
-    color:$black
+    color:$.black
 }
 
 .LicenseRowSublabel {
@@ -98,7 +99,7 @@ SettingsWindow {
     height:27,
     bottom:5,
     font: {size:13},
-    color:$gray
+    color:$.gray
 }
 
 
@@ -110,7 +111,7 @@ SettingsWindow {
     left:10,
     font: {size:13},
     bottom:5,
-    color:$black
+    color:$.black
 }
 
 .ModuleHeader {
@@ -127,9 +128,9 @@ ModulesWindow {
     /*backgroundColor:'#555555',*/
     title:trc('modules'),
     showBackButton: true,
-    ownBackButtonTitle: $sClose,
+    ownBackButtonTitle: $.sClose,
     customNavBar: true,
-    barColor: $cTheme.main,
+    barColor: $.cTheme.main,
     listViewArgs:{
     },
 }

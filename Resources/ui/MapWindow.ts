@@ -1,11 +1,61 @@
+
+declare class MapWindow extends AppWindow {
+    childrenHolder: View
+    mpp: number
+    setMapFakePadding(name: string, args: dict)
+    setRegion(_region:MapRegion, _deltaFactor:number, _animated:boolean, _deltaScreen)
+    updateCamera(_params, _deltaScreen?)
+    setHighlightPoint(_value)
+    getAroundData()
+    updateMapItem(_mapItem, _item, _changes)
+    setMapFakePadding(_key: string, _padding, _duration?: number)
+    removeMapFakePadding(_key: string, _duration?: number)
+    ignoreFakePadding(_key: string, _duration?: number)
+    unignoreFakePadding(_key: string, _duration?: number)
+    getMapFakePadding(_key: string)
+    setMapPadding(_key: string, _padding, _duration?: number)
+    removeMapPadding(_key: string, _duration?: number)
+    getMapPadding(_key: string)
+    getMapCurrentPadding()
+    removeAnnotations(ids)
+    updateUserLocation(_force:boolean)
+    mapViewSnapshot()
+    runMethodOnModules(...args)
+    runGetMethodOnModules(...args)
+    runGetSingleMethodOnModules(...args)
+    runReduceMethodOnModules(...args)
+    getModule(id: string): MapModule
+    getContentModules(): MapModule[]
+    showDebugText(_text:string)
+}
+
+
+declare type MapCoordinates = { latitude: number, longitude: number } | number[]
+declare type MapRegion = { latitude: number, longitude: number } | number[]
+declare type Padding = { left?: number, right?: number, top?: number, bottom?: number } | number[] | number
+declare class Cluster extends Titanium.Proxy {
+}
+declare class Annotation extends Titanium.Proxy {
+}
+declare class MapView extends View {
+    defaultCalloutTemplate: string
+    region: MapRegion
+    padding: Padding
+    centerCoordinate: MapCoordinates
+    clusters: Cluster[]
+    calloutUseTemplates: boolean
+    userTrackingMode: number
+    zoom: number
+    removeAnnotation(annotations: Annotation | Annotation[])
+}
+
 ak.ti.constructors.createMapWindow = function (_args) {
     function getAllModules() {
         return _.values(contentModules).concat(_.values(modules));
     }
 
-    function runMethodOnModules() {
-        var args = Array.prototype.slice.call(arguments),
-            method, mods;
+    function runMethodOnModules(...args) {
+        var method, mods;
         var result = false;
         if (_.isBoolean(args[0])) {
             mods = !!args[0] ? contentModules : modules;
@@ -27,9 +77,8 @@ ak.ti.constructors.createMapWindow = function (_args) {
         return result;
     }
 
-    function runGetSingleMethodOnModules() {
-        var args = Array.prototype.slice.call(arguments),
-            method, mods;
+    function runGetSingleMethodOnModules(...args) {
+        var method, mods;
         var result;
         if (_.isBoolean(args[0])) {
             mods = !!args[0] ? contentModules : modules;
@@ -51,9 +100,8 @@ ak.ti.constructors.createMapWindow = function (_args) {
         return result;
     }
 
-    function runGetMethodOnModules() {
-        var args = Array.prototype.slice.call(arguments),
-            method, mods;
+    function runGetMethodOnModules(...args) {
+        var method, mods;
         if (_.isBoolean(args[0])) {
             mods = (!!args[0]) ? contentModules : modules;
             args.splice(0, 1);
@@ -73,9 +121,8 @@ ak.ti.constructors.createMapWindow = function (_args) {
         }, []);
     }
 
-    function runReduceMethodOnModules() {
-        var args = Array.prototype.slice.call(arguments),
-            method, mods;
+    function runReduceMethodOnModules(...args) {
+        var method, mods;
         if (_.isBoolean(args[0])) {
             mods = !!args[0] ? contentModules : modules;
             args.splice(0, 1);
@@ -123,7 +170,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
             return memo;
         }, {}), mapPadding, mergeRemove);
         // sdebug('currentPadding', currentPadding);
-        // mapView.childrenHolder.animate(_.assign({
+        // mapView.childrenHolder.animate(Object.assign({
         //     duration: _duration
         // }, currentPadding));
 
@@ -182,8 +229,6 @@ ak.ti.constructors.createMapWindow = function (_args) {
         return module;
     }
 
-    var self = new AppWindow(_args);
-
     var itemHandler = app.itemHandler,
         highlightingPoint = false,
         currentAnnots = [],
@@ -213,12 +258,12 @@ ak.ti.constructors.createMapWindow = function (_args) {
             currentLocation: null
         },
         firstFollow = true,
-        contentModules = {},
-        modules = {},
+        contentModules: { [k: string]: MapModule } = {},
+        modules: { [k: string]: MapModule } = {},
         justUnselectedMarker = false,
         cancelClick = false,
         region = Ti.App.Properties.hasProperty('last_region') ?
-        Ti.App.Properties.getObject('last_region') : undefined,
+            Ti.App.Properties.getObject('last_region') : undefined,
         currentRegion,
 
         hideDebugTimer,
@@ -234,155 +279,13 @@ ak.ti.constructors.createMapWindow = function (_args) {
     });
 
     var mapView = new MapView({
-        properties: _.assign(moduleParams.mapArgs, {
+        properties: Object.assign(moduleParams.mapArgs, {
             rclass: 'AppMapView',
             region: region,
             clusters: _.values(moduleParams.clusters).reverse(),
             bubbleParent: false,
             defaultCalloutTemplate: 'default',
-            calloutUseTemplates: true,
-            // mapStyle: JSON.stringify([{
-            //     "elementType": "geometry",
-            //     "stylers": [{
-            //         "color": "#ebe3cd"
-            //     }]
-            // }, {
-            //     "elementType": "labels.text.fill",
-            //     "stylers": [{
-            //         "color": "#523735"
-            //     }]
-            // }, {
-            //     "elementType": "labels.text.stroke",
-            //     "stylers": [{
-            //         "color": "#f5f1e6"
-            //     }]
-            // }, {
-            //     "featureType": "administrative",
-            //     "elementType": "geometry.stroke",
-            //     "stylers": [{
-            //         "color": "#c9b2a6"
-            //     }]
-            // }, {
-            //     "featureType": "administrative.land_parcel",
-            //     "elementType": "geometry.stroke",
-            //     "stylers": [{
-            //         "color": "#dcd2be"
-            //     }]
-            // }, {
-            //     "featureType": "administrative.land_parcel",
-            //     "elementType": "labels.text.fill",
-            //     "stylers": [{
-            //         "color": "#ae9e90"
-            //     }]
-            // }, {
-            //     "featureType": "landscape.natural",
-            //     "elementType": "geometry",
-            //     "stylers": [{
-            //         "color": "#dfd2ae"
-            //     }]
-            // }, {
-            //     "featureType": "poi",
-            //     "elementType": "geometry",
-            //     "stylers": [{
-            //         "color": "#dfd2ae"
-            //     }]
-            // }, {
-            //     "featureType": "poi",
-            //     "elementType": "labels.text.fill",
-            //     "stylers": [{
-            //         "color": "#93817c"
-            //     }]
-            // }, {
-            //     "featureType": "poi.park",
-            //     "elementType": "geometry.fill",
-            //     "stylers": [{
-            //         "color": "#a5b076"
-            //     }]
-            // }, {
-            //     "featureType": "poi.park",
-            //     "elementType": "labels.text.fill",
-            //     "stylers": [{
-            //         "color": "#447530"
-            //     }]
-            // }, {
-            //     "featureType": "road",
-            //     "elementType": "geometry",
-            //     "stylers": [{
-            //         "color": "#f5f1e6"
-            //     }]
-            // }, {
-            //     "featureType": "road.arterial",
-            //     "elementType": "geometry",
-            //     "stylers": [{
-            //         "color": "#fdfcf8"
-            //     }]
-            // }, {
-            //     "featureType": "road.highway",
-            //     "elementType": "geometry",
-            //     "stylers": [{
-            //         "color": "#f8c967"
-            //     }]
-            // }, {
-            //     "featureType": "road.highway",
-            //     "elementType": "geometry.stroke",
-            //     "stylers": [{
-            //         "color": "#e9bc62"
-            //     }]
-            // }, {
-            //     "featureType": "road.highway.controlled_access",
-            //     "elementType": "geometry",
-            //     "stylers": [{
-            //         "color": "#e98d58"
-            //     }]
-            // }, {
-            //     "featureType": "road.highway.controlled_access",
-            //     "elementType": "geometry.stroke",
-            //     "stylers": [{
-            //         "color": "#db8555"
-            //     }]
-            // }, {
-            //     "featureType": "road.local",
-            //     "elementType": "labels.text.fill",
-            //     "stylers": [{
-            //         "color": "#806b63"
-            //     }]
-            // }, {
-            //     "featureType": "transit.line",
-            //     "elementType": "geometry",
-            //     "stylers": [{
-            //         "color": "#dfd2ae"
-            //     }]
-            // }, {
-            //     "featureType": "transit.line",
-            //     "elementType": "labels.text.fill",
-            //     "stylers": [{
-            //         "color": "#8f7d77"
-            //     }]
-            // }, {
-            //     "featureType": "transit.line",
-            //     "elementType": "labels.text.stroke",
-            //     "stylers": [{
-            //         "color": "#ebe3cd"
-            //     }]
-            // }, {
-            //     "featureType": "transit.station",
-            //     "elementType": "geometry",
-            //     "stylers": [{
-            //         "color": "#dfd2ae"
-            //     }]
-            // }, {
-            //     "featureType": "water",
-            //     "elementType": "geometry.fill",
-            //     "stylers": [{
-            //         "color": "#b9d3c2"
-            //     }]
-            // }, {
-            //     "featureType": "water",
-            //     "elementType": "labels.text.fill",
-            //     "stylers": [{
-            //         "color": "#92998d"
-            //     }]
-            // }])
+            calloutUseTemplates: true
         }),
         events: {
             regionchanged: function (e) {
@@ -450,6 +353,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
                 }
             },
             error: function (e) {
+                console.log('mapView error', e.code, e.error, e.message);
                 app.emit('error', {
                     message: e.error
                 });
@@ -457,7 +361,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
         }
     });
 
-    _args = _.assign(_args || {}, {
+    _args = Object.assign(_args || {}, {
         underContainerView: {
             bindId: 'underContainer',
             childTemplates: moduleParams.underContainerChildren
@@ -510,16 +414,16 @@ ak.ti.constructors.createMapWindow = function (_args) {
                             postlayout: function (e) {
                                 var parentRect = mapView.rect;
                                 var rect = e.source.rect;
-                                // sdebug('mapview postLayout', rect, parentRect);
+                                sdebug('mapview postLayout', rect, parentRect);
                                 // currentPadding = _.pick(e.source, 'top', 'left', 'bottom', 'right');
                                 self.setMapFakePadding('toolbars', {
                                     left: rect.x,
                                     top: rect.y,
                                     right: parentRect.width - rect.x -
-                                        rect
+                                    rect
                                         .width,
                                     bottom: parentRect.height - rect.y -
-                                        rect.height,
+                                    rect.height + 80,
                                 });
 
                             }
@@ -566,13 +470,13 @@ ak.ti.constructors.createMapWindow = function (_args) {
             ].concat(moduleParams.mapChildren)
         },
 
-        backgroundColor: $cMenuBack
+        backgroundColor: $.cMenuBack
     });
-    var self = new AppWindow(_args);
+    var self = new AppWindow(_args) as MapWindow;
     // cleanup memory
     moduleParams = null;
 
-    _.assign(self, {
+    Object.assign(self, {
         settings: settings,
         setRegion: function (_region, _deltaFactor, _animated, _deltaScreen) {
             var padding = _.clone(_deltaScreen || currentPadding);
@@ -580,6 +484,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
         },
         updateCamera: function (_params, _deltaScreen) {
             var padding = _.clone(_deltaScreen || currentPadding);
+            sdebug('updateCamera', _params, _deltaScreen, currentPadding);
             itemHandler.updateCamera(mapView, _params, padding);
         },
         setHighlightPoint: function (_value) {
@@ -622,7 +527,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
             });
         },
         setMapFakePadding: function (_key, _padding, _duration) {
-            // sdebug('setMapFakePadding', _key, _padding);
+            sdebug('setMapFakePadding', _key, _padding);
             fakePaddings[_key] = _padding;
             updatePadding(_duration);
         },
@@ -632,7 +537,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
             updatePadding(_duration);
         },
         ignoreFakePadding: function (_key, _duration) {
-            if (!_.contains(ignoredPaddings, _key)) {
+            if (!_.includes(ignoredPaddings, _key)) {
                 ignoredPaddings.push(_key);
                 // updatePadding(_duration);
             }
@@ -668,13 +573,13 @@ ak.ti.constructors.createMapWindow = function (_args) {
             }
             var args = Array.prototype.slice.call(arguments);
             var result = _.reduce(mapPaddings, function (memo, padding, key) {
-                if (!_.contains(args, key)) {
+                if (!_.includes(args, key)) {
                     _.merge(memo, padding, mergeAdd);
                 }
                 return memo;
             }, {});
             return _.reduce(fakePaddings, function (memo, padding, key) {
-                if (!_.contains(args, key)) {
+                if (!_.includes(args, key)) {
                     _.merge(memo, padding, mergeAdd);
                 }
                 return memo;
@@ -682,7 +587,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
         },
         removeAnnotations: function (ids) {
             var toRemove = _.filter(currentAnnots, function (annot) {
-                return _.contains(ids, annot.id);
+                return _.includes(ids, annot.id);
             });
             var length = toRemove.length;
             // sdebug('removeAnnotations', toRemove, length);
@@ -693,6 +598,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
         },
         updateUserLocation: function (_force) {
             var location = settings.currentLocation;
+            sdebug('updateUserLocation', location, _force, settings.userFollow, firstFollow);
             if (!location) {
                 return;
             }
@@ -701,7 +607,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
             if (_force !== true && !settings.userFollow && !firstFollow) {
                 return;
             }
-            var params = {
+            var params: dict = {
                 centerCoordinate: location,
                 // zoom: Math.max(mapView.zoom, settings.updateBearing ? 17 : 14),
                 zoom: Math.max(mapView.zoom, 14),
@@ -729,7 +635,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
             }
             if (!debugView) {
                 debugView = new Label({
-                    backgroundColor: '#dd000000',
+                    backgroundColor: '#000000dd',
                     padding: 6,
                     top: __ANDROID__ ? 60 : 10,
                     borderRadius: 6,
@@ -737,7 +643,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
                     font: {
                         size: 11
                     },
-                    color: $white,
+                    color: $.white,
                     opacity: 0,
                     text: _text
                 });
@@ -789,7 +695,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
         // sdebug('test on init ', module.id);
         var key = 'onInit' + module.id;
         // ak.ti.markTime(key);
-        _.assign(module, {
+        Object.assign(module, {
             window: self,
             mapView: mapView,
             parent: self
@@ -810,8 +716,8 @@ ak.ti.constructors.createMapWindow = function (_args) {
     }
 
     function onLocation(e) {
-        // sdebug('appmapview onLocation');
         settings.currentLocation = e.location;
+        sdebug('appmapview onLocation', settings.currentLocation);
         firstFollow = false;
         runMethodOnModules('onLocation', settings.currentLocation);
         // }
@@ -878,7 +784,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
                     if (!contentModules.hasOwnProperty(moduleId)) {
                         sdebug('loading module', moduleId);
                         var module = loadModule(moduleId, index, modulesToChange === contentModules);
-                        _.assign(module, {
+                        Object.assign(module, {
                             window: self,
                             mapView: mapView,
                             parent: self
@@ -886,12 +792,18 @@ ak.ti.constructors.createMapWindow = function (_args) {
                         if (module.onInit) {
                             module.onInit();
                         }
+                        app.emit('module_loaded', {
+                            id: moduleId
+                        });
                     }
                 } else {
                     if (modulesToChange.hasOwnProperty(moduleId)) {
                         sdebug('unloading module', moduleId);
                         modulesToChange[moduleId].GC();
                         delete modulesToChange[moduleId];
+                        app.emit('module_unloaded', {
+                            id: moduleId
+                        });
                     }
                 }
                 runMethodOnModules('onModuleLoaded', moduleId, e.value, modulesToChange[moduleId]);
@@ -937,7 +849,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
             return;
         }
         if (!runMethodOnModules('onWindowBack', e)) {
-            self.closeMe();
+            app.closeApp();
         }
     };
 
@@ -954,7 +866,6 @@ ak.ti.constructors.createMapWindow = function (_args) {
         });
         self = null;
         modules = null;
-        self = null;
         mapView = null;
     });
     return self;

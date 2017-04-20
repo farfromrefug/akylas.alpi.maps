@@ -1,6 +1,6 @@
 function create(_context, _args) {
 
-    var self = new _context.MicroEvent(_args),
+    var self = new TiEventEmitter(_args),
         __started,
         __headingStarted,
         __watchers,
@@ -33,22 +33,22 @@ function create(_context, _args) {
             accuracy: Ti.Geolocation.ACCURACY_BEST
         }],
         __unitM = Ti.App.Properties.getBool('unit_m', true),
-        onSuccess = function(e) {
-            _.each(__watchers, function(value, key) {
+        onSuccess = function (e) {
+            _.each(__watchers, function (value, key) {
                 if (value.successCallback) {
                     value.successCallback(e);
                 }
             });
         },
-        onError = function(e) {
-            _.each(__watchers, function(value, key) {
+        onError = function (e) {
+            _.each(__watchers, function (value, key) {
                 if (value.errorCallback) {
                     value.errorCallback(e);
                 }
             });
         };
-    _.assign(self, {
-        init: function() {
+    Object.assign(self, {
+        init: function () {
             if (__APPLE__) {
                 Ti.Geolocation.showCalibration = true;
                 Ti.Geolocation.requestLocationPermissions(Ti.Geolocation.AUTHORIZATION_ALWAYS);
@@ -66,7 +66,7 @@ function create(_context, _args) {
 
             }
         },
-        reset: function() {
+        reset: function () {
             __started = false;
             __headingStarted = false;
             __watchers = {};
@@ -76,7 +76,7 @@ function create(_context, _args) {
             __lastHeadingTimestamp = -1;
             __locationServiceEnabled = Ti.Geolocation.locationServicesEnabled;
         },
-        onLocation: function(e) {
+        onLocation: function (e) {
             console.log('onLocation', e);
             if (!e || !e.coords || e.success === false || e.error) {
                 __currentPosition = null;
@@ -102,7 +102,7 @@ function create(_context, _args) {
                 self.stop();
             }
         },
-        onHeading: function(e) {
+        onHeading: function (e) {
             if (e.success === false || e.error || __currentPosition === null || e.timestamp <
                 __lastHeadingTimestamp) {
                 return;
@@ -116,7 +116,7 @@ function create(_context, _args) {
             }
 
         },
-        watchPosition: function(successCallback, errorCallback, options) {
+        watchPosition: function (successCallback, errorCallback, options) {
             var id = __watchersId + '';
             __watchersId++;
             __watchers[id] = {
@@ -129,34 +129,40 @@ function create(_context, _args) {
             }
             return id;
         },
-        clearWatch: function(_id) {
+        clearWatch: function (_id) {
             console.log('clearWatch', _id);
             delete __watchers[_id];
             if (Object.keys(__watchers).length === 0) {
                 self.stop();
             }
         },
-        getCurrentPosition: function(_forceUpdate) {
+        getCurrentPosition: function (_forceUpdate) {
+            console.log('getCurrentPosition', _forceUpdate, __currentPosition, __started);
             if (__currentPosition && _forceUpdate !== true) {
                 onSuccess(__currentPosition);
             } else if (!__started) {
+                console.log('not started');
                 if (!__currentPosition) {
+                    console.log('get lastGeolocation');
                     self.onLocation(Ti.Geolocation.lastGeolocation);
                 }
                 __needsOneTimestamp = moment().valueOf();
                 self.start(false);
+            } else {
+                console.log('already started');
+                Ti.Geolocation.getCurrentPosition(self.onLocation);
             }
         },
-        cancelGetCurrentPosition: function() {
-            if (_started && __needsOneTimestamp) {
+        cancelGetCurrentPosition: function () {
+            if (__started && __needsOneTimestamp) {
                 __needsOneTimestamp = null;
                 self.stop();
             }
         },
-        getLastPosition: function() {
+        getLastPosition: function () {
             return __currentPosition;
         },
-        startUpdateHeading: function() {
+        startUpdateHeading: function () {
             // if (__APPLE__) {
             if (!__headingStarted) {
                 __headingStarted = true;
@@ -166,7 +172,7 @@ function create(_context, _args) {
 
             // }
         },
-        stopUpdateHeading: function() {
+        stopUpdateHeading: function () {
             // if (__APPLE__) {
             if (__headingStarted) {
                 __headingStarted = false;
@@ -174,7 +180,7 @@ function create(_context, _args) {
             }
             // }
         },
-        stop: function() {
+        stop: function () {
             if (!__started) {
                 return;
             }
@@ -182,7 +188,7 @@ function create(_context, _args) {
             sdebug('locationManager', 'stop');
             Ti.Geolocation.off('location', self.onLocation);
         },
-        start: function(__realStart) {
+        start: function (__realStart) {
             if (__started) {
                 return;
             }
@@ -197,7 +203,7 @@ function create(_context, _args) {
             Ti.Geolocation.on('location', self.onLocation);
             Ti.Geolocation.getCurrentPosition(self.onLocation);
         },
-        setLevel: function(__level) {
+        setLevel: function (__level) {
             var data = __gpsLevels[__level];
             sdebug('LocationManager', 'setLevel', __level, __gpsLevel, data);
             if (data) {
@@ -218,21 +224,21 @@ function create(_context, _args) {
             }
 
         },
-        getLevel: function() {
+        getLevel: function () {
             return __gpsLevel;
         },
-        getLevels: function() {
+        getLevels: function () {
             return __gpsLevels;
         },
-        getAccuracy: function() {
+        getAccuracy: function () {
             return __gpsLevels[__gpsLevel].needeAccuracy;
         },
-        isLocationServicesEnabled: function() {
+        isLocationServicesEnabled: function () {
             return __locationServiceEnabled;
         }
     });
 
-    Ti.Geolocation.on('change', function(e) {
+    Ti.Geolocation.on('change', function (e) {
         sdebug('Geolocation change', e.enabled, __locationServiceEnabled);
         if (__locationServiceEnabled !== e.enabled) {
             __locationServiceEnabled = e.enabled;
@@ -250,7 +256,7 @@ function create(_context, _args) {
             }
         }
     });
-    Ti.Geolocation.on('state', function(e) {
+    Ti.Geolocation.on('state', function (e) {
         self.emit('state', e);
     });
     self.reset();
@@ -258,6 +264,6 @@ function create(_context, _args) {
     return self;
 }
 
-exports.create = function(context, _args) {
+exports.create = function (context, _args) {
     return create(context, _args);
 };

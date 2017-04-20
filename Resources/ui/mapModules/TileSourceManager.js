@@ -62,7 +62,7 @@ exports.create = function(_context, _args, _additional) {
                     });
                 }
                 saveRunningMBTiles();
-                mbtiles[request.token] = _.assign({
+                mbtiles[request.token] = Object.assign({
                     address: e,
                     layer: request.layer.layer,
                 }, _.pick(request, 'area', 'size', 'token', 'count', 'timestamp',
@@ -134,7 +134,7 @@ exports.create = function(_context, _args, _additional) {
         runningMbTiles[request.token] = {
             doneCount: request.layer.doneCount,
             count: request.count,
-            query: _.assign(request.layer, _.pick(request, 'token', 'timestamp', 'doneCount')),
+            query: Object.assign(request.layer, _.pick(request, 'token', 'timestamp', 'doneCount')),
             file: request.file,
             token: request.token,
             request: request,
@@ -255,7 +255,7 @@ exports.create = function(_context, _args, _additional) {
             var res = MBTilesUtils.computeInfoForMBTiles(layer, bounds, minZoom, maxZoom);
             var minScale = geolib.getMapScaleAtZoom(res.minZoom, center);
             var maxScale = geolib.getMapScaleAtZoom(res.maxZoom, center);
-            return _.assign(res, {
+            return Object.assign(res, {
                 minScale: formatScale(minScale.realScale),
                 maxScale: formatScale(maxScale.realScale),
             })
@@ -305,7 +305,7 @@ exports.create = function(_context, _args, _additional) {
                         properties: {
                             height: 34,
                             bubbleParent: true,
-                            tintColor: $cTheme.main,
+                            tintColor: $.cTheme.main,
                             min: realMinZoom,
                             max: maxZoom,
                             value: minZoom
@@ -349,7 +349,7 @@ exports.create = function(_context, _args, _additional) {
                         bindId: 'maxSlider',
                         properties: {
                             height: 34,
-                            tintColor: $cTheme.main,
+                            tintColor: $.cTheme.main,
                             bubbleParent: true,
                             min: minZoom,
                             max: realMaxZoom,
@@ -427,7 +427,7 @@ exports.create = function(_context, _args, _additional) {
         }
         if (layer) {
             var enabled = Ti.App.Properties.getBool(_id + '_enabled', true);
-            var props = _.assign({
+            var props = Object.assign({
                 id: _id,
                 url: (!isMbTiles) ? layer.url : undefined,
                 source: isMbTiles ? (app.getPath('mbtiles') + mbtiles[_id].file) : undefined,
@@ -471,7 +471,7 @@ exports.create = function(_context, _args, _additional) {
         self.window.on('click', onParentClick);
         self.window.container.animate({
             duration: 200,
-            transform: '0t0,-' + $TSCountrolsHeight
+            transform: '0t0,-' + $.TSCountrolsHeight
 
         });
     }
@@ -578,8 +578,8 @@ exports.create = function(_context, _args, _additional) {
             },
             sourceId: id,
             enable: {
-                text: enabled ? $sVisible : $sHidden,
-                color: enabled ? $cTheme.main : $white,
+                text: enabled ? $.sVisible : $.sHidden,
+                color: enabled ? $.cTheme.main : $.white,
             },
             slider: {
                 value: Ti.App.Properties.getDouble(id +
@@ -602,7 +602,7 @@ exports.create = function(_context, _args, _additional) {
                 '^(OpenWeatherMap|OpenSeaMap|Lonvia|OpenSkiMap)',
                 'OpenMapSurfer.(AdminBounds|Contours)',
                 'shading',
-                '^openpistemap$',
+                '^openpistemap$.',
                 'Stamen.Toner(Hybrid|Lines|Labels)',
                 'Acetate.(foreground|labels|roads)',
                 'Hydda.RoadsAndLabels'
@@ -630,7 +630,7 @@ exports.create = function(_context, _args, _additional) {
                 id: id,
                 category: data.category,
                 url: data.url,
-                options: _.assign({}, data.options),
+                options: Object.assign({}, data.options),
             };
 
             // overwrite values in provider from variant.
@@ -649,7 +649,7 @@ exports.create = function(_context, _args, _additional) {
                 }
                 variantOptions.variantName = variantName;
                 provider.url = variant.url || provider.url;
-                _.assign(provider.options, variantOptions);
+                Object.assign(provider.options, variantOptions);
             } else if (typeof provider.url === 'function') {
                 provider.url = provider.url(parts.splice(1, parts.length - 1).join('.'));
             }
@@ -711,10 +711,10 @@ exports.create = function(_context, _args, _additional) {
         }, []);
     var actions = [{
         id: 'add',
-        icon: $sAdd
+        icon: $.sAdd
     }, {
         id: 'glayer',
-        icon: $sRouting
+        icon: $.sRouting
     }, {
         id: 'traffic',
         enabled: false,
@@ -726,10 +726,10 @@ exports.create = function(_context, _args, _additional) {
     }, {
         id: 'indoor',
         enabled: false,
-        icon: $sLayers
+        icon: $.sLayers
     }];
     var actionButtons = _.reduce(actions, function(memo, value) {
-        memo.push(new ActionButton(_.assign(value, {
+        memo.push(new ActionButton(Object.assign(value, {
             width: 'FILL'
         })));
         return memo;
@@ -879,8 +879,8 @@ exports.create = function(_context, _args, _additional) {
                                 current = tileSourcesIndexed[sourceId].visible;
                                 current = !current;
                                 e.source.applyProperties({
-                                    text: current ? $sVisible : $sHidden,
-                                    color: current ? $cTheme.main : $white
+                                    text: current ? $.sVisible : $.sHidden,
+                                    color: current ? $.cTheme.main : $.white
                                 });
                                 Ti.App.Properties.setBool(sourceId + '_enabled', current);
                                 tileSourcesIndexed[sourceId].visible = current;
@@ -988,7 +988,7 @@ exports.create = function(_context, _args, _additional) {
         button = new Button({
             rclass: 'MapButton',
             bubbleParent: false,
-            title: $sLayers,
+            title: $.sLayers,
             bottom: 6,
             top: null,
             left: 8
@@ -1000,7 +1000,7 @@ exports.create = function(_context, _args, _additional) {
 
     var self = new _context.MapModule(_args);
 
-    _.assign(self, {
+    Object.assign(self, {
         mbTilesSubTitle: mbTilesSubTitle,
         mbTilesTitle: mbTilesTitle,
         GC: app.composeFunc(self.GC, function() {
@@ -1073,7 +1073,7 @@ exports.create = function(_context, _args, _additional) {
         },
 
         addTileSource: function(_id) {
-            if (!_.contains(currentSources, _id)) {
+            if (!_. includes(currentSources, _id)) {
                 var tileSource = createTileSource(_id, currentSources.length);
                 self.internalAddTileSource(tileSource);
             }
@@ -1149,7 +1149,7 @@ exports.create = function(_context, _args, _additional) {
             }
         },
     });
-    _.assign(_additional.mapArgs, {
+    Object.assign(_additional.mapArgs, {
         tileSource: (_additional.mapArgs.tileSource || []).concat(tileSources),
         mapType: mapTypes[Ti.App.Properties.getString('maptype', 'normal')]
     });

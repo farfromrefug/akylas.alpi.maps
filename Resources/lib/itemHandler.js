@@ -10,7 +10,7 @@
 
     var itemActions = {
         search_google: {
-            icon: $sGoogle,
+            icon: $.sGoogle,
             color: '#5394F3',
             text: 'google'
         },
@@ -23,28 +23,28 @@
             color: '#DA4630'
         },
         reverse_geo: {
-            icon: $sPlace,
+            icon: $.sPlace,
             color: '#2CA8C2',
             text: 'address'
         },
         consolidate_alt: {
-            icon: $sElevation,
+            icon: $.sElevation,
             color: '#99CB4A',
             text: 'altitude'
         },
         navigate: {
-            icon: $sRouting,
+            icon: $.sRouting,
             text: 'directions'
         },
         more: {
-            icon: $sHOptions,
+            icon: $.sHOptions,
         },
         move: {
             icon: app.icons.folder,
             color: '#839098',
         },
         query_profile: {
-            icon: $sElevationProfile,
+            icon: $.sElevationProfile,
             color: '#99CB4A',
             text: 'profile'
         },
@@ -53,7 +53,7 @@
             text: 'call'
         },
         refresh_tags: {
-            icon: $sRefresh,
+            icon: $.sRefresh,
             text: 'details'
         },
         searcharound: {
@@ -71,7 +71,7 @@
             text: 'locate'
         },
         directions: {
-            icon: $sDirections,
+            icon: $.sDirections,
             color: '#0D83D4',
             text: 'directions'
         }
@@ -79,9 +79,9 @@
     var iconStyleViews = {
         0: new Label({
             properties: {
-                color: $white,
+                color: $.white,
                 font: {
-                    family: $iconicfontfamily,
+                    family: $.iconicfontfamily,
                     size: 30
                 },
                 verticalAlign: 'middle',
@@ -89,7 +89,7 @@
                 width: __APPLE__ ? 50 : 30,
                 // backgroundColor:'red',
                 height: __APPLE__ ? 50 : 30,
-                // shadowColor: '#44000000',
+                // shadowColor: '#00000044',
                 // shadowOffset: [0, 1],
                 // shadowRadius: 1,
                 // opacity: 0.5,
@@ -101,7 +101,7 @@
                 bindId: 'label',
                 properties: {
                     font: {
-                        family: $iconicfontfamily,
+                        family: $.iconicfontfamily,
                         size: 16
                     },
                     width: 'FILL',
@@ -111,9 +111,9 @@
                         bottom: __APPLE__ ? 2 : 0,
                     },
                     strokeWidth: 1,
-                    strokeColor: $black,
+                    strokeColor: $.black,
                     textAlign: 'center',
-                    color: $white
+                    color: $.white
                 }
             }]
         }),
@@ -122,9 +122,9 @@
                 width: __APPLE__ ? 50 : 32,
                 height: __APPLE__ ? 60 : 40,
                 // backgroundColor:'red',
-                color: $white,
+                color: $.white,
                 font: {
-                    family: $iconicfontfamily,
+                    family: $.iconicfontfamily,
                     size: 40
                 },
                 padding: {
@@ -133,11 +133,11 @@
                 verticalAlign: 'top',
                 textAlign: 'center',
 
-                // shadowColor: '#44000000',
+                // shadowColor: '#00000044',
                 // shadowOffset: [0, 1],
                 // shadowRadius: 1,
                 strokeWidth: 2,
-                text: $sPin,
+                text: $.sPin,
             },
 
             childTemplates: [{
@@ -146,18 +146,18 @@
                 bindId: 'label',
                 properties: {
                     font: {
-                        family: $iconicfontfamily,
+                        family: $.iconicfontfamily,
                         size: 18
                     },
                     width: 'FILL',
-                    // backgroundColor:'#8800ff00',
+                    // backgroundColor:'#00ff0088',
                     height: 24,
                     top: __APPLE__ ? 10 : 4,
                     // strokeWidth: 4,
                     strokeWidth: 1,
-                    strokeColor: $black,
+                    strokeColor: $.black,
                     textAlign: 'center',
-                    color: $white,
+                    color: $.white,
                 }
             }]
         }),
@@ -166,7 +166,7 @@
                 width: 50,
                 height: 50,
                 font: {
-                    family: $iconicfontfamily,
+                    family: $.iconicfontfamily,
                     size: 30
                 },
                 verticalAlign: 'middle',
@@ -174,23 +174,23 @@
                     bottom: 2
                 },
                 textAlign: 'center',
-                color: $white,
+                color: $.white,
                 strokeWidth: 1,
-                // shadowColor: '#44000000',
+                // shadowColor: '#00000044',
                 // shadowRadius: 1,
                 // shadowOffset: [0, 1],
             }
         }),
         10: new Label({
             properties: {
-                color: $white,
+                color: $.white,
                 font: {
-                    family: $iconicfontfamily,
+                    family: $.iconicfontfamily,
                     size: 26
                 },
                 verticalAlign: 'middle',
                 textAlign: 'center',
-                // strokeColor: $white,
+                // strokeColor: $.white,
                 // strokeWidth: 3,
                 width: 28,
                 height: 28,
@@ -201,7 +201,7 @@
                 // shadowColor: 'gray',
                 // shadowRadius: 0,
                 // shadowOffset: [0, 1],
-                shadowColor: '#44000000',
+                shadowColor: '#00000044',
                 shadowOffset: [0, 1],
                 shadowRadius: 1,
                 text: app.icons.circle
@@ -209,7 +209,7 @@
         }),
         11: new Label({
             properties: {
-                color: $white,
+                color: $.white,
                 font: {
                     size: 12
                 },
@@ -290,7 +290,7 @@
 
         if (_item) {
             if (_item.color) {
-                colors = app.getContrastColor(_item.color);
+                colors = app.getContrastColors(_item.color);
             }
 
             icon = _item.icon || icon;
@@ -300,7 +300,7 @@
         var imageId = [
             'annot',
             iconSettings.style,
-            iconSettings.scale,
+            iconSettings.scale | 1,
             parseInt((colors.color)
                 .slice(1), 16),
             icon.charCodeAt(0),
@@ -320,7 +320,7 @@
         if (!app.needsUpdate('annot_images') && file.exists()) {
             return imageId;
         }
-        var textColor = (colors.luminance > 0.8) ? colors.contrast : $white;
+        var textColor = (colors.luminance > 0.8) ? colors.contrast : $.white;
         var view = iconStyleViews[iconSettings.style + ''];
         var color = colors.color,
             darkenColor = Color(color)
@@ -345,7 +345,7 @@
 
         // if (iconSettings.style === 1) {
         // params.strokeColor = selected ? textColor : Color(darkenColor).setAlpha(0.6).toHex8String();
-        // params.label.color = selected ? $white : darkenColor;
+        // params.label.color = selected ? $.white : darkenColor;
         // params.label.color = textColor;
         // } else
         if (iconSettings.style === 2) {
@@ -388,7 +388,7 @@
             _type.visible = Ti.App.Properties.getBool(_type.getPrefKey('visible'), true);
             _type.id = _id;
             _type.rclass = 'MapAnnot' + _.capitalize(_id);
-            _type.colors = app.getContrastColor(_type.color);
+            _type.colors = app.getContrastColors(_type.color);
             // sdebug('initializeType', _id, _type.colors);
             _type.image = getAnnotImage(_type);
             _type.selectedImage = getAnnotImage(_type, undefined, true);
@@ -536,7 +536,7 @@
                 dplus: (_item.profile && _item.profile.dplus) || _item.tags.dplus,
                 dmin: (_item.profile && _item.profile.dmin) || _item.tags.dmin
             });
-            return trc('estimated') + ' ' + htmlIcon(String.fromCharCode(0xe08e), 0, $black) + moment.duration(
+            return trc('estimated') + ' ' + htmlIcon(String.fromCharCode(0xe08e), 0, $.black) + moment.duration(
                 duration)
                 .format(
                 'h[h]m[m]');
@@ -590,23 +590,23 @@
                     var isRoute = this.isItemARoute(_item);
                     if (isRoute) {
                         var route = _item.route;
-                        subtitle = htmlIcon($sDist, 0, $black) + this.geolib.formatter.distance(
+                        subtitle = htmlIcon($.sDist, 0, $.black) + this.geolib.formatter.distance(
                             route.distance);
                         if (route.duration > 0) {
                             console.log('duraation', route.duration);
-                            subtitle += ' ' + htmlIcon(String.fromCharCode(0xe08e), 0, $black) + moment
+                            subtitle += ' ' + htmlIcon(String.fromCharCode(0xe08e), 0, $.black) + moment
                                 .duration(route.duration)
                                 .format(route.duration >= 60 * 60000 ? 'h[h]mm' : 'mm[m]');
                         }
                         var profile = _item.profile || _item.tags;
                         if (profile) {
                             if (profile.dplus) {
-                                subtitle += ' ' + htmlIcon($sDplus, 0, $black) + this.geolib
+                                subtitle += ' ' + htmlIcon($.sDplus, 0, $.black) + this.geolib
                                     .formatter
                                     .altitude(profile.dplus);
                             }
                             if (profile.dmin) {
-                                subtitle += ' ' + htmlIcon($sDmin, 0, $black) + this.geolib
+                                subtitle += ' ' + htmlIcon($.sDmin, 0, $.black) + this.geolib
                                     .formatter
                                     .altitude(Math.abs(profile.dmin));
                             }
@@ -914,7 +914,7 @@
             var args = _defaults || {};
             var colors = _itemDesc.colors;
             if (_item.color) {
-                colors = app.getContrastColor(_item.color);
+                colors = app.getContrastColors(_item.color);
             }
             var isRoute = this.isItemARoute(_item);
             var hasExtra = false;
@@ -922,7 +922,7 @@
             var desc = this.itemIcons(_item, colors.darkerRel);
             var subtitle = this.itemSubtitle(_item, _itemDesc);
 
-            _.assign(args, {
+            Object.assign(args, {
                 searchableText: _.deburr(title),
                 icon: {
                     text: _item.icon || _itemDesc.icon,
@@ -1578,7 +1578,7 @@
                     break;
                 case 'move':
                     {
-                        var lists = _.filter(_.pluck(_.flatten(_mapHandler.runGetMethodOnModules(
+                        var lists = _.filter(_.map(_.flatten(_mapHandler.runGetMethodOnModules(
                             'getLists')),
                             'description'), 'isList', true);
                         // _.filter(_mapHandler.runGetMethodOnModules('getLists'));
@@ -1650,7 +1650,7 @@
                                             }]
                                         });
                                 } else {
-                                    var newItem = _.assign({
+                                    var newItem = Object.assign({
                                         id: _imageId,
                                         timestamp: _imageId,
                                         photos: [{

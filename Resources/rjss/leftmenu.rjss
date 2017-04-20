@@ -6,7 +6,7 @@ LeftMenu {
     height:50,
     layout:'horizontal',
     borderColor:'#333',
-    backgroundSelectedColor:$cTheme.main,
+    backgroundSelectedColor:$.cTheme.main,
     borderPadding:{left:-1,right:-1, top:-1},
     dispatchPressed:true,
 }
@@ -20,8 +20,8 @@ LeftMenu {
 
 .LeftMenuLabel {
     height:'FILL',
-    color:$white,
-    selectedColor:$cTheme.color,
+    color:$.white,
+    selectedColor:$.cTheme.color,
 }
 
 .LeftMenuRowIcon {
@@ -29,9 +29,9 @@ LeftMenu {
     touchPassThrough:true,
     left:0,
     width:40,
-    color:$cTheme.main,
+    color:$.cTheme.main,
     textAlign:'center',
-    font: {family:$iconicfontfamily,size:22}
+    font: {family:$.iconicfontfamily,size:22}
 }
 
 .LeftMenuRowLabel {
@@ -43,7 +43,7 @@ LeftMenu {
 
 .LeftMenuRowSwitch {
     bubbleParent:true,
-    onTintColor:$cTheme.main,
+    onTintColor:$.cTheme.main,
     right:5,
 }
 
@@ -55,10 +55,10 @@ LeftMenu {
 }
 
 #leftMenuAboutLogo {
-    top:$navBarTop+ 10,
-    color:$cTheme.main,
-    text:$sLogo,
-    font: {family:$iconicfontfamily,size:50}
+    top:$.navBarTop+ 10,
+    color:$.cTheme.main,
+    text:$.sLogo,
+    font: {family:$.iconicfontfamily,size:50}
 }
 
 #leftMenuAboutMain {
@@ -66,17 +66,17 @@ LeftMenu {
     textAlign:'center',
     top:10,
     touchPassThrough:true,
-    color:$cTheme.main,
+    color:$.cTheme.main,
     text:app.info.name,
-    /*selectedColor:$white,*/
+    /*selectedColor:$.white,*/
     font:{size:20}
 }
 #leftMenuAboutSub {
     padding: {left:10, right:10},
     textAlign:'center',
     touchPassThrough:true,
-    color:$white,
+    color:$.white,
     top:7,
-    /*selectedColor:$cTheme.main,*/
+    /*selectedColor:$.cTheme.main,*/
     font:{size:14}
 }

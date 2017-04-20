@@ -17,11 +17,11 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
         staticAnnot,
         sectionHeaderViewAtTop = false,
         staticRoute,
-        templates = _.assign({
+        templates = Object.assign({
             default: app.templates.row.cloneTemplateAndFill('gfoptionitem', {
                 accessory: {
                     visible: false,
-                    text: $sQuery
+                    text: $.sQuery
                 }
             }),
             geoinfo: app.templates.row.itemgeoinfo,
@@ -41,7 +41,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
     _args.bottomToolbar = actionBar;
     _args.bottomToolbarVisible = true;
     _args.rightNavButtons = [{
-        icon: $sEdit,
+        icon: $.sEdit,
         callback: _.partial(runAction, 'edit')
     }];
 
@@ -52,18 +52,18 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
             regionFits: true,
             touchEnabled: false,
             buildings: false,
-            mapType: app.modules.map.MapType.satellite,
+            mapType: app.modules.map.MapType.satellite
         }),
         sectionHeaderView = new View({
             properties: {
                 height: 'SIZE',
-                minHeight: $navBarHeight + $navBarTop + 30
+                minHeight: $.navBarHeight + $.navBarTop + 30
             },
             childTemplates: [app.templates.view.cloneTemplateAndFill('gfheader')]
         }),
         headerView = new View({
             properties: {
-                height: $gfHeaderHeight,
+                height: $.gfHeaderHeight,
                 top: 0,
             },
             childTemplates: [{
@@ -87,7 +87,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
                     touchEnabled: false,
                     backgroundGradient: {
                         type: 'linear',
-                        colors: ['#aa000000', '#66000000', '#00000000'],
+                        colors: ['#000000aa', '#00000066', '#00000000'],
                         startPoint: [0, 0],
                         endPoint: [0, "50%"]
                     }
@@ -110,7 +110,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
                 html: _args.html || _args.text,
                 padding: _args.padding,
                 touchPassThrough: !!!_args.selectable,
-                color: !!_args.isLink ? $cLink : undefined
+                color: !!_args.isLink ? $.cLink : undefined
             },
             accessory: {
                 color: iconicColor,
@@ -157,7 +157,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
 
     function setDataFromItem() {
         sdebug('setDataFromItem', currentItem.id, itemDesc.id, currentItem);
-        colors = currentItem.color ? app.getContrastColor(currentItem.color) : itemDesc.colors;
+        colors = currentItem.color ? app.getContrastColors(currentItem.color) : itemDesc.colors;
         var isDark = colors.luminance > 0.8;
         iconicColor = isDark ? colors.contrast : colors.color;
         hasPhotos = currentItem.photos && currentItem.photos.length > 0;
@@ -189,7 +189,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
             }
         });
         actionBar.updateForItem(currentItem, itemDesc, true);
-        // var offset = $gfHeaderHeight - $navBarTop - $navBarHeight;
+        // var offset = $.gfHeaderHeight - $.navBarTop - $.navBarHeight;
         contentTemplates = mapHandler.runReduceMethodOnModules('getDetailsTemplates');
         var geoItem = {
             template: 'geoinfo',
@@ -244,7 +244,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
             if (!hasValue) {
                 items.push(createItem({
                     text: title,
-                    icon: $sElevation,
+                    icon: $.sElevation,
                     callbackId: 'query_profile',
                     accessory: !hasValue
                 }));
@@ -255,7 +255,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
 
                 items.push(createItem({
                     text: trc('query_altitude'),
-                    icon: $sElevation,
+                    icon: $.sElevation,
                     callbackId: 'consolidate_alt',
                     accessory: true
                 }));
@@ -264,7 +264,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
                 var myAltitude = lastPosition ? lastPosition.altitude : -1;
                 if (myAltitude >= 0) {
                     if (myAltitude >= 0) {
-                        title += ' (' + htmlIcon($sVDist) + ' ' + formatter.altitude(altitude - myAltitude) + ')';
+                        title += ' (' + htmlIcon($.sVDist) + ' ' + formatter.altitude(altitude - myAltitude) + ')';
                     }
                 }
                 geoItem.altitude = {
@@ -312,7 +312,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
             }
             items.push(createItem({
                 text: title,
-                icon: $sPlace,
+                icon: $.sPlace,
                 callbackId: hasValue ? 'address' : 'reverse_geo',
                 selectable: hasValue,
                 accessory: !hasValue
@@ -391,7 +391,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
         mapHandler.runMethodOnModules('prepareDetailsListView', currentItem, itemDesc, sections, createItem, colors, iconicColor);
 
         listView.applyProperties({
-            templates: _.assign(contentTemplates, templates),
+            templates: Object.assign(contentTemplates, templates),
             sections: sections
         });
         // listView.sections[0].items = items;
@@ -404,7 +404,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
                     var banner = ratio > 2;
                     var densityFactor = app.deviceinfo.densityFactor;
                     var scale = Math.min(app.deviceinfo.width * densityFactor / photo.width,
-                        $gfHeaderHeight * densityFactor / photo.height);
+                        $.gfHeaderHeight * densityFactor / photo.height);
                     memo.push({
                         type: 'Ti.UI.ImageView',
                         properties: {
@@ -433,7 +433,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
                         childTemplates: photo.attribution ? [{
                             type: 'Ti.UI.Label',
                             properties: {
-                                color: $white,
+                                color: $.white,
                                 width: 'FILL',
                                 height: 30,
                                 bottom: 0,
@@ -444,7 +444,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
                                     size: 10
                                 },
                                 verticalAlign: 'top',
-                                backgroundColor: '#aa000000',
+                                backgroundColor: '#000000aa',
                                 html: app.utilities.photoAttribution(photo)
                             }
                         }, {
@@ -517,7 +517,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
         headerView: {
             type: 'Ti.UI.View',
             properties: {
-                height: $gfHeaderHeight - $navBarTop,
+                height: $.gfHeaderHeight - $.navBarTop,
                 touchEnabled: false
             },
         },
@@ -528,7 +528,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
                     offset: 'contentOffset.y'
                 },
                 expressions: {
-                    b: 'min(max(_offset' + '/' + ($gfHeaderHeight - $navBarTop) + ', 0), 1)',
+                    b: 'min(max(_offset' + '/' + ($.gfHeaderHeight - $.navBarTop) + ', 0), 1)',
                     // c: 'min(_offset, 0) / 60',
                     d: '1-(min(_offset, 0) / 60)',
                 },
@@ -543,12 +543,12 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
                     properties: {
                         left: '_b*20',
                         right: '_b*40',
-                        top: '_b*' + $navBarTop
+                        top: '_b*' + $.navBarTop
                     }
                 }, {
                     target: sectionHeaderView.gfheader,
                     properties: {
-                        top: '(1-_b)*' + $navBarTop
+                        top: '(1-_b)*' + $.navBarTop
                     }
                 }]
 
@@ -787,7 +787,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
                                     visible: !isShowingFull
                                 },
                                 accessory: {
-                                    text: isShowingFull ? $sDown : $sUp
+                                    text: isShowingFull ? $.sDown : $.sUp
                                 },
                                 data: !isShowingFull
                             }, {
@@ -816,7 +816,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
                                     html: title
                                 },
                                 accessory: {
-                                    text: isShowingFull ? $sDown : $sUp
+                                    text: isShowingFull ? $.sDown : $.sUp
                                 },
                                 data: {
                                     noteIndex: noteIndex,
@@ -841,7 +841,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
                                 maxLines: isShowingFull ? 2 : 0,
                             },
                             accessory: {
-                                text: isShowingFull ? $sDown : $sUp
+                                text: isShowingFull ? $.sDown : $.sUp
                             },
                             data: !isShowingFull
                         }, {
@@ -881,15 +881,15 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
                             showTomorrowSuncalc: showingTomorrow,
                             sunrise: {
                                 text: moment(sundata.sunrise).format('LT'),
-                                color: showingTomorrow ? $cTheme.main : $black
+                                color: showingTomorrow ? $.cTheme.main : $.black
                             },
                             noon: {
                                 text: moment(sundata.solarNoon).format('LT'),
-                                color: showingTomorrow ? $cTheme.main : $black
+                                color: showingTomorrow ? $.cTheme.main : $.black
                             },
                             sunset: {
                                 text: moment(sundata.sunset).format('LT'),
-                                color: showingTomorrow ? $cTheme.main : $black
+                                color: showingTomorrow ? $.cTheme.main : $.black
                             }
                         });
                         break;
@@ -907,7 +907,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
     //     sdebug('scroll', e.contentOffset.y);
     // });
 
-    var limit = (__APPLE__ ? -$navBarTop : 1);
+    var limit = (__APPLE__ ? -$.navBarTop : 1);
 
     function onPostLayout(e) {
         var top = e.source.absoluteRect.y;
@@ -986,7 +986,7 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
         sectionHeaderViewAtTop = false;
         sectionHeaderView.applyProperties({
             gfheader: {
-                top: $navBarTop
+                top: $.navBarTop
             },
             titleHolder: {
                 top: 0,
@@ -995,8 +995,8 @@ ak.ti.constructors.createGeoFeatureWindow = function(_args) {
         });
         headerView.applyProperties({
             scrollableView: {
-                showPagingControl: !!hasPhotos,
-                currentPage: hasPhotos ? 1 : 0,
+                showPagingControl: false,
+                currentPage: 0,
                 views: []
             }
         });

@@ -2,7 +2,7 @@
     rclass:'InternalElevatedView',
     bubbleParent: false,
     layout: 'vertical',
-    backgroundColor: $cTheme.main,
+    backgroundColor: $.cTheme.main,
     /*touchPassThrough:true,*/
 }
 
@@ -24,7 +24,7 @@
 .DirectionRowShapeLine {
     retina : true,
     antialiasing : true,
-    lineColor:'#44ffffff',
+    lineColor:'#ffffff44',
     lineWidth:2,
     lineDash:{
         phase:1,
@@ -49,18 +49,18 @@
 
 .DirectionRowIcon {
     rclass:'ListItemRowIcon',
-    color:$white,
+    color:$.white,
     touchPassThrough:true,
-    selectedColor:$gray,
+    selectedColor:$.gray,
     font:{size:20},
 }
 
 .DirectionRowLabel {
     rclass:'ListItemRowLabel',
-    color:$white,
+    color:$.white,
     touchPassThrough:true,
-    selectedColor:$gray,
+    selectedColor:$.gray,
     font:{size:14},
     borderPadding:[-1,-1,0,-1],
-    borderColor:'#44ffffff'
+    borderColor:'#ffffff44'
 }

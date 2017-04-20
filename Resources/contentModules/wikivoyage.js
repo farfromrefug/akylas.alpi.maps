@@ -31,7 +31,7 @@ exports.create = function(_context, _args, _additional) {
     self = new _context.ContentModule(_args);
 
     var lang = ak.locale.currentLanguage.split('-')[0].toLowerCase();
-    if (!_.contains(supportedLangs, lang)) {
+    if (!_.includes(supportedLangs, lang)) {
         lang = supportedLangs[0];
     }
     var baseUrl = createBaseUrl(lang);
@@ -64,7 +64,7 @@ exports.create = function(_context, _args, _additional) {
         return app.api.call({
             url: baseUrl,
             silent: _.remove(_params, 'silent'),
-            params: _.assign(defaultParams, {
+            params: Object.assign(defaultParams, {
                 generator: 'geosearch',
                 ggscoord: around.centerCoordinate.latitude + '|' + around.centerCoordinate.longitude,
                 ggsradius: Math.min(around.radius, 10000),
@@ -179,12 +179,12 @@ exports.create = function(_context, _args, _additional) {
         return result;
     }
 
-    _.assign(self, {
+    Object.assign(self, {
         GC: app.composeFunc(self.GC, function() {
             view = null;
         }),
         onInit: function() {
-            // _.assign(app.icons, icons);
+            // Object.assign(app.icons, icons);
 
         },
         // getSearchFilters: function() {

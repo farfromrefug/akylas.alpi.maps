@@ -89,7 +89,7 @@ function osmIsGeoFeature(osmClass, osmSub, osmSubValue) {
 }
 
 function filterTag(tag, key, tags) {
-    if (_.contains(OSMReplaceKeys, key)) {
+    if (_. includes(OSMReplaceKeys, key)) {
         tags[tag] = tags[key];
         delete tags[key];
     }
@@ -120,7 +120,7 @@ function prepareOSMObject(ele, _withIcon, _testForGeoFeature) {
         }
     });
     //ignores
-    if (_.contains(OSMIgnoredSubtypes, result.osm.subtype)) {
+    if (_. includes(OSMIgnoredSubtypes, result.osm.subtype)) {
         return;
     }
     if (ele.center) {
@@ -293,7 +293,7 @@ function prepareUtfGridResult(ele) {
         }
     });
     //ignores
-    if (osmSub && _.contains(OSMIgnoredSubtypes, osmSub)) {
+    if (osmSub && _. includes(OSMIgnoredSubtypes, osmSub)) {
         return;
     }
     if (osmClass && osmSub) {
@@ -310,7 +310,7 @@ function prepareUtfGridResult(ele) {
 
 function prepareNominatimResult(ele) {
     //ignores
-    if (_.contains(OSMIgnoredSubtypes, ele.type)) {
+    if (_. includes(OSMIgnoredSubtypes, ele.type)) {
         return;
     }
     var title = ele.address[ele.type];
@@ -372,7 +372,7 @@ function preparePhotonObject(ele) {
     var props = ele.properties;
     var osmClass = props.osm_key;
     var osmSub = props.osm_value;
-    if (_.contains(OSMIgnoredClasses, osmClass) || _.contains(OSMIgnoredSubtypes, osmSub)) {
+    if (_. includes(OSMIgnoredClasses, osmClass) || _. includes(OSMIgnoredSubtypes, osmSub)) {
         return;
     }
     var pos = ele.geometry.coordinates;

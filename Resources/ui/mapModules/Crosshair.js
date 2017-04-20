@@ -20,9 +20,9 @@ exports.create = function(_context, _args, _additional) {
                 properties: {
                     width: 2 * width_2,
                     height: 2 * width_2,
-                    color: $black,
+                    color: $.black,
                     font: {
-                        family: $iconicfontfamily,
+                        family: $.iconicfontfamily,
                         size: 30
                     },
                     shadowColor: '#fff',
@@ -38,7 +38,7 @@ exports.create = function(_context, _args, _additional) {
                     touchEnabled: false,
                     width: 'FILL',
                     height: 28,
-                    color: $black,
+                    color: $.black,
                     font: {
                         size: 11,
                         weight: 'bold'
@@ -53,7 +53,7 @@ exports.create = function(_context, _args, _additional) {
         }),
         button = new Button({
             rclass: 'MapButton',
-            // backgroundColor: '#cc000000',
+            // backgroundColor: '#000000cc',
             bubbleParent: false,
             title: icon,
             bottom: 56,
@@ -108,7 +108,7 @@ exports.create = function(_context, _args, _additional) {
         });
     }
 
-    _.assign(self, {
+    Object.assign(self, {
         GC: app.composeFunc(self.GC, function() {
             view = null;
         }),

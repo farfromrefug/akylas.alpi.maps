@@ -17,7 +17,7 @@ ak.ti.constructors.createItemActionBar = function(_args) {
     //         zIndex:2,
     //         backgroundGradient:{
     //             type : 'linear',
-    //             colors : ['#00888888','#ff888888'],
+    //             colors : ['#88888800','#888888ff'],
     //             startPoint : [0, 0],
 
     //             endPoint : ['100%', 0]
@@ -37,7 +37,7 @@ ak.ti.constructors.createItemActionBar = function(_args) {
             childTemplates: _.reduce(itemHandler.actionsForItem(mapHandler, _item, _desc, onMap), function(memo,
                 value,
                 key) {
-                memo.push(new ActionButton(_.assign({
+                memo.push(new ActionButton(Object.assign({
                     id: value[0]
                 }, value[1])));
                 return memo;

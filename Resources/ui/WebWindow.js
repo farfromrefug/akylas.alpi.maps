@@ -9,7 +9,7 @@ ak.ti.constructors.createWebWindow = function(_args) {
 		itemDesc = _.remove(_args, 'itemDesc'),
 		url = _.remove(_args, 'url');
 	// if (floating) {
-	// 	_.assign(_args, {
+	// 	Object.assign(_args, {
 	// 		// navBarHidden: true,
 	// 		customNavBar: true,
 	// 		// modal: floating,
@@ -161,7 +161,7 @@ ak.ti.constructors.createWebWindow = function(_args) {
 		return {
 			type: 'Ti.UI.Button',
 			bindId: _id,
-			properties: _.assign({
+			properties: Object.assign({
 				rclass: 'WebToolbarButton',
 				title: _icon,
 				enabled: false
@@ -169,16 +169,16 @@ ak.ti.constructors.createWebWindow = function(_args) {
 		};
 	}
 	// {
-	// 		icon: $sShare,
+	// 		icon: $.sShare,
 	// 		callback: function() {}
 	// 	}
 	var toolBar = new View({
 		layout: 'horizontal',
-		height: $navBarHeight,
-		backgroundColor: _args.barColor || $cTheme.main,
+		height: $.navBarHeight,
+		backgroundColor: _args.barColor || $.cTheme.main,
 		childTemplates: [
-			createToolbarButton('back', $sLeft),
-			createToolbarButton('forward', $sRight), {
+			createToolbarButton('back', $.sLeft),
+			createToolbarButton('forward', $.sRight), {
 				// 	type: 'Ti.UI.ActivityIndicator',
 				// 	bindId: 'indicator',
 				// 	properties: {
@@ -205,7 +205,7 @@ ak.ti.constructors.createWebWindow = function(_args) {
 				}
 
 			},
-			createToolbarButton('more', $sOptions)
+			createToolbarButton('more', $.sOptions)
 		],
 		events: {
 			click: app.debounce(function(e) {
@@ -388,7 +388,7 @@ ak.ti.constructors.createWebWindow = function(_args) {
 
 	var refreshButton = new Button({
 		rclass: 'WebToolbarButton',
-		title: $sRefresh,
+		title: $.sRefresh,
 		enabled: true
 	}).on('click', app.debounce(function() {
 		if (webView.loading) {
@@ -417,8 +417,8 @@ ak.ti.constructors.createWebWindow = function(_args) {
 	var self = new AppWindow(_args);
 	var loadingIndicatorView = new View({
 		properties: {
-			backgroundColor: '#00ffffff',
-			height: $navBarHeight + $navBarTop
+			backgroundColor: '#ffffff00',
+			height: $.navBarHeight + $.navBarTop
 		},
 		childTemplates: [{
 			type: 'Ti.UI.View',
@@ -426,7 +426,7 @@ ak.ti.constructors.createWebWindow = function(_args) {
 			properties: {
 				width: 0,
 				left: 0,
-				backgroundColor: $cTheme.dark
+				backgroundColor: $.cTheme.dark
 			}
 		}]
 	});
@@ -453,7 +453,7 @@ ak.ti.constructors.createWebWindow = function(_args) {
 			});
 
 			loadingIndicatorView.animate({
-				backgroundColor: '#44ffffff',
+				backgroundColor: '#ffffff44',
 				cancelRunningAnimations: true,
 				duration: 600,
 				restartFromBeginning: true,
@@ -464,7 +464,7 @@ ak.ti.constructors.createWebWindow = function(_args) {
 				clearTimeout(hideLoadingTimer);
 				hideLoadingTimer = null;
 			}
-			refreshButton.title = $sClose;
+			refreshButton.title = $.sClose;
 			toolBar.applyProperties({
 				more: {
 					enabled: false
@@ -486,7 +486,7 @@ ak.ti.constructors.createWebWindow = function(_args) {
 						return;
 					}
 					loadingIndicatorView.cancelAllAnimations();
-					refreshButton.title = $sRefresh;
+					refreshButton.title = $.sRefresh;
 					// sdebug('update webview', webView.canGoBack(), webView.canGoForward());
 					toolBar.applyProperties({
 						back: {
@@ -574,7 +574,7 @@ ak.ti.constructors.createWebWindow = function(_args) {
 	}
 	// self.onOpen = app.composeFunc(self.onOpen, function() {
 	// 	if (floating) {
-	// 		self.fakeBack.backgroundColor = '#88000000';
+	// 		self.fakeBack.backgroundColor = '#00000088';
 	// 	}
 	// });
 

@@ -142,7 +142,7 @@ exports.create = function(_context, _args, _additional) {
             }]
         });
     }
-    _.assign(self, {
+    Object.assign(self, {
         onInit: function() {},
         enabled: Ti.App.Properties.getBool('tutorials.enabled', true),
         setEnabled: function(_value) {
@@ -171,7 +171,7 @@ exports.create = function(_context, _args, _additional) {
         },
         getTutorials: function(_tuts, _force) {
             var result = _.pick(tutorials, _.filter(_tuts, function(n) {
-                return _force || !_.contains(doneTutorials, n);
+                return _force || !_. includes(doneTutorials, n);
             }));
             return result;
         },
@@ -188,9 +188,9 @@ exports.create = function(_context, _args, _additional) {
             }
             if (tutorialWin) {
                 views = _.uniq(tutorialWin.scrollView.views.concat(views), 'tutId');
-                sdebug('updating tutorial window', _.pluck(views, 'tutId'));
+                sdebug('updating tutorial window', _.map(views, 'tutId'));
                 tutorialWin.applyProperties({
-                    tutorials: _.pluck(views, 'tutId'),
+                    tutorials: _.map(views, 'tutId'),
                     scrollView: {
                         views: views
                     }
@@ -199,7 +199,7 @@ exports.create = function(_context, _args, _additional) {
             }
             tutorialWin = new AppWindow({
                 rclass: 'TutorialWindow',
-                tutorials: _.pluck(views, 'tutId'),
+                tutorials: _.map(views, 'tutId'),
                 containerView: {
                     type: 'Ti.UI.View',
                     properties: {},
@@ -214,7 +214,7 @@ exports.create = function(_context, _args, _additional) {
                             change: function(e) {
                                 var tutIds = tutorialWin.tutorials;
                                 var currentTutId = tutIds[e.currentPage];
-                                if (!_.contains(doneTutorials, currentTutId)) {
+                                if (!_. includes(doneTutorials, currentTutId)) {
                                     doneTutorials.push(currentTutId);
                                     if (doneTutorials.length === _.size(tutorials)) {
                                         obj.setEnabled(false);

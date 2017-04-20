@@ -19,13 +19,13 @@
 
 .SearchRowIcon {
     font: {
-        family: $iconicfontfamily,
+        family: $.iconicfontfamily,
         size: 22
     },
     width:26,
     verticalAlign:'top',
     textAlign:'right',
-    color:$white
+    color:$.white
 }
 
 .SearchRowLabel {
@@ -34,7 +34,7 @@
     width:'FILL',
     height:'FILL',
     font: {size:17},
-    color:$white,
+    color:$.white,
     ellipsize:Ti.UI.TEXT_ELLIPSIZE_TAIL
 }
 
@@ -46,20 +46,20 @@
     width:'FILL',
     padding:[0,0,4,0],
     font: {size:13},
-    color:$gray,
+    color:$.gray,
     ellipsize:Ti.UI.TEXT_ELLIPSIZE_TAIL
 }
 
 .SearchRowAccessory {
     font: {
-        family: $iconicfontfamily,
+        family: $.iconicfontfamily,
         size: 22
     },
     width:26,
     verticalAlign:'/*top*/',
-    color:$white,
+    color:$.white,
     preventListViewSelection:true,
-    text:$sGps
+    text:$.sGps
 }
 
 
@@ -78,7 +78,7 @@
     font: {size:17},
     hintText:trc('enter_search_text'),
     hintColor:'gray',
-    color:$black,
+    color:$.black,
     padding:10,
     padding: {
         left: 10
@@ -99,22 +99,22 @@
 .SearchResultView {
     rclass:'ElevatedView',
     bottom:0,
-    backgroundColor:$white
+    backgroundColor:$.white
 }
 
 .SearchAroundResultView {
     rclass:'ElevatedView',
     bottom:0,
-    /*backgroundColor:$white,*/
+    /*backgroundColor:$.white,*/
     layout:'vertical'
 }
 
 .SearchAroundHeader {
-    color: $white,
+    color: $.white,
     font:{size:18},
     padding:[0,15,0,15],
     width:'FILL',
-    height:$navBarHeight
+    height:$.navBarHeight
 }
 
 .SearchLoadingIndicator {

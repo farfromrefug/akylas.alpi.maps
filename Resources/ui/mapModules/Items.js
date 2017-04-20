@@ -1,8 +1,9 @@
-exports.create = function(_context, _args, _additional) {
+exports.create = function (_context, _args, _additional) {
     // Ti.App.Properties.removeProperty('lists');
-    var __types = _.assign(require('data/routetypes')
-            .data, require('data/markertypes')
-            .data),
+    var __types = Object.assign(
+            require('data/routetypes').data,
+            require('data/markertypes').data
+        ),
         listDefaults = {
             modified: {
                 color: '#ef6c00',
@@ -29,11 +30,11 @@ exports.create = function(_context, _args, _additional) {
         __movingItems,
         htmlIcon = app.utilities.htmlIcon,
         mapArgs = _additional.mapArgs,
-        indexAddItems = function(_items) {},
-        indexRemoveItemsIds = function(_items) {},
-        indexRemoveList = function(_key) {},
+        indexAddItems = function (_items) {},
+        indexRemoveItemsIds = function (_items) {},
+        indexRemoveList = function (_key) {},
         indexer;
-
+    console.log('__types', __types);
     mapArgs.calloutTemplates = mapArgs.calloutTemplates || {};
     mapArgs.calloutTemplates.calloutPhoto = app.templates.view.cloneTemplateAndFill('calloutPhoto', {
         properties: {
@@ -41,19 +42,19 @@ exports.create = function(_context, _args, _additional) {
         }
     }, {
         image: {
-            startload: function(e) {
+            startload: function (e) {
                 sdebug('startload');
                 e.source.parent.loading.visible = true;
                 e.source.backgroundColor = null;
             },
-            load: function(e) {
+            load: function (e) {
                 e.source.parent.loading.visible = false;
                 sdebug('load', e.colorArt, e.source.parent.loading.visible);
                 if (e.colorArt) {
                     e.source.backgroundColor = e.colorArt.backgroundColor;
                 }
             },
-            click: app.debounce(function(e) {
+            click: app.debounce(function (e) {
                 if (!e.source.parent.loading.visible) {
                     var item = (e.annotation && e.annotation.item) || (e.route && e.route.item);
                     // sdebug('click', item);
@@ -62,7 +63,7 @@ exports.create = function(_context, _args, _additional) {
                     }
                 }
             }),
-            longpress: function(e) {
+            longpress: function (e) {
                 // sdebug('longpress', e.source.parent.loading);
                 if (!e.source.parent.loading.visible) {
                     app.share({
@@ -77,9 +78,9 @@ exports.create = function(_context, _args, _additional) {
         indexer = Ti.App.iOS.createSearchableIndex();
         if (indexer && indexer.isSupported()) {
             var contenttype = Ti.App.iOS.UTTYPE_HTML;
-            indexAddItems = function(_items) {
+            indexAddItems = function (_items) {
                 // sdebug('indexAddItems', _items);
-                indexer.addToDefaultSearchableIndex(_.reduce(_items, function(memo, item) {
+                indexer.addToDefaultSearchableIndex(_.reduce(_items, function (memo, item) {
                     if (!item.title) {
                         return memo;
                     }
@@ -131,10 +132,10 @@ exports.create = function(_context, _args, _additional) {
                     return memo;
                 }, []));
             };
-            indexRemoveItemsIds = function(_items) {
+            indexRemoveItemsIds = function (_items) {
                 indexer.deleteSearchableItemsByIdentifiers(_items);
             };
-            indexRemoveList = function(_key) {
+            indexRemoveList = function (_key) {
                 indexer.deleteAllSearchableItemByDomainIdentifiers([_key]);
             };
         }
@@ -159,7 +160,7 @@ exports.create = function(_context, _args, _additional) {
             // tintColor: type.color,
             visible: type.visible,
             // color: type.colors.contrast,
-            // strokeColor: $white
+            // strokeColor: $.white
         });
         __currentIds[key] = {
             routes: [],
@@ -197,44 +198,44 @@ exports.create = function(_context, _args, _additional) {
     }
 
     var self = new _context.MapModule(_args);
-    _.assign(self, {
-        getCluster: function(_type) {
+    Object.assign(self, {
+        getCluster: function (_type) {
             return __clusters[_type];
         },
-        onInit: function() {
+        onInit: function () {
             app.on(__ITEMS__ + 'Changed', self.onChanged);
-            _.each(lists, function(list, key) {
+            _.each(lists, function (list, key) {
                 if (!__types[key]) {
                     __types[key] = list;
                 }
             });
             var thirdTypes = self.parent.runReduceMethodOnModules(true, 'getItemTypes');
-            _.each(thirdTypes, function(value, key) {
+            _.each(thirdTypes, function (value, key) {
                 if (!__types[key]) {
                     __types[key] = value;
                 }
             });
-            __types = _.omit(__types, function(e) {
+            __types = _.omit(__types, function (e) {
                 return !!e.hidden;
             });
-            _.each(__types, function(value, key) {
+            _.each(__types, function (value, key) {
                 initiateType(value, key);
             });
-            _.each(__types, function(value, key) {
+            _.each(__types, function (value, key) {
                 self.addItems(Ti.App.Properties.getObject(value.propertyKey, []), undefined,
                     false);
             });
             self.mapView.addCluster(_.values(__clusters)
                 .reverse());
         },
-        GC: app.composeFunc(self.GC, function() {
+        GC: app.composeFunc(self.GC, function () {
             app.off(__ITEMS__ + 'Changed', self.onChanged);
             __items = null;
             __clusters = null;
             __currentIds = null;
             __routes = null;
         }),
-        addItems: function(_items, _fireEvent, _save) {
+        addItems: function (_items, _fireEvent, _save) {
             // sdebug('addItems', _items);
             if (!_items || _items.length === 0) {
                 return;
@@ -242,11 +243,11 @@ exports.create = function(_context, _args, _additional) {
 
             _items = _.groupBy(_items, 'type');
             var added = false;
-            _.forEach(_items, function(theItems, _type) {
+            _.forEach(_items, function (theItems, _type) {
                 var type = __types[_type];
                 // sdebug('type', _type, type);
                 if (!type) {
-                    self.createList(_.assign({
+                    self.createList(Object.assign({
                         id: _type
                     }, listDefaults[_type]), true);
                     type = __types[_type];
@@ -267,7 +268,7 @@ exports.create = function(_context, _args, _additional) {
                         newPhotos = false,
                         mapItem;
 
-                    _.each(theItems, function(item) {
+                    _.each(theItems, function (item) {
                         isRoute = isItemARoute(item);
                         idKey = isRoute ? __ROUTES__ : __MARKERS__;
                         currentIds = currentTypeIds[idKey];
@@ -277,7 +278,7 @@ exports.create = function(_context, _args, _additional) {
                             existing = _.includes(currentIds, item.id);
                             if (!existing) {
                                 //for the sake of avoiding duplicates, look in lists too
-                                _.each(lists, function(list, key) {
+                                _.each(lists, function (list, key) {
                                     if (_type !== key) {
                                         existing = _.includes(__currentIds[key], [
                                                 idKey
@@ -333,7 +334,7 @@ exports.create = function(_context, _args, _additional) {
                             indexAddItems(addedMarkers);
                             Ti.App.Properties.setObject(type.propertyKey, __items[_type]);
                         }
-                        currentTypeIds[__MARKERS__] = currentTypeIds[__MARKERS__].concat(_.pluck(
+                        currentTypeIds[__MARKERS__] = currentTypeIds[__MARKERS__].concat(_.map(
                             addedMarkers,
                             'id'));
                     }
@@ -347,7 +348,7 @@ exports.create = function(_context, _args, _additional) {
                             indexAddItems(addedRoutes);
                             Ti.App.Properties.setObject(type.propertyKey, __items[_type]);
                         }
-                        currentTypeIds[__ROUTES__] = currentTypeIds[__ROUTES__].concat(_.pluck(
+                        currentTypeIds[__ROUTES__] = currentTypeIds[__ROUTES__].concat(_.map(
                             addedRoutes,
                             'id'));
                     }
@@ -362,11 +363,11 @@ exports.create = function(_context, _args, _additional) {
             });
             return added;
         },
-        removeItems: function(_items, _realDelete) {
-            sdebug('removeItems', _.pluck(_items, 'id', 'type'));
+        removeItems: function (_items, _realDelete) {
+            sdebug('removeItems', _.map(_items, 'id', 'type'));
             _items = _.groupBy(_items, 'type');
             var removed = false;
-            _.forEach(_items, function(theItems, _type) {
+            _.forEach(_items, function (theItems, _type) {
                 var type = __types[_type];
                 if (type) {
                     var cluster = __clusters[_type],
@@ -376,7 +377,7 @@ exports.create = function(_context, _args, _additional) {
                         removedIds = [],
                         currentTypeIds = __currentIds[_type],
                         currentIds, isRoute, idKey, index;
-                    _.forEach(theItems, function(_item) {
+                    _.forEach(theItems, function (_item) {
                         isRoute = isItemARoute(_item);
                         idKey = isRoute ? __ROUTES__ : __MARKERS__;
                         sdebug('removeItem', _item.id, _type, idKey, currentTypeIds[
@@ -397,7 +398,7 @@ exports.create = function(_context, _args, _additional) {
                             if (_realDelete !== false) {
                                 if (_item.photos) {
                                     var removedPhoto = false;
-                                    _.forEach(_item.photos, function(photo) {
+                                    _.forEach(_item.photos, function (photo) {
                                         var photoDb = photosDb[photo.image];
                                         photoDb = _.without(photoDb, _item.id);
                                         if (photoDb && photoDb.length === 0) {
@@ -423,7 +424,7 @@ exports.create = function(_context, _args, _additional) {
 
                                 if (_item.files) {
                                     var removedFile = false;
-                                    _.forEach(_item.files, function(file) {
+                                    _.forEach(_item.files, function (file) {
                                         var fileDb = filesDb[file.fileName];
                                         fileDb = _.without(fileDb, _item.id);
                                         if (fileDb && fileDb.length === 0) {
@@ -467,17 +468,17 @@ exports.create = function(_context, _args, _additional) {
             return removed;
         },
 
-        getItems: function(key) {
+        getItems: function (key) {
             if (__items[key]) {
                 return __items[key];
             }
         },
-        getItemsInRegion: function(memo, _center, _radius) {
+        getItemsInRegion: function (memo, _center, _radius) {
             var results = {};
-            _.forEach(__items, function(items, key) {
+            _.forEach(__items, function (items, key) {
                 type = __types[key];
                 items = [];
-                _.forEach(__items[key], function(item) {
+                _.forEach(__items[key], function (item) {
                     if (geolib.isPointInCircle(item, _center, _radius)) {
                         items.push(item);
                     }
@@ -490,14 +491,14 @@ exports.create = function(_context, _args, _additional) {
                 }
             });
         },
-        getItem: function(_item, _type) {
+        getItem: function (_item, _type) {
             var result, currentTypeIds, index, item;
             var searchingIn = __types;
             if (_type) {
                 searchingIn = _.pick(__types, _type);
             }
             // sdebug('getItem', _item, searchingIn);
-            _.forEach(searchingIn, function(type, key) {
+            _.forEach(searchingIn, function (type, key) {
                 currentTypeIds = __currentIds[key];
                 searchKeys = _.get(_item, 'settings.searchKeys') || _.get(type,
                     'settings.searchKeys') || ['id'];
@@ -523,12 +524,12 @@ exports.create = function(_context, _args, _additional) {
             });
             return result;
         },
-        searchItems: function(memo, _query) {
+        searchItems: function (memo, _query) {
             var type, items, fuzzyResult;
-            _.forEach(__items, function(items, key) {
+            _.forEach(__items, function (items, key) {
                 type = __types[key];
                 items = [];
-                _.forEach(__items[key], function(item) {
+                _.forEach(__items[key], function (item) {
                     var score = item.title && _query.score(_.deburr(item.title), 1);
                     if (score > 0.5) {
                         items.push(item);
@@ -542,8 +543,8 @@ exports.create = function(_context, _args, _additional) {
                 }
             });
         },
-        getLists: function(_withItems) {
-            return _.reduce(__items, function(memo, items, key) {
+        getLists: function (_withItems) {
+            return _.reduce(__items, function (memo, items, key) {
                 var type = __types[key];
                 if (type && !type.hidden) {
                     var result = {
@@ -559,7 +560,7 @@ exports.create = function(_context, _args, _additional) {
                 return memo;
             }, []);
         },
-        getAnnotation: function(_type, _id) {
+        getAnnotation: function (_type, _id) {
             if (__types[_type]) {
                 var index = __currentIds[_type][__MARKERS__].indexOf(_id);
                 if (index >= 0) {
@@ -568,7 +569,7 @@ exports.create = function(_context, _args, _additional) {
                 }
             }
         },
-        getRoute: function(_type, _id) {
+        getRoute: function (_type, _id) {
             if (__types[_type]) {
                 var index = __currentIds[_type][__ROUTES__].indexOf(_id);
                 if (index >= 0) {
@@ -576,7 +577,7 @@ exports.create = function(_context, _args, _additional) {
                 }
             }
         },
-        getMapItem: function(_type, _item) {
+        getMapItem: function (_type, _item) {
             sdebug('getMapItem', _type, _item.id);
             if (__types[_type]) {
                 var isRoute = isItemARoute(_item);
@@ -591,7 +592,7 @@ exports.create = function(_context, _args, _additional) {
                 }
             }
         },
-        getMarkersForRegion: function(_type, region, _window, _mapHandler, _callback) {
+        getMarkersForRegion: function (_type, region, _window, _mapHandler, _callback) {
             sdebug('getMarkersForRegion', _type, region);
             var calls = [];
 
@@ -600,21 +601,21 @@ exports.create = function(_context, _args, _additional) {
             if (_type.osm) {
                 calls.push(_.partial(app.api.queryGeoFeatures, _type.osm, region, _type, itemHandler));
             } else {
-                calls.push(_.partial(_type.apiMethod, _.assign({
+                calls.push(_.partial(_type.apiMethod, Object.assign({
                     region: region
                 }, _type.apiParams), _type, itemHandler));
             }
 
             var contentModules = _mapHandler.getContentModules();
-            _.forEach(contentModules, function(module) {
+            _.forEach(contentModules, function (module) {
                 if (module['getMarkersForRegion']) {
                     calls.push(_.partial(module['getMarkersForRegion'], _type, region, itemHandler));
                 }
             });
-            request = app.api.parallelRequests(calls).then(function(resultsList){
+            request = app.api.parallelRequests(calls).then(function (resultsList) {
                 console.log('resultsList', resultsList);
                 var toAdd = [];
-                resultsList.forEach(function(results){
+                resultsList.forEach(function (results) {
                     if (results) {
                         toAdd.push.apply(toAdd, results);
                     }
@@ -626,7 +627,7 @@ exports.create = function(_context, _args, _additional) {
                 } else {
                     _window.hideLoading();
                 }
-            }).catch(function(err) {
+            }).catch(function (err) {
                 if (!_callback) {
                     _window.hideLoading();
                 }
@@ -643,7 +644,7 @@ exports.create = function(_context, _args, _additional) {
             }
             return request;
         },
-        addOrUpdateItem: function(_type, _item) {
+        addOrUpdateItem: function (_type, _item) {
 
             if (__types[_type] !== undefined) {
                 var type = __types[_type];
@@ -658,7 +659,7 @@ exports.create = function(_context, _args, _additional) {
                 }
             }
         },
-        onModuleAction: function(_params) {
+        onModuleAction: function (_params) {
             var key = _params.id;
             var win = _params.window || self.window;
             sdebug('onModuleAction', key, _params.command, win.title);
@@ -690,7 +691,7 @@ exports.create = function(_context, _args, _additional) {
                             break;
                         case 'create':
                             {
-                                self.createList(_.assign({
+                                self.createList(Object.assign({
                                     id: key
                                 }, listDefaults[key]), true);
                                 type = __types[key];
@@ -731,7 +732,7 @@ exports.create = function(_context, _args, _additional) {
                     var request = self.getMarkersForRegion(type, _params.region || self.mapView.region,
                         win,
                         _params.mapHandler || self.parent,
-                        function(_addedItems) {
+                        function (_addedItems) {
                             if (_params.callback) {
                                 _params.callback(_addedItems);
                             }
@@ -752,14 +753,13 @@ exports.create = function(_context, _args, _additional) {
                     small: true,
                     collection: true,
                     title: trc('find_geofeatures'),
-                    items: _.reduce(_.assign(_.pick(__types, function(type, key) {
+                    items: _.reduce(Object.assign(_.filter(__types, function (type, key) {
                         return (type.settings && !!type.settings.geofeature) &&
                             type.visible !== false;
-                    }), test), function(memo, type, index) {
+                    }), test), function (memo, type, index) {
                         var color = type.textColor || type.color;
                         memo.push({
                             id: type.id,
-                            properties: {},
                             title: {
                                 text: type.title,
                                 color: color
@@ -788,7 +788,7 @@ exports.create = function(_context, _args, _additional) {
                             visible: false
                         }
                     }])
-                }, function(e) {
+                }, function (e) {
                     if (e.cancel === false) {
                         var key = e.item.id;
                         var type = __types[key];
@@ -798,7 +798,7 @@ exports.create = function(_context, _args, _additional) {
                                 .mapView.region,
                                 win,
                                 _params.mapHandler || self.parent,
-                                function(_addedItems) {
+                                function (_addedItems) {
                                     if (_params.callback) {
                                         _params.callback(_addedItems);
                                     }
@@ -813,7 +813,7 @@ exports.create = function(_context, _args, _additional) {
                             });
 
                         } else {
-                            self.onModuleAction(_.assign(e.item, {
+                            self.onModuleAction(Object.assign(e.item, {
                                 callback: _params.callback
                             }));
                         }
@@ -829,12 +829,12 @@ exports.create = function(_context, _args, _additional) {
                             '...'
                     }
                 });
-                var onItems = function(e) {
+                var onItems = function (e) {
                     addedItems = addedItems.concat(e.items);
                 };
                 var geofeatureTypes = ['refuge', 'peak', 'saddle', 'lake', 'water', 'glacier'];
                 var index = 0;
-                var onDone = function() {
+                var onDone = function () {
                     // sdebug(addedItems);
                     win.hideLoading();
                     if (_params.callback) {
@@ -842,7 +842,7 @@ exports.create = function(_context, _args, _additional) {
                     }
                 };
                 var region = _params.region || self.mapView.region;
-                var queryFeatures = function(_onDone) {
+                var queryFeatures = function (_onDone) {
                     if (index < geofeatureTypes.length) {
                         var type = geofeatureTypes[index++];
                         self.getMarkersForRegion(__types[type], region, win, _params.mapHandler || self.parent, _.partial(
@@ -860,7 +860,7 @@ exports.create = function(_context, _args, _additional) {
                     case 'create_list':
 
                         if (_.isString(_params.list)) {
-                            self.createList(_.assign({
+                            self.createList(Object.assign({
                                 id: _params.list
                             }, listDefaults[_params.list]), _params.onlyIfExists);
                         } else {
@@ -878,7 +878,7 @@ exports.create = function(_context, _args, _additional) {
             return true;
         },
 
-        clear: function(_key, _indexerClear) {
+        clear: function (_key, _indexerClear) {
             this.getCluster(_key)
                 .removeAllAnnotations();
             if (_indexerClear !== false) {
@@ -892,7 +892,7 @@ exports.create = function(_context, _args, _additional) {
             };
             __items[_key] = [];
         },
-        getSupplyTemplates: function(memo) {
+        getSupplyTemplates: function (memo) {
             memo.elprofile = app.templates.row.elevationProfile;
             // memo.elprofileHTML = app.templates.row.elevationProfileHTML;
             // memo.elprofileHTML.childTemplates[1].events = {
@@ -903,8 +903,8 @@ exports.create = function(_context, _args, _additional) {
             // };
             memo.file = app.templates.row.gfoptionfileitem;
         },
-        getChartData: function(_profile, _color) {
-            var getColor = function(value) {
+        getChartData: function (_profile, _color) {
+            var getColor = function (value) {
                 //value from 0 to 1
                 var hue = (Math.max((1 - value * 3) * 120, 12)).toString(10);
                 return ["hsla(", hue, ",100%,50%, 0.5)"].join("");
@@ -938,7 +938,7 @@ exports.create = function(_context, _args, _additional) {
                 },
                 xAxis: {
                     labels: {
-                        formatter: function() {
+                        formatter: function () {
                             sdebug('formatter', this.value);
                             return formatter.distance(this.value);
                         }
@@ -946,7 +946,7 @@ exports.create = function(_context, _args, _additional) {
                     // tickInterval: 20,
                     //type: 'datetime'
                     text: '',
-                    plotBands: _.reduce(_profile.gradleRegions, function(memo, value, index) {
+                    plotBands: _.reduce(_profile.gradleRegions, function (memo, value, index) {
                         memo.push({
                             from: value.from,
                             to: value.to,
@@ -973,28 +973,9 @@ exports.create = function(_context, _args, _additional) {
                 plotOptions: {
                     area: {
                         fillColor: null,
-                        // fillColor: {
-                        //   linearGradient: {
-                        //     x1: 0,
-                        //     y1: 0,
-                        //     x2: 0,
-                        //     y2: 1
-                        //   },
-                        //   stops: [
-                        //     [0, '#B03621'],
-                        //     [1, '#00B03621']
-                        //   ]
-                        // },
                         marker: {
                             radius: 2
-                        },
-                        // lineWidth: 1,
-                        // states: {
-                        //   hover: {
-                        //     lineWidth: 1
-                        //   }
-                        // },
-                        // threshold: null
+                        }
                     }
                 },
 
@@ -1005,7 +986,7 @@ exports.create = function(_context, _args, _additional) {
                 }]
             };
         },
-        getItemSupplViews: function(_item, _desc, _params) {
+        getItemSupplViews: function (_item, _desc, _params) {
             if (isItemARoute(_item) && (_item.profile || (_item.tags &&
                     _item.tags.dplus && _item.tags.dmin))) {
                 _params = _params || {};
@@ -1027,7 +1008,7 @@ exports.create = function(_context, _args, _additional) {
                 };
                 if (profile) {
                     if (useHTML) {
-                        _.assign(result, {
+                        Object.assign(result, {
                             chart: {
                                 height: (!!_params.small && 80) || undefined,
                                 visible: true,
@@ -1040,7 +1021,7 @@ exports.create = function(_context, _args, _additional) {
                     var delta = heigthLength / 2;
                     // sdebug('heigthLength', heigthLength);
                     // sdebug('delta', delta);
-                    _.assign(result, {
+                    Object.assign(result, {
                         chart: {
                             height: (!!_params.small && 80) || undefined,
                             visible: true,
@@ -1086,13 +1067,13 @@ exports.create = function(_context, _args, _additional) {
                 // return ;
             }
         },
-        onModuleLongAction: function(_params) {
+        onModuleLongAction: function (_params) {
             var key = _params.id;
             if (__types[key] !== undefined) {
                 var type = __types[key];
                 var options = ['clear', 'list'];
                 new OptionDialog({
-                        options: _.map(options, function(value,
+                        options: _.map(options, function (value,
                             index) {
                             return trc(value);
                         }),
@@ -1100,7 +1081,7 @@ exports.create = function(_context, _args, _additional) {
                         cancel: 0,
                         tapOutDismiss: true
                     })
-                    .on('click', function(e) {
+                    .on('click', function (e) {
                         if (!e.cancel) {
                             var option = options[e.index];
                             self.onModuleAction({
@@ -1113,11 +1094,11 @@ exports.create = function(_context, _args, _additional) {
             }
         },
 
-        onMapLongPress: function(e) {
+        onMapLongPress: function (e) {
             var loc = _.pick(e, 'latitude', 'longitude', 'altitude');
             var extras = self.parent.runReduceMethodOnModules(true, 'getDroppedExtra', loc, e.zoom);
-            _.each(extras, function(value, key) {
-                _.assign(loc, value);
+            _.each(extras, function (value, key) {
+                Object.assign(loc, value);
             });
             var type = 'dropped';
             var item = itemHandler.createAnnotItem(__types[type], loc);
@@ -1126,28 +1107,28 @@ exports.create = function(_context, _args, _additional) {
             self.runActionOnItem(type, item, 'select');
             return true;
         },
-        setVisible: function(_type, _visible) {
+        setVisible: function (_type, _visible) {
             var type = __types[_type];
             if (type) {
                 type.visible = _visible;
-                _.forEach(__routes[_type], function(route) {
+                _.forEach(__routes[_type], function (route) {
                     route.visible = _visible;
                 });
                 Ti.App.Properties.setBool(type.getPrefKey('visible'), _visible);
                 __clusters[_type].visible = _visible;
             }
         },
-        moveItems: function(_items, _newType) {
+        moveItems: function (_items, _newType) {
             var newListType = __types[_newType];
             if (!newListType) {
-                self.createList(_.assign({
+                self.createList(Object.assign({
                     id: _newType
                 }, listDefaults[_newType]), true);
                 newListType = __types[_newType];
             }
             var itemsToMove = [];
 
-            _.forEach(_items, function(_item) {
+            _.forEach(_items, function (_item) {
                 var type = _item.type;
                 var isRoute = isItemARoute(_item);
                 var idKey = isRoute ? __ROUTES__ : __MARKERS__;
@@ -1157,7 +1138,7 @@ exports.create = function(_context, _args, _additional) {
                 }
             });
 
-            var newItems = _.reduce(itemsToMove, function(memo, item) {
+            var newItems = _.reduce(itemsToMove, function (memo, item) {
                 var newItem = JSON.parse(JSON.stringify(item));
                 var type = __types[newItem.type];
                 newItem.type = _newType;
@@ -1180,14 +1161,14 @@ exports.create = function(_context, _args, _additional) {
                 return memo;
             }, []);
 
-            __movingItems = _.pluck(itemsToMove, 'id');
+            __movingItems = _.map(itemsToMove, 'id');
             sdebug('__movingItems', __movingItems);
             self.removeItems(itemsToMove, false);
             self.addItems(newItems, false);
 
             //the order is important as anyone listening to it must be able to find the newly moved(added) annotation
             app.emit(__ITEMS__ + 'Moved', {
-                oldItems: _.mapValues(_.groupBy(itemsToMove, 'type'), function(items, key) {
+                oldItems: _.mapValues(_.groupBy(itemsToMove, 'type'), function (items, key) {
                     return {
                         desc: __types[key],
                         items: items
@@ -1205,7 +1186,7 @@ exports.create = function(_context, _args, _additional) {
                 }), newListType.colors);
 
         },
-        onChanged: function(e) {
+        onChanged: function (e) {
             var item = e.item;
             var type = __types[item.type];
             if (type) {
@@ -1225,13 +1206,13 @@ exports.create = function(_context, _args, _additional) {
                     var needsPhotoDbChange = false;
                     if (e.changes.newPhotos) {
                         needsPhotoDbChange = true;
-                        _.forEach(e.changes.newPhotos, function(photo) {
+                        _.forEach(e.changes.newPhotos, function (photo) {
                             photosDb[photo.image] = photosDb[photo.image] || [];
                             photosDb[photo.image].push(item.id);
                         });
                     }
                     if (e.changes.deletedPhotos) {
-                        _.forEach(e.changes.deletedPhotos, function(photoId) {
+                        _.forEach(e.changes.deletedPhotos, function (photoId) {
                             var photoDb = photosDb[photoId];
                             if (photoDb) {
                                 photoDb = _.without(photoDb, item.id);
@@ -1252,13 +1233,13 @@ exports.create = function(_context, _args, _additional) {
                     var needsFileDbChange = false;
                     if (e.changes.newFiles) {
                         needsPhotoDbChange = true;
-                        _.forEach(e.changes.newFiles, function(file) {
+                        _.forEach(e.changes.newFiles, function (file) {
                             filesDb[file.fileName] = photosDb[file.fileName] || [];
                             filesDb[file.fileName].push(item.id);
                         });
                     }
                     if (e.changes.deletedFiles) {
-                        _.forEach(e.changes.deletedFiles, function(fileId) {
+                        _.forEach(e.changes.deletedFiles, function (fileId) {
                             var fileDb = filesDb[fileId];
                             if (fileDb) {
                                 fileDb = _.without(fileDb, item.id);
@@ -1279,13 +1260,13 @@ exports.create = function(_context, _args, _additional) {
                 return true;
             }
         },
-        addType: function(_key, _type) {
+        addType: function (_key, _type) {
             if (!__types[_key]) {
                 __types[_key] = _type;
                 initiateType(newList, key);
             }
         },
-        createList: function(_defaults, _onlyIfExists) {
+        createList: function (_defaults, _onlyIfExists) {
             var key = _defaults.id || _.snakeCase(_defaults.title);
             if (!!_onlyIfExists && lists[key] || __types[key]) {
                 return;
@@ -1311,18 +1292,18 @@ exports.create = function(_context, _args, _additional) {
                 list: lists[key]
             });
         },
-        updateList: function(_list, _changes) {
+        updateList: function (_list, _changes) {
             var key = _list.id;
             var markerList = lists[key];
             if (markerList) {
-                _.assign(markerList, _changes);
+                Object.assign(markerList, _changes);
                 saveLists();
             }
             var type = __types[key];
             if (type) {
-                _.assign(type, _changes);
+                Object.assign(type, _changes);
                 if (_changes.hasOwnProperty('color') || _changes.hasOwnProperty('icon')) {
-                    type.colors = app.getContrastColor(type.color);
+                    type.colors = app.getContrastColors(type.color);
                     type.image = itemHandler.getAnnotImage(type);
                     type.selectedImage = itemHandler.getAnnotImage(type, true);
                     ak.ti.redux.fn.setDefault('.' + type.rclass, {
@@ -1342,7 +1323,7 @@ exports.create = function(_context, _args, _additional) {
                         // });
                         // reset all __items for images to be update
                         var theItems = __items[key];
-                        _.forEach(theItems, function(item) {
+                        _.forEach(theItems, function (item) {
                             if (!isItemARoute(item)) {
                                 item.image = itemHandler.getAnnotImage(type, item);
                                 item.selectedImage = itemHandler.getAnnotImage(type, item, true);
@@ -1359,7 +1340,7 @@ exports.create = function(_context, _args, _additional) {
                 });
             }
         },
-        onModuleLoaded: function(_moduleId, _state, _module) {
+        onModuleLoaded: function (_moduleId, _state, _module) {
             if (_state === false) {
                 var type = __types[_moduleId];
                 if (type) {
@@ -1383,7 +1364,7 @@ exports.create = function(_context, _args, _additional) {
                 var types = {};
                 _module.getItemTypes && _module.getItemTypes(types);
                 sdebug('onModuleLoaded', types);
-                _.each(types, function(value, key) {
+                _.each(types, function (value, key) {
                     if (value.hidden !== false) {
                         __types[key] = value;
                         initiateType(value, key);
@@ -1395,7 +1376,7 @@ exports.create = function(_context, _args, _additional) {
                 });
             }
         },
-        removeList: function(_list) {
+        removeList: function (_list) {
             sdebug('removeList', _list);
             var key = _list.id;
             var list = lists[key];
@@ -1412,10 +1393,10 @@ exports.create = function(_context, _args, _additional) {
                 });
             }
         },
-        onWindowOpen: function(_enabled) {
+        onWindowOpen: function (_enabled) {
             app.showTutorials(['map_drop_pin']);
         },
-        actionsForItem: function(_item, _desc, _onMap, result) {
+        actionsForItem: function (_item, _desc, _onMap, result) {
             // sdebug('items actionsForItem', _item.id, result);
             if (_item) {
                 var isRoute = isItemARoute(_item);
@@ -1455,7 +1436,7 @@ exports.create = function(_context, _args, _additional) {
                 // sdebug('items result', result);
             }
         },
-        moreActionsForItem: function(_item, _desc, _onMap, result) {
+        moreActionsForItem: function (_item, _desc, _onMap, result) {
             if (_item) {
                 var isRoute = isItemARoute(_item);
                 if (isRoute && _item.profile) {
@@ -1463,7 +1444,7 @@ exports.create = function(_context, _args, _additional) {
                 }
             }
         },
-        runActionOnItem: function(_type, _item, _action) {
+        runActionOnItem: function (_type, _item, _action) {
             var isRoute = isItemARoute(_item);
             var mapItem = this.getMapItem(_type, _item);
             sdebug('runActionOnItem', _type, _item.id);
@@ -1475,7 +1456,7 @@ exports.create = function(_context, _args, _additional) {
                         // if (mapItem.showInfoWindow) {
                         // mapItem.showInfo();
                         // } else {
-                        setTimeout(function() {
+                        setTimeout(function () {
                             if (isRoute) {
                                 sdebug('runActionOnItem', 'moveToRoute');
                                 self.parent.setRegion(mapItem.region, 0.3, true);
@@ -1494,7 +1475,7 @@ exports.create = function(_context, _args, _additional) {
             }
             return true;
         },
-        prepareDetailsListView: function(item, itemDesc, sections, createItem, colors, iconicColor) {
+        prepareDetailsListView: function (item, itemDesc, sections, createItem, colors, iconicColor) {
             if (item.files) { // });
                 sections.push({
                     hideWhenEmpty: true,
@@ -1507,7 +1488,7 @@ exports.create = function(_context, _args, _additional) {
                             text: 'files'
                         }
                     }),
-                    items: _.reduce(item.files, function(items, file) {
+                    items: _.reduce(item.files, function (items, file) {
                         items.push({
                             template: 'file',
                             callbackId: 'file',
@@ -1525,11 +1506,11 @@ exports.create = function(_context, _args, _additional) {
                                     .filesize(file.fileSize, {
                                         round: 0
                                     })
-                                    // text:moment(file.timestamp).fromNow()
+                                // text:moment(file.timestamp).fromNow()
                             },
                             // accessory: {
                             //     color: iconicColor,
-                            //     text:$sHOptions,
+                            //     text:$.sHOptions,
                             //     visible:true
                             // },
                             data: file

@@ -1,31 +1,59 @@
-ak.ti.constructors.createAppWindow = function(_args) {
+declare class Container extends View {
+    topToolbarHolder: View
+    navBarHolder: View
+    navBar: View
+}
+
+declare class AppWindow extends BaseWindow {
+    customNavBar: Boolean
+    createManagedWindow(constructor, args)
+    showTopToolbar()
+    hideTopToolbar()
+    showHideTopToolbar()
+    showBottomToolbar()
+    hideBottomToolbar()
+    showHideBottomToolbar()
+    setColors(color)
+    showError(err)
+    updateTitle(title: string, subtitle?: string)
+    runPromise<T>(p: Promise<T>): Promise<T>
+    cancelRunningRequest()
+    topToolbarVisible: Boolean
+    bottomToolbarVisible: Boolean
+    withLoadingIndicator: Boolean
+    container: Container
+    window: AppWindow
+    listView: AppListView
+    loadingView: LoadingView
+    headerTemplate: any
+    headerView: any
+    onLogin?()
+    onLogout?()
+}
+
+ak.ti.constructors.createAppWindow = function (_args) {
     var bottomToolbarHolder,
-        topToolbarHolder,
         realContainer,
         hasContentLoading = false;
 
     if (!!_args.modal) {
-        _args.modal = false;
         _args.customModal = true;
-        if (__APPLE__) {
-            _args.backgroundColor = 'transparent';
-            _.defaults(_args, {
-                winOpeningArgs: {
-                    from: {
-                        transform: 'ot0,100%',
-                    },
-                    to: {
-                        transform: null,
-                    },
-                    duration: 300
-                },
-                winClosingArgs: {
+        _args.modal = false;
+        _.defaults(_args, {
+            winOpeningArgs: {
+                from: {
                     transform: 'ot0,100%',
-                    duration: 200
-                }
-            });
-        }
-
+                },
+                to: {
+                    transform: null,
+                },
+                duration: 300
+            },
+            winClosingArgs: {
+                transform: 'ot0,100%',
+                duration: 200
+            }
+        });
     }
 
     if (_args.blurredBackground === true) {
@@ -40,13 +68,51 @@ ak.ti.constructors.createAppWindow = function(_args) {
                     }]
                 })
             } : {
-                backgroundColor: '#aa000000'
-            }
+                    backgroundColor: '#000000aa'
+                }
         };
     }
 
+    let updateTitle = function (title) {
+        if (self.customNavBar) {
+            self.container.applyProperties({
+                titleView: {
+                    html: title
+                }
+            });
+        } else {
+            self.title = title;
+        }
+    }
+
+    if (_args.subtitle) {
+        _args.backButtonTitle = '';
+        _args.titleView = {
+            type: 'Ti.UI.Label',
+            touchEnabled: false,
+            // textAlign: 'center',
+            // backgroundColor:'brown',
+            height: 'FILL',
+            width: 'FILL',
+            bindId: 'titleView',
+            multiLineEllipsize: Ti.UI.TEXT_ELLIPSIZE_TAIL,
+            color: $.white,
+            font: { size: 14 },
+            html: '<b>' + _args.title + '</b><br><small><font color="lightgray">' + _args.subtitle + '</small></font>'
+        }
+
+        updateTitle = function (title, subtitle?) {
+            console.log('updateTitle', self.customNavBar, self.container.titleView, title, subtitle);
+            (self.customNavBar ? self.container : self).applyProperties({
+                titleView: {
+                    html: (subtitle ? ('<b>' + title + '</b><br><small><font color="lightgray">' + subtitle + '</small></font>') : title)
+                }
+            });
+        }
+    }
+
     if (_args.rightNavButtons) {
-        _args.rightNavButtons = _.reduce(_args.rightNavButtons, function(memo, value, key, list) {
+        _args.rightNavButtons = _.reduce(_args.rightNavButtons, function (memo, value: any, key, list) {
             if (!value.hasOwnProperty || value.hasOwnProperty('type')) {
                 memo.push(value);
             } else {
@@ -67,22 +133,24 @@ ak.ti.constructors.createAppWindow = function(_args) {
         }, []);
     }
 
-    if (_args.customNavBar === true) {
 
+
+    if (!!_args.customNavBar) {
+        console.log('customNavBar', _args.showLeftMenuButton);
         var children = [];
         var maxCount = 0;
         var toAdd;
-        if (_args.showBackButton) {
+        if (_args.showBackButton && !_args.showLeftMenuButton) {
             _args.hasBackButton = true;
             children.push({
                 type: 'Ti.UI.Button',
                 properties: {
                     rclass: 'NBBackButton',
-                    title: _args.ownBackButtonTitle || ((_args.modal || _args.customModal) ? $sClose :
-                        $sLeft)
+                    title: _args.ownBackButtonTitle || ((_args.modal || _args.customModal) ? $.sClose :
+                        $.sLeft)
                 },
                 events: {
-                    'click': app.debounce(function() {
+                    'click': app.debounce(function () {
                         self.closeMe();
                     })
                 }
@@ -94,6 +162,15 @@ ak.ti.constructors.createAppWindow = function(_args) {
             toAdd = _.remove(_args, 'leftNavButton');
             // decaleCount += 1;
             children.push(toAdd);
+        } else if (!!_args.showLeftMenuButton) {
+            let leftNavButton = new Button({
+                rid: (_args.leftMenuButtonRid || 'menuBtn')
+            });
+            app.onDebounce(leftNavButton, 'click', function () {
+                app.ui.leftdrawer.showHideMe();
+            });
+            delete _args.showLeftMenuButton;
+            children.push(leftNavButton);
         }
         var customTitleView = !!_args.titleView;
         var titleView = _args.titleView || ((_args.title && _args.title.length > 0) ? {
@@ -107,10 +184,15 @@ ak.ti.constructors.createAppWindow = function(_args) {
         } : undefined);
         // children.push(titleView);
         maxCount = children.length;
-        children.push({
-            type: 'Ti.UI.View',
-            touchEnabled: false
-        });
+        if (titleView) {
+            children.push(titleView);
+        } else {
+            children.push({
+                type: 'Ti.UI.View',
+                touchEnabled: false
+            });
+        }
+
         if (_args.hasOwnProperty('rightNavButton')) {
             children.push(_.remove(_args, 'rightNavButton'));
             // decaleCount -= 1;
@@ -123,12 +205,13 @@ ak.ti.constructors.createAppWindow = function(_args) {
         }
         maxCount = Math.max(maxCount, children.length - maxCount - 1);
         // if (!customTitleView) {
-        if (titleView && maxCount > 0) {
-            titleView.properties.right = maxCount * $nbButtonWidth;
-            titleView.properties.left = maxCount * $nbButtonWidth;
-            // } else if (decaleCount < 0) {
-            // titleView.properties.padding = [0, -decaleCount * $nbButtonWidth, 0, 0];
-        }
+        // if (titleView && maxCount > 0) {
+        // let props = titleView.properties || titleView;
+        // props.right = maxCount * $.nbButtonWidth;
+        // props.left = maxCount * $.nbButtonWidth;
+        // } else if (decaleCount < 0) {
+        // titleView.properties.padding = [0, -decaleCount * $.nbButtonWidth, 0, 0];
+        // }
         // }
 
         _args.topToolbarVisible = true;
@@ -149,15 +232,16 @@ ak.ti.constructors.createAppWindow = function(_args) {
                     height: _args.barHeight,
                     touchPassThrough: true
                 },
-                childTemplates: (titleView ? [titleView] : []).concat([{
+                childTemplates: [{
                     type: 'Ti.UI.View',
                     bindId: 'navBarHolder',
                     properties: {
                         layout: 'horizontal',
+                        // backgroundColor:'yellow',
                         touchPassThrough: true
                     },
                     childTemplates: children
-                }])
+                }]
 
             }]
         };
@@ -171,7 +255,11 @@ ak.ti.constructors.createAppWindow = function(_args) {
         } else {
             _args.topToolbar = view;
         }
-
+        delete _args.titleView;
+        delete _args.leftNavButton;
+        delete _args.leftNavButtons;
+        delete _args.rightNavButton;
+        delete _args.rightNavButtons;
     }
 
     if (__ANDROID__) {
@@ -181,9 +269,9 @@ ak.ti.constructors.createAppWindow = function(_args) {
         if (_args.hasOwnProperty('rightNavButtons')) buttons = _.union(buttons, _args.rightNavButtons);
         if (buttons.length > 0) {
             _args.activity = _args.activity || {};
-            _args.activity.onCreateOptionsMenu = function(e) {
+            _args.activity.onCreateOptionsMenu = function (e) {
                 var menu = e.menu;
-                _.each(buttons, function(view, index, list) {
+                _.each(buttons, function (view, index, list) {
                     var args = {
                         actionView: view,
                         showAsAction: Ti.Android.SHOW_AS_ACTION_IF_ROOM
@@ -194,88 +282,69 @@ ak.ti.constructors.createAppWindow = function(_args) {
         }
     }
 
-    var self = new BaseWindow(_args);
+    let self: AppWindow = <AppWindow>new BaseWindow(_args);
+    self.updateTitle = updateTitle;
     if (self.navWindow && self.window.customNavBar === true) {
         self.window.closeMe = self.closeMe;
-        //     self.openWindow = app.composeFunc(self.openWindow, function(_win, _args) {
-        //         _win.shouldShowBackButton();
-        //     });
-        //     self.shouldShowBackButton = function(_backTitle) {
-        //         sdebug('shouldShowBackButton', _backTitle);
-        //         if (!self.hasBackButton) {
-        //             self.container.navBarHolder.add({
-        //                 type: 'Ti.UI.Button',
-        //                 properties: {
-        //                     rclass: 'NBBackButton',
-        //                     title: _backTitle || ((self.modal || self.customModal) ? $sClose :
-        //                         $sLeft)
-        //                 },
-        //                 events: {
-        //                     'click': app.debounce(function() {
-        //                         self.closeMe();
-        //                     })
-        //                 }
-        //             }, 0);
-        //         }
-        //     };
     }
 
     if (_args.navWindow === true || _args.canManageWindows === true) {
-        self.createManagedWindow = function(_constructor, _args2) {
+        self.createManagedWindow = function (_constructor, _args2) {
             _args2 = _args2 || {};
             _args2.manager = self;
             return ak.ti.createFromConstructor(_constructor, _args2);
         };
     }
 
-    // if (_args.showLeftMenuButton === true) {
-    //     if (_args.modal === true) {
+    if (_args.showLeftMenuButton === true) {
+        console.log('showLeftMenuButton');
+        if (_args.modal === true) {
 
-    //     } else {
-    //         if (__APPLE__) {
-    //             self.leftNavButton = new Label({
-    //                 rid: (_args.leftMenuButtonRid || 'menuBtn')
-    //             });
-    //             app.onDebounce(self.leftNavButton, 'click', function() {
-    //                 app.ui.slidemenu.toggleLeftView();
-    //             });
-    //         } else {
-    //             self.applyProperties({
-    //                 homeAsUpIndicator: 'images/menu.png',
-    //                 displayHomeAsUp: true,
-    //                 onHomeIconItemSelected: function() {
-    //                     app.ui.slidemenu.toggleLeftView();
-    //                 }
-    //             });
-    //         }
-    //     }
+        } else {
+            if (__APPLE__) {
+                self.leftNavButton = new Button({
+                    rid: (_args.leftMenuButtonRid || 'menuBtn')
+                });
+                app.onDebounce(self.leftNavButton, 'click', function () {
+                    // app.ui.leftdrawer.showHideMe();
+                       app.ui.slidemenu.toggleLeftView();
+                });
+            } else {
+                self.applyProperties({
+                    homeAsUpIndicator: 'images/menu.png',
+                    displayHomeAsUp: true,
+                    onHomeIconItemSelected: function () {
+                        // app.ui.leftdrawer.showHideMe();
+                        app.ui.slidemenu.toggleLeftView();
+                    }
+                });
+            }
+        }
 
-    // }
+    }
 
     if (_args.topToolbar) {
-        self.showTopToolbar = function() {
+        self.showTopToolbar = function () {
             if (self.container.topToolbarHolder.visible) return;
-            sdebug('showTopToolbar');
             self.container.topToolbarHolder.visible = true;
             self.container.topToolbarHolder.animate({
                 height: 'SIZE',
-                duration: 200
+                duration: 300
             });
         };
-        self.showHideTopToolbar = function() {
+        self.showHideTopToolbar = function () {
             if (self.container.topToolbarHolder.visible === false)
                 self.showTopToolbar();
             else
                 self.hideTopToolbar();
 
         };
-        self.hideTopToolbar = function() {
+        self.hideTopToolbar = function () {
             if (self.container.topToolbarHolder.visible === false) return;
-            sdebug('hideTopToolbar');
             self.container.topToolbarHolder.animate({
                 height: 0,
-                duration: 200
-            }, function() {
+                duration: 300
+            }, function () {
                 self.container.topToolbarHolder.visible = false;
             });
         };
@@ -283,13 +352,12 @@ ak.ti.constructors.createAppWindow = function(_args) {
             type: 'Ti.UI.View',
             bindId: 'topToolbarHolder',
             properties: {
-                rclass: 'TopToolbar' + ((!!_args.dontElevateTopBar || _args.barColor === 'transparent') ?
-                    '' : ' ElevatedView'),
+                rclass: 'TopToolbar',
                 visible: (_args.topToolbarVisible === true),
                 height: ((_args.topToolbarVisible === true) ? 'SIZE' : 0)
             },
             childTemplates: [_args.topToolbar]
-        });
+        }, 0);
         delete _args.topToolbarVisible;
         delete _args.topToolbar;
     }
@@ -298,11 +366,11 @@ ak.ti.constructors.createAppWindow = function(_args) {
     if (_args.centerContainerView) {
         realContainer = _args.centerContainerView;
         delete _args.centerContainerView;
-        self.container.add(realContainer);
+        ak.ti.add(self.container, realContainer);
     }
 
     if (_args.listViewArgs) {
-        self.listView = new ListView(_args.listViewArgs);
+        self.listView = new AppListView(_args.listViewArgs);
         realContainer.add(self.listView);
     } else if (_args.templates) {
         self.headerTemplate = ak.ti.style({
@@ -317,109 +385,90 @@ ak.ti.constructors.createAppWindow = function(_args) {
             isCollection: _args.useCollection,
             canEdit: _args.canEdit,
             rclass: _args.listViewClass,
-            templates: _.assign({
+            templates: Object.assign({
                 'noitem': app.templates.row.noitem
             }, _args.templates),
             defaultItemTemplate: _args.defaultItemTemplate || 'default',
+            headerView: undefined
         };
         if (_args.headerView) {
             args.headerView = _args.headerView;
-        } else if (_args.withAd === true) {}
-        self.listView = new ListView(args);
+        } else if (_args.withAd === true) { }
+        self.listView = new AppListView(args);
 
         // self.setNoItemSections();
         realContainer.add(self.listView);
         hasContentLoading = true;
+    } else {
+        if (_args.withAd === true) {
+            ak.ti.add(self.container, {
+                type: 'AkylasAdmob.View',
+                // bindId: 'admob',
+                properties: {
+                    rclass: 'AdmobView'
+                }
+            });
+        }
     }
 
     if (_args.bottomToolbar) {
         bottomToolbarHolder = new View({
-            bindId: 'bottomToolbarHolder',
-            rclass: 'BottomToolbar' + ((!!_args.dontElevateTopBar || _args.barColor === 'transparent') ? '' :
-                ' ElevatedView'),
+            rclass: 'BottomToolbar',
+            bindId: 'bottomToolbarHolder'
         });
+        let height = bottomToolbarHolder.height;
         if (_args.bottomToolbarVisible !== true) {
             bottomToolbarHolder.visible = false;
             bottomToolbarHolder.height = 0;
         }
-        self.showBottomToolbar = function() {
-            if (bottomToolbarHolder.visible) return;
-            sdebug('showBottomToolbar', bottomToolbarHolder.visible);
+        self.showBottomToolbar = function () {
+            if (self.bottomToolbarVisible) return;
+            sdebug('showBottomToolbar', self.bottomToolbarVisible);
+            bottomToolbarHolder.cancelAllAnimations();
             self.bottomToolbarVisible = true;
             bottomToolbarHolder.visible = true;
             bottomToolbarHolder.animate({
-                cancelRunningAnimations: true,
-                height: 'SIZE',
-                duration: 200
+                height: height,
+                duration: 300
             });
         };
-        self.showHideBottomToolbar = function() {
+        self.showHideBottomToolbar = function () {
             if (bottomToolbarHolder.visible === false)
                 self.showBottomToolbar();
             else
                 self.hideBottomToolbar();
 
         };
-        self.hideBottomToolbar = function() {
-            if (bottomToolbarHolder.visible === false) return;
-            sdebug('hideBottomToolbar', bottomToolbarHolder.visible);
+        self.hideBottomToolbar = function () {
+            if (self.bottomToolbarVisible === false) return;
+            self.bottomToolbarVisible = false;
+            sdebug('hideBottomToolbar', self.bottomToolbarVisible);
+            bottomToolbarHolder.cancelAllAnimations();
             bottomToolbarHolder.animate({
-                cancelRunningAnimations: true,
                 height: 0,
-                duration: 200
-            }, function() {
-                self.bottomToolbarVisible = false;
-                bottomToolbarHolder.visible = false;
-            });
-        };
-        if (_args.withAd === true && app.shouldShowAds()) {
-            ak.ti.add(bottomToolbarHolder, {
-                type: 'AkylasAdmob.View',
-                properties: {
-                    rclass: 'AdmobView',
-                    height: 0,
-                    opacity: 0,
-                    location: app.currentLocation
-                },
-                events: {
-                    load: function(e) {
-                        e.source.animate({
-                            height: 'SIZE',
-                            opacity: 1,
-                            duration: 100
-                        });
-                    }
+                duration: 300
+            }, function () {
+                if (!self.bottomToolbarVisible) {
+                    bottomToolbarHolder.visible = false;
                 }
             });
-        }
-        bottomToolbarHolder.add(_args.bottomToolbar);
+        };
+        ak.ti.add(bottomToolbarHolder, _args.bottomToolbar);
         delete _args.bottomToolbar;
         self.container.add(bottomToolbarHolder);
     }
 
-    // if (_args.verticalContainer === false && _args.customNavBar === true) {
-    //     if (topToolbarHolder) {
-    //         self.container.remove(topToolbarHolder);
-    //         self.container.add(topToolbarHolder);
-    //     }
-    //     if (bottomToolbarHolder) {
-    //         self.container.remove(bottomToolbarHolder);
-    //         self.container.add(bottomToolbarHolder);
-    //     }
-    // }
-
     if (self.withLoadingIndicator) {
+        var loadingShowing = false;
         var currentRequest;
-        self.loadingView = new LoadingView({
-            rclassPrefix: _args.LoadingRclassPrefix || 'Loading'
-        });
+        self.loadingView = new LoadingView(_args.loadingViewArgs);
         self.addPropertiesToGC('loadingView');
-        self.showLoading = function(_args, _animated) {
-            if (!self) {
+        self.showLoading = function (_args, _animated?) {
+            if (loadingShowing) {
                 return;
             }
-            sdebug('showLoading', _args);
             _args = _args || {};
+            loadingShowing = true;
             if (currentRequest) {
                 currentRequest.abort();
                 currentRequest = null;
@@ -430,7 +479,7 @@ ak.ti.constructors.createAppWindow = function(_args) {
                 _args.sublabel = {
                     text: trc('click_to_cancel')
                 }
-                self.loadingView.holder.once('click', function() {
+                self.loadingView.holder.once('click', function () {
                     // sdebug('test');
                     if (currentRequest) {
                         currentRequest.abort();
@@ -442,7 +491,6 @@ ak.ti.constructors.createAppWindow = function(_args) {
                     text: ''
                 }
             }
-            // sdebug('test1', _args);
             self.loadingView.startLoading(_args);
             self.add(self.loadingView);
             if (_animated !== false) {
@@ -456,27 +504,30 @@ ak.ti.constructors.createAppWindow = function(_args) {
                     duration: 200
                 });
             }
-
         };
 
-        self.hideLoading = function() {
-            if (!self) {
+        self.hideLoading = function () {
+            if (!loadingShowing) {
                 return;
             }
-            sdebug('hideLoading');
+            loadingShowing = false;
+            sdebug('app hideLoading');
             currentRequest = null;
+            if (self.listView && self.listView.doneLoading) {
+                self.listView.doneLoading();
+            }
             self.loadingView.animate({
-                cancelRunningAnimations: true,
                 opacity: 0,
                 duration: 200
-            }, function(e) {
+            }, function (e) {
+
                 if (isClosed) return;
+                sdebug('app hideLoading done');
                 self.loadingView.stopLoading();
                 self.remove(self.loadingView);
             });
         };
-
-        self.cancelRunningRequest = function() {
+        self.cancelRunningRequest = function () {
             if (currentRequest) {
                 sdebug('cancelRunningRequest');
                 currentRequest.abort();
@@ -485,24 +536,44 @@ ak.ti.constructors.createAppWindow = function(_args) {
             }
             return false;
         }
-        self.onBack = function(e) {
-        if (self.cancelRunningRequest()) {
-            return;
-        }
-        self.closeMe();
-    };
     }
 
-    self.setColors = function(_color, _withNavBar, _barColor) {
-        sdebug('setColors', _color);
-        var colors = app.getContrastColor(_color);
-        var params = {};
-        if (self.customNavBar && _withNavBar != false) {
-            params.tintColor = colors.contrast;
+    self.showError = function (err) {
+        app.emit('error', { silent: true, error: err });
+    }
+
+    self.runPromise = function (promise) {
+        self.showLoading && self.showLoading();
+        return promise.then(function (result) {
+            if (!isClosed) {
+                self.hideLoading && self.hideLoading();
+            }
+            return result;
+        }, err => {
+            if (!isClosed) {
+                self.hideLoading && self.hideLoading();
+            }
+            throw err;
+        });
+    };
+
+    self.setColors = function (_color) {
+        var colors = app.getContrastColors(_color);
+
+        var params: any = {};
+
+        if (self.customNavBar) {
             params.container = {
+                topToolbarHolder: {
+                    backgroundColor: colors.color
+                },
+                bottomToolbarHolder: {
+                    backgroundColor: colors.color
+                },
                 titleView: {
                     color: colors.contrast
-                }
+                },
+                navBar: undefined
             };
             if (self.isOpened) {
                 self.container.navBar.animate({
@@ -515,47 +586,56 @@ ak.ti.constructors.createAppWindow = function(_args) {
                 };
             }
 
-            // self.container.applyProperties(params);
+            _.forEach(self.container.navBarHolder.children, function (child: Ti.UI.Label) {
+                child.color = colors.contrast;
+            });
         } else {
             params = {
                 barColor: colors.color,
-                barTintColor: colors.contrast,
+                barTintColor: colors.contrast
             };
         }
-
         if (__APPLE__) {
-            // sdebug('statusBarStyle', colors.isLight ? 0 : 1);
-            params.statusBarStyle = colors.isLight ? 0 : 1;
-            params.tintColor = colors.contrast;
+            params.statusBarStyle = colors.isLight ? 1 : 0;
         } else if (__ANDROID__) {
-            params.navigationBarColor = _barColor || colors.color;
+            params.navigationBarColor = colors.color;
         }
-
+        console.log('setColors', params);
         self.applyProperties(params);
-        // if (self.listView) {
-        //     self.listView.applyProperties({
-        //         selectedBackgroundColor: colors.color,
-        //     });
-        // }
 
-        _.forEach(self.container.navBarHolder.children, function(child) {
-            // sdebug('changing color for', child, colors.contrast);
-            // if (child.color) {
-            child.color = colors.contrast;
-            // } else {
-            // child.tintColor = colors.contrast;
-            // }
-        });
+
 
         return colors;
     };
 
+    var needsLogin = !!_args.needsLoginEvents;
+    var onLogin, onLogout;
+
+    if (needsLogin) {
+        self.onLogin = function () { };
+        self.onLogout = function () { };
+
+        onLogin = function () {
+            self.onLogin();
+        }
+
+        onLogout = function () {
+            self.onLogout();
+        }
+        app.api.on('loggedin', onLogin);
+        app.api.on('loggedout', onLogout);
+    }
+
     var isClosed = false;
     //END OF CLASS. NOW GC 
-    self.GC = app.composeFunc(self.GC, function() {
+    self.GC = app.composeFunc(self.GC, function () {
         if (self && self !== null) {
             isClosed = true;
             sdebug('AppWindow GC', self.title);
+            if (needsLogin) {
+                app.api.off('loggedin', onLogin);
+                app.api.off('loggedout', onLogout);
+            }
             if (realContainer) {
                 if (realContainer.GC) {
                     realContainer.GC();
@@ -563,7 +643,6 @@ ak.ti.constructors.createAppWindow = function(_args) {
                 realContainer = null;
             }
             bottomToolbarHolder = null;
-            topToolbarHolder = null;
             self = null;
         }
     });

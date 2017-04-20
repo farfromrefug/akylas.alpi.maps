@@ -3,7 +3,6 @@
 
 
     <style name="BaseTheme" parent="@style/Theme.AppCompat.Light">
-        <item name="android:windowBackground">@drawable/background</item>
          <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">false</item>
         <item name="actionBarStyle">@style/BaseTheme.ActionBarStyle</item>

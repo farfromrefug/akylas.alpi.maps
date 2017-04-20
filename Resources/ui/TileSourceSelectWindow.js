@@ -52,21 +52,21 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
                 //         padding:{left:10},
                 //         text: sectionKey,
                 //         backgroundColor: 'lightgray',
-                //         color: $white
+                //         color: $.white
                 //     },
                 //     childTemplates: [{
                 //         type: 'Ti.UI.Label',
                 //         properties: {
                 //             right:5,
                 //             font: {
-                //                 family: $iconicfontfamily,
+                //                 family: $.iconicfontfamily,
                 //                 size: 20
                 //             },
                 //             height:'FILL',
                 //             width:40,
                 //             backgroundColor:'red',
-                //             text: $sDown,
-                //             color: $white
+                //             text: $.sDown,
+                //             color: $.white
                 //         }
                 //     }],
                 //     events:{
@@ -159,7 +159,7 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
                                 encodeURI(id) + '.png'
                         }
                         sdebug('image url', url);
-                        _.assign(item, {
+                        Object.assign(item, {
                             sourceId: mbtiles.token,
                             delete: {
                                 visible: true
@@ -175,7 +175,7 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
                             }
                         });
                     } else {
-                        _.assign(item, {
+                        Object.assign(item, {
                             sourceId: id,
                             imageView: {
                                 image: 'http://raw.githubusercontent.com/farfromrefug/akylas.alpi.maps/master/images/tiles/' +
@@ -215,11 +215,11 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
         // });
         // var searchView = new SearchBar({
         //     showCancel: true,
-        //     barColor:$cTheme.main,
+        //     barColor:$.cTheme.main,
         //     // backgroundImage:'toto',
         //     searchBarStyle: 2,
-        //     color: $white,
-        //     // tintColor: $cTheme.main,
+        //     color: $.white,
+        //     // tintColor: $.cTheme.main,
         // });
         var result = new CollectionView({
             // properties: {
@@ -345,9 +345,9 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
                 type: 'Ti.UI.TextField',
                 properties: {
                     borderRadius: 4,
-                    backgroundColor: $cTheme.semi,
-                    color: $white,
-                    tintColor: $white,
+                    backgroundColor: $.cTheme.semi,
+                    color: $.white,
+                    tintColor: $.white,
                     width: 'FILL',
                     left: 20,
                     height: 'FILL',
@@ -360,10 +360,10 @@ ak.ti.constructors.createTileSourceSelectWindow = function(_args) {
                         type: 'Ti.UI.Label',
                         properties: {
                             font: {
-                                family: $iconicfontfamily,
+                                family: $.iconicfontfamily,
                                 size: 18
                             },
-                            color: $white,
+                            color: $.white,
                             width: 30,
                             height: 'FILL',
                             textAlign: 'center',

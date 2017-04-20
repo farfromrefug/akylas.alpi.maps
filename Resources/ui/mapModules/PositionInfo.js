@@ -17,7 +17,7 @@ exports.create = function(_context, _args, _additional) {
             height: 40,
             width: '1cm',
             bottom: 5,
-            left: $nbButtonWidth + 10,
+            left: $.nbButtonWidth + 10,
             childTemplates: [{
                 bindId: 'scale',
                 type: 'Ti.UI.View',
@@ -25,7 +25,7 @@ exports.create = function(_context, _args, _additional) {
                     height: 10,
                     top:11,
                     left: 0,
-                    borderColor: $black,
+                    borderColor: $.black,
                     borderPadding: [-2, 0, 0, 0],
                     borderWidth: 2,
                 }
@@ -47,7 +47,7 @@ exports.create = function(_context, _args, _additional) {
                     shadowColor: '#fff',
                     shadowOffset: [0, 0],
                     shadowRadius: 1.5,
-                    color: $black
+                    color: $.black
                 }
 
             }, {
@@ -57,7 +57,7 @@ exports.create = function(_context, _args, _additional) {
                     height: 10,
                     bottom:11,
                     left: 0,
-                    borderColor: $black,
+                    borderColor: $.black,
                     borderPadding: [0, 0, -2, 0],
                     borderWidth: 2,
                 }
@@ -79,7 +79,7 @@ exports.create = function(_context, _args, _additional) {
                     shadowColor: '#fff',
                     shadowOffset: [0, 0],
                     shadowRadius: 1.5,
-                    color: $black
+                    color: $.black
                 }
 
             }]
@@ -128,16 +128,16 @@ exports.create = function(_context, _args, _additional) {
                                 createItemGeoInfoLabel('sunset', String.fromCharCode(0xf110))
                             ]
                         },
-                        createItemGeoInfoLabel('latlon', $sPlace), {
+                        createItemGeoInfoLabel('latlon', $.sPlace), {
                             type: 'Ti.UI.View',
                             properties: {
                                 layout: 'horizontal',
                                 height: 'SIZE',
                             },
                             childTemplates: [
-                                createItemGeoInfoLabel('altitude', $sElevation),
-                                createItemGeoInfoLabel('heading', $sCompass),
-                                createItemGeoInfoLabel('speed', $sSpeed),
+                                createItemGeoInfoLabel('altitude', $.sElevation),
+                                createItemGeoInfoLabel('heading', $.sCompass),
+                                createItemGeoInfoLabel('speed', $.sSpeed),
                             ]
                         }
                     ],
@@ -383,7 +383,7 @@ exports.create = function(_context, _args, _additional) {
         }, true);
     }
 
-    _.assign(self, {
+    Object.assign(self, {
         GC: app.composeFunc(self.GC, function() {
             compassView = null;
             view = null;

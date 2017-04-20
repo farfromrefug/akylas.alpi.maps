@@ -1,5 +1,5 @@
 SlideMenu, AppWindow {
-    navigationBarColor:$cTheme.dark
+    navigationBarColor:$.cTheme.dark
 }
 .LeftMenuRow {
     /*backgroundColor:null,*/

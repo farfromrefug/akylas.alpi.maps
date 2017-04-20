@@ -46,7 +46,7 @@ ak.ti.constructors.createPDFWindow = function(_args) {
 
     // self.onOpen = app.composeFunc(self.onOpen, function() {
     //  if (floating) {
-    //      self.fakeBack.backgroundColor = '#88000000';
+    //      self.fakeBack.backgroundColor = '#00000088';
     //  }
     // });
 

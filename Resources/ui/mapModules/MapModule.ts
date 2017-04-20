@@ -1,11 +1,21 @@
-class MapModule extends MicroEvent {
+class MapModule extends TiEventEmitter {
+    markers: any
+    window: AppWindow
+    parent: any
+    mapView: MapView
+    id: string
+    onModuleAction?: Function
+    canSpreadModuleAction?: Function
+    onModuleLongAction?: Function
+    canSpreadLongModuleAction?: Function
+    onInit?: Function
     GC() {
         this.markers = null;
         this.window = null;
         this.parent = null;
         this.mapView = null;
     }
-    
+
     spreadModuleAction(_params) {
         return (this.onModuleAction && this.onModuleAction(_params)) ||
             (this.canSpreadModuleAction && !this.canSpreadModuleAction(_params));
@@ -21,7 +31,7 @@ class MapModule extends MicroEvent {
 }
 
 class ContentModule extends MapModule {
-    GC() {}
+    GC() { }
     hasSettings() {
         return true;
     }

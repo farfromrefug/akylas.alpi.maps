@@ -1,18 +1,18 @@
 
-$pcompassWidth = 70;
+$.pcompassWidth = 70;
 
 .PCompassImageView {
     scaleType: Ti.UI.SCALE_TYPE_ASPECT_FIT,
-    bottom: -$pcompassWidth/2,
-    width: $pcompassWidth,
-    height: $pcompassWidth,
+    bottom: -$.pcompassWidth/2,
+    width: $.pcompassWidth,
+    height: $.pcompassWidth,
     image: '/images/compass.png'
 }
 
 
 .PositionInfo {
     rclass:'InternalElevatedView',
-    backgroundColor:'#dd000000',
+    backgroundColor:'#000000dd',
     borderRadius:2,
     layout:'vertical',
     height:'SIZE',
@@ -30,7 +30,7 @@ $pcompassWidth = 70;
     },
     touchPassThrough:false,
     /*textIsSelectable: true,*/
-    color:$white,
+    color:$.white,
     /*clipChildren:false,*/
     height:18,
     width:'FILL',
@@ -43,7 +43,7 @@ $pcompassWidth = 70;
 .PositionInfoInfoIcon {
     width:20,
     /*left:-20,*/
-    color:$cTheme.main,
-    font: {family: $iconicfontfamily,size:16},
+    color:$.cTheme.main,
+    font: {family: $.iconicfontfamily,size:16},
     height:'FILL',
 }

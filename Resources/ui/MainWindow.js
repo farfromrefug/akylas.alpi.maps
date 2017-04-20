@@ -1,4 +1,4 @@
-ak.ti.constructors.createMainWindow = function(_args) {
+ak.ti.constructors.createMainWindow = function (_args) {
 
     var windowsMap = {
             'map': 'MapWindow',
@@ -17,21 +17,20 @@ ak.ti.constructors.createMainWindow = function(_args) {
             'map': rootWindow,
             'geofeature': geoFeatureWindow,
         },
-        self = new AppWindow(_.assign(_args, {
+        self = new AppWindow(Object.assign(_args, {
             window: rootWindow
         }));
     windows[rootWindow.winGCId] = rootWindow;
 
-    rootWindow.on('androidback', function() {
-        sdebug('root androidback', rootWindow.onBack);
+    rootWindow.on('androidback', function () {
         if (rootWindow.onBack) {
             rootWindow.onBack();
         } else {
-            self.closeMe();
+            app.closeApp();
         }
     });
 
-    self.handleOpenWindow = function(_id, _args) {
+    self.handleOpenWindow = function (_id, _args) {
         if (_id === 'settings') {
             self.createAndOpenWindow('SettingsWindow');
             app.ui.slidemenu.closeViews();
@@ -61,14 +60,14 @@ ak.ti.constructors.createMainWindow = function(_args) {
         }
     };
 
-    self.canGCWindow = function(_win) {
+    self.canGCWindow = function (_win) {
         sdebug('canGCWindow', _win.title, _win.winGCId);
         var canGC = !_win.winGCId || !(windows.hasOwnProperty(_win.winGCId));
         return canGC;
     };
 
     //END OF CLASS. NOW GC 
-    self.GC = app.composeFunc(self.GC, function() {
+    self.GC = app.composeFunc(self.GC, function () {
         windows = null;
         rootWindow = null;
         self = null;

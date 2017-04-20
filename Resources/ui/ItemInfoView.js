@@ -54,7 +54,7 @@ ak.ti.constructors.createItemInfoView = function(_args) {
                     properties: {
                         height: 'SIZE'
                     }
-                }, _.assign(app.templates.row.cloneTemplateAndFill('iteminfosmallanimated', onMap ? {
+                }, Object.assign(app.templates.row.cloneTemplateAndFill('iteminfosmallanimated', onMap ? {
                     properties: {
                         backgroundColor: null,
                         right: 54,
@@ -137,7 +137,7 @@ ak.ti.constructors.createItemInfoView = function(_args) {
         }
         self.animate({
             actionBar: {
-                height: actionHolderVisible ? $itemActionBarHeight : 0,
+                height: actionHolderVisible ? $.itemActionBarHeight : 0,
             },
             infoHolder: {
                 right: actionHolderVisible ? 54 : 0,

@@ -100,7 +100,7 @@ ak.ti.constructors.createLeftMenu = function(_args) {
             },
             // createSwitchItem(String.fromCharCode(0xe096), 'offline_mode', app.offlineMode),
             createIconItem('\ue28f', 'modules'),
-            createIconItem($sSettings, 'settings'),
+            createIconItem($.sSettings, 'settings'),
             createIconItem('\ue1ec', 'send_feedback')
         ].concat((app.info.deployType === 'development' && app.modules.plcrashreporter) ? [
             createIconItem('\ue601', 'trigger_crash')
@@ -117,7 +117,7 @@ ak.ti.constructors.createLeftMenu = function(_args) {
                         Ti.UI.createEmailDialog({
                             subject: "[" + app.info.name + "][Feedback]",
                             toRecipients: ['contact@akylas.fr'],
-                            // barColor: $cTheme.main,
+                            // barColor: $.cTheme.main,
                             // html:true,
                             messageBody: (JSON.stringify(app.deviceinfo) +
                                 '\n' + JSON.stringify(app.info))

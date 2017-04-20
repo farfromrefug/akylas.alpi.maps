@@ -1,6 +1,6 @@
 exports.data = {
     computed: {
-        icon: $sTrace,
+        icon: $.sTrace,
         title: trc('calculated_routes'),
         defaultTitle: trc('route'),
         color: '#B03621',

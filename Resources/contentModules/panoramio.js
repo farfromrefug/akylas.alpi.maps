@@ -34,7 +34,7 @@ exports.create = function(_context, _args, _additional) {
         return app.api.call({
             url: 'http://www.panoramio.com/map/get_panoramas.php',
             silent: _.remove(_params, 'silent'),
-            params: _.assign({
+            params: Object.assign({
                 set: 'public',
                 from: 0,
                 to: Ti.App.Properties.getInt('panoramio.max', 50),
@@ -109,7 +109,7 @@ exports.create = function(_context, _args, _additional) {
         return result;
     }
 
-    _.assign(self, {
+    Object.assign(self, {
         GC: app.composeFunc(self.GC, function() {
             view = null;
         }),

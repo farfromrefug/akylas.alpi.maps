@@ -32,7 +32,7 @@ exports.create = function(_context, _args, _additional) {
                     width: 40,
                     height: 40,
                     borderRadius: 20,
-                    backgroundColor: '#cc393939',
+                    backgroundColor: '#393939cc',
                     scaleType: Ti.UI.SCALE_TYPE_ASPECT_FILL
                 }
             }, {
@@ -143,7 +143,7 @@ exports.create = function(_context, _args, _additional) {
         Ti.App.Properties.setObject('weather', itemWeatherData);
     }
 
-    _.assign(self, {
+    Object.assign(self, {
         GC: app.composeFunc(self.GC, function() {
             app.off(__ITEMS__ + 'Removed', onRemoved);
             cluster = null;
@@ -333,7 +333,7 @@ exports.create = function(_context, _args, _additional) {
 
                 var request = app.api.openWeatherForecast(item.start || item).then(function(_result) {
                     // sdebug(_result);
-                    itemWeatherData[item.id] = _.assign(_result, {
+                    itemWeatherData[item.id] = Object.assign(_result, {
                         timestamp: moment().valueOf()
                     });
                     save();

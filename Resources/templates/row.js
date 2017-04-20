@@ -36,7 +36,7 @@ function create(_context) {
             var y = Math.round(e.line.y);
             if (x <= 20 || x >= rect.width - 20) {
                 var isLeft = x <= 20;
-                _.assign(params.popup, {
+                Object.assign(params.popup, {
                     left: isLeft ? x : null,
                     right: isLeft ? null : x,
                     bottom: null,
@@ -45,7 +45,7 @@ function create(_context) {
                         y: e.line.y
                     }
                 });
-                _.assign(params.popupLabel, {
+                Object.assign(params.popupLabel, {
                     left: isLeft ? 7 : null,
                     right: isLeft ? null : 7,
                     bottom: null,
@@ -60,7 +60,7 @@ function create(_context) {
                 };
             } else {
                 var isTop = y <= 23;
-                _.assign(params.popup, {
+                Object.assign(params.popup, {
                     top: isTop ? y : null,
                     bottom: isTop ? null : (rect.height - y),
                     left: null,
@@ -69,7 +69,7 @@ function create(_context) {
                         x: e.line.x
                     }
                 });
-                _.assign(params.popupLabel, {
+                Object.assign(params.popupLabel, {
                     top: isTop ? 4 : null,
                     bottom: isTop ? null : 5,
                     left: null,
@@ -128,7 +128,7 @@ function create(_context) {
                     maxLines: 1,
                     textAlign: 'center',
                     verticalAlign: 'bottom',
-                    // color: $white,
+                    // color: $.white,
                     padding: {
                         bottom: 5,
                         left: 3,
@@ -171,10 +171,10 @@ function create(_context) {
                 width: 60,
                 backgroundColor: app.colors[_color].color,
                 backgroundSelectedColor: app.colors[_color].darker,
-                color: $white,
+                color: $.white,
                 height: 'FILL',
                 font: {
-                    family: $iconicfontfamily,
+                    family: $.iconicfontfamily,
                     size: 28
                 },
                 dispatchPressed: true,
@@ -199,7 +199,7 @@ function create(_context) {
                     maxLines: 1,
                     textAlign: 'center',
                     verticalAlign: 'bottom',
-                    color: $white,
+                    color: $.white,
                     padding: {
                         bottom: 5,
                         left: 3,
@@ -220,10 +220,10 @@ function create(_context) {
             properties: {
                 callbackId: _id,
                 width: 30,
-                color: $white,
+                color: $.white,
                 height: 'FILL',
                 font: {
-                    family: $iconicfontfamily,
+                    family: $.iconicfontfamily,
                     size: 20
                 },
                 textAlign: 'center',
@@ -491,9 +491,9 @@ function create(_context) {
                 preventListViewSelection: true
             },
             childTemplates: [
-                createItemGeoInfoLabel('latlon', $sPlace),
-                createItemGeoInfoLabel('altitude', $sElevation),
-                createItemGeoInfoLabel('route', $sDist), {
+                createItemGeoInfoLabel('latlon', $.sPlace),
+                createItemGeoInfoLabel('altitude', $.sElevation),
+                createItemGeoInfoLabel('route', $.sDist), {
                     type: 'Ti.UI.View',
                     properties: {
                         layout: 'horizontal',
@@ -606,7 +606,7 @@ function create(_context) {
                 properties: {
                     // top: 10,
                     rclass: 'GFOptionRowAccessory',
-                    text: $sDown
+                    text: $.sDown
                 }
             }]
         },
@@ -663,7 +663,7 @@ function create(_context) {
                 properties: {
                     // top: 10,
                     rclass: 'GFOptionRowAccessory',
-                    text: $sDown
+                    text: $.sDown
                 }
             }]
         },
@@ -693,7 +693,7 @@ function create(_context) {
                 type: 'Ti.UI.Label',
                 bindId: 'title',
                 properties: {
-                    backgroundColor: '#aa000000',
+                    backgroundColor: '#000000aa',
                     width: 'FILL',
                     textAlign: 'center',
                     color: 'black',
@@ -784,7 +784,7 @@ function create(_context) {
                 properties: {
                     rclass: 'OptionButton',
                     visible: false,
-                    color: $white,
+                    color: $.white,
                     text: '\ue0fb'
                 },
             }, {
@@ -792,8 +792,8 @@ function create(_context) {
                 bindId: 'options',
                 properties: {
                     rclass: 'OptionButton',
-                    color: $white,
-                    text: $sOptions
+                    color: $.white,
+                    text: $.sOptions
                 },
             }]
         },
@@ -846,7 +846,7 @@ function create(_context) {
                         height: 'FILL',
                         min: 0,
                         value: 0,
-                        // trackTintColor: $cTheme.main,
+                        // trackTintColor: $.cTheme.main,
                         max: 100
                     },
                 }]
@@ -855,7 +855,7 @@ function create(_context) {
                 bindId: 'pause',
                 properties: {
                     rclass: 'OptionButton',
-                    color: $white,
+                    color: $.white,
                     text: '\ue018'
                 },
             }, {
@@ -863,7 +863,7 @@ function create(_context) {
                 bindId: 'delete',
                 properties: {
                     rclass: 'OptionButton',
-                    color: $white,
+                    color: $.white,
                     text: icons.delete
                 },
             }]
@@ -941,20 +941,17 @@ function create(_context) {
                     type: 'Ti.UI.Label',
                     bindId: 'userLocation',
                     properties: {
-                        // backgroundColor: '#44ff0000',
                         touchEnabled: false,
                         visible: false,
                         width: 20,
                         height: 20,
-                        color: $cTheme.main,
-                        shadowColor: $white,
-                        // strokeWidth: 1,
-                        // strokeColor: '#333',
+                        color: $.cTheme.main,
+                        shadowColor: $.white,
                         font: {
-                            family: $iconicfontfamily,
+                            family: $.iconicfontfamily,
                             size: 18
                         },
-                        text: $sGps,
+                        text: $.sGps,
                     }
                 }, {
                     type: 'Ti.UI.View',
@@ -969,7 +966,7 @@ function create(_context) {
                         type: 'Ti.UI.Label',
                         bindId: 'popupLabel',
                         properties: {
-                            backgroundColor: '#88000000',
+                            backgroundColor: '#00000088',
                             borderRadius: 2,
                             // padding: 3,
                             padding: {
@@ -978,7 +975,7 @@ function create(_context) {
                             },
                             // width: 20,
                             // height: 20,
-                            color: $white,
+                            color: $.white,
                             font: {
                                 size: 11
                             },
@@ -990,9 +987,9 @@ function create(_context) {
                         bindId: 'arrow',
                         properties: {
                             // backgroundColor:'red',
-                            color: '#88000000',
+                            color: '#00000088',
                             font: {
-                                family: $iconicfontfamily,
+                                family: $.iconicfontfamily,
                                 size: 10
                             },
                             bottom: 0,
@@ -1119,9 +1116,9 @@ function create(_context) {
                                     bindId: 'label',
                                     type: 'Ti.UI.Label',
                                     properties: {
-                                        backgroundColor: '#88000000',
+                                        backgroundColor: '#00000088',
                                         borderRadius: 4,
-                                        color: $white,
+                                        color: $.white,
                                         font: {
                                             size: 11
                                         },
@@ -1256,7 +1253,7 @@ function create(_context) {
                             bindId: 'orientation',
                             properties: {
                                 rclass: 'ItemInfoRowExtraIcon',
-                                text: $sNav,
+                                text: $.sNav,
                                 visible: false
                             }
                         }, {
@@ -1427,7 +1424,7 @@ function create(_context) {
                 bindId: 'title',
                 properties: {
                     rclass: 'SettingsRowLabel',
-                    color: $cTheme.main
+                    color: $.cTheme.main
                 }
             }, {
                 type: 'Ti.UI.Label',
