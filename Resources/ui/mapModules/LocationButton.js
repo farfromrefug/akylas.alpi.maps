@@ -1,4 +1,4 @@
-exports.create = function(_context, _args, _additional) {
+exports.create = function (_context, _args, _additional) {
     var mapChildren = _additional.mapChildren,
         settings = _args.settings,
         animatingInterval = null,
@@ -50,7 +50,7 @@ exports.create = function(_context, _args, _additional) {
                 }
             }, button],
             events: {
-                singletap: function(e) {
+                singletap: function (e) {
                     if (e.source !== button) {
                         self.runAction(e.source.callbackId);
                         return true;
@@ -62,7 +62,9 @@ exports.create = function(_context, _args, _additional) {
                     if (current === 1) {
                         self.parent.updateUserLocation();
                     } else {
-                        self.mapView.userTrackingMode = 1;
+                        self.mapView.applyProperties({
+                            userTrackingMode: 1
+                        });
                     }
                     if (!enabled) {
                         if (!app.locationManager.isLocationServicesEnabled()) {
@@ -82,7 +84,7 @@ exports.create = function(_context, _args, _additional) {
                     }
                     return true;
                 },
-                doubletap: function(e) {
+                doubletap: function (e) {
                     if (!hasCompass || e.source !== button || !settings.currentLocation) {
                         return false;
                     }
@@ -99,7 +101,7 @@ exports.create = function(_context, _args, _additional) {
                     return true;
 
                 },
-                longpress: function(e) {
+                longpress: function (e) {
                     sdebug('location longpress test', e.source);
                     if (e.source !== button) {
                         return false;
@@ -222,7 +224,7 @@ exports.create = function(_context, _args, _additional) {
                         buttonNames: [trc('no_thanks'), trc('settings')],
                         message: trc('location_service_disabled_desc'),
                         title: trc('location_service_disabled')
-                    }, function() {
+                    }, function () {
                         Ti.Platform.openURL(Ti.App.iOS.applicationOpenSettingsURL);
                     });
                 }
@@ -243,16 +245,16 @@ exports.create = function(_context, _args, _additional) {
     }
 
     Object.assign(self, {
-        onInit: function() {
+        onInit: function () {
             app.locationManager.on('state', onLocManagerState);
 
         },
-        GC: app.composeFunc(self.GC, function() {
+        GC: app.composeFunc(self.GC, function () {
             app.locationManager.off('state', onLocManagerState);
             view = null;
             button = null;
         }),
-        onMapReset: function(_params) {
+        onMapReset: function (_params) {
             _params = _params || {};
             if (!!_params.bottom) {
                 view.animate({
@@ -261,7 +263,7 @@ exports.create = function(_context, _args, _additional) {
                 });
             }
         },
-        hideModule: function(_params) {
+        hideModule: function (_params) {
             _params = _params || {};
             if (!!_params.bottom) {
                 view.animate({
@@ -272,7 +274,7 @@ exports.create = function(_context, _args, _additional) {
 
         },
         onLocation: onLocation,
-        onGPSEnabled: function(_enabled) {
+        onGPSEnabled: function (_enabled) {
             sdebug('onGPSEnabled', _enabled);
             if (_enabled) {
                 app.showTutorials(['follow_heading']);
@@ -285,7 +287,7 @@ exports.create = function(_context, _args, _additional) {
                 stopLoading();
             }
         },
-        onGeolocStatusChange: function(_enabled) {
+        onGeolocStatusChange: function (_enabled) {
             if (!_enabled) {
                 if (settings.updateBearing) {
                     app.locationManager.stopUpdateHeading();
@@ -293,7 +295,7 @@ exports.create = function(_context, _args, _additional) {
                 stopLoading();
             }
         },
-        onWindowOpen: function(_enabled) {
+        onWindowOpen: function (_enabled) {
             sdebug('onWindowOpen', _enabled);
             updateButton();
             app.showTutorials(['locationbutton']);
