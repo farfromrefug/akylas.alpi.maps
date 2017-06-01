@@ -1,4 +1,4 @@
-exports.create = function(_context, _args, _additional) {
+exports.create = function (_context, _args, _additional) {
 
     var self = new _context.MapModule(_args);
     app.tutorialManager = self;
@@ -143,9 +143,9 @@ exports.create = function(_context, _args, _additional) {
         });
     }
     Object.assign(self, {
-        onInit: function() {},
+        onInit: function () {},
         enabled: Ti.App.Properties.getBool('tutorials.enabled', true),
-        setEnabled: function(_value) {
+        setEnabled: function (_value) {
             if (_value !== self.enabled) {
                 sdebug('tutorialManager', 'setEnabled', _value);
                 Ti.App.Properties.setBool('tutorials.enabled', _value);
@@ -159,28 +159,31 @@ exports.create = function(_context, _args, _additional) {
                 // }
             }
         },
-        resetTutorials: function() {
+        resetTutorials: function () {
             Ti.App.Properties.removeProperty('tutorials.done');
             doneTutorials = [];
         },
-        addTutorials: function(_tutorials) {
+        addTutorials: function (_tutorials) {
             if (!self.enabled) {
                 return;
             }
             _.defaults(tutorials, _tutorials);
         },
-        getTutorials: function(_tuts, _force) {
-            var result = _.pick(tutorials, _.filter(_tuts, function(n) {
-                return _force || !_. includes(doneTutorials, n);
+        getTutorials: function (_tuts, _force) {
+            var result = _.pick(tutorials, _.filter(_tuts, function (n) {
+                return _force || !_.includes(doneTutorials, n);
             }));
             return result;
         },
-        showTutorials: function(_tuts, _force) {
+        showTutorials: function (_tuts, _force) {
+            console.log('showTutorials');
             if (!self.enabled) {
                 return;
             }
-            var views = _.reduce(self.getTutorials(_tuts, _force), function(memo, value, key) {
-                memo.push(createTutorialView(key, value));
+            var views = _.reduce(self.getTutorials(_tuts, _force), function (memo, value, key) {
+                if (value) {
+                    memo.push(createTutorialView(key, value));
+                }
                 return memo;
             }, []);
             if (views.length === 0) {
@@ -211,10 +214,10 @@ exports.create = function(_context, _args, _additional) {
                             views: views
                         },
                         events: {
-                            change: function(e) {
+                            change: function (e) {
                                 var tutIds = tutorialWin.tutorials;
                                 var currentTutId = tutIds[e.currentPage];
-                                if (!_. includes(doneTutorials, currentTutId)) {
+                                if (!_.includes(doneTutorials, currentTutId)) {
                                     doneTutorials.push(currentTutId);
                                     if (doneTutorials.length === _.size(tutorials)) {
                                         obj.setEnabled(false);
@@ -232,7 +235,7 @@ exports.create = function(_context, _args, _additional) {
 
                 },
                 events: {
-                    click: function(e) {
+                    click: function (e) {
                         var callbackId = e.bindId;
                         sdebug('callbackId', callbackId);
                         switch (callbackId) {
@@ -251,7 +254,7 @@ exports.create = function(_context, _args, _additional) {
                                     'title': trc('are_you_sure'),
                                     'message': trc('quit_tutorial_confirm'),
                                     buttonNames: [trc('no'), trc('yes')]
-                                }, function() {
+                                }, function () {
                                     if (tutorialWin) {
                                         tutorialWin.closeMe();
                                     }
@@ -265,7 +268,7 @@ exports.create = function(_context, _args, _additional) {
 
             // ak.ti.add(tutorialWin.container, [{,
             // }]);
-            tutorialWin.onClose = app.composeFunc(tutorialWin.onClose, function() {
+            tutorialWin.onClose = app.composeFunc(tutorialWin.onClose, function () {
                 Ti.App.Properties.setObject('tutorials.done', doneTutorials);
                 tutorialWin = null;
             });

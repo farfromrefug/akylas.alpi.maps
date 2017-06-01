@@ -118,7 +118,7 @@ var mbTilesStatusService = (function() {
       var data = this.mbtilesStatus[token];
       if (data) {
         data.status = status;
-        data.progress = doneCount / totalCount * 100;
+        data.progress = Math.min(doneCount / totalCount * 100, 100);
         data.doneCount = doneCount;
         if (data.request) {
           Ti.App.emit('mbtiles_generator_update', {

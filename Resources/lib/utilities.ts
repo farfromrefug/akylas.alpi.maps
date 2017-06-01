@@ -10,37 +10,51 @@ class Utils {
             return value ? value[1] : undefined;
         }
 
-        var _params = location.split(/[?&]/);
+        var locSplit = location.split(/[?&]/);
         //_params[0] is the url
 
-        for (i = 0, len = _params.length; i < len; i++) {
-            parts = _params[i].split('=');
-            if (!parts[0]) {
+        
+
+        parts = [];
+        for (i = 0, len = locSplit.length; i < len; i++) {
+            var theParts = locSplit[i].split('=');
+            if (!theParts[0]) {
                 continue;
             }
-            obj[parts[0]] = parts[1] || true;
-        }
-
-        if (typeof params !== 'object') {
-            return obj;
-        }
-
-        for (key in params) {
-            value = params[key];
-            if (typeof value === 'undefined') {
-                delete obj[key];
+            if (theParts[1]) {
+                parts.push(theParts[0] + '=' + theParts[1]);
             } else {
-                if (typeof value === 'object') {
-                    obj[key] = JSON.stringify(value);
-                } else {
-                    obj[key] = value;
-                }
+                parts.push(theParts[0]);
             }
         }
-        parts = [];
-        for (key in obj) {
-            parts.push(key + (obj[key] === true ? '' : '=' + obj[key]));
-        }
+        if (Array.isArray(params)) {
+            let data;
+            
+            for (i = 0, len = params.length; i < len; i++) {
+                data = params[i];
+                if (typeof data === 'string') {
+                    parts.push(data);
+                } else if (Array.isArray(data)) {
+                    parts.push(data[0] + '=' + data[1]);
+                }
+            }
+        } else if (typeof params === 'object') {
+            for (key in params) {
+                value = params[key];
+                if (typeof value === 'undefined') {
+                    delete obj[key];
+                } else {
+                    if (typeof value === 'object') {
+                        obj[key] = JSON.stringify(value);
+                    } else {
+                        obj[key] = value;
+                    }
+                }
+            }
+            for (key in obj) {
+                parts.push(key + (obj[key] === true ? '' : '=' + obj[key]));
+            }
+        } 
 
         return parts.splice(0, 2).join('?') + ((parts.length > 0) ? ('&' + parts.join('&')) : '');
     }

@@ -25,48 +25,47 @@ function selectDevice(callback) {
     }).bind(this)).show();
 }
 export function onSettingsClick(e) {
-    if (e.item && e.item.callbackId) {
-        switch (e.item.callbackId) {
-            case 'connect':
-                if (e.item.deviceId == -1) {
-                    app.modules.connectiq.init(function (err) {
-                        console.log('on init from button 1', err, iqsdkReady);
-                        if (connectIqModule) {
-                            console.log('on init from button 2', err, iqsdkReady);
-                            connectIqModule.onSDKInit(err);
-                        } else if (err) {
-                            app.emit('error', err);
-                        } else {
-                            iqsdkReady = true;
-                        }
-                        console.log('on init from button', err, iqsdkReady);
-                        if (!err && iqsdkReady) {
-                            selectDevice(function (device) {
-                                e.section.updateItemAt(e.itemIndex, {
-                                    title: {
-                                        text: 'disconnect'
-                                    },
-                                    subtitle: {
-                                        text: device.name
-                                    }
-                                });
+    var callbackId = (e.item && e.item.callbackId) || e.bindId;
+    switch (callbackId) {
+        case 'connect':
+            if (e.item.deviceId == -1) {
+                app.modules.connectiq.init(function (err) {
+                    console.log('on init from button 1', err, iqsdkReady);
+                    if (connectIqModule) {
+                        console.log('on init from button 2', err, iqsdkReady);
+                        connectIqModule.onSDKInit(err);
+                    } else if (err) {
+                        app.emit('error', err);
+                    } else {
+                        iqsdkReady = true;
+                    }
+                    console.log('on init from button', err, iqsdkReady);
+                    if (!err && iqsdkReady) {
+                        selectDevice(function (device) {
+                            e.section.updateItemAt(e.itemIndex, {
+                                title: {
+                                    text: 'disconnect'
+                                },
+                                subtitle: {
+                                    text: device.name
+                                }
                             });
-                        }
-                    });
-                } else {
-                    connectIqModule && connectIqModule.onDeviceRemoved();
-                    e.section.updateItemAt(e.itemIndex, {
-                        title: {
-                            text: 'connect'
-                        },
-                        deviceId: -1,
-                        subtitle: {
-                            text: trc('connectiq_connect_desc')
-                        }
-                    });
-                }
-                break;
-        }
+                        });
+                    }
+                });
+            } else {
+                connectIqModule && connectIqModule.onDeviceRemoved();
+                e.section.updateItemAt(e.itemIndex, {
+                    title: {
+                        text: 'connect'
+                    },
+                    deviceId: -1,
+                    subtitle: {
+                        text: trc('connectiq_connect_desc')
+                    }
+                });
+            }
+            break;
     }
 };
 
@@ -132,23 +131,23 @@ class ConnectIqModule extends MapModule {
         try {
             let toParse = e.data[0].split('=>').join(':');
             console.log('toParse', toParse);
-            
+
             let json = JSON.parse(toParse);
             app.setCurrentLocation({
-                coords:{
-                    latitude:json.location[0],
-                    longitude:json.location[1],
-                    altitude:json.altitude,
-                    accuracy:json.accuracy,
-                    speed:json.speed,
-                    heading:json.heading,
-                    timestamp:json.timestamp * 1000
+                coords: {
+                    latitude: json.location[0],
+                    longitude: json.location[1],
+                    altitude: json.altitude,
+                    accuracy: json.accuracy,
+                    speed: json.speed,
+                    heading: json.heading,
+                    timestamp: json.timestamp * 1000
                 }
             });
             //{altitude=>2265.995850, accuracy=>4, timestamp=>1487838128, heading=>0.000000, speed=>9.200062, location=>[38.896074, -94.760896]}
 
-        } catch(e) {
-            console.error('Connectiq','onMessage', e.toString());
+        } catch (e) {
+            console.error('Connectiq', 'onMessage', e.toString());
         }
     }
     onSDKInit = (err) => {

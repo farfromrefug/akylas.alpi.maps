@@ -13,7 +13,7 @@ ItemActionBar {
         weight:'bold'
     },
     /*sizeRatio:1,*/
-    visible:app.tutorial,
+    /*visible:app.tutorial,*/
     maxLines:1,
     textAlign:'center',
     verticalAlign:'bottom',

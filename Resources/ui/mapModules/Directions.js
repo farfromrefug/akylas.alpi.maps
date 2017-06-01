@@ -1,4 +1,45 @@
-exports.create = function(_context, _args, _additional) {
+exports.settings = function (enabled) {
+    var service = Ti.App.Properties.getString('directions.service', 'google');
+    var sections = [];
+    sections.push({
+        items: [{
+            callbackId: 'service',
+            title: {
+                text: trc('choose_service')
+            },
+            subtitle: {
+                text: trc(service)
+            }
+        }]
+    });
+    return {
+        canBeDisabled:false,
+        name: trc('directions'),
+        description: 'directions_desc',
+        preferencesSections: sections
+    }
+};
+
+exports.onSettingsClick = function (e, window) {
+    var callbackId = (e.item && e.item.callbackId) || e.bindId;
+    switch (callbackId) {
+        case 'service':
+            var service = Ti.App.Properties.getString('directions.service', 'google');
+            var services = ['google', 'mapzen', 'graphhopper'];
+            window.showSettingSelection(callbackId, services, services.indexOf(service), function (_index) {
+                service = services[_index];
+                Ti.App.Properties.setString('directions.service', service);
+                e.section.updateItemAt(e.itemIndex, {
+                    subtitle: {
+                        text: trc(service)
+                    }
+                });
+            });
+            break;
+    }
+};
+
+exports.create = function (_context, _args, _additional) {
 
     var settings = _args.settings,
         visible = false,
@@ -28,7 +69,7 @@ exports.create = function(_context, _args, _additional) {
         view,
         paintView,
         barHeight = $.navBarTop + $.navBarHeight + 100,
-        rightNavButton = function(_id, _icon, _props, _bindId) {
+        rightNavButton = function (_id, _icon, _props, _bindId) {
             return {
                 type: 'Ti.UI.Button',
                 bindId: _bindId,
@@ -39,7 +80,7 @@ exports.create = function(_context, _args, _additional) {
                 }, _props)
             };
         },
-        segmentButton = function(_id, _icon, _props, _bindId) {
+        segmentButton = function (_id, _icon, _props, _bindId) {
             return {
                 type: 'Ti.UI.Button',
                 bindId: _bindId,
@@ -58,7 +99,7 @@ exports.create = function(_context, _args, _additional) {
                 }, _props)
             };
         },
-        getView = function() {
+        getView = function () {
             if (!view) {
                 view = new View({
                     properties: {
@@ -180,11 +221,11 @@ exports.create = function(_context, _args, _additional) {
                                         sections: [{}]
                                     },
                                     events: {
-                                        longpress: function(e) {
+                                        longpress: function (e) {
                                             sdebug(e);
                                             view.listView.editing = !view.listView.editing;
                                         },
-                                        move: function(e) {
+                                        move: function (e) {
                                             sdebug(e);
                                             if (!e.item) {
                                                 return;
@@ -195,7 +236,7 @@ exports.create = function(_context, _args, _additional) {
                                             _.move(waypoints, e.itemIndex, e.targetItemIndex);
                                             update();
                                         },
-                                        delete: function(e) {
+                                        delete: function (e) {
                                             sdebug(e);
                                             if (!e.item) {
                                                 return;
@@ -216,7 +257,7 @@ exports.create = function(_context, _args, _additional) {
 
                                             update();
                                         },
-                                        click: app.debounce(function(e) {
+                                        click: app.debounce(function (e) {
                                             sdebug(e);
                                             if (e.item) {
                                                 var item = e.item.item;
@@ -270,7 +311,7 @@ exports.create = function(_context, _args, _additional) {
                             ]
                         }],
                         events: {
-                            'click': app.debounce(function(e) {
+                            'click': app.debounce(function (e) {
                                 var callbackId = e.source.callbackId;
                                 sdebug(callbackId);
                                 switch (callbackId) {
@@ -294,7 +335,7 @@ exports.create = function(_context, _args, _additional) {
                                                     trc('computing') + '...'
                                             }
                                         });
-                                        var points = _.reduce(waypoints, function(memo,
+                                        var points = _.reduce(waypoints, function (memo,
                                             waypoint) {
                                             memo.push([waypoint.latitude, waypoint.longitude]);
                                             return memo;
@@ -306,7 +347,7 @@ exports.create = function(_context, _args, _additional) {
                                     case 'bicycling':
                                     case 'driving':
                                         mode = callbackId;
-                                        _.each(view.modeHolder.children, function(button) {
+                                        _.each(view.modeHolder.children, function (button) {
                                             sdebug(button.callbackId, button.callbackId !==
                                                 mode);
                                             button.enabled = button.callbackId !==
@@ -345,7 +386,7 @@ exports.create = function(_context, _args, _additional) {
         } else {
             tempRoute.points = waypoints;
         }
-        view.listView.sections[0].updateItems(_.times(nb, function(index) {
+        view.listView.sections[0].updateItems(_.times(nb, function (index) {
             return {
                 topLine: {
                     visible: (index !== 0)
@@ -407,7 +448,7 @@ exports.create = function(_context, _args, _additional) {
     }
 
     function handleCreateRoute(_route, firstPoint, lastPoint) {
-        // sdebug('createRoute', firstPoint, lastPoint);
+        sdebug('createRoute', _route);
         var points = _route.points;
         if (!!_route.encoded) {
             points = app.api.decodeLine(_route.overview_points);
@@ -459,23 +500,22 @@ exports.create = function(_context, _args, _additional) {
                 origin: firstPoint,
                 destination: lastPoint,
                 waypoints: _points.slice(1, -1)
-            }).then(function(_result) {
+            }).then(function (_result) {
                 handleCreateRoute(_result, firstPoint, lastPoint);
-            }, self.window.hideLoading);
+            }).catch(self.window.showError).then(self.window.hideLoading);
         }
 
     }
 
     function queryRoute(_args) {
         sdebug('queryRoute', _args);
-        var language = app.localeInfo.currentLocale.split('-')[0];
         return app.api.queryDirections({
             mode: mode,
             optimize: true,
             origin: _args.origin,
             destination: _args.destination,
             waypoints: _args.waypoints,
-            lang: language,
+            lang: app.localeInfo.currentLocale,
         });
     }
 
@@ -603,7 +643,7 @@ exports.create = function(_context, _args, _additional) {
                 strokeWidth: 6,
                 eraseMode: false
             });
-            paintView.on('onpaint', function(e) {
+            paintView.on('onpaint', function (e) {
                 sdebug('onpaint');
                 self.window.showLoading({
                     label: {
@@ -667,7 +707,7 @@ exports.create = function(_context, _args, _additional) {
         paintView.animate({
             opacity: 0,
             duration: 200
-        }, function() {
+        }, function () {
             paintView.clear();
             self.parent.childrenHolder.remove(paintView);
         });
@@ -771,7 +811,7 @@ exports.create = function(_context, _args, _additional) {
             view.animate({
                 height: 0,
                 duration: 200
-            }, function() {
+            }, function () {
                 reset();
                 sdebug('animation done');
                 self.parent.mapTopToolbar.remove(view);
@@ -782,27 +822,27 @@ exports.create = function(_context, _args, _additional) {
     }
 
     Object.assign(self, {
-        GC: app.composeFunc(self.GC, function() {
+        GC: app.composeFunc(self.GC, function () {
             view = null;
             // selectedMarker = null;
         }),
-        onStartExclusiveAction: function(_id) {
+        onStartExclusiveAction: function (_id) {
             if (_id !== 'direction') {
                 hide();
             }
         },
-        hideModule: function() {
+        hideModule: function () {
             if (!visible) {
                 hide();
             }
         },
-        canSpreadModuleAction: function(_params) {
+        canSpreadModuleAction: function (_params) {
             return !visible;
         },
-        canSpreadLongModuleAction: function(_params) {
+        canSpreadLongModuleAction: function (_params) {
             return !visible;
         },
-        onModuleAction: function(_params) {
+        onModuleAction: function (_params) {
             if (_params.id === 'direction') {
                 show();
             } else {

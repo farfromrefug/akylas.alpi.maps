@@ -5,5 +5,5 @@ exports.data = {
         defaultTitle: trc('route'),
         color: '#B03621',
         settings:{}
-    },
+    }
 };

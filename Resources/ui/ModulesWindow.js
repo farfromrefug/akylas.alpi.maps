@@ -1,6 +1,61 @@
 ak.ti.constructors.createModulesWindow = function (_args) {
     var modules = {};
 
+    function showSettingSelection(_title, _values, _selectedIndex, callback) {
+        if (__APPLE__) {
+            var win = new AppWindow({
+                rclass: 'SettingsSelectionWindow',
+                title: trc(_title),
+                listViewArgs: {
+                    templates: {
+                        'default': app.templates.row.settings
+                    },
+                    defaultItemTemplate: 'default',
+                    sections: [{
+                        items: _.reduce(_values, function (memo, value, index) {
+                            memo.push({
+                                title: {
+                                    text: trc(value)
+                                },
+                                accessory: {
+                                    color: $.cTheme.main,
+                                    text: (index === _selectedIndex) ? $.sCheck : ''
+                                },
+                            });
+                            return memo;
+                        }, [])
+                    }]
+                },
+                events: {
+                    click: app.debounce(function (e) {
+                        if (e.item) {
+                            callback(e.itemIndex);
+                            win.closeMe();
+                        }
+                        win = null;
+                    })
+                }
+            });
+            self.manager.navOpenWindow(win);
+        } else {
+            new OptionDialog({
+                title: trc(_title),
+                options: _.map(_values, function (value,
+                    index) {
+                    return trc(value);
+                }),
+                buttonNames: [trc('cancel')],
+                cancel: 0,
+                selectedIndex: _selectedIndex,
+                tapOutDismiss: true
+            }).on('click', (function (e) {
+                if (!e.cancel) {
+                    callback(e.index);
+                }
+            }).bind(this)).show();
+        }
+    }
+
     function createSectionItem(_id, _text, _subtitle, _data) {
         return Object.assign({
             callbackId: _id,
@@ -111,13 +166,16 @@ ak.ti.constructors.createModulesWindow = function (_args) {
         if (_.isFunction(settings)) {
             settings = settings(enabled);
         }
-        var sections = [{
-            items: [
-                createSwitchItem('enabled', 'enabled', enabled),
-            ],
-            footerTitle: settings.description && trc(settings.description)
+        var sections = [];
+        if (settings.canBeDisabled !== false) {
+            sections.push({
+                items: [
+                    createSwitchItem('enabled', 'enabled', enabled),
+                ],
+                footerTitle: settings.description && trc(settings.description)
 
-        }];
+            });
+        }
         _.forEach(settings.preferencesSections, function (section) {
             sections.push({
                 headerTitle: section.title,
@@ -197,7 +255,7 @@ ak.ti.constructors.createModulesWindow = function (_args) {
                                 return;
                             }
                             if (_.isFunction(module.onSettingsClick)) {
-                                module.onSettingsClick(e);
+                                module.onSettingsClick(e, self);
                             }
                             break;
                     }
@@ -249,6 +307,7 @@ ak.ti.constructors.createModulesWindow = function (_args) {
             }]
         }
     });
+    self.showSettingSelection = showSettingSelection;
     app.onDebounce(self.listView, 'click', function (e) {
         if (e.item) {
             showModulesSetting(e.item.id);

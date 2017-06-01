@@ -1,4 +1,5 @@
 
+import * as process from 'process'
 
 require('akylas.commonjs.dev/akylas.commonjs').load(this, {
     // app = require('akylas.commonjs').createApp(this, {
@@ -7,6 +8,7 @@ require('akylas.commonjs.dev/akylas.commonjs').load(this, {
     modules: ['ti', 'moment', 'lang'],
     additions: ['string']
 });
+
 Ti.include('ui/mapModules/MapModule.js');
 require('lib/moment-duration-format');
 const OpeningHours = require('lib/opening_hours');
@@ -139,6 +141,7 @@ export class App extends AKApp {
                 slidemenu: 'akylas.slidemenu',
                 map: 'akylas.googlemap',
                 charts: 'akylas.charts',
+                charts2: 'akylas.charts2',
                 paint: 'ti.paint',
                 zoomableimage: 'akylas.zoomableimage',
                 ios: {
@@ -216,15 +219,28 @@ export class App extends AKApp {
         'MapActionButtons',
         'PositionInfo',
         'Crosshair',
-        'Direction',
+        'Directions',
         'LocationButton',
         'TileSourceManager',
         'Wikitude',
         'PointToLocation',
         'Weather'
     ]
+    errorToString(error) {
+        try {
+            let errorMessage;
+            if (_.isString(error)) {
+                errorMessage = error;
+            } else {
+                errorMessage = error.message || error.error;
+            }
+            return errorMessage;
+        } catch (err) {
+            console.log('errorToString error', err);
+        }
+    }
     showMessage = showMessage
-    tutorial = Ti.App.Properties.getBool('tutorial', true)
+    tutorial = Ti.App.Properties.getBool('tutorial', false)
     icons = _.mapValues(require('data/icons')
         .icons,
         function (value) {
@@ -533,7 +549,7 @@ app.ui.topWindow = app.ui.rootWindow = app.ui.slidemenu = new SlideMenu({
 
 // if (app.tutorialManager.enabled) {
 app.ui.slidemenu.once('openmenu', function () {
-    app.showTutorials(['offline_mode']);
+    // app.showTutorials(['offline_mode']);
 });
 // }
 
@@ -605,13 +621,23 @@ app.ui.slidemenu.once('open', function () {
 app.ui.openWindow(app.ui.slidemenu);
 
 Ti.Network.on('change', app.api.updateNetwork);
+process.on("unhandledRejection", (reason, promise) => {
+    app.emit('error', { error: reason })
+});
 app.on('error', function (e) {
-    sdebug(e);
+    console.log('on app error', typeof e.error, e.error);
+    if (!e.error.isCustomError && (e.error.stack || e.error.longStack || e.error.nativeLocation)) {
+        console.log('throwing error so that it shows in Ti');
+        throw e.error;
+    }
+    let errorMessage = app.errorToString(e.error);
     if (!e.silent) {
-        // if (app.api.networkConnected && !app.offlineMode) {
-        app.showAlert(e);
+        app.showAlert({
+            title: trc('error'),
+            message: errorMessage
+        });
     } else {
-        showMessage(e.message || e.error, app.colors.red);
+        showMessage(errorMessage, app.colors.red);
     }
     // }
 });
@@ -620,11 +646,6 @@ app.api.updateNetwork();
 sdebug(app.deviceinfo);
 sdebug(app.info);
 sdebug(app.localeInfo);
-
-Promise.unhandledRejection = function (reason) {
-    sdebug(reason);
-    throw reason;
-};
 
 if (app.modules.plcrashreporter) {
     var writeCrashLog = function (_data) {

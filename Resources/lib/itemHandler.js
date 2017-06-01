@@ -495,7 +495,7 @@
                 visible: _routeType.visible,
                 points: points,
                 title: _item.title,
-                color: _item.color || _routeType.routeColor || _routeType.color,
+                color: Color(_item.color || _routeType.routeColor || _routeType.color).setAlpha(0.5).toHex8String(),
                 selectedColor: _routeType.routeSelectedColor,
                 rclass: _routeType.rclass,
                 bubbleParent: true
