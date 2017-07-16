@@ -29,18 +29,18 @@ export function onSettingsClick(e) {
     switch (callbackId) {
         case 'connect':
             if (e.item.deviceId == -1) {
-                app.modules.connectiq.init(function (err) {
-                    console.log('on init from button 1', err, iqsdkReady);
-                    if (connectIqModule) {
-                        console.log('on init from button 2', err, iqsdkReady);
-                        connectIqModule.onSDKInit(err);
-                    } else if (err) {
-                        app.emit('error', err);
-                    } else {
-                        iqsdkReady = true;
-                    }
-                    console.log('on init from button', err, iqsdkReady);
-                    if (!err && iqsdkReady) {
+                // app.modules.connectiq.initSDK(function (err) {
+                    // console.log('on init from button 1', err, iqsdkReady);
+                    // if (connectIqModule) {
+                    //     // console.log('on init from button 2', err, iqsdkReady);
+                    //     connectIqModule.onSDKInit(err);
+                    // } else if (err) {
+                    //     app.emit('error', err);
+                    // } else {
+                    //     iqsdkReady = true;
+                    // }
+                    // console.log('on init from button', err, iqsdkReady);
+                    if (iqsdkReady) {
                         selectDevice(function (device) {
                             e.section.updateItemAt(e.itemIndex, {
                                 title: {
@@ -52,7 +52,7 @@ export function onSettingsClick(e) {
                             });
                         });
                     }
-                });
+                // });
             } else {
                 connectIqModule && connectIqModule.onDeviceRemoved();
                 e.section.updateItemAt(e.itemIndex, {
@@ -128,6 +128,7 @@ class ConnectIqModule extends MapModule {
     }
     onMessage = (e) => {
         console.log(e, e.data, e.status);
+        Ti.Media.vibrate();
         try {
             let toParse = e.data[0].split('=>').join(':');
             console.log('toParse', toParse);

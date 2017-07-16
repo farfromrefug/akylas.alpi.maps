@@ -1,6 +1,12 @@
 
 import * as process from 'process'
 
+interface MetaData  {
+    [k: string]: any
+    file: Titanium.FileSystem.File
+    bounds?: { sw: { latitude: number, longitude?: number }, ne: { latitude: number, longitude?: number } }
+}
+
 require('akylas.commonjs.dev/akylas.commonjs').load(this, {
     // app = require('akylas.commonjs').createApp(this, {
     // not using var seems very important, cant really see why!
@@ -12,48 +18,24 @@ require('akylas.commonjs.dev/akylas.commonjs').load(this, {
 Ti.include('ui/mapModules/MapModule.js');
 require('lib/moment-duration-format');
 const OpeningHours = require('lib/opening_hours');
-const chain = require('lib/chain');
-_.mixin({
-    getKeyByValue: function (object, value) {
-        return _.findKey(object, function (hashValue) {
-            return value === hashValue;
-        });
-    },
-    mapIfDefined: function (array, func) {
-        return _.reduce(array, function (memo, value, key) {
-            var item = func(value, key);
-            if (item) {
-                memo.push(item);
-            }
-            return memo;
-        }, []);
-    },
-    mod: function (n, m) {
-        return ((n % m) + m) % m;
-    },
-    move: function (array, oldIndex, newIndex) {
-        array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
-    }
-});
+
 import { AKApp } from './akylas.commonjs.dev/AkInclude/App'
 import * as Color from 'tinycolor2';
 declare global {
     var Color: Color;
+    interface ContrastColor {
+        isLight: boolean
+        luminance: number
+        color: string
+        contrast: string
+        contrastGray: string
+        darkerRel: string
+        lightenRel: string
+        darker: string
+        darkest: string
+        darkestRel: string
+    }
 }
-
-export interface ContrastColor {
-    isLight: boolean
-    luminance: number
-    color: string
-    contrast: string
-    contrastGray: string
-    darkerRel: string
-    lightenRel: string
-    darker: string
-    darkest: string
-    darkestRel: string
-}
-
 export function getContrastColors(_color): ContrastColor {
     let color: tinycolorInstance = Color(_color);
     //light means dark content and thus white contrast
@@ -140,7 +122,7 @@ export class App extends AKApp {
                 shapes: 'akylas.shapes',
                 slidemenu: 'akylas.slidemenu',
                 map: 'akylas.googlemap',
-                charts: 'akylas.charts',
+                // charts: 'akylas.charts',
                 charts2: 'akylas.charts2',
                 paint: 'ti.paint',
                 zoomableimage: 'akylas.zoomableimage',
@@ -148,7 +130,7 @@ export class App extends AKApp {
                     wikitude: 'com.wikitude.ti',
                 },
                 android: {
-                    // connectiq: 'akylas.connectiq',
+                    connectiq: 'akylas.connectiq',
                     // crosswalk: 'com.universalavenue.ticrosswalk'
                 }
             },
@@ -167,8 +149,8 @@ export class App extends AKApp {
                 'ShapeCircle': ['shapes', 'Circle'],
                 'ShapeArc': ['shapes', 'Arc'],
                 'ShapePieSlice': ['shapes', 'PieSlice'],
-                'LineChart': ['charts', 'LineChart'],
-                'PlotLine': ['charts', 'PlotLine'],
+                // 'LineChart': ['charts', 'LineChart'],
+                // 'PlotLine': ['charts', 'PlotLine'],
                 // },
                 // android: {
                 // 'WebView': ['crosswalk', 'WebView']
@@ -188,7 +170,7 @@ export class App extends AKApp {
             }
         });
         if (__ANDROID__) {
-            // this.mapModules.push('Connectiq');
+            this.mapModules.push('Connectiq');
         }
         __DEVELOPMENT__ = this.info.deployType === 'development';
         if (Ti.App.Properties.getString('update.check.version', '') !== this.info.version) {
@@ -209,7 +191,7 @@ export class App extends AKApp {
         })
     }
     mapModules = [
-        'Tutorial',
+        'TutorialManager',
         'ListsModule',
         'Items',
         'UserLocation',
@@ -240,7 +222,7 @@ export class App extends AKApp {
         }
     }
     showMessage = showMessage
-    tutorial = Ti.App.Properties.getBool('tutorial', false)
+    tutorial = Ti.App.Properties.getBool('tutorial', true)
     icons = _.mapValues(require('data/icons')
         .icons,
         function (value) {
@@ -475,12 +457,72 @@ export class App extends AKApp {
         //     }
         // };
     };
-    tutorialManager: any
+    tutorialManager: TutorialManager
     showTutorials(args) {
         if (this.tutorialManager) {
             return this.tutorialManager.showTutorials(args);
         }
 
+    }
+    
+    handleCustomMbTile(files: Ti.Filesystem.File[]) {
+        const destPath = Ti.Filesystem.getFile();
+        return Promise.all(files.map(file => {
+            return new Promise<MetaData>(function (resolve, reject) {
+                var db = Ti.Database.open(file);
+                var rows = db.execute('SELECT name,value FROM metadata');
+                var metadata: MetaData = { file: file };
+                var value, name;
+                while (rows.isValidRow()) {
+                    name = rows.fieldByName('name');
+                    value = rows.fieldByName('value');
+                    console.log('row read', name, value);
+                    switch (name) {
+                        case 'bounds':
+                            var bounds = value.split(',')
+                            metadata['bounds'] = {
+                                sw: { latitude: parseFloat(bounds[1]), longitude: parseFloat(bounds[0]) },
+                                ne: { latitude: parseFloat(bounds[3]), longitude: parseFloat(bounds[2]) },
+                            }
+                            break;
+                        default:
+                            metadata[name] = value;
+                    }
+                    rows.next();
+                }
+                rows.close();
+                db.close();
+                resolve(metadata)
+            }).then(metadata => {
+                var bounds = metadata.bounds;
+                var center = app.utils.geolib.getCenter([bounds.sw, bounds.ne]);
+                return app.api.reverseGeocode({
+                    latitude: center.latitude,
+                    longitude: center.longitude,
+                    // zoom:request.minZoom
+                }).then(function (e) {
+
+                    metadata['address'] = e;
+                    return metadata
+                });
+            }).then(metadata => {
+                var theFile = metadata.file;
+                metadata.file = theFile.name;
+                metadata.id = metadata.file;
+                metadata.token = metadata.file;
+                metadata.layer = {
+                    token: metadata.id,
+                    name: metadata.id.split('.').slice(0, -1).join(''),
+                };
+                var mbtiles = Ti.App.Properties.getObject('mbtiles', {});
+                mbtiles[metadata.id] = metadata;
+                Ti.App.Properties.setObject('mbtiles', mbtiles);
+
+                console.log('adding custom mbtiles', metadata, theFile.nativePath);
+                theFile.move(app.getPath('mbtiles') + '/' + metadata.file);
+            })
+        }))
+        // app.ui.mainwindow.hideLoading();
     }
     showImageFullscreen = (_photos, _index, _fromView) => {
         this.ui.createAndOpenWindow('FullscreenImageWindow', {
@@ -506,7 +548,6 @@ app.main();
 app.utils = {
     filesize: require('lib/filesize'),
     geolib: require('lib/geolib'),
-    // FuzzySet: require('lib/fuzzyset'),
     // openingHours: require('lib/opening_hours'),
     convert: require('lib/convert'),
     humanizeDuration: require('lib/humanize-duration'),
@@ -624,7 +665,14 @@ Ti.Network.on('change', app.api.updateNetwork);
 process.on("unhandledRejection", (reason, promise) => {
     app.emit('error', { error: reason })
 });
+
+app.api.on('error', function (err) {
+    app.emit('error', { error: err });
+});
 app.on('error', function (e) {
+    if (!e.error) {
+        return;
+    }
     console.log('on app error', typeof e.error, e.error);
     if (!e.error.isCustomError && (e.error.stack || e.error.longStack || e.error.nativeLocation)) {
         console.log('throwing error so that it shows in Ti');
@@ -693,7 +741,7 @@ if (app.modules.plcrashreporter) {
                                 logs[
                                 i]));
                         }
-                        emailDialog.open();
+                        emailDialog.open(undefined);
                     } else if (e.cancel === false) {
                         crashDir.deleteDirectory(true);
                     }
@@ -714,3 +762,37 @@ if (app.modules.plcrashreporter) {
     // }, 5000);
 }
 sdebug('Google Maps SDK', app.modules.map.googleMapSDKVersion);
+
+var inMbTiles = [], folder, dirList;
+if (__ANDROID__) {
+    folder = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory);
+    var dirList = folder.getDirectoryListing();
+    console.log('files', folder.nativePath, dirList)
+    if (dirList) {
+        inMbTiles = inMbTiles.concat(dirList.filter(s => s.endsWith('.mbtiles')).map(f => Ti.Filesystem.getFile(folder.nativePath, f)));
+    }
+}
+
+if (__APPLE__) {
+    folder = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'Inbox');
+    dirList = folder.getDirectoryListing();
+    console.log('files', folder.nativePath, dirList)
+    if (dirList) {
+        inMbTiles = inMbTiles.concat(dirList.filter(s => s.endsWith('.mbtiles')).map(f => Ti.Filesystem.getFile(folder.nativePath, f)));
+    }
+    folder = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory);
+    var dirList = folder.getDirectoryListing();
+    console.log('files', folder.nativePath, dirList)
+    if (dirList) {
+        inMbTiles = inMbTiles.concat(dirList.filter(s => s.endsWith('.mbtiles')).map(f => Ti.Filesystem.getFile(folder.nativePath, f)));
+    }
+    var cmd = Ti.App.getArguments();
+    if (cmd && cmd.url && cmd.url.indexOf('file://') === 0 && cmd.url.endsWith('.mbtiles')) {
+        inMbTiles.push(Ti.Filesystem.getFile(cmd.url));
+    }
+}
+
+
+if (inMbTiles.length > 0) {
+    app.handleCustomMbTile(inMbTiles);
+}

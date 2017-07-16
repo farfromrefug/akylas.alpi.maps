@@ -279,6 +279,7 @@ exports.create = function(_context, _args, _additional) {
     }
 
     function updateFromLocation(_location) {
+        console.debug('updateFromLocation', _location);
         if (_location === null || !view) {
             return;
         }

@@ -1,94 +1,53 @@
-LineChart {
-    disableHW:true,
-    plotArea: {  
-        padding: {
-            top: 4,
-            bottom:16,
-            right:30,
-        },
-    },
-    legend: {
-        visible: false
-    },
+.Chart {
+    width: 'fill',
+    rclass:'AccentuatedView',
+    drawBorders: false,
+    description: '',
+    doubleTapToZoom: false,
+    highlightPerDragEnabled:true,
+    scaleX:true,
+    scaleY:false,
+    drawMarkers:true,
+    rightAxis: {
+        enabled: false
+    }
+    ,
     xAxis: {
-        align:app.modules.charts.ALIGNMENT_BOTTOM,
-        lineWidth: 0,
-        majorTicks: {
-            width: 1.0,
-            labels: {
-                offset:-16,
-                color: $.gray,
-                font: {
-                    size: 10
-                },
-                textAlign: app.modules.charts.ALIGNMENT_LEFT,
-                numberFormat: '#'
-            }
-        }
-    },
+        enabled: false
+    }
+    ,
     yAxis: {
-        align:app.modules.charts.ALIGNMENT_RIGHT,
-        lineWidth:0,
-        majorTicks: {
-            width: 0.0,
-            gridLines: {
-                dash: {
-                    pattern: [1, 3],
-                    phase: 0.5
-                },
-                cap:1,
-                join:1,
-                width: 1,
-                color: $.gray
-            },
-            labels: {
-                offset:-35,
-                color: $.gray,
-                font: {
-                    size: 10
-                },
-                textAlign: app.modules.charts.ALIGNMENT_RIGHT,
-                numberFormat: '0'
-            }
-        }
-    },
-    /*plotSpace: {*/
-        /*scaleToFit : true*/
-    /*},*/
-    userInteraction: true,
-    clampInteraction: true
+        enabled: false
+    }
+}
+
+.LineChart {
+    rclass:'Chart',
+    data: {
+        drawValues: false
+    }
+    ,
+    legend: {
+        enabled: false
+    }
 }
 
 .ElevationProfileRow {
-    rclass:'ListItemRow',
-    height:'SIZE',
-    layout:'vertical',
+    rclass: 'ListItemRow', height:'SIZE', layout:'vertical',
 }
 
 .ElevationProfileRowLabel {
-    rclass:'ItemInfoRowDescription',
-    verticalAlign:'middle',
-    height:20,
-    left:5,
-    width:'FILL',
-    visible:false
+    rclass: 'ItemInfoRowDescription', verticalAlign:'middle', height:20, left:5, width:'FILL', visible:false
 }
 
 .ElevationProfileRowLineChart {
-    /*top:0,*/
+    rclass: 'LineChart', /*top:0,*/
     /*bottom:0,*/
-    height:130,
-    preventListViewSelection:true,
-    /*exclusiveTouch:true,*/
-    left:5,
-    right:5,
-    /*bubbleParent: false,*/
+    height:130, preventListViewSelection:true, /*exclusiveTouch:true,*/
+    left:5, right:5, /*bubbleParent: false,*/
     userInteraction: false,
 }
 
 .ElevationProfileRowPlotLine {
-    lineWidth: 3,
-    lineColor:$.cTheme.main,
-    lineCap:1,
-    lineJoin:1,
+    lineWidth: 3, lineColor:$.cTheme.main, lineCap:1, lineJoin:1,
 }

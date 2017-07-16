@@ -366,13 +366,13 @@ function createApi(_context) {
             var client;
             var promise = new PrivateHTTPPromise((resolve, reject) => {
                 if (this.networkConnected === false) {
-                    this.onError('no network connection', reject, options);
-                    return;
+                    return onError('no_network_connection', reject, options);
+                    // return Promise.reject('no_network_connection');
                 }
                 if (this.offlineMode === true) {
                     options.silent = true;
-                    this.onError('offline mode', reject, options);
-                    return;
+                    return onError('offline_mode', reject, options);
+                    // return;
                 }
                 var params = JSON.parse(JSON.stringify(options.params || {}));
                 client = new HTTPClient({
@@ -613,7 +613,7 @@ function createApi(_context) {
                         throw err;
                     });
                 } else if (!e.display_name) {
-                    onError(trc('no_result_found'), function (err) {
+                    onError('no_result_found', function (err) {
                         throw err;
                     });
                 }
@@ -642,7 +642,7 @@ function createApi(_context) {
             }).then(function (result) {
                 console.log(result);
                 if (result.routes.length === 0) {
-                    onError(trc('no_route_found'), function (err) {
+                    onError('no_route_found', function (err) {
                         throw err;
                     });
                     return;
@@ -720,7 +720,7 @@ function createApi(_context) {
             }).then(function (result) {
                 console.log(result);
                 if (!result.trip || result.trip.legs.length === 0) {
-                    onError(trc('no_route_found'), function (err) {
+                    onError('no_route_found', function (err) {
                         throw err;
                     });
                     return;
@@ -788,7 +788,7 @@ function createApi(_context) {
             }).then(function (result) {
                 console.log(result);
                 if (!result.paths || result.paths.length === 0) {
-                    onError(trc('no_route_found'), function (err) {
+                    onError('no_route_found', function (err) {
                         throw err;
                     });
                     return;
@@ -1207,12 +1207,15 @@ function createApi(_context) {
                 postParams: postParams
             }).then(function (e) {
                 if (e.info.statuscode !== 0) {
-                    onError({
+                    return Promise.reject({
                         code: e.info.statuscode,
                         error: e.info.messages.join(', ')
-                    }, function (err) {
-                        throw err
                     });
+                    // onError({
+                        
+                    // }, function (err) {
+                    //     throw err
+                    // });
                 } else {
                     var route = e.route;
                     var bbox = e.route.boundingBox;
@@ -1549,7 +1552,7 @@ function createApi(_context) {
                 }
             }).then(function (result) {
                 if (result.results.length === 0) {
-                    onError(trc('no_place_found'), function (err) {
+                    onError('no_place_found', function (err) {
                         throw err
                     });
                     return;
@@ -1584,7 +1587,7 @@ function createApi(_context) {
                 }
             }).then(function (result, _options) {
                 if (!result.result) {
-                    onError(trc('no_place_found'), function (err) {
+                    onError('no_place_found', function (err) {
                         throw err
                     });
                     return;
@@ -1807,8 +1810,6 @@ function createApi(_context) {
                     }, function (err) {
                         throw err;
                     });
-
-                    return;
                 }
                 if (result.list) {
                     if (result.list.length > 0) {
@@ -1880,7 +1881,7 @@ function createApi(_context) {
         {
             app.emit('error', {
                 title: trc('error'),
-                message: res,
+                error: res,
                 silent: (_lastcall && _lastcall.silent === true)
             });
         }

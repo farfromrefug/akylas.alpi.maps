@@ -3,7 +3,7 @@
     <sdk-version>6.2.0.AKYLAS</sdk-version>
     <id>akylas.alpi.maps</id>
     <name>Alpi Maps</name>
-    <version>1.3.1</version>
+    <version>1.3.2</version>
     <publisher>Akylas</publisher>
     <url>http://www.akylas.fr</url>
     <description></description>
@@ -14,7 +14,7 @@
     <run-on-main-thread>false</run-on-main-thread>
     <use-babel>true</use-babel>
     <ios>
-        <use-jscore-framework>true</use-jscore-framework>
+        <use-jscore-framework>false</use-jscore-framework>
         <!-- <use-app-thinning>true</use-app-thinning> -->
         <min-ios-ver>8.0</min-ios-ver>
         <enable-launch-screen-storyboard>false</enable-launch-screen-storyboard>
@@ -22,12 +22,14 @@
             <dict>
                 <key>UIViewControllerBasedStatusBarAppearance</key>
                 <false/>
-                <key>CFBundleVersion</key><string>73</string>
+                <key>CFBundleVersion</key>
+                <string>83</string>
                 <key>UIRequiresPersistentWiFi</key>
                 <true/>
                 <key>UIPrerenderedIcon</key>
                 <true/>
-                <key>UIStatusBarStyle</key><string>UIStatusBarStyleLightContent</string>
+                <key>UIStatusBarStyle</key>
+                <string>UIStatusBarStyleLightContent</string>
                 <key>NSContactsUsageDescription</key>
                 <string>Can we use your contacts?</string>
                 <key>NSCameraUsageDescription</key>
@@ -52,11 +54,11 @@
                 <key>LSApplicationQueriesSchemes</key>
                 <array>
                     <string>fbapi</string>
-                     <string>fbauth2</string>
-                     <string>fbshareextension</string>
-                     <string>fb-messenger-api</string>
-                     <string>twitter</string>
-                     <string>whatsapp</string>
+                    <string>fbauth2</string>
+                    <string>fbshareextension</string>
+                    <string>fb-messenger-api</string>
+                    <string>twitter</string>
+                    <string>whatsapp</string>
                     <string>googlechrome</string>
                     <string>comgooglemaps</string>
                 </array>
@@ -67,42 +69,68 @@
                     <string>UIInterfaceOrientationLandscapeLeft</string>
                     <string>UIInterfaceOrientationLandscapeRight</string>
                 </array>
+                <key>UIFileSharingEnabled</key>
+                <true/>
+                <key>CFBundleDocumentTypes</key>
+                <array>
+                    <dict>
+                        <key>LSItemContentTypes</key>
+                        <array>
+                            <string>akylas.alpi.maps.mbtiles</string>
+                        </array>
+                        <key>CFBundleTypeName</key>
+                        <string>MBTiles map file</string>
+                    </dict>
+                </array>
+                <key>UTImportedTypeDeclarations</key>
+                <array>
+                    <dict>
+                        <key>UTTypeDescription</key>
+                        <string>MBTiles map file</string>
+                        <key>UTTypeIdentifier</key>
+                        <string>akylas.alpi.maps.mbtiles</string>
+                        <key>UTTypeTagSpecification</key>
+                        <dict>
+                            <key>public.filename-extension</key>
+                            <string>mbtiles</string>
+                        </dict>
+                    </dict>
+                </array>
             </dict>
         </plist>
     </ios>
     <theme>BaseTheme</theme>
     <android xmlns:android="http://schemas.android.com/apk/res/android">
-        <manifest android:installLocation="auto" android:versionCode="65">
-            <uses-sdk android:minSdkVersion="13" android:targetSdkVersion="23"/>
+        <manifest android:installLocation="auto" android:versionCode="74">
+            <uses-sdk android:minSdkVersion="13" android:targetSdkVersion="23" />
             <uses-feature android:name="android.hardware.location.gps" />
-            <application
-                android:hardwareAccelerated="true">
-                <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyB3S2bww_0PrPmpCO8NgGuEmgGs6DxnQ78"/>
+            <application android:hardwareAccelerated="true">
+                <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyB3S2bww_0PrPmpCO8NgGuEmgGs6DxnQ78" />
                 <meta-data android:name="com.google.android.gms.version" android:value="10298000" />
             </application>
         </manifest>
         <services>
-            <service url="mbtilesgenerator.js"/>
+            <service url="mbtilesgenerator.js" />
         </services>
         <!-- <abi>armeabi-v7a,x86</abi> -->
     </android>
     <plugins>
+        <plugin>akylas.nodejs</plugin>
     </plugins>
     <modules>
         <module>akylas.commonjs</module>
         <module>akylas.slidemenu</module>
         <module>akylas.shapes</module>
         <module>akylas.googlemap</module>
-        <module>akylas.charts</module>
-         <module>akylas.charts2</module> 
-         <module>akylas.nodejs</module> 
+        <!--<module>akylas.charts</module>-->
+        <module>akylas.charts2</module>
         <!--<module>akylas.admob</module>-->
         <module>akylas.zoomableimage</module>
         <module>ti.paint</module>
         <module platform="iphone">com.wikitude.ti</module>
         <module platform="iphone">akylas.statusbarnotification</module>
         <module platform="iphone">akylas.plcrashreporter</module>
-        <!--<module platform="android">akylas.connectiq</module>-->
+        <module platform="android">akylas.connectiq</module>
     </modules>
     <deployment-targets>
         <target device="tizen">false</target>

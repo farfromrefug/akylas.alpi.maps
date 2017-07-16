@@ -1,4 +1,5 @@
 declare class Container extends View {
+    titleView: View
     topToolbarHolder: View
     navBarHolder: View
     navBar: View
@@ -13,7 +14,7 @@ declare class AppWindow extends BaseWindow {
     showBottomToolbar()
     hideBottomToolbar()
     showHideBottomToolbar()
-    setColors(color)
+    setColors(color, _withNavBar?: boolean, _barColor?: string)
     showError(err)
     updateTitle(title: string, subtitle?: string)
     runPromise<T>(p: Promise<T>): Promise<T>
@@ -167,7 +168,7 @@ ak.ti.constructors.createAppWindow = function (_args) {
                 rid: (_args.leftMenuButtonRid || 'menuBtn')
             });
             app.onDebounce(leftNavButton, 'click', function () {
-                app.ui.leftdrawer.showHideMe();
+                app.ui.slidemenu.toggleLeftView();
             });
             delete _args.showLeftMenuButton;
             children.push(leftNavButton);
@@ -305,16 +306,14 @@ ak.ti.constructors.createAppWindow = function (_args) {
                 self.leftNavButton = new Button({
                     rid: (_args.leftMenuButtonRid || 'menuBtn')
                 });
-                app.onDebounce(self.leftNavButton, 'click', function () {
-                    // app.ui.leftdrawer.showHideMe();
-                       app.ui.slidemenu.toggleLeftView();
+                app.onDebounce(self.leftNavButton as View, 'click', function () {
+                    app.ui.slidemenu.toggleLeftView();
                 });
             } else {
                 self.applyProperties({
                     homeAsUpIndicator: 'images/menu.png',
                     displayHomeAsUp: true,
                     onHomeIconItemSelected: function () {
-                        // app.ui.leftdrawer.showHideMe();
                         app.ui.slidemenu.toggleLeftView();
                     }
                 });
@@ -557,12 +556,12 @@ ak.ti.constructors.createAppWindow = function (_args) {
         });
     };
 
-    self.setColors = function (_color) {
+    self.setColors = function (_color, _withNavBar, _barColor) {
         var colors = app.getContrastColors(_color);
 
         var params: any = {};
 
-        if (self.customNavBar) {
+        if (self.customNavBar && _withNavBar != false) {
             params.container = {
                 topToolbarHolder: {
                     backgroundColor: colors.color
@@ -586,7 +585,7 @@ ak.ti.constructors.createAppWindow = function (_args) {
                 };
             }
 
-            _.forEach(self.container.navBarHolder.children, function (child: Ti.UI.Label) {
+            _.forEach(self.container.navBarHolder.children, function (child: Label) {
                 child.color = colors.contrast;
             });
         } else {
@@ -598,7 +597,7 @@ ak.ti.constructors.createAppWindow = function (_args) {
         if (__APPLE__) {
             params.statusBarStyle = colors.isLight ? 1 : 0;
         } else if (__ANDROID__) {
-            params.navigationBarColor = colors.color;
+            params.navigationBarColor = _barColor || colors.color;
         }
         console.log('setColors', params);
         self.applyProperties(params);

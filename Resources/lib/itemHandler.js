@@ -6,7 +6,7 @@
         localImageCache = {},
         showMessage = app.showMessage,
         htmlIcon = app.utilities.htmlIcon,
-        moveOnFirstChange = Ti.App.Properties.getBool('items.firstchangemove', true);
+        moveOnFirstChange = Ti.App.Properties.getBool('items.firstchangemove', false);
 
     var itemActions = {
         search_google: {
@@ -592,12 +592,12 @@
                         var route = _item.route;
                         subtitle = htmlIcon($.sDist, 0, $.black) + this.geolib.formatter.distance(
                             route.distance);
-                        if (route.duration > 0) {
-                            console.log('duraation', route.duration);
-                            subtitle += ' ' + htmlIcon(String.fromCharCode(0xe08e), 0, $.black) + moment
-                                .duration(route.duration)
-                                .format(route.duration >= 60 * 60000 ? 'h[h]mm' : 'mm[m]');
-                        }
+                        // if (route.duration > 0) {
+                            // console.log('duraation', route.duration);
+                            // subtitle += ' ' + htmlIcon(String.fromCharCode(0xe08e), 0, $.black) + moment
+                            //     .duration(route.duration)
+                            //     .format(route.duration >= 60 * 60000 ? 'h[h]mm' : 'mm[m]');
+                        // }
                         var profile = _item.profile || _item.tags;
                         if (profile) {
                             if (profile.dplus) {
@@ -1049,7 +1049,8 @@
             _params = _params || {};
             // var options = ['add_photo', 'move', 'share'];
             var options = ['add_photo', 'move'];
-            if (__APPLE__) {
+            var isRoute = this.isItemARoute(_item);
+            if (__APPLE__ && !isRoute) {
                 options.push('open_maps');
                 if (Ti.Platform.canOpenURL('comgooglemaps://')) {
                     options.push('open_google_maps');

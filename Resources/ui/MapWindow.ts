@@ -2,8 +2,8 @@
 declare class MapWindow extends AppWindow {
     childrenHolder: View
     mpp: number
-    setMapFakePadding(name: string, args: dict)
-    setRegion(_region:MapRegion, _deltaFactor:number, _animated:boolean, _deltaScreen)
+    setMapFakePadding(name: string, args: TiDict)
+    setRegion(_region: MapRegion, _deltaFactor: number, _animated: boolean, _deltaScreen?)
     updateCamera(_params, _deltaScreen?)
     setHighlightPoint(_value)
     getAroundData()
@@ -18,7 +18,7 @@ declare class MapWindow extends AppWindow {
     getMapPadding(_key: string)
     getMapCurrentPadding()
     removeAnnotations(ids)
-    updateUserLocation(_force:boolean)
+    updateUserLocation(_force: boolean)
     mapViewSnapshot()
     runMethodOnModules(...args)
     runGetMethodOnModules(...args)
@@ -26,27 +26,56 @@ declare class MapWindow extends AppWindow {
     runReduceMethodOnModules(...args)
     getModule(id: string): MapModule
     getContentModules(): MapModule[]
-    showDebugText(_text:string)
+    showDebugText(_text: string)
 }
 
 
 declare type MapCoordinates = { latitude: number, longitude: number } | number[]
 declare type MapRegion = { latitude: number, longitude: number } | number[]
-declare type Padding = { left?: number, right?: number, top?: number, bottom?: number } | number[] | number
-declare class Cluster extends Titanium.Proxy {
+declare type ObjectPadding = { left?: number, right?: number, top?: number, bottom?: number }
+declare type Padding = ObjectPadding | number[] | number
+
+declare class MapTileSource extends Ti.Proxy {
 }
-declare class Annotation extends Titanium.Proxy {
+declare class MapAnnotation extends Titanium.Proxy {
+    image:string
+    minZoom:number
+    maxZoom:number
+    visible:boolean
+}
+declare class MapCluster extends MapAnnotation {
+    annotations: MapAnnotation[]
+    getAnnotation(index:number):MapAnnotation
+    addAnnotation(annotations: MapAnnotation | MapAnnotation[])
+    removeAnnotation(annotations: MapAnnotation | MapAnnotation[])
+    removeAllAnnotations()
+}
+declare class MapRoute extends MapAnnotation {
 }
 declare class MapView extends View {
     defaultCalloutTemplate: string
     region: MapRegion
     padding: Padding
     centerCoordinate: MapCoordinates
-    clusters: Cluster[]
+    clusters: MapCluster[]
+    routes: MapRoute[]
+    annotations: MapAnnotation[]
+    mapType: string
     calloutUseTemplates: boolean
     userTrackingMode: number
     zoom: number
-    removeAnnotation(annotations: Annotation | Annotation[])
+    addAnnotation(annotations: MapAnnotation | MapAnnotation[])
+    selectAnnotation(annotation: MapAnnotation)
+    removeAnnotation(annotations: MapAnnotation | MapAnnotation[])
+    addTileSource(sources: MapTileSource | MapTileSource[])
+    removeTileSource(sources: MapTileSource | MapTileSource[])
+    addCluster(clusters: MapCluster | MapCluster[])
+    removeCluster(clusters: MapCluster | MapCluster[])
+    addRoute(routes: MapRoute | MapRoute[])
+    removeRoute(routes: MapRoute | MapRoute[])
+    zoomIn(point: MapCoordinates | titanium.Point)
+    coordinateForPoints(points: titanium.Point[]): MapCoordinates[]
+    removeAllAnnotations()
 }
 
 ak.ti.constructors.createMapWindow = function (_args) {
@@ -55,7 +84,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
     }
 
     function runMethodOnModules(...args) {
-        var method, mods;
+        var method: string, mods: MapModule[] | { [k: string]: MapModule };
         var result = false;
         if (_.isBoolean(args[0])) {
             mods = !!args[0] ? contentModules : modules;
@@ -65,10 +94,11 @@ ak.ti.constructors.createMapWindow = function (_args) {
         }
         method = args[0];
         args.splice(0, 1);
-        _.forEachRight(mods, function (module) {
-            if (module[method]) {
+        _.forEachRight(mods, function (module: MapModule) {
+            const func: Function = module[method];
+            if (func) {
                 // sdebug(module.id, method, _.keys(args[0]));
-                if (module[method].apply(module, args)) {
+                if (func.apply(module, args)) {
                     result = true;
                     return false;
                 }
@@ -78,7 +108,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
     }
 
     function runGetSingleMethodOnModules(...args) {
-        var method, mods;
+        var method: string, mods: MapModule[] | { [k: string]: MapModule };
         var result;
         if (_.isBoolean(args[0])) {
             mods = !!args[0] ? contentModules : modules;
@@ -88,9 +118,10 @@ ak.ti.constructors.createMapWindow = function (_args) {
         }
         method = args[0];
         args.splice(0, 1);
-        _.forEachRight(mods, function (module) {
-            if (module[method]) {
-                var localResult = module[method].apply(module, args);
+        _.forEachRight(mods, function (module: MapModule) {
+            const func: Function = module[method];
+            if (func) {
+                var localResult = func.apply(module, args);
                 if (localResult) {
                     result = localResult;
                     return false;
@@ -101,7 +132,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
     }
 
     function runGetMethodOnModules(...args) {
-        var method, mods;
+        var method: string, mods: MapModule[] | { [k: string]: MapModule };
         if (_.isBoolean(args[0])) {
             mods = (!!args[0]) ? contentModules : modules;
             args.splice(0, 1);
@@ -110,9 +141,10 @@ ak.ti.constructors.createMapWindow = function (_args) {
         }
         method = args[0];
         args.splice(0, 1);
-        return _.reduceRight(mods, function (memo, module) {
-            if (module[method]) {
-                var result = module[method].apply(module, args);
+        return _.reduceRight(mods, function (memo, module: MapModule) {
+            const func: Function = module[method];
+            if (func) {
+                var result = func.apply(module, args);
                 if (result) {
                     memo.push(result);
                 }
@@ -122,7 +154,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
     }
 
     function runReduceMethodOnModules(...args) {
-        var method, mods;
+        var method: string, mods: MapModule[] | { [k: string]: MapModule };
         if (_.isBoolean(args[0])) {
             mods = !!args[0] ? contentModules : modules;
             args.splice(0, 1);
@@ -131,9 +163,10 @@ ak.ti.constructors.createMapWindow = function (_args) {
         }
         method = args[0];
         args.splice(0, 1);
-        return _.reduceRight(mods, function (memo, module) {
-            if (module[method]) {
-                module[method].apply(module, [memo].concat(args));
+        return _.reduceRight(mods, function (memo, module: MapModule) {
+            const func: Function = module[method];
+            if (func) {
+                func.apply(module, [memo].concat(args));
             }
             return memo;
         }, {});
@@ -294,7 +327,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
                 }
                 currentRegion = e.region;
                 self.mpp = e.mpp;
-                // sdebug('regionchanged', e.idle);
+                // sdebug('regionchanged', e);
                 if (!!e.idle) {
                     if (highlightingPoint) {
                         highlightingPoint = false;
@@ -423,7 +456,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
                                     rect
                                         .width,
                                     bottom: parentRect.height - rect.y -
-                                    rect.height + 80,
+                                    rect.height + (__APPLE__ ? 64 : 80),
                                 });
 
                             }
@@ -607,7 +640,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
             if (_force !== true && !settings.userFollow && !firstFollow) {
                 return;
             }
-            var params: dict = {
+            var params: TiProperties = {
                 centerCoordinate: location,
                 // zoom: Math.max(mapView.zoom, settings.updateBearing ? 17 : 14),
                 zoom: Math.max(mapView.zoom, 14),
@@ -728,7 +761,11 @@ ak.ti.constructors.createMapWindow = function (_args) {
         Ti.App.iOS.on('continueactivity', function (e) {
             // console.log(e);
             if (e.searchableItemActivityIdentifier) {
-                var item = runGetSingleMethodOnModules('getItem', {
+                var item: {
+                    id: string
+                    item:any
+                    desc:any
+                } = runGetSingleMethodOnModules('getItem', {
                     id: e.searchableItemActivityIdentifier
                 });
                 // sdebug('found item', item);

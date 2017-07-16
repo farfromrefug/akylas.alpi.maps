@@ -43,12 +43,12 @@ exports.create = function(_context, _args, _additional) {
                         }
                     })
                     .on('point', function(e) {
-                        sdebug('on point', e.line, ignorePointEvent);
+                        sdebug('on point', e.data, ignorePointEvent);
                         if (ignorePointEvent) {
                             ignorePointEvent = false;
                             return;
                         }
-                        var pos = selectedItem.item.profile.points[e.line.index];
+                        var pos = selectedItem.item.profile.points[e.data.x];
                         if (selectedItem.isRoute) {
 
                             var data = selectedItem.mapItem.distanceFromLocation(pos);

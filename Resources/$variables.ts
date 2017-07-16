@@ -94,6 +94,8 @@ class Variables {
     sLicenses = '\uf02d'
     sCopyright = '©'
     sCC = '\uf25e'
+    TSCountrolsHeight: number
+    gfHeaderHeight: number
 }
 
 declare var $: Variables;

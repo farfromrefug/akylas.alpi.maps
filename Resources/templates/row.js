@@ -12,37 +12,39 @@ function create(_context) {
         locate: '\ue604',
     };
 
-    var onChartTouch = function(e) {
-        // sdebug('onChartTouch', e);
-        if (e.bindId === 'chart' && e.line) {
-            sdebug('onChartTouch', _.omit(e.line, 'plot'));
-            if (!e.line.yValue) {
+    var onChartTouch = function (e) {
+        if (e.bindId === 'chart') {
+            // var data = e.source.getHighlightByTouchPoint([e.x, e.y]);
+            // sdebug('onChartTouch', e, data);
+            var data = e.data;
+            if (!data) {
                 return;
             }
             var rect = e.source.rect;
+            sdebug('onChartTouch', data, e.type, rect);
             var params = {
                 popup: {
                     visible: true,
                 },
                 popupLabel: {
-                    text: app.utils.geolib.formatter.altitude(e.line.yValue),
+                    text: app.utils.geolib.formatter.altitude(data.y),
                 },
                 // userLocation: {
                 //     visible: true,
                 //     center: [e.line.x, e.line.y]
                 // }
             };
-            var x = Math.round(e.line.x);
-            var y = Math.round(e.line.y);
+            var x = Math.round(e.data.xPx);
+            var y = Math.round(e.data.yPx);
             if (x <= 20 || x >= rect.width - 20) {
                 var isLeft = x <= 20;
                 Object.assign(params.popup, {
                     left: isLeft ? x : null,
-                    right: isLeft ? null : x,
+                    right: isLeft ? null : (rect.width-x),
                     bottom: null,
                     top: null,
                     center: {
-                        y: e.line.y
+                        y: y
                     }
                 });
                 Object.assign(params.popupLabel, {
@@ -66,7 +68,7 @@ function create(_context) {
                     left: null,
                     right: null,
                     center: {
-                        x: e.line.x
+                        x: x
                     }
                 });
                 Object.assign(params.popupLabel, {
@@ -91,7 +93,7 @@ function create(_context) {
             if (e.type === 'click') {
                 e.source.emit('point', {
                     bubbles: true,
-                    line: e.line,
+                    data: data,
                 });
             }
 
@@ -99,7 +101,7 @@ function create(_context) {
 
     };
 
-    templates.createToolbarButton = function(_id, _icon, _showButton) {
+    templates.createToolbarButton = function (_id, _icon, _showButton) {
         _showButton = _showButton !== false && app.tutorial;
         var result = {
             type: 'Ti.UI.Button',
@@ -595,8 +597,8 @@ function create(_context) {
                     touchPassThrough: false,
                     autoLink: Ti.UI.AUTOLINK_ALL,
                     // padding: {
-                        // top: 10,
-                        // bottom: 10
+                    // top: 10,
+                    // bottom: 10
                     // },
                     height: 'SIZE'
                 }
@@ -924,20 +926,20 @@ function create(_context) {
                     rclass: 'ElevationProfileRowLabel'
                 }
             }, {
-                type: 'AkylasCharts.LineChart',
+                // type: 'AkylasCharts.LineChart',
                 bindId: 'chart',
+                type: 'Akylas.Charts2.LineChart',
                 properties: {
                     rclass: 'ElevationProfileRowLineChart',
-                    clipChildren: false,
-
+                    clipChildren: false
                 },
                 childTemplates: [{
-                    type: 'AkylasCharts.PlotLine',
-                    bindId: 'line',
-                    properties: {
-                        rclass: 'ElevationProfileRowPlotLine'
-                    }
-                }, {
+                    //     type: 'AkylasCharts.PlotLine',
+                    //     bindId: 'line',
+                    //     properties: {
+                    //         rclass: 'ElevationProfileRowPlotLine'
+                    //     }
+                    // }, {
                     type: 'Ti.UI.Label',
                     bindId: 'userLocation',
                     properties: {
@@ -1010,25 +1012,25 @@ function create(_context) {
                 }
             }]
         },
-        elevationProfileHTML: {
-            properties: {
-                rclass: 'ElevationProfileRow',
-            },
-            childTemplates:[{
-                bindId: 'chartDesc',
-                type: 'Ti.UI.Label',
-                properties: {
-                    rclass: 'ElevationProfileRowLabel'
-                }
-            }, {
-                bindId:'chart',
-                type:'Ti.UI.WebView',
-                properties:{
-                    rclass:'ElevationProfileRowLineChart',
-                    url:'data/highcharts/index.html'
-                }
-            }]
-        },
+        // elevationProfileHTML: {
+        //     properties: {
+        //         rclass: 'ElevationProfileRow',
+        //     },
+        //     childTemplates:[{
+        //         bindId: 'chartDesc',
+        //         type: 'Ti.UI.Label',
+        //         properties: {
+        //             rclass: 'ElevationProfileRowLabel'
+        //         }
+        //     }, {
+        //         bindId:'chart',
+        //         type:'Ti.UI.WebView',
+        //         properties:{
+        //             rclass:'ElevationProfileRowLineChart',
+        //             url:'data/highcharts/index.html'
+        //         }
+        //     }]
+        // },
         weather: {
             properties: {
                 rclass: 'ListItemRow',
@@ -1208,110 +1210,110 @@ function create(_context) {
                     // backgroundColor:'green'
                 },
                 childTemplates: [{
-                        type: 'Ti.UI.View',
-                        bindId: 'titleHolder',
+                    type: 'Ti.UI.View',
+                    bindId: 'titleHolder',
+                    properties: {
+                        layout: 'horizontal',
+                        left: 30,
+                        right: 20,
+                        weight: 2,
+                        top: 6,
+                        height: 'FILL',
+                        // backgroundColor:'blue'
+                    },
+                    childTemplates: [{
+                        type: 'Ti.UI.Label',
+                        bindId: 'title',
                         properties: {
-                            layout: 'horizontal',
-                            left: 30,
-                            right: 20,
-                            weight: 2,
-                            top: 6,
-                            height: 'FILL',
-                            // backgroundColor:'blue'
-                        },
-                        childTemplates: [{
-                            type: 'Ti.UI.Label',
-                            bindId: 'title',
-                            properties: {
-                                rclass: 'ItemInfoRowTitle',
-                                // backgroundColor:'brown'
-                            }
-                        }, {
-                            type: 'Ti.UI.Label',
-                            bindId: 'opendetails',
-                            properties: {
-                                rclass: 'ItemInfoRowOpenDetails',
-                                visible: false
-                            }
-                        }, {
-                            type: 'Ti.UI.Label',
-                            bindId: 'opened',
-                            properties: {
-                                rclass: 'ItemInfoRowOpenIcon',
-                                visible: false
-                            }
-                        }]
+                            rclass: 'ItemInfoRowTitle',
+                            // backgroundColor:'brown'
+                        }
                     }, {
-                        type: 'Ti.UI.View',
-                        bindId: 'extraHolder',
+                        type: 'Ti.UI.Label',
+                        bindId: 'opendetails',
                         properties: {
-                            rclass: 'ItemInfoRowExtraHolder',
-                            visible: false,
-                        },
-                        childTemplates: [{
-                            type: 'Ti.UI.Label',
-                            bindId: 'orientation',
-                            properties: {
-                                rclass: 'ItemInfoRowExtraIcon',
-                                text: $.sNav,
-                                visible: false
-                            }
-                        }, {
-                            type: 'Ti.UI.Label',
-                            bindId: 'distance',
-                            properties: {
-                                rclass: 'ItemInfoRowExtraLabel',
-                                width: 70,
-                                visible: false
-                            }
-                        }, {
-                            type: 'Ti.UI.Label',
-                            bindId: 'altitudeIcon',
-                            properties: {
-                                rclass: 'ItemInfoRowExtraIcon',
-                                text: app.icons.peak,
-                                visible: false
-                            }
-                        }, {
-                            type: 'Ti.UI.Label',
-                            bindId: 'altitude',
-                            properties: {
-                                rclass: 'ItemInfoRowExtraLabel',
-                                visible: false
-                            }
-                        }]
-
+                            rclass: 'ItemInfoRowOpenDetails',
+                            visible: false
+                        }
                     }, {
-                        type: 'Ti.UI.View',
-                        bindId: 'subtitleHolder',
+                        type: 'Ti.UI.Label',
+                        bindId: 'opened',
                         properties: {
-                            layout: 'horizontal',
-                            left: 7,
-                            bottom: 4,
-                            height: 17,
-                        },
-                        childTemplates: [{
-                            type: 'Ti.UI.Label',
-                            bindId: 'subtitle',
-                            properties: {
-                                rclass: 'ItemInfoRowSubtitle'
-                            }
-                        }, {
-                            type: 'Ti.UI.Label',
-                            bindId: 'description',
-                            properties: {
-                                rclass: 'ItemInfoRowDescription',
-                                visible: false
-                            }
-                        }]
+                            rclass: 'ItemInfoRowOpenIcon',
+                            visible: false
+                        }
                     }]
-                    // }, {
-                    //     type: 'Ti.UI.ImageView',
-                    //     bindId: 'image',
-                    //     properties: {
-                    //         rclass: 'ItemInfoRowImage',
-                    //         visible: false
-                    //     }
+                }, {
+                    type: 'Ti.UI.View',
+                    bindId: 'extraHolder',
+                    properties: {
+                        rclass: 'ItemInfoRowExtraHolder',
+                        visible: false,
+                    },
+                    childTemplates: [{
+                        type: 'Ti.UI.Label',
+                        bindId: 'orientation',
+                        properties: {
+                            rclass: 'ItemInfoRowExtraIcon',
+                            text: $.sNav,
+                            visible: false
+                        }
+                    }, {
+                        type: 'Ti.UI.Label',
+                        bindId: 'distance',
+                        properties: {
+                            rclass: 'ItemInfoRowExtraLabel',
+                            width: 70,
+                            visible: false
+                        }
+                    }, {
+                        type: 'Ti.UI.Label',
+                        bindId: 'altitudeIcon',
+                        properties: {
+                            rclass: 'ItemInfoRowExtraIcon',
+                            text: app.icons.peak,
+                            visible: false
+                        }
+                    }, {
+                        type: 'Ti.UI.Label',
+                        bindId: 'altitude',
+                        properties: {
+                            rclass: 'ItemInfoRowExtraLabel',
+                            visible: false
+                        }
+                    }]
+
+                }, {
+                    type: 'Ti.UI.View',
+                    bindId: 'subtitleHolder',
+                    properties: {
+                        layout: 'horizontal',
+                        left: 7,
+                        bottom: 4,
+                        height: 17,
+                    },
+                    childTemplates: [{
+                        type: 'Ti.UI.Label',
+                        bindId: 'subtitle',
+                        properties: {
+                            rclass: 'ItemInfoRowSubtitle'
+                        }
+                    }, {
+                        type: 'Ti.UI.Label',
+                        bindId: 'description',
+                        properties: {
+                            rclass: 'ItemInfoRowDescription',
+                            visible: false
+                        }
+                    }]
+                }]
+                // }, {
+                //     type: 'Ti.UI.ImageView',
+                //     bindId: 'image',
+                //     properties: {
+                //         rclass: 'ItemInfoRowImage',
+                //         visible: false
+                //     }
             }, {
                 type: 'Ti.UI.Button',
                 bindId: 'accessory',
@@ -1320,35 +1322,35 @@ function create(_context) {
                 }
             }]
         },
-        admob: {
-            properties: {
-                height: 'SIZE',
-                canEdit: false,
-                canMove: false,
-            },
-            childTemplates: [{
-                type: 'AkylasAdmob.View',
-                bindId: 'admob',
-                properties: {
-                    rclass: 'AdmobViewRow'
-                },
-                // events: {
-                //     load: function(e) {
-                //         if (e.item.loaded !== true) {
-                //             e.section.updateItemAt(e.itemIndex, {
-                //                 loaded: true,
-                //                 properties: {
-                //                     height: 50,
-                //                 }
-                //             }, {
-                //                 animated: true
-                //             });
-                //         }
+        // admob: {
+        //     properties: {
+        //         height: 'SIZE',
+        //         canEdit: false,
+        //         canMove: false,
+        //     },
+        //     childTemplates: [{
+        //         type: 'AkylasAdmob.View',
+        //         bindId: 'admob',
+        //         properties: {
+        //             rclass: 'AdmobViewRow'
+        //         },
+        //         // events: {
+        //         //     load: function(e) {
+        //         //         if (e.item.loaded !== true) {
+        //         //             e.section.updateItemAt(e.itemIndex, {
+        //         //                 loaded: true,
+        //         //                 properties: {
+        //         //                     height: 50,
+        //         //                 }
+        //         //             }, {
+        //         //                 animated: true
+        //         //             });
+        //         //         }
 
-                //     }
-                // }
-            }]
-        },
+        //         //     }
+        //         // }
+        //     }]
+        // },
         settings: {
             properties: {
                 rclass: 'SettingsRow'
@@ -1551,6 +1553,6 @@ function create(_context) {
     return templates;
 }
 
-exports.load = function(_context) {
+exports.load = function (_context) {
     return create(_context);
 };

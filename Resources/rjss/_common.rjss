@@ -104,6 +104,7 @@ FullscreenImageWindow {
 
 MainWindow {
     title:'MAIN_WINDOW',
+    withLoadingIndicator:true,
     backgroundColor:'transparent',
     mainWindow:true,
     navWindow:true

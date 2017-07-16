@@ -26,10 +26,7 @@ declare class SlideMenu extends TiWindow {
     toggleRightView();
     closeViews();
 }
-declare class LeftMenu extends View {
-    constructor(args?);
-    update(_type, _args)
-}
+
 
 declare interface ListEvent<T> {
     item: T,
@@ -42,4 +39,5 @@ declare interface ListEvent<T> {
     listView: ListView,
     bindId?: string
 }
+
 

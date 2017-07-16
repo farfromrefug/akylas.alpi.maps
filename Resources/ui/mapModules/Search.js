@@ -268,7 +268,7 @@ exports.create = function (_context, _args, _additional) {
     }
 
     function instantSearch(_query) {
-        // sdebug('test1', _query, !searchView);
+        sdebug('instantSearch', _query);
         if (!searchView) {
             return;
         }
@@ -294,6 +294,7 @@ exports.create = function (_context, _args, _additional) {
                         items.push(satItem(item, list.desc));
                     });
                 });
+                sdebug('instantItems', instantItems, items);
                 satSection.items = items;
                 satCount = items.length;
                 if (satCount > 0) {

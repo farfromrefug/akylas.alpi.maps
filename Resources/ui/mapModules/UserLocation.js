@@ -24,7 +24,7 @@ exports.create = function(_context, _args, _additional) {
 
     function update(_location) {
         var updateArgs = {};
-        // sdebug('userlocation update', _location);
+        sdebug('userlocation update', _location);
         if (_location) {
             // updateArgs.customView = {
             //     template: 'userLocation',

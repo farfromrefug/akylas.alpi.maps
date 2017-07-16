@@ -2,9 +2,10 @@
   "titanium": {
     "ignores": [
       "**/{.,AUTHOR,COPYING,INSTALL,NEWS,PORTING,CHANGELOG,CONTRIBUTION,ChangeLog,Makefile,README,readme,LICENSE,sample,example,demo,htdocs}*",
-      "**/{obj,obj.target,test,tests,doc,docs,msvc,Xcode}{,/**/*}",
+      "**/{obj,obj.target,test,tests,doc,docs,msvc,Xcode,bin,demo}{,/**/*}",
       "**/*.{o,hprof,orig,pyc,pyo,rbc,swp,sln,dsp,dsw,cmd,vcproj,vcxproj,vcxproj.filters,pdb,exp,obj,lib,md,sh,gypi,gyp,h,cpp,yml,log,tlog,d.ts,Makefile,mk,c,cc,rc,xcodeproj,xcconfig}",
-      "**/node_modules/**/*.html"
+      "**/node_modules/**/*.html",
+      "**/node_modules/{lodash}/*"
     ]
   },
   "devDependencies": {

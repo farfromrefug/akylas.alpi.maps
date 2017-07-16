@@ -1,14 +1,31 @@
+declare interface ModuleSettings {
+    canBeDisabled: boolean
+    description?: string
+    name?: string
+    preferencesSections: {
+        title: string
+        items: {
+            id: string
+            type: string
+            title: string
+            subtitle: string
+            url: string
+        }[]
+    }[]
+}
 class MapModule extends TiEventEmitter {
+    settings?: ModuleSettings
     markers: any
     window: AppWindow
-    parent: any
+    parent: MapWindow
     mapView: MapView
     id: string
-    onModuleAction?: Function
-    canSpreadModuleAction?: Function
-    onModuleLongAction?: Function
-    canSpreadLongModuleAction?: Function
-    onInit?: Function
+    onModuleAction?(args)
+    canSpreadModuleAction?(args)
+    onModuleLongAction?(args)
+    canSpreadLongModuleAction?(args)
+    onInit?()
+    onSettingsClick?(e: any, parentWindow: ModuleWindow)
     GC() {
         this.markers = null;
         this.window = null;

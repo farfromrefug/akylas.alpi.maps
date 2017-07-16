@@ -1,6 +1,7 @@
 declare class LoadingView extends View {
     stopLoading()
     startLoading(args?)
+    holder:View
 }
 ak.ti.constructors.createLoadingView = function(_args) {
 
