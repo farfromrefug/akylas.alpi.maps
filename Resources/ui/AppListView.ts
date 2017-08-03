@@ -7,7 +7,7 @@ declare class AppListView extends ListView {
     doneLoading()
 }
 
-ak.ti.constructors.createAppListView = function(_args) {
+ak.ti.constructors.createAppListView = function (_args?: AKAppListViewParams) {
 
     _args = _args || {};
     var pullToRefresh: PullToRefresh;
@@ -20,11 +20,11 @@ ak.ti.constructors.createAppListView = function(_args) {
     var self = ((_args.isCollection === true) ? new CollectionView(_args) : new ListView(_args)) as AppListView;
 
     let firstLoaded = false;
-    self.update = function() {};
+    self.update = function () { };
 
     if (pullToRefresh) {
         pullToRefresh.setListView(self);
-        app.onDebounce(pullToRefresh, 'pulled', function() {
+        app.onDebounce(pullToRefresh, 'pulled', function () {
             self.showPullView();
             self.update();
         });
@@ -50,11 +50,11 @@ ak.ti.constructors.createAppListView = function(_args) {
     }
 
     let updating = false;
-    self.startLoading = function() {
+    self.startLoading = function () {
         if (updating === true) return;
         updating = true;
     };
-    self.doneLoading = function() {
+    self.doneLoading = function () {
         if (firstLoaded === false) {
             firstLoaded = true;
         }
@@ -66,7 +66,7 @@ ak.ti.constructors.createAppListView = function(_args) {
     };
 
     //END OF CLASS. NOW GC 
-    self.GC = app.composeFunc(self.GC, function() {
+    self.GC = app.composeFunc(self.GC, function () {
         if (pullToRefresh) {
             pullToRefresh.GC();
             pullToRefresh = null;

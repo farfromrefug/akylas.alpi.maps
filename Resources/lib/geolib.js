@@ -1001,7 +1001,7 @@
                 scale: roundMeters,
                 realScale: realMetersPerScreenCM,
             }
-            sdebug('getMapScaleAtZoom', _zoom, pos, mpp, result);
+            // sdebug('getMapScaleAtZoom', _zoom, pos, mpp, result);
             return result;
         },
         /**

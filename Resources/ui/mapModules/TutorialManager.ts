@@ -185,14 +185,16 @@ export class TutorialMgr extends MapModule {
         var result = _.pick(this.tutorials, _.filter(_tuts, (n) => {
             return _force || !_.includes(this.doneTutorials, n);
         }));
-        return result;
+        return result as {
+            [k: string]: Tutorial
+        };
     }
-    showTutorials(_tuts: string[], _force: boolean) {
+    showTutorials(_tuts: string[], _force?: boolean) {
         // console.log('showTutorials');
         if (!this.enabled) {
             return;
         }
-        var views:View[] = _.reduce(this.getTutorials(_tuts, _force), (memo, value, key) => {
+        var views: View[] = _.reduce(this.getTutorials(_tuts, _force), (memo, value, key) => {
             if (value) {
                 memo.push(this.createTutorialView(key, value));
             }

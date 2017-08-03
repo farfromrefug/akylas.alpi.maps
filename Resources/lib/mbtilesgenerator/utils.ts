@@ -7,7 +7,7 @@ var EARTH_RADIUS = 6378.137;
 * @param z
 * @returns {*[]}
 */
-var latLngToTileXYForZoom = function(lat, lng, z) {
+var latLngToTileXYForZoom = function (lat, lng, z) {
     var n = Math.pow(2, z);
     var x = n * ((lng + 180) / 360);
     var latRad = lat * 2 * Math.PI / 360;
@@ -19,7 +19,7 @@ var latLngToTileXYForZoom = function(lat, lng, z) {
  * Compute the area in square kilometers of a lat lng quad.
  * @param b the bounds {left:, bottom:, right:, top:}
  */
-var boundsToArea = function(b) {
+var boundsToArea = function (b) {
     var r2 = Math.pow(EARTH_RADIUS, 2);
     // sdebug('Earth radius is ' + r2);
     // Area of lat bottom to the north-pole
@@ -33,7 +33,7 @@ var boundsToArea = function(b) {
     return a;
 };
 
-var countTiles = function(layer, bounds, minZoom, maxZoom) {
+var countTiles = function (layer, bounds, minZoom, maxZoom) {
 
     var count = 0;
 
@@ -56,11 +56,20 @@ var countTiles = function(layer, bounds, minZoom, maxZoom) {
     return count;
 };
 
-exports.computeInfoForMBTiles = function(layer, bounds, minZoom, maxZoom) {
+
+export interface MBtilesInfo {
+    count: number
+    minZoom: number
+    maxZoom: number
+    area: number
+    size?: number
+    bounds: Region
+}
+export function computeInfoForMBTiles (layer, bounds, minZoom, maxZoom) {
     sdebug('computeInfoForMBTiles', bounds, minZoom, maxZoom);
     minZoom = Math.max(Math.max(1, layer.minZoom || 0), minZoom);
     maxZoom = Math.min(Math.min(22, layer.maxZoom || 22), maxZoom);
-    var result = {
+    var result: MBtilesInfo = {
         area: boundsToArea(bounds), //square kilometers
         count: countTiles(layer, bounds, minZoom, maxZoom),
         bounds: bounds,

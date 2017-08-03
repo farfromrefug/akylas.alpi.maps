@@ -61,5 +61,8 @@
       "**/bin/*",
       "**/test/*"
     ]
+  },
+  "dependencies": {
+    "@types/node": "^8.0.19"
   }
 }

@@ -73,7 +73,7 @@ export class Crosshair extends MapModule {
         _additional.mapPaddedChildren.push(this.view);
         _additional.mapPaddedChildren.push(this.button);
     }
-    onMapRegionChanged?()
+    onMapRegionChanged?(e:MapRegionChangedEvent)
     hide() {
         if (this.visible) {
             this.visible = false;

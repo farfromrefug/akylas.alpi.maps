@@ -1,10 +1,7 @@
 exports.create = function(_context, _args, _additional) {
-    var settings = _args.settings,
-        visible = false,
-        // pinLocation = null,
+    var visible = false,
         selectedItem = null,
         itemHandler = app.itemHandler,
-
         ignorePointEvent = false,
         cancelClick = false,
         actionsVisibleBeforeHide = false,

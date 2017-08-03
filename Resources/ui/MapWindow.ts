@@ -1,6 +1,8 @@
 
+
 declare class MapWindow extends AppWindow {
     childrenHolder: View
+    mapTopToolbar: View
     mpp: number
     setMapFakePadding(name: string, args: TiDict)
     setRegion(_region: MapRegion, _deltaFactor: number, _animated: boolean, _deltaScreen?)
@@ -18,7 +20,7 @@ declare class MapWindow extends AppWindow {
     getMapPadding(_key: string)
     getMapCurrentPadding()
     removeAnnotations(ids)
-    updateUserLocation(_force: boolean)
+    updateUserLocation(_force?: boolean)
     mapViewSnapshot()
     runMethodOnModules(...args)
     runGetMethodOnModules(...args)
@@ -30,37 +32,83 @@ declare class MapWindow extends AppWindow {
 }
 
 
-declare type MapCoordinates = { latitude: number, longitude: number } | number[]
-declare type MapRegion = { latitude: number, longitude: number } | number[]
+declare type MapCoordinates = { latitude: number, longitude: number }
+declare type MapRegion = { sw: MapCoordinates | number[], ne: MapCoordinates | number[] }
+declare type Region = { sw: MapCoordinates, ne: MapCoordinates }
 declare type ObjectPadding = { left?: number, right?: number, top?: number, bottom?: number }
 declare type Padding = ObjectPadding | number[] | number
 
-declare class MapTileSource extends Ti.Proxy {
+
+declare interface MapTileSourceKeys {
+    layer:Provider
+    minZoom?: number
+    maxZoom?: number
+    opacity?: number
+    zIndex?: number
+    autoHd?: boolean
+    cacheable?: boolean
+    visible?: boolean
+    source?: string
+    url: string
+    id: string
+}
+
+declare class MapTileSource extends Ti.Proxy implements MapTileSourceKeys{
+    layer:Provider
+    minZoom?: number
+    maxZoom?: number
+    opacity?: number
+    zIndex?: number
+    autoHd?: boolean
+    cacheable?: boolean
+    visible?: boolean
+    source?: string
+    url: string
+    id: string
+}
+
+
+interface TiLocation {
+    latitude?: number
+    longitude?: number
+    altitude?: number
+    heading?: number
 }
 declare class MapAnnotation extends Titanium.Proxy {
-    image:string
-    minZoom:number
-    maxZoom:number
-    visible:boolean
+    image?: string
+    minZoom?: number
+    maxZoom?: number
+    visible?: boolean
+    latitude: number
+    longitude: number
+    altitude?: number
+    item?:Item
 }
 declare class MapCluster extends MapAnnotation {
     annotations: MapAnnotation[]
-    getAnnotation(index:number):MapAnnotation
+    getAnnotation(index: number): MapAnnotation
     addAnnotation(annotations: MapAnnotation | MapAnnotation[])
     removeAnnotation(annotations: MapAnnotation | MapAnnotation[])
     removeAllAnnotations()
 }
 declare class MapRoute extends MapAnnotation {
+    points: TiLocation[]
+}
+
+declare interface MapUpdateCamParams {
+    region?: Region, centerCoordinate?: MapCoordinates, zoom?: number, animated?:boolean
 }
 declare class MapView extends View {
     defaultCalloutTemplate: string
     region: MapRegion
+    bearing: number
     padding: Padding
     centerCoordinate: MapCoordinates
     clusters: MapCluster[]
     routes: MapRoute[]
     annotations: MapAnnotation[]
-    mapType: string
+    selectedAnnotation: MapAnnotation
+    mapType: number
     calloutUseTemplates: boolean
     userTrackingMode: number
     zoom: number
@@ -74,8 +122,16 @@ declare class MapView extends View {
     addRoute(routes: MapRoute | MapRoute[])
     removeRoute(routes: MapRoute | MapRoute[])
     zoomIn(point: MapCoordinates | titanium.Point)
-    coordinateForPoints(points: titanium.Point[]): MapCoordinates[]
+    coordinateForPoints(points: Array<titanium.Point | number[]>): MapCoordinates[]
     removeAllAnnotations()
+    updateCamera(params: MapUpdateCamParams)
+}
+
+declare interface MapRegionChangedEvent extends TiEvent {
+    region: MapRegion
+    zoom: number
+    mpp: number
+    idle: boolean
 }
 
 ak.ti.constructors.createMapWindow = function (_args) {
@@ -223,7 +279,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
     }
 
     function loadModule(_id, _index, _isContent) {
-        console.debug('loadModule', _id, _index, _isContent);
+        // console.debug('loadModule', _id, _index, _isContent);
         var enabledKey = 'module_' + _id + '_enabled';
         var moduleJS = require((_isContent ? '/contentModules' : '/ui/mapModules') + '/' + _id);
         if (!moduleJS) {
@@ -242,7 +298,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
             }
         }
         var enabled = Ti.App.Properties.getBool(enabledKey, false);
-        sdebug('module', _id, 'enabled', enabled);
+        // sdebug('module', _id, 'enabled', enabled);
         if (!enabled) {
             return;
         }
@@ -303,11 +359,11 @@ ak.ti.constructors.createMapWindow = function (_args) {
         debugView;
 
     _.each(app.mapModules, function (value, index) {
-        sdebug('test mapModules', value, index);
+        // sdebug('test mapModules', value, index);
         loadModule(value, index, false);
     });
     _.each(app.contentModules, function (value, index) {
-        sdebug('test contentModules', value, index);
+        // sdebug('test contentModules', value, index);
         loadModule(value, index, true);
     });
 
@@ -336,7 +392,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
                     Ti.App.Properties.setObject('last_region', e.region);
                 }
 
-                runMethodOnModules('onMapRegionChanged', e);
+                runMethodOnModules('onMapRegionChanged', e as MapRegionChangedEvent);
             },
 
             longpress: function (e) {
@@ -447,7 +503,7 @@ ak.ti.constructors.createMapWindow = function (_args) {
                             postlayout: function (e) {
                                 var parentRect = mapView.rect;
                                 var rect = e.source.rect;
-                                sdebug('mapview postLayout', rect, parentRect);
+                                // sdebug('mapview postLayout', rect, parentRect);
                                 // currentPadding = _.pick(e.source, 'top', 'left', 'bottom', 'right');
                                 self.setMapFakePadding('toolbars', {
                                     left: rect.x,
@@ -560,12 +616,12 @@ ak.ti.constructors.createMapWindow = function (_args) {
             });
         },
         setMapFakePadding: function (_key, _padding, _duration) {
-            sdebug('setMapFakePadding', _key, _padding);
+            // sdebug('setMapFakePadding', _key, _padding);
             fakePaddings[_key] = _padding;
             updatePadding(_duration);
         },
         removeMapFakePadding: function (_key, _duration) {
-            sdebug('removeMapFakePadding', _key);
+            // sdebug('removeMapFakePadding', _key);
             delete fakePaddings[_key];
             updatePadding(_duration);
         },
@@ -586,12 +642,12 @@ ak.ti.constructors.createMapWindow = function (_args) {
             return fakePaddings[_key];
         },
         setMapPadding: function (_key, _padding, _duration) {
-            sdebug('setMapPadding', _key, _padding);
+            // sdebug('setMapPadding', _key, _padding);
             mapPaddings[_key] = _padding;
             updatePadding(_duration);
         },
         removeMapPadding: function (_key, _duration) {
-            sdebug('removeMapPadding', _key);
+            // sdebug('removeMapPadding', _key);
             delete mapPaddings[_key];
             updatePadding(_duration);
         },
@@ -763,8 +819,8 @@ ak.ti.constructors.createMapWindow = function (_args) {
             if (e.searchableItemActivityIdentifier) {
                 var item: {
                     id: string
-                    item:any
-                    desc:any
+                    item: any
+                    desc: any
                 } = runGetSingleMethodOnModules('getItem', {
                     id: e.searchableItemActivityIdentifier
                 });

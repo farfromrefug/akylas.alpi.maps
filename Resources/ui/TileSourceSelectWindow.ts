@@ -1,7 +1,11 @@
-ak.ti.constructors.createTileSourceSelectWindow = function (_args) {
+ak.ti.constructors.createTileSourceSelectWindow = function (_args: WindowParams & {
+    module: TileSourceManager,
+    baseSources: { [k: string]: Provider }
+    overlaySources: { [k: string]: Provider }
+}) {
     var baseSources = _.remove(_args, 'baseSources'),
         queryString = app.utilities.queryString,
-        module: TileSourceManager = _.remove(_args, 'module'),
+        module = _.remove(_args, 'module'),
         overlaySources = _.remove(_args, 'overlaySources');
 
     function maxZoomToString(_zoom) {
@@ -26,7 +30,7 @@ ak.ti.constructors.createTileSourceSelectWindow = function (_args) {
         return trc(result);
     }
 
-    function fillSections(_base) {
+    function fillSections(_base: { [k: string]: Provider }) {
         var region = module.mapView.region;
         var realBase = {
             all: _base
@@ -78,13 +82,13 @@ ak.ti.constructors.createTileSourceSelectWindow = function (_args) {
                 // },
                 // visible: false,
                 // showHeaderWhenHidden: true,
-                items: _.reduce(section, function (items, value: any, key) {
+                items: _.reduce(section, function (items, value, key) {
 
                     var isMbTiles = value.hasOwnProperty('file');
-                    var mbtiles;
+                    var mbtiles: MBTilesProvider;
                     if (isMbTiles) {
-                        mbtiles = value;
-                        value = value.layer;
+                        mbtiles = value as MBTilesProvider;
+                        value = mbtiles.layer;
                         sdebug('mbtiles', mbtiles);
                     }
                     var id = value.id;
@@ -127,9 +131,9 @@ ak.ti.constructors.createTileSourceSelectWindow = function (_args) {
                         realAttribution: value.options && value.options.attribution,
                     };
                     if (mbtiles) {
-                        var url;
+                        var imageUrl;
                         if (mbtiles.bounds) {
-                            var layers = [{
+                            var layers:any = [{
                                 url: value.url && value.url.replace(/&/g, '%26'),
                                 subdomains: value.options && value.options.subdomains,
                                 headers: (value.options && value.options.userAgent && {
@@ -145,20 +149,19 @@ ak.ti.constructors.createTileSourceSelectWindow = function (_args) {
                                     url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
                                 });
                             }
-                            url = queryString({
+                            imageUrl = queryString({
                                 layers: layers,
                                 width: 500,
                                 height: 500,
                                 bounds: mbtiles.bounds,
                             }, app.api.osAPIURL + 'staticmap');
 
-                            sdebug('url', url);
                         } else {
-                            url =
+                            imageUrl =
                                 'http://raw.githubusercontent.com/farfromrefug/akylas.alpi.maps/master/images/tiles/' +
                                 encodeURI(id) + '.png'
                         }
-                        sdebug('image url', url);
+                        sdebug('image url', imageUrl);
                         Object.assign(item, {
                             sourceId: mbtiles.token || mbtiles.id,
                             delete: {
@@ -168,7 +171,7 @@ ak.ti.constructors.createTileSourceSelectWindow = function (_args) {
                                 text: module.mbTilesSubTitle(mbtiles, true)
                             },
                             imageView: {
-                                image: url
+                                image: imageUrl
                             },
                             subtitle: {
                                 text: item.subtitle.text + '\n' + module.mbTilesTitle(mbtiles)
@@ -197,7 +200,7 @@ ak.ti.constructors.createTileSourceSelectWindow = function (_args) {
 
     }
 
-    function createSearchListView(_title, _base, _isOverlay = false) {
+    function createSearchListView(_title: string, _base: { [k: string]: Provider }, _isOverlay = false) {
 
         var sections = fillSections(_base);
         // var index = 0;
@@ -425,19 +428,7 @@ ak.ti.constructors.createTileSourceSelectWindow = function (_args) {
                 //         right: 8
                 //     }
             }]
-        },
-        bottomToolbar: app.shouldShowAds() ? ak.ti.style({
-            type: 'AkylasAdmob.View',
-            properties: {
-                rclass: 'AdmobView',
-                // location: app.currentLocation
-            },
-            events: {
-                load: function (e) {
-                    self.showBottomToolbar();
-                }
-            }
-        }) : undefined
+        }
     });
     var navWindow = new AppWindow(_args);
 

@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@mapbox/tilebelt": "^1.0.1",
     "tinycolor2": "^1.4.1"
   }
 }

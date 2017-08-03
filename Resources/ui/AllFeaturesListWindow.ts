@@ -1,6 +1,8 @@
-ak.ti.constructors.createAllFeaturesListWindow = function (_args) {
+ak.ti.constructors.createAllFeaturesListWindow = function (_args?: WindowParams & {
+    lists?: ItemList[]
+}) {
     var lists: ItemList[] = _.flatten(_.remove(_args, 'lists')),
-        mapHandler: MapWindow = _.remove(_args, 'mapHandler');
+        mapHandler = _.remove(_args, 'mapHandler');
 
     function getSectionKey(_list) {
         var desc = _.isObject(_list.description) ? _list.description : _list;
@@ -80,23 +82,6 @@ ak.ti.constructors.createAllFeaturesListWindow = function (_args) {
         defaultItemTemplate: 'default',
         sections: _.sortBy(sections, ['lists', 'items'])
     };
-
-    //ADMOB
-    if (app.shouldShowAds()) {
-        _args.bottomToolbar = ak.ti.style({
-            type: 'AkylasAdmob.View',
-            properties: {
-                rclass: 'AdmobView',
-                location: app.currentLocation
-            },
-            events: {
-                load: function (e) {
-                    self.showBottomToolbar();
-                }
-            }
-        });
-    }
-    //ADMOB
 
     var self = new AppWindow(_args);
 

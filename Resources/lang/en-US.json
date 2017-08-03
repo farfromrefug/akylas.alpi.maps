@@ -59,4 +59,5 @@
     "fr":"french",
     "en":"english",
     "ptl_desc":"experimental module. Provides information upon map click. The data is available online and offline.",
+    "location_permission_desc":"The app needs location permissions. Please grant this permission to continue using the features of the app."
 }

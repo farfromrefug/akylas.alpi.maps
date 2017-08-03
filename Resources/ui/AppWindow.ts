@@ -6,7 +6,11 @@ declare class Container extends View {
 }
 
 declare class AppWindow extends BaseWindow {
-    customNavBar: Boolean
+    manager:MainWindow
+    showLeftMenuButton: boolean
+    customNavBar: boolean
+    androidDontUseNavWindow: boolean
+    customModal: boolean
     createManagedWindow(constructor, args)
     showTopToolbar()
     hideTopToolbar()
@@ -19,9 +23,9 @@ declare class AppWindow extends BaseWindow {
     updateTitle(title: string, subtitle?: string)
     runPromise<T>(p: Promise<T>): Promise<T>
     cancelRunningRequest()
-    topToolbarVisible: Boolean
-    bottomToolbarVisible: Boolean
-    withLoadingIndicator: Boolean
+    topToolbarVisible: boolean
+    bottomToolbarVisible: boolean
+    withLoadingIndicator: boolean
     container: Container
     window: AppWindow
     listView: AppListView
@@ -32,7 +36,7 @@ declare class AppWindow extends BaseWindow {
     onLogout?()
 }
 
-ak.ti.constructors.createAppWindow = function (_args) {
+ak.ti.constructors.createAppWindow = function (_args:WindowParams) {
     var bottomToolbarHolder,
         realContainer,
         hasContentLoading = false;
@@ -463,7 +467,7 @@ ak.ti.constructors.createAppWindow = function (_args) {
         self.loadingView = new LoadingView(_args.loadingViewArgs);
         self.addPropertiesToGC('loadingView');
         self.showLoading = function (_args, _animated?) {
-            if (loadingShowing) {
+            if (!self || loadingShowing) {
                 return;
             }
             _args = _args || {};
@@ -506,7 +510,7 @@ ak.ti.constructors.createAppWindow = function (_args) {
         };
 
         self.hideLoading = function () {
-            if (!loadingShowing) {
+            if (!self || !loadingShowing) {
                 return;
             }
             loadingShowing = false;

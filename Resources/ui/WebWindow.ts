@@ -1,5 +1,6 @@
-ak.ti.constructors.createWebWindow = function(_args) {
-	_args = _args || {};
+ak.ti.constructors.createWebWindow = function(_args:WindowParams & {
+	url:string
+}) {
 	_args.title = _args.title || ' ';
 	var floating = _args.floating === true,
 		imageLink, note,
@@ -429,7 +430,9 @@ ak.ti.constructors.createWebWindow = function(_args) {
 				backgroundColor: $.cTheme.dark
 			}
 		}]
-	});
+	}) as View & {
+		progress:View
+	};
 	self.container.navBar.add(loadingIndicatorView, 0);
 
 	var hideLoadingTimer, loaded, currentTitle;

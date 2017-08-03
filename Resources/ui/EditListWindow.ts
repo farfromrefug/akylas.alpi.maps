@@ -1,4 +1,6 @@
-ak.ti.constructors.createEditListWindow = function (_args) {
+ak.ti.constructors.createEditListWindow = function (_args?: WindowParams & {
+    list?: ItemList
+}) {
     var list = _.remove(_args, 'list'),
         currentItem = _.remove(_args, 'item'),
         mapHandler = _.remove(_args, 'mapHandler'),

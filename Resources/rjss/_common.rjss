@@ -51,28 +51,44 @@ CustomAlertView {
     returnKeyType:Ti.UI.RETURNKEY_DONE
 }
 
-
 FullscreenImageWindow {
-    orientationModes:[Ti.UI.UPSIDE_PORTRAIT, Ti.UI.PORTRAIT, Ti.UI.LANDSCAPE_LEFT, Ti.UI.LANDSCAPE_RIGHT],
-    navBarHidden:true,
+    orientationModes:[Ti.UI.UPSIDE_PORTRAIT,
+    Ti.UI.PORTRAIT,
+    Ti.UI.LANDSCAPE_LEFT,
+    Ti.UI.LANDSCAPE_RIGHT],
+    customNavBar:false,
     dontElevateTopBar:true,
     fullscreen:true,
     verticalContainer:false,
     backgroundColor:'transparent',
+    bottomToolbarRclass:'BottomToolbar',
     modal:false,
-    winOpeningArgs:{
-        from:{
+    winOpeningArgs: {
+        from: {
             opacity: 0,
-        },
-        to:{
+        }
+        ,
+        to: {
             opacity: 1,
-        },
-        duration: 300
-    },
-    winClosingArgs:{
-        opacity: 0,
+        }
+        ,
         duration: 300
     }
+    ,
+    winClosingArgs: {
+        opacity: 0, duration: 300
+    }
+}
+
+.ImageWindowImageView {
+    transition: {
+        style: Ti.UI.TransitionStyle.FADE
+    }
+    ,
+    localLoadSync:false,
+    onlyTransitionIfRemote: false,
+    width:'FILL',
+    height:'FILL'
 }
 
 

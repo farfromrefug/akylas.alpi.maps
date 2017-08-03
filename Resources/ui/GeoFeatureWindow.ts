@@ -7,7 +7,7 @@ declare class SectionHeaderView extends View {
     gfheader: View
 }
 
-ak.ti.constructors.createGeoFeatureWindow = function (_args) {
+ak.ti.constructors.createGeoFeatureWindow = function (_args:WindowParams) {
     var itemHandler = app.itemHandler,
         geolib = itemHandler.geolib,
         formatter = geolib.formatter,
@@ -15,7 +15,7 @@ ak.ti.constructors.createGeoFeatureWindow = function (_args) {
         htmlIcon = app.utilities.htmlIcon,
         htmlColor = app.utilities.htmlColor,
         mapHandler = _.remove(_args, 'mapHandler'),
-        currentItem: Item,
+        currentItem: Item | Route,
         itemDesc: ItemType,
         isRoute: boolean,
         ohInfos,
@@ -228,11 +228,6 @@ ak.ti.constructors.createGeoFeatureWindow = function (_args) {
         };
         var items: TiDict[] = [geoItem].concat(mapHandler.runGetMethodOnModules('getItemSupplViews', currentItem, itemDesc));
 
-        // if (app.shouldShowAds()) {
-        //     items.unshift({
-        //         template: 'admob',
-        //     });
-        // }
         if (currentItem.description) {
             items.push(createTextItem({
                 callbackId: 'description',
@@ -249,7 +244,7 @@ ak.ti.constructors.createGeoFeatureWindow = function (_args) {
             };
 
             title = trc('query_profile');
-            hasValue = !!currentItem.profile;
+            hasValue = !!(currentItem as Route).profile;
             if (!hasValue) {
                 items.push(createItem({
                     text: title,
@@ -1016,14 +1011,13 @@ ak.ti.constructors.createGeoFeatureWindow = function (_args) {
             .off(__ITEMS__ + 'Moved', onMoved)
             .off(__ITEMS__ + 'Removed', onRemoved)
             .off('ItemSupplyViewUpdate', onItemSupplyViewUpdate);
-        app.showInterstitialIfNecessary();
     });
 
     self.handleArgs = function (_args) {
         mapHandler = _.remove(_args, 'mapHandler', mapHandler);
         currentItem = _.remove(_args, 'item', currentItem);
         itemDesc = _.remove(_args, 'itemDesc', itemDesc);
-        isRoute = currentItem && !!currentItem.route;
+        isRoute = currentItem && currentItem.hasOwnProperty('route');
         // if (currentItem) {
         //     setDataFromItem();
         // }

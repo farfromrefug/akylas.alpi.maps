@@ -1,9 +1,9 @@
 
 import * as process from 'process'
 
-interface MetaData  {
+interface MetaData {
     [k: string]: any
-    file: Titanium.FileSystem.File
+    file: titanium.FilesystemFile
     bounds?: { sw: { latitude: number, longitude?: number }, ne: { latitude: number, longitude?: number } }
 }
 
@@ -20,6 +20,7 @@ require('lib/moment-duration-format');
 const OpeningHours = require('lib/opening_hours');
 
 import { AKApp } from './akylas.commonjs.dev/AkInclude/App'
+import { ItemHdlr } from './lib/itemHandler'
 import * as Color from 'tinycolor2';
 declare global {
     var Color: Color;
@@ -65,24 +66,6 @@ export function getContrastColors(_color): ContrastColor {
     };
     return result;
 }
-export function showMessage(_text, _colors?) {
-    var args: any = {
-        text: _text,
-    };
-    if (_colors && _colors.color) {
-        args.backgroundColor = _colors.color;
-        args.color = _colors.contrast;
-    } else {
-        args.backgroundColor = _colors || $.cTheme.main;
-    }
-    if (__APPLE__) {
-        app.modules.statusbarnotification.showMessage(args);
-    } else {
-        Ti.UI.showSnackbar(Object.assign(args, {
-            gravity: 48
-        }));
-    }
-}
 var dataDir = Ti.Filesystem.applicationDataDirectory;
 var paths = {};
 _.each(['images', 'files', 'mbtiles'], function (key) {
@@ -109,9 +92,8 @@ declare global {
 }
 export class App extends AKApp {
     ui: WindowManager
-    templates: { view: TemplateModule, row: TemplateModule }
+    templates: { view: ViewTemplates, row: RowTemplates }
     api: any
-    showAds = Ti.App.Properties.getBool('show_ads', true)
     offlineMode = false
     servicesKeys = require('API_KEYS').keys
     utilities: Utils = require('lib/utilities')
@@ -126,6 +108,8 @@ export class App extends AKApp {
                 charts2: 'akylas.charts2',
                 paint: 'ti.paint',
                 zoomableimage: 'akylas.zoomableimage',
+                opencv: 'akylas.opencv',
+                motion: 'akylas.motion',
                 ios: {
                     wikitude: 'com.wikitude.ti',
                 },
@@ -221,7 +205,24 @@ export class App extends AKApp {
             console.log('errorToString error', err);
         }
     }
-    showMessage = showMessage
+    showMessage(_text, _colors?) {
+        var args: any = {
+            text: _text,
+        };
+        if (_colors && _colors.color) {
+            args.backgroundColor = _colors.color;
+            args.color = _colors.contrast;
+        } else {
+            args.backgroundColor = _colors || $.cTheme.main;
+        }
+        if (__APPLE__) {
+            app.modules.statusbarnotification.showMessage(args);
+        } else {
+            Ti.UI.showSnackbar(Object.assign(args, {
+                gravity: 48
+            }));
+        }
+    }
     tutorial = Ti.App.Properties.getBool('tutorial', true)
     icons = _.mapValues(require('data/icons')
         .icons,
@@ -295,7 +296,7 @@ export class App extends AKApp {
     texts: { [key: string]: string }
     utils: { [key: string]: any }
     locationManager = require('lib/locationManager').create(this)
-    itemHandler: any
+    itemHandler: ItemHandler
     tempMetrics = false
     setMetrics = (_value) => {
         if (this.utils.geolib.metrics !== _value) {
@@ -340,13 +341,7 @@ export class App extends AKApp {
     openingHours(_value, _args) {
         return new OpeningHours(_value, _args, 2);
     }
-    shouldShowAds() {
-        // sdebug('shouldShowAds', app.showAds, app.offlineMode);
-        return false;
-        // return !__DEVELOPMENT__ && app.showAds && !app.offlineMode && app.api.networkConnected;
-        // return app.showAds && !app.offlineMode && app.api.networkConnected;
-    }
-    currentLocation: { latitude: number, longitude: number }
+    currentLocation: Location
     setCurrentLocation = (e) => {
         // sdebug('setCurrentLocation', e);
         var coords = e.coords;
@@ -440,23 +435,6 @@ export class App extends AKApp {
         function (value) {
             return value.slice(0, -3);
         })
-    showInterstitialIfNecessary() {
-        // if (app.showAds) {
-        // var interstitialTimingCount = 0;
-        // var interstitial = new Interstitial();
-
-        // app.showInterstitialIfNecessary = function() {
-        //     interstitialTimingCount++;
-        //     if (app.shouldShowAds() && interstitialTimingCount % 6 === 0) {
-        //         sdebug('showInterstitial');
-        //         if (interstitial.loaded) {
-        //             interstitial.show();
-        //         } else {
-        //             interstitial.load();
-        //         }
-        //     }
-        // };
-    };
     tutorialManager: TutorialManager
     showTutorials(args) {
         if (this.tutorialManager) {
@@ -464,12 +442,12 @@ export class App extends AKApp {
         }
 
     }
-    
-    handleCustomMbTile(files: Ti.Filesystem.File[]) {
+
+    handleCustomMbTile(files: titanium.FilesystemFile[]) {
         const destPath = Ti.Filesystem.getFile();
         return Promise.all(files.map(file => {
             return new Promise<MetaData>(function (resolve, reject) {
-                var db = Ti.Database.open(file);
+                var db = Ti.Database.open(file.nativePath);
                 var rows = db.execute('SELECT name,value FROM metadata');
                 var metadata: MetaData = { file: file };
                 var value, name;
@@ -493,6 +471,16 @@ export class App extends AKApp {
                 rows.close();
                 db.close();
                 resolve(metadata)
+            }).then(metadata => {
+                if (!metadata.hasOwnProperty('minZoom') || !metadata.hasOwnProperty('maxZoom')) {
+                    var db = Ti.Database.open(file.nativePath);
+                    var result = db.execute('SELECT min(zoom_level) as min_zoom, max(zoom_level) as max_zoom FROM tiles');
+                    const minZoom = result.field(0);
+                    const maxZoom = result.field(1);
+                    result.close();
+                    db.close();
+                }
+                return metadata;
             }).then(metadata => {
                 var bounds = metadata.bounds;
                 var center = app.utils.geolib.getCenter([bounds.sw, bounds.ne]);
@@ -558,7 +546,7 @@ app.texts = {
     'BY-SA 2.0</font></small>'
 };
 app.api = require('lib/api').init(this)
-app.itemHandler = require('lib/itemHandler')
+app.itemHandler = new ItemHdlr();
 app.modules.map.googleMapAPIKey = app.servicesKeys.google;
 
 app.setMetrics(Ti.App.Properties.getBool('distance_metric', true));
@@ -642,20 +630,11 @@ function showRatingAlert() {
     });
     dialog.show();
 }
-/// !RATING
 
-/// !ADMOB
-
-// }
 Ti.App.on('resume', function (e) {
-    appRatingTimingCount++;
-    if (shouldShowRatingAlert && appRatingTimingCount % 10 === 0) {
-        showRatingAlert();
-    }
-    // app.showInterstitialIfNecessary();
+    app.api.updateNetwork();
 });
 
-/// !ADMOB
 app.ui.slidemenu.once('open', function () {
     Ti.App.emit('resume');
 });
@@ -668,6 +647,9 @@ process.on("unhandledRejection", (reason, promise) => {
 
 app.api.on('error', function (err) {
     app.emit('error', { error: err });
+});
+Ti.App.on('error', function (e) {
+    app.emit('error', e);
 });
 app.on('error', function (e) {
     if (!e.error) {
@@ -685,7 +667,7 @@ app.on('error', function (e) {
             message: errorMessage
         });
     } else {
-        showMessage(errorMessage, app.colors.red);
+        app.showMessage(errorMessage, app.colors.red);
     }
     // }
 });
@@ -761,13 +743,13 @@ if (app.modules.plcrashreporter) {
     //     app.modules.plcrashreporter.triggerCrash();
     // }, 5000);
 }
-sdebug('Google Maps SDK', app.modules.map.googleMapSDKVersion);
+// sdebug('Google Maps SDK', app.modules.map.googleMapSDKVersion);
 
 var inMbTiles = [], folder, dirList;
 if (__ANDROID__) {
     folder = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory);
     var dirList = folder.getDirectoryListing();
-    console.log('files', folder.nativePath, dirList)
+    // console.log('files', folder.nativePath, dirList)
     if (dirList) {
         inMbTiles = inMbTiles.concat(dirList.filter(s => s.endsWith('.mbtiles')).map(f => Ti.Filesystem.getFile(folder.nativePath, f)));
     }
@@ -776,13 +758,13 @@ if (__ANDROID__) {
 if (__APPLE__) {
     folder = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'Inbox');
     dirList = folder.getDirectoryListing();
-    console.log('files', folder.nativePath, dirList)
+    // console.log('files', folder.nativePath, dirList)
     if (dirList) {
         inMbTiles = inMbTiles.concat(dirList.filter(s => s.endsWith('.mbtiles')).map(f => Ti.Filesystem.getFile(folder.nativePath, f)));
     }
     folder = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory);
     var dirList = folder.getDirectoryListing();
-    console.log('files', folder.nativePath, dirList)
+    // console.log('files', folder.nativePath, dirList)
     if (dirList) {
         inMbTiles = inMbTiles.concat(dirList.filter(s => s.endsWith('.mbtiles')).map(f => Ti.Filesystem.getFile(folder.nativePath, f)));
     }
@@ -796,3 +778,11 @@ if (__APPLE__) {
 if (inMbTiles.length > 0) {
     app.handleCustomMbTile(inMbTiles);
 }
+
+if (app.modules.motion.hasBarometer) {
+    console.log('hasBarometer');
+    app.modules.motion.once('pressure', function (e) {
+        console.log(e);
+    })
+}
+

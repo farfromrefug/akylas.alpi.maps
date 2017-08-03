@@ -149,7 +149,6 @@ ak.ti.constructors.createModulesWindow = function (_args) {
     // }
 
     function handlePropertyChange(_moduleId, _id, _value) {
-        sdebug('handlePropertyChange', _moduleId, _id, _value);
         Ti.App.Properties.setObject('module_' + _moduleId + '_' + _id, _value);
 
 
@@ -212,6 +211,44 @@ ak.ti.constructors.createModulesWindow = function (_args) {
         return sections;
     }
 
+    function handleClickOrChange(_id, module, win, e) {
+        if (!e.item) {
+            return;
+        }
+        var callbackId = (e.item && e.item.callbackId) || e.bindId,
+            currentValue;
+        sdebug(callbackId, e.item, e.value);
+        switch (callbackId) {
+            case 'link':
+                self.manager.createAndOpenWindow('WebWindow', {
+                    title: e.item.title.text,
+                    url: e.item.url
+                });
+                break;
+            default:
+                if (e.item.template === 'switch' && e.item.callbackId == 'enabled') {
+                    var newValue = e.hasOwnProperty('value') ? e.value : !e.item.switch.value;
+                    var settings = modules[_id].settings;
+                    if (_.isFunction(settings)) {
+                        app.once(newValue ? 'module_loaded' : 'module_unloaded', function () {
+                            win.listView.sections = getSections(_id, newValue, settings);
+                        });
+                    }
+                    handlePropertyChange(_id, e.item.callbackId, newValue);
+                    e.section.updateItemAt(e.itemIndex, {
+                        switch: {
+                            value: newValue
+                        },
+                    });
+                    return;
+                }
+                else if (_.isFunction(module.onSettingsClickOrChange)) {
+                    module.onSettingsClickOrChange(e, self);
+                }
+                break;
+        }
+    }
+
     function showModulesSetting(_id: string) {
         var enabled = Ti.App.Properties.getBool('module_' + _id + '_enabled', false);
         var module = modules[_id];
@@ -231,44 +268,10 @@ ak.ti.constructors.createModulesWindow = function (_args) {
             },
             events: {
                 change: function (e) {
-                    handlePropertyChange(_id, e.item.callbackId, e.value);
+                    handleClickOrChange(_id, module, win, e);
                 },
                 click: app.debounce(function (e) {
-                    if (!e.item) {
-                        return;
-                    }
-                    var callbackId = (e.item && e.item.callbackId) || e.bindId,
-                        currentValue;
-                    sdebug(callbackId, e.item, e.value);
-                    switch (callbackId) {
-                        case 'link':
-                            self.manager.createAndOpenWindow('WebWindow', {
-                                title: e.item.title.text,
-                                url: e.item.url
-                            });
-                            break;
-                        default:
-                            if (e.item.template === 'switch' && e.item.callbackId == 'enabled') {
-                                var newValue = !e.item.switch.value;
-                                handlePropertyChange(_id, e.item.callbackId, newValue);
-                                var settings = modules[_id].settings;
-                                if (_.isFunction(settings)) {
-                                    app.once(newValue ? 'module_loaded' : 'module_unloaded', function () {
-                                        win.listView.sections = getSections(_id, newValue, settings);
-                                    });
-                                }
-                                e.section.updateItemAt(e.itemIndex, {
-                                    switch: {
-                                        value: newValue
-                                    },
-                                });
-                                return;
-                            }
-                            if (_.isFunction(module.onSettingsClick)) {
-                                module.onSettingsClick(e, self);
-                            }
-                            break;
-                    }
+                    handleClickOrChange(_id, module, win, e)
                 })
             }
         });
@@ -276,7 +279,7 @@ ak.ti.constructors.createModulesWindow = function (_args) {
     }
 
     function addModule(_isContent, memo, moduleKey) {
-        sdebug('addModule', moduleKey, _isContent);
+        // sdebug('addModule', moduleKey, _isContent);
         var module = modules[moduleKey] = require((_isContent ? '/contentModules' : '/ui/mapModules') + '/' + moduleKey);
         var settings = module.settings;
         var enabled = Ti.App.Properties.getBool('module_' + moduleKey +

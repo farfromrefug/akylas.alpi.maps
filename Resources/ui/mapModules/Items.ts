@@ -1,35 +1,46 @@
 declare global {
     interface ItemType {
-        id: string
-        title: string
+        id?: string
+        title?: string
+        defaultTitle?: string
         description?: string
         icon?: string
         color?: string
+        defaultColor?: string
         textColor?: string
         visible?: boolean
-        propertyKey: string
-        image: string
-        selectedImage: string
+        propertyKey?: string
+        image?: string
+        selectedImage?: string
         hidden?: boolean
         settings?: {
             geofeature?: boolean
         }
+        options?: any
+        iconSettings?: IconSettings
         apiMethod?()
         osm?: boolean
-        getPrefKey(suffix: string)
+        getPrefKey?(suffix: string)
         colors?: ContrastColor
         rclass?: string
         apiParams?: any
+        isList?: boolean
         calloutAnchorPoint?: [number, number]
     }
+    interface RouteType extends ItemType {
+        routeColor?: string
+        routeSelectedColor?: string
+    }
     interface ItemList extends ItemType {
-        isList: boolean
-        canBeHidden: boolean
-        defaultTitle: string
+        isList?: boolean
+        canBeHidden?: boolean
+        defaultTitle?: string
     }
     interface ItemPhoto {
         image: string
-        thumbnailImage: string
+        url?: string
+        thumbnailImage?: string
+        originalLink?: string
         width?: number
         height?: number
         attribution?: {
@@ -47,10 +58,24 @@ declare global {
         fileSize: number
         fileName?: string
     }
-    interface Item {
-        id: string
-        type: string
+    interface ItemNote {
         title: string
+        text?: string
+    }
+
+    interface IconSettings {
+        style?: number
+        scale?: number
+    }
+    interface ItemAddress {
+        [k: string]: any, display_name: string, address?: { [k: string]: string }
+    }
+    interface Item extends TiLocation {
+        settings?: any
+        id?: string
+        type?: string
+        title?: string
+        customTitle?: string
         description?: string
         image?: string
         icon?: string
@@ -58,24 +83,42 @@ declare global {
         selectedImage?: string
         photos?: ItemPhoto[]
         files?: ItemFile[]
-        latitude: number
-        longitude: number
-        altitude: number
+        customView?: TiDict
         tags?: { [k: string]: any }
-        address?: { display_name: string }
-        profile?: {}
-        route?: {}
-        notes?: {
-            title: string
-            text?: string
-        }[]
+        address?: ItemAddress
+        iconSettings?: IconSettings
+        notes?: ItemNote[]
+        osm?: {
+            subtype?: string
+        }
+    }
+    interface RouteRoute {
+        points?: TiLocation[]
+        encoded?: boolean
+        overview_points?: string
+        distance?: number
+        region:Region
+    }
+    interface RouteProfile {
+        dmin?: number
+        dplus?: number
+    }
+    interface Route extends Item {
+        route_mode?: string
+        startOnRoute?: boolean
+        endOnRoute?: boolean
+        start?: TiLocation
+        end?: TiLocation
+        points?: TiLocation[]
+        route?: RouteRoute
+        waypoints?: string[]
+        profile?: RouteProfile
     }
     interface RowItem extends titanium.ListDataItem {
-        searchableText: string
+        searchableText?: string
         icon: {
             text: string
             color: string
-
         }
         title: {
             text: string
@@ -138,7 +181,7 @@ export class Items extends MapModule {
     __routes = {}
     __clusters: { [k: string]: MapCluster } = {}
     __currentIds: { [k: string]: { [k: string]: string[] } } = {}
-    itemHandler = app.itemHandler
+    itemHandler:ItemHandler = app.itemHandler
     geolib = app.itemHandler.geolib
     formatter = app.itemHandler.geolib.formatter
     cleanUpString = app.api.cleanUpString
@@ -431,7 +474,7 @@ export class Items extends MapModule {
                     }
                 });
                 if (newPhotos) {
-                    Ti.App.Properties.setObject('photos', this.photoDb);
+                    Ti.App.Properties.setObject('photos', this.photosDb);
                 }
                 if (annots.length > 0) {
                     // sdebug('about to add annotations', annots);
@@ -822,9 +865,8 @@ export class Items extends MapModule {
                             sdebug(_params.command, _params.item);
                             if (_params.item) {
                                 var isRoute = this.isItemARoute(_params.item);
-                                var item = this.itemHandler[isRoute ? 'createRouteItem' :
-                                    'createAnnotItem'](
-                                    type, _params.item);
+                                let func = isRoute?this.itemHandler.createRouteItem : this.itemHandler.createAnnotItem;
+                                var item = func(type, _params.item);
                                 this.addItems([item]);
                             } else {
                                 return false;
@@ -1218,7 +1260,7 @@ export class Items extends MapModule {
                     // }
                     // }
                 });
-                console.log('test', result);
+                // console.log('test', result);
                 return result;
             }
             // return ;
@@ -1342,7 +1384,7 @@ export class Items extends MapModule {
             }), newListType.colors);
 
     }
-    onChanged(e: ItemChangedEvent) {
+    onChanged = (e: ItemChangedEvent) => {
         var item = e.item;
         var type = this.__types[item.type];
         if (type) {
@@ -1461,7 +1503,7 @@ export class Items extends MapModule {
             if (_changes.hasOwnProperty('color') || _changes.hasOwnProperty('icon')) {
                 type.colors = app.getContrastColors(type.color);
                 type.image = this.itemHandler.getAnnotImage(type);
-                type.selectedImage = this.itemHandler.getAnnotImage(type, true);
+                type.selectedImage = this.itemHandler.getAnnotImage(type, undefined, true);
                 ak.ti.redux.fn.setDefault('.' + type.rclass, {
                     // image: app.getImagePath(type.image),
                     type: type,

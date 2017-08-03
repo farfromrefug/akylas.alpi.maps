@@ -101,7 +101,7 @@
     </ios>
     <theme>BaseTheme</theme>
     <android xmlns:android="http://schemas.android.com/apk/res/android">
-        <manifest android:installLocation="auto" android:versionCode="74">
+        <manifest android:installLocation="auto" android:versionCode="82">
             <uses-sdk android:minSdkVersion="13" android:targetSdkVersion="23" />
             <uses-feature android:name="android.hardware.location.gps" />
             <application android:hardwareAccelerated="true">
@@ -126,11 +126,13 @@
         <module>akylas.charts2</module>
         <!--<module>akylas.admob</module>-->
         <module>akylas.zoomableimage</module>
+        <module>akylas.motion</module>
         <module>ti.paint</module>
         <module platform="iphone">com.wikitude.ti</module>
         <module platform="iphone">akylas.statusbarnotification</module>
         <module platform="iphone">akylas.plcrashreporter</module>
         <module platform="android">akylas.connectiq</module>
+        <module>akylas.opencv</module>
     </modules>
     <deployment-targets>
         <target device="tizen">false</target>

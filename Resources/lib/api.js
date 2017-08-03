@@ -426,11 +426,14 @@ function createApi(_context) {
             promise.request = client;
             return promise;
         },
-        updateNetwork: function () {
+        updateNetwork: function (e) {
+            console.log(e);
             var type = Titanium.Network.networkType;
             var newConnected = (type === Ti.Network.NETWORK_MOBILE || type === Ti.Network.NETWORK_WIFI);
+
+            console.log('updateNetwork', type, api.networkConnected, newConnected);
             if (newConnected != api.networkConnected) {
-                sdebug('updateNetwork ' + newConnected);
+                sdebug('updateNetwork', newConnected);
                 api.networkConnected = newConnected;
                 api.emit('networkchange', {
                     connected: api.networkConnected
@@ -1212,7 +1215,7 @@ function createApi(_context) {
                         error: e.info.messages.join(', ')
                     });
                     // onError({
-                        
+
                     // }, function (err) {
                     //     throw err
                     // });
@@ -1669,7 +1672,7 @@ function createApi(_context) {
             }).then(function (e) {
                 if (e.file) {
                     var matches = _url.match(/(https?:\/\/|www\.?)(www\.)?([^\/\s]+)/);
-                    sdebug('test', matches);
+                    // sdebug('test', matches);
                     var title = _.last(matches);
                     var parts = title.split('.');
                     if (parts.length > 1) {

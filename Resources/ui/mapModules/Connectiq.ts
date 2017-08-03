@@ -4,7 +4,7 @@ var connectIqModule;
 
 function selectDevice(callback) {
     var devices = app.modules.connectiq.getKnownDevices();
-    console.log('devices', devices);
+    // console.log('devices', devices);
     if (!devices) {
         return;
     }
@@ -24,7 +24,7 @@ function selectDevice(callback) {
         }
     }).bind(this)).show();
 }
-export function onSettingsClick(e) {
+export function onSettingsClickOrChange(e) {
     var callbackId = (e.item && e.item.callbackId) || e.bindId;
     switch (callbackId) {
         case 'connect':
@@ -112,7 +112,7 @@ class ConnectIqModule extends MapModule {
     }
     createApp = () => {
         if (!this.app) {
-            console.log('creating app');
+            // console.log('creating app');
             this.app = app.modules.connectiq.createApp({
                 id: this.deviceId,
                 appId: CIQ_APP_UUID
@@ -131,7 +131,7 @@ class ConnectIqModule extends MapModule {
         Ti.Media.vibrate();
         try {
             let toParse = e.data[0].split('=>').join(':');
-            console.log('toParse', toParse);
+            // console.log('toParse', toParse);
 
             let json = JSON.parse(toParse);
             app.setCurrentLocation({
@@ -152,13 +152,13 @@ class ConnectIqModule extends MapModule {
         }
     }
     onSDKInit = (err) => {
-        console.log('connectiq', 'init', err)
+        // console.log('connectiq', 'init', err)
         if (err) {
             app.emit('error', err);
             return;
         }
         iqsdkReady = true;
-        console.log('connectiq', 'init done', iqsdkReady, CIQ_APP_UUID)
+        // console.log('connectiq', 'init done', iqsdkReady, CIQ_APP_UUID)
         if (this.deviceId != -1) {
             this.createApp();
         }

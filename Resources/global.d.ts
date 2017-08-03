@@ -40,4 +40,9 @@ declare interface ListEvent<T> {
     bindId?: string
 }
 
-
+declare interface WindowParams extends AKWindowParams {
+    item?: Item
+    itemDesc?: ItemType
+    itemHandler?: ItemHandler
+    mapHandler?: MapWindow
+}

@@ -2,18 +2,17 @@
 declare class MultiSelectView extends View {
     children: Label[]
 }
-ak.ti.constructors.createItemsListWindow = function (_args) {
-    var htmlIcon = app.utilities.htmlIcon,
+ak.ti.constructors.createItemsListWindow = function (_args:WindowParams) {
+    let htmlIcon = app.utilities.htmlIcon,
         mapHandler = _.remove(_args, 'mapHandler'),
         itemHandler = app.itemHandler,
         infoRowItemForItem = itemHandler.infoRowItemForItem,
         updateParamsForLocation = itemHandler.updateParamsForLocation,
         desc = _.remove(_args, 'itemDesc'),
-        items: RowItem[],
-        // formatLatLng = app.utilities.formatLatLng,
-        editing,
+        items: Item[],
+        editing:boolean,
         selectedItems: { [k: string]: boolean } = {},
-        selectedItemIndexes,
+        selectedItemIndexes:string[],
         isCollection = false;
 
     // }
@@ -22,11 +21,11 @@ ak.ti.constructors.createItemsListWindow = function (_args) {
             return;
         }
         editing = _editing;
-        sdebug('setEditing', editing);
+        // sdebug('setEditing', editing);
         if (!editing && __ANDROID__) {
-            sdebug('test', selectedItems);
+            // sdebug('t est', selectedItems);
             _.forEach(selectedItems, function (value, key) {
-                sdebug('test2', value, key);
+                // sdebug('test2', value, key);
                 self.listView.updateItemAt(0, parseInt(key), {
                     properties: {
                         backgroundColor: null
@@ -217,7 +216,7 @@ ak.ti.constructors.createItemsListWindow = function (_args) {
                     setEditing(false);
                     return;
                 }
-                var theItems = _.map(_.at(items, selectedItemIndexes), 'item');
+                var theItems:Item[] = _.map(_.at(rowItems, selectedItemIndexes), 'item');
                 sdebug('click', callbackId, theItems, e);
                 itemHandler.handleItemAction(callbackId, theItems, desc, function (_result) {
                     // setTimeout(function() {
@@ -231,33 +230,21 @@ ak.ti.constructors.createItemsListWindow = function (_args) {
     }) as MultiSelectView;
 
     var self = new AppWindow(_args);
-
+    let rowItems: RowItem[] = [];
     function updateItems() {
         items = _.flatten(mapHandler.runGetMethodOnModules('getItems', desc.id));
-        items = _.sortBy(_.reduce(items, function (result, value, index) {
+        rowItems = _.sortBy(_.reduce(items, function (result, value, index) {
             result.push(infoRowItemForItem(value, desc));
             return result;
         }, []), 'searchableText');
 
-        //ADMOB
         var count = items.length;
-        // var admobMod = 10;
-
-        // if (app.shouldShowAds()) {
-        //     var adcount = Math.ceil(count / admobMod);
-        //     for (var i = 0; i < adcount; i++) {
-        //         items.splice(i + i * admobMod, 0, {
-        //             template: 'admob'
-        //         });
-        //     }
-        // }
         self.listView.sections = [{
-            items: items
+            items: rowItems
         }];
         if (items.length > 0) {
             app.showTutorials(['items_listview']);
         }
-        //ADMOB
     }
 
     function updateList() {
@@ -318,8 +305,8 @@ ak.ti.constructors.createItemsListWindow = function (_args) {
         var index = findItemIndex(item.id);
 
         if (index >= 0) {
-            items[index] = infoRowItemForItem(item, e.desc);
-            self.listView.updateItemAt(0, index, items[index]);
+            rowItems[index] = infoRowItemForItem(item, e.desc);
+            self.listView.updateItemAt(0, index, rowItems[index]);
         }
     }
 
@@ -347,7 +334,7 @@ ak.ti.constructors.createItemsListWindow = function (_args) {
     }
 
     function findItemIndex(_id) {
-        return _.findIndex(items, function (item) {
+        return _.findIndex(rowItems, function (item) {
             return item.item && item.item.id === _id;
         });
     }
@@ -377,7 +364,7 @@ ak.ti.constructors.createItemsListWindow = function (_args) {
 
     function onLocation(e) {
         var location = e.location;
-        var update = _.reduce(items, function (memo, item) {
+        var update = _.reduce(rowItems, function (memo, item) {
             memo.push(updateParamsForLocation(item.item, location));
             return memo;
         }, []);

@@ -25,7 +25,7 @@ class MapModule extends TiEventEmitter {
     onModuleLongAction?(args)
     canSpreadLongModuleAction?(args)
     onInit?()
-    onSettingsClick?(e: any, parentWindow: ModuleWindow)
+    onSettingsClickOrChange?(e: any, parentWindow: ModuleWindow)
     GC() {
         this.markers = null;
         this.window = null;
@@ -41,7 +41,7 @@ class MapModule extends TiEventEmitter {
         return (this.onModuleLongAction && this.onModuleLongAction(_params)) ||
             (this.canSpreadLongModuleAction && !this.canSpreadLongModuleAction(_params));
     }
-    runAction(_action, _item, _desc, _callback) {
+    runAction(_action: string, _item?: Item, _desc?: ItemType, _callback?: Function) {
         app.itemHandler.handleItemAction(_action, _item, _desc, _callback, this.window,
             this.parent);
     }

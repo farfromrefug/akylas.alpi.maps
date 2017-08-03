@@ -1,6 +1,6 @@
 
 declare class MainWindow extends NavWindow {
-    handleOpenWindow(_id, _args)
+    handleOpenWindow(_id: string, _args)
 }
 ak.ti.constructors.createMainWindow = function (_args) {
 

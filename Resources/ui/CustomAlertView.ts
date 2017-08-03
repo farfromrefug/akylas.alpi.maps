@@ -4,7 +4,7 @@ declare class CustomAlertView extends AppWindow {
     }
     showMe(force?: boolean)
 }
-ak.ti.constructors.createCustomAlertView = function (_args) {
+ak.ti.constructors.createCustomAlertView = function (_args?:AKCustomAlertViewParams) {
     var cancel = _.remove(_args, 'cancel'),
         hideOnClick = _.remove(_args, 'hideOnClick'),
         tapOutDismiss = _.remove(_args, 'tapOutDismiss', true),
