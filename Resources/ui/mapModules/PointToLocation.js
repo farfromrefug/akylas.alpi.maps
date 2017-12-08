@@ -1,3 +1,5 @@
+// import MapModule from './MapModule'
+const MapModule = require('./MapModule').MapModule;
 exports.settings = {
     name: trc('point_to_location'),
     description: 'ptl_desc'
@@ -50,7 +52,7 @@ exports.create = function(_context, _args, _additional) {
             features: features
         };
     }
-    self = new _context.MapModule(_args);
+    self = new MapModule(_args);
 
     Object.assign(self, {
         GC: app.composeFunc(self.GC, function() {

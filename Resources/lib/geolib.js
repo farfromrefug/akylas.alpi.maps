@@ -9,7 +9,7 @@
     Geolib.TO_DEG = 180 / Math.PI;
     Geolib.PI_X2 = Math.PI * 2;
     Geolib.PI_DIV4 = Math.PI / 4;
-    Geolib.XDPI = (app.deviceinfo.xdpi || app.deviceinfo.dpi) / app.deviceinfo.densityFactor;
+    Geolib.XDPI = (Ti.Platform.displayCaps.xdpi || Ti.Platform.displayCaps.dpi) / Ti.Platform.displayCaps.logicalDensityFactor;
     Geolib.PX_PER_CM = Geolib.XDPI / 2.54;
 
     function getNiceNumber(number) {
@@ -168,20 +168,24 @@
             return this.getLon.call(geolib, point);
         },
 
-        getElev: function(point, raw) {
+        getAlt: function(point, raw) {
             return this.getValue(point, 2, ['alt', 'altitude', 'elevation', 'elev'], raw);
         },
 
-        // Alias for getElev
+        // Alias for getAlt
         elevation: function(point) {
-            return this.getElev.call(this, point);
+            return this.getAlt.call(this, point);
+        },
+        // Alias for getAlt
+        altitude: function(point) {
+            return this.getAlt.call(this, point);
         },
 
         coords: function(point, raw) {
             var retval = {
                 latitude: this.getLat(point, raw),
                 longitude: this.getLon(point, raw),
-                elevation: this.getElev(point, raw),
+                altitude: this.getAlt(point, raw),
 
             };
             return retval;
@@ -350,8 +354,8 @@
 
             distance = distance.toFixed(3); // round to 1mm precision
 
-            if (s.elevation && e.elevation) {
-                var climb = Math.abs(s.elevation - e.elevation);
+            if (s.altitude && e.altitude) {
+                var climb = Math.abs(s.altitude - e.altitude);
                 distance = Math.sqrt(distance * distance + climb * climb);
             }
 
@@ -499,7 +503,7 @@
         },
 
         /**
-         * Gets the max and min, latitude, longitude, and elevation (if provided).
+         * Gets the max and min, latitude, longitude, and altitude (if provided).
          * @param        array       array with coords e.g. [{latitude: 51.5143, longitude: 7.4138}, {latitude: 123, longitude: 123}, ...]
          * @return   object      {maxLat: maxLat,
          *                     minLat: minLat
@@ -529,9 +533,9 @@
                 stats.minLat = Math.min(coord['latitude'], stats.minLat);
                 stats.maxLng = Math.max(coord['longitude'], stats.maxLng);
                 stats.minLng = Math.min(coord['longitude'], stats.minLng);
-                if (coord['elevation']) {
-                    stats.maxElev = Math.max(coord['elevation'], stats.maxElev);
-                    stats.minElev = Math.min(coord['elevation'], stats.minElev);
+                if (coord['altitude']) {
+                    stats.maxElev = Math.max(coord['altitude'], stats.maxElev);
+                    stats.minElev = Math.min(coord['altitude'], stats.minElev);
                 }
             }
             if (stats.maxLat === stats.minLat) {
@@ -1163,7 +1167,7 @@
                 var result = {
                     latitude: c.latitude,
                     longitude: c.latitude,
-                    elevation: c.elevation ? this.altitude(c.elevation) : undefined,
+                    altitude: c.altitude ? this.altitude(c.altitude) : undefined,
                 };
                 switch (_format) {
                     case 2:

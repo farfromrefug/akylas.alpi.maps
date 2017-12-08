@@ -1,4 +1,12 @@
-declare interface ModuleSettings {
+import { EventEmitter } from 'events'
+import { ItemHandler } from '../../lib/itemHandler'
+
+// declare global {
+// type MapModule =  MapModule_
+// type ContentModule =  ContentModule_
+type MapModuleSettings = ModuleSettings
+// }
+export interface ModuleSettings {
     canBeDisabled: boolean
     description?: string
     name?: string
@@ -13,7 +21,11 @@ declare interface ModuleSettings {
         }[]
     }[]
 }
-class MapModule extends TiEventEmitter {
+export class MapModule extends EventEmitter {
+    constructor(_args?) {
+        super();
+    }
+    itemHandler = app.itemHandler
     settings?: ModuleSettings
     markers: any
     window: AppWindow
@@ -41,13 +53,13 @@ class MapModule extends TiEventEmitter {
         return (this.onModuleLongAction && this.onModuleLongAction(_params)) ||
             (this.canSpreadLongModuleAction && !this.canSpreadLongModuleAction(_params));
     }
-    runAction(_action: string, _item?: Item, _desc?: ItemType, _callback?: Function) {
-        app.itemHandler.handleItemAction(_action, _item, _desc, _callback, this.window,
+    runAction = (_action: string, _item?: Item, _desc?: ItemType, _callback?: Function) => {
+        this.itemHandler.handleItemAction(_action, _item, _desc, _callback, this.window,
             this.parent);
     }
 }
 
-class ContentModule extends MapModule {
+export class ContentModule extends MapModule {
     GC() { }
     hasSettings() {
         return true;

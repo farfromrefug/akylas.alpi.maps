@@ -1,3 +1,4 @@
+import { MapModule } from './MapModule'
 export class LocationButton extends MapModule {
     settings
     view: View & {
@@ -53,6 +54,7 @@ export class LocationButton extends MapModule {
             events: {
                 singletap: e => {
                     if (e.source !== this.button) {
+                        //for photo button
                         this.runAction(e.source.callbackId);
                         return true;
                     }

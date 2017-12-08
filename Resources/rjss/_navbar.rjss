@@ -65,7 +65,7 @@ $.nbButtonWidth = 50;
     color:$.white,
     maxLines:2,
     height:$.navBarHeight,
-    textAlign:'center',
+    /* textAlign:'center', */
     touchEnabled:false,
     ellipsize:Ti.UI.TEXT_ELLIPSIZE_TAIL,
     font:{size:16, weight:'bold'},

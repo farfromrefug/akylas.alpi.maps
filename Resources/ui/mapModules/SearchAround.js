@@ -1,3 +1,5 @@
+// import MapModule from './MapModule'
+const MapModule = require('./MapModule').MapModule;
 exports.create = function(_context, _args, _additional) {
     var settings = _args.settings,
         visible = false,
@@ -23,7 +25,7 @@ exports.create = function(_context, _args, _additional) {
         resultsVisible = false,
         searchResultIds = [],
         cluster,
-        self = new _context.MapModule(_args),
+        self = new MapModule(_args),
         resultView, headerView;
 
     function getCluster() {

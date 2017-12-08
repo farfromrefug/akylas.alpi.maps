@@ -1,6 +1,5 @@
 import * as MBTilesUtils from '../../lib/mbtilesgenerator/utils';
-
-
+import { MapModule } from './MapModule'
 declare global {
     class SelectionView extends View {
         listView: ListView
@@ -25,9 +24,9 @@ declare global {
         category: string
         variants?: { [k: string]: Provider | string }
     }
-    interface ProviderOptions extends DataProviderOptions{
+    interface ProviderOptions extends DataProviderOptions {
         variantName?: string
-        
+
     }
     interface Provider {
         url: string
@@ -65,7 +64,7 @@ declare global {
     //     runningRequestsCount: number
     //     doneCount: number
     // }
-    interface MBTilesProvider{
+    interface MBTilesProvider {
         file?: string
         token?: string
         address?: any
@@ -73,10 +72,10 @@ declare global {
         layer: Provider
         minZoom?: number
         maxZoom?: number
-        area?:number
-        size?:number
-        count?:number
-        timestamp?:number
+        area?: number
+        size?: number
+        count?: number
+        timestamp?: number
     }
     type TileSourceManager = TileSourceMgr
 }
@@ -271,7 +270,7 @@ export class TileSourceMgr extends MapModule {
         });
 
         var providers = require('data/tilesources').data as { [k: string]: DataProvider };
-        for (var provider in providers) {
+        for (let provider in providers) {
             this.addLayer(provider, providers);
             if (providers[provider].variants) {
                 for (var variant in providers[provider].variants) {
@@ -281,27 +280,30 @@ export class TileSourceMgr extends MapModule {
         }
 
         this.tileSourcesIndexed = {};
-        this.tileSources = _.reduce(this.currentSources, (memo, value, index) => {
+        this.tileSources = [];
+
+        this.currentSources = _.reduce(this.currentSources, (memo, value, index) => {
             // sdebug('tilesource', value);
             var tileSource = this.createTileSource(value, index);
             // tileSource.clearCache();
             if (tileSource) {
-                memo.push(tileSource);
+                memo.push(value);
+                this.tileSources.push(tileSource);
                 this.tileSourcesIndexed[value] = tileSource;
             }
 
             return memo;
-        }, [] as MapTileSource[]);
+        }, []);
         var actions = [{
             id: 'add',
             icon: $.sAdd
         }, {
             id: 'glayer',
             icon: $.sRouting
-        }, {
-            id: 'traffic',
-            enabled: false,
-            icon: app.icons.traffic
+        // }, {
+        //     id: 'traffic',
+        //     enabled: false,
+        //     icon: app.icons.traffic
         }, {
             id: 'buildings',
             enabled: false,
@@ -656,10 +658,16 @@ export class TileSourceMgr extends MapModule {
             provider.url = (forceHTTP ? 'http:' : 'https:') + provider.url;
             // provider.url = forceHTTP ? 'http:' : 'https:' + provider.url;
         }
-        provider.url = provider.url.assign(provider.options);
-        if (provider.url.indexOf('{variant}') >= 0) {
-            return;
+        if (typeof provider.url === 'string') {
+            provider.url = provider.url.assign(provider.options);
+            if (provider.url.indexOf('{variant}') >= 0) {
+                return;
+            }
+        } else if (Array.isArray(provider.url)) {
+            (provider.url as string[]).map(url=>url.assign(provider.options))
         }
+        
+        
         // replace attribution placeholders with their values from toplevel provider attribution,
         // recursively
         var attributionReplacer = function (attr) {
@@ -684,9 +692,13 @@ export class TileSourceMgr extends MapModule {
     }
     downloadView: View & {
         areaView: View
+        topView: View
     }
     getDownloadView = () => {
         if (!this.downloadView) {
+            let areaResizing = false;
+            let areaResizingStartY = 0;
+            let topViewHeight = 60;
             const backColor = '#000000aa';
             this.downloadView = new View({
                 layout: 'vertical',
@@ -697,7 +709,33 @@ export class TileSourceMgr extends MapModule {
                     touchPassThrough: true,
                     childTemplates: [{
                         backgroundColor: backColor,
-                        height: 30,
+                        touchPassThrough: true,
+                        bindId: 'topView',
+                        height: topViewHeight,
+                        childTemplates: [{
+                            height: 15,
+                            backgroundColor:'ffffff44',
+                            bottom: 0,
+                            events: {
+                                touchstart: function (e) {
+                                    areaResizing = true;
+                                    areaResizingStartY = e.globalPoint.y;
+                                    console.log('touchstart', topViewHeight, areaResizing, areaResizingStartY);
+                                },
+                                touchmove: (e) => {
+                                    if (areaResizing) {
+                                        console.log('touchmove', areaResizing, areaResizingStartY, e.globalPoint.y);
+                                        this.downloadView.topView.height = Math.max(60, topViewHeight + (e.globalPoint.y - areaResizingStartY));
+                                    }
+                                },
+                                touchend: () => {
+                                    topViewHeight = this.downloadView.topView.rect.height;
+                                    console.log('touchend', areaResizing, areaResizingStartY);
+                                    areaResizing = false;
+                                    this.handleMapRegionChanged();
+                                }
+                            }
+                        }]
                     }, {
                         layout: 'horizontal',
                         touchPassThrough: true,
@@ -709,7 +747,8 @@ export class TileSourceMgr extends MapModule {
                             touchEnabled: false,
                             borderColor: $.cTheme.main,
                             bindId: 'areaView',
-                            borderWidth: 2
+                            borderWidth: 2,
+
                         },
                         {
                             touchEnabled: false,
@@ -829,7 +868,7 @@ export class TileSourceMgr extends MapModule {
                                         this.updateDownloadEstimate(Math.floor(e.value), this.currentDownloadEstimate.maxZoom);
                                         break;
                                     case 'maxSlider':
-                                        
+
                                         this.updateDownloadEstimate(this.currentDownloadEstimate.minZoom, Math.floor(e.value));
                                         break;
                                 }
@@ -873,6 +912,7 @@ export class TileSourceMgr extends MapModule {
                 }]
             }) as View & {
                 areaView: View
+                topView: View
             };
         }
         return this.downloadView;
@@ -976,7 +1016,7 @@ export class TileSourceMgr extends MapModule {
             theView.animate({
                 opacity: 1,
                 duration: 200
-            }, ()=> {
+            }, () => {
                 this.handleMapRegionChanged(undefined, minZoom, maxZoom);
             });
         }
@@ -1019,7 +1059,7 @@ export class TileSourceMgr extends MapModule {
         sdebug('startMBTilesGeneration', _query, _bounds, _minZoom, _maxZoom);
         var realQuery = function () {
             Ti.App.emit('mbtiles_generator_command', {
-                command: app.api.networkConnected?'start':'startpaused',
+                command: app.api.networkConnected ? 'start' : 'startpaused',
                 layer: _query,
                 bounds: _bounds,
                 minZoom: _minZoom,
@@ -1052,8 +1092,10 @@ export class TileSourceMgr extends MapModule {
 
             if (!isRunning) {
                 this.generatorService = Ti.Android.createService(intent);
-                this.generatorService.once('start', realQuery);
-                this.generatorService.start();
+                if (this.generatorService) {
+                    this.generatorService.once('start', realQuery);
+                    this.generatorService.start();
+                }
             } else {
                 realQuery();
             }
@@ -1179,10 +1221,7 @@ export class TileSourceMgr extends MapModule {
         });
         if (_showDate !== false) {
             // moment.duration(moment().valueOf() - _value.timestamp).format()
-            result += ' - ' + app.utils.humanizeDuration(moment().valueOf() - _value.timestamp, {
-                largest: 1,
-                round: true
-            });
+            result += ' - ' + moment.duration(moment().valueOf() - _value.timestamp).humanize();
         }
         return result;
     }
@@ -1246,13 +1285,13 @@ export class TileSourceMgr extends MapModule {
 
         };
     }
-    pauseDownload(token:string) {
+    pauseDownload(token: string) {
         Ti.App.emit('mbtiles_generator_command', {
             command: 'pause',
             token: token
         });
     }
-    resumeDownload(token:string) {
+    resumeDownload(token: string) {
         if (!app.api.networkConnected) {
             return;
         }
@@ -1261,19 +1300,23 @@ export class TileSourceMgr extends MapModule {
             token: token
         });
     }
-    onNetworkChange=(e) =>{
+    onNetworkChange = (e) => {
         console.log('TileSourceManager', 'onNetworkChange', e.connected);
-		if (e.connected) {
-            _.each(this.runningMbTiles, (value, id) => {
+        if (e.connected) {
+            let value;
+            for (const key in this.runningMbTiles) {
+                value = this.runningMbTiles[key];
                 this.resumeDownload(value.token);
-            });
+            }
         } else {
-            _.each(this.runningMbTiles, (value, id) => {
+            let value;
+            for (const key in this.runningMbTiles) {
+                value = this.runningMbTiles[key];
                 this.pauseDownload(value.token);
-            });
+            };
         }
-	}
-    onInit(){
+    }
+    onInit() {
     }
     GC() {
         app.api.off('networkchange', this.onNetworkChange)
@@ -1282,18 +1325,20 @@ export class TileSourceMgr extends MapModule {
         this.tileSourcesIndexed = null;
         this.view = null;
         this.button = null;
-        _.each(this.actionButtons, button => {
+        this.actionButtons.forEach(button => {
             button.GC();
         });
         this.actionButtons = null;
     }
     onWindowOpen(_enabled) {
         app.showTutorials(['map_settings']);
-        _.each(this.runningMbTiles, (value, id) => {
+        let value;
+            for (const key in this.runningMbTiles) {
+                value = this.runningMbTiles[key];
             sdebug('runningMbTiles', value.query.token, value.bounds, value.minZoom,
                 value.maxZoom);
             this.startMBTilesGeneration(value.query, value.bounds, value.minZoom, value.maxZoom);
-        });
+        };
         app.api.on('networkchange', this.onNetworkChange)
     }
     onMapReset(_params) {
@@ -1354,28 +1399,31 @@ export class TileSourceMgr extends MapModule {
     internalAddTileSource(tileSource: MapTileSource) {
         if (tileSource) {
             sdebug('internalAddTileSource', tileSource);
+            tileSource.zIndex = this.currentSources.length;
             this.currentSources.push(tileSource.id);
             this.tileSources.push(tileSource);
             this.tileSourcesIndexed[tileSource.id] = tileSource;
             this.mapView.addTileSource(tileSource);
             this.view.listView.appendItems(this.SOURCES_SECTION_INDEX, [this.tileSourceItem(tileSource)]);
             Ti.App.Properties.setObject('tilesources', this.currentSources);
-            this.updateZIndexes();
+            // this.updateZIndexes();
             app.showTutorials(['tilesource_listview']);
         }
     }
-    updateZIndexes() {
-        for (var i = 0; i < this.currentSources.length; i++) {
-            this.tileSourcesIndexed[this.currentSources[i]].zIndex = this.zIndex(i);
-        }
-    }
+    // updateZIndexes() {
+    //     for (var i = 0; i < this.currentSources.length; i++) {
+    //         this.tileSourcesIndexed[this.currentSources[i]].zIndex = this.zIndex(i);
+    //     }
+    // }
     moveTileSourceToIndex(_id, _index, _token) {
         console.debug('moveTileSourceToIndex', _id, _index, _token);
         var tileSource = this.tileSourcesIndexed[_id];
         var index = this.currentSources.indexOf(_id);
+        this.tileSources[index].zIndex = index;
+        this.tileSources[_index].zIndex = _index;
         _.move(this.currentSources, index, _index);
         Ti.App.Properties.setObject('tilesources', this.currentSources);
-        this.updateZIndexes();
+        // this.updateZIndexes();
         if (_token && this.runningMbTiles[_token]) {
             console.debug('updating runningMbTiles', this.runningMbTiles[_token].index, _index);
             this.runningMbTiles[_token].index = _index;
@@ -1391,7 +1439,7 @@ export class TileSourceMgr extends MapModule {
         if (this.tileSourcesIndexed[_id]) {
             var tileSource = this.tileSourcesIndexed[_id];
             var index = this.currentSources.indexOf(_id);
-            sdebug('remove tilesource index ', index);
+            sdebug('remove tilesource index ', index, this.currentSources);
             if (index >= 0) {
                 this.currentSources.splice(index, 1);
                 this.tileSources.splice(index, 1);
@@ -1404,7 +1452,7 @@ export class TileSourceMgr extends MapModule {
                 Ti.App.Properties.removeProperty(_id + '_hd');
             }
             this.mapView.removeTileSource(tileSource);
-            this.updateZIndexes();
+            // this.updateZIndexes();
         }
     }
     removeMBTiles(_id) {
@@ -1539,7 +1587,7 @@ export class TileSourceMgr extends MapModule {
                 const y = tileY - currentYDelta;
                 // console.log('test', tileX, tileY, currentXDelta, currentYDelta, x, y);
                 tiles[y] = tiles[y] || [];
-                tiles[y][x] = _.isString(tileData) ? Ti.Utils.base64decode(tileData) : tileData
+                tiles[y][x] = _.isString(tileData) ? Ti.Utils.base64decode(tileData as string) : tileData
                 tilesRS.next();
             }
             tilesRS.close();

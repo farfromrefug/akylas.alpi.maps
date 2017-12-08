@@ -1,5 +1,5 @@
-ak.ti.constructors.createWebWindow = function(_args:WindowParams & {
-	url:string
+export function create(_args: WindowParams & {
+	url: string
 }) {
 	_args.title = _args.title || ' ';
 	var floating = _args.floating === true,
@@ -51,6 +51,7 @@ ak.ti.constructors.createWebWindow = function(_args:WindowParams & {
 		for (i = 0; i < result.length; i++) {
 			e = result[i];
 			//loop through elementsArray until you find the td you're interested in
+			console.log(e);
 			dataStore = e.getAttribute('data-store');
 			if (e.href) {
 				var match = e.href.match(/imgurl=(.*?)&/);
@@ -93,9 +94,9 @@ ak.ti.constructors.createWebWindow = function(_args:WindowParams & {
 	} else {
 		webView.url = url;
 	}
-	if (__APPLE__ && currentItem) {
+	if (currentItem) {
 		var viewWidth = webView.rect.width;
-		var checkForImageNote = function(e) {
+		var checkForImageNote = function (e) {
 			if (webView === null) {
 				return;
 			}
@@ -111,6 +112,7 @@ ak.ti.constructors.createWebWindow = function(_args:WindowParams & {
 			var line = 'getLinkSRCAtPoint(' + x + ',' + y + ');';
 			sdebug('line', line);
 			imageLink = webView.evalJS(line);
+			sdebug('getLinkSRCAtPoint res', imageLink);
 			if (!/https?:/.test(imageLink)) {
 				imageLink = undefined;
 			} // if (!imageLink) {
@@ -137,25 +139,25 @@ ak.ti.constructors.createWebWindow = function(_args:WindowParams & {
 		}
 		var scrolling = false;
 		webView
-		// .on('scroll', function(e) {
-		// scrolling = true;
-		// sdebug('scroll');
-		// })
-			.on('touchend', function(e) {
-			// sdebug('touchend');
-			if (loaded && !scrolling) {
-				_.delay(checkForImageNote, 500, e);
-			}
-			// scrolling = false;
-		}).on('postlayout', function(e) {
-			viewWidth = webView.rect.width;
-		}).on('longpress', function(e) {
-			// sdebug('longpress', e);
-			if (loaded) {
-				checkForImageNote(e);
-			}
+			// .on('scroll', function(e) {
+			// scrolling = true;
+			// sdebug('scroll');
+			// })
+			.on('touchend', function (e) {
+				// sdebug('touchend');
+				if (loaded && !scrolling) {
+					_.delay(checkForImageNote, 500, e);
+				}
+				// scrolling = false;
+			}).on('postlayout', function (e) {
+				viewWidth = webView.rect.width;
+			}).on('longpress', function (e) {
+				sdebug('longpress', e);
+				if (loaded) {
+					checkForImageNote(e);
+				}
 
-		});
+			});
 	}
 
 	function createToolbarButton(_id, _icon, _args?) {
@@ -209,7 +211,7 @@ ak.ti.constructors.createWebWindow = function(_args:WindowParams & {
 			createToolbarButton('more', $.sOptions)
 		],
 		events: {
-			click: app.debounce(function(e) {
+			click: app.debounce(function (e) {
 				var bindId = e.bindId;
 				var colors = app.getColors(currentItem, itemDesc);
 				sdebug('click', bindId);
@@ -227,7 +229,7 @@ ak.ti.constructors.createWebWindow = function(_args:WindowParams & {
 							app.confirmAction({
 								message: phoneNb[0],
 								title: trc('add_phone') + '?'
-							}, function() {
+							}, function () {
 								app.showMessage(trc('phone_added'), colors);
 								itemHandler.updateItem(currentItem, itemDesc, {
 									tags: {
@@ -254,7 +256,7 @@ ak.ti.constructors.createWebWindow = function(_args:WindowParams & {
 									}]
 								},
 								title: trc('add_note') + '?'
-							}, function(f) {
+							}, function (f) {
 								if (!f.cancel) {
 									var test = f.source;
 									sdebug('fuck', test);
@@ -283,13 +285,13 @@ ak.ti.constructors.createWebWindow = function(_args:WindowParams & {
 							title: trc('add_image') + '?',
 							message: '',
 							image: imageLink
-						}, function() {
+						}, function () {
 							sdebug('confirmedAction');
 							self.showLoading();
 							if (_.isString(imageLink)) {
 								app.api.call({
 									url: imageLink,
-									onData: function(e) {
+									onData: function (e) {
 										var image = e.responseData;
 										var imageId = moment().valueOf();
 										var imageName = 'image_' + imageId + '.jpg';
@@ -326,7 +328,7 @@ ak.ti.constructors.createWebWindow = function(_args:WindowParams & {
 					}
 
 				} else if (bindId === 'more') {
-					var options = ['share', 'print'];
+					var options = ['share'];
 					if (currentItem) {
 						options.push('download');
 					}
@@ -340,21 +342,21 @@ ak.ti.constructors.createWebWindow = function(_args:WindowParams & {
 					}
 
 					new OptionDialog({
-						options: _.map(options, function(value,
+						options: _.map(options, function (value,
 							index) {
 							return trc(value);
 						}),
 						buttonNames: [trc('cancel')],
 						cancel: 0,
 						tapOutDismiss: true
-					}).on('click', (function(e) {
+					}).on('click', (function (e) {
 						if (!e.cancel) {
 							var url = webView.url;
 							var option = options[e.index];
 							switch (option) {
 								case 'download':
 									self.showLoading({
-										request: app.api.webToPDF(url, currentTitle).then(function(e) {
+										request: app.api.webToPDF(url, currentTitle).then(function (e) {
 											if (e.file) {
 												sdebug(e);
 												app.showMessage(trc('document_created'), colors);
@@ -371,7 +373,13 @@ ak.ti.constructors.createWebWindow = function(_args:WindowParams & {
 										text: url
 									});
 									break;
+								// case 'print':
+								// 	app.share({
+								// 		text: url
+								// 	});
+								// 	break;
 								case 'open_safari':
+								case 'open_browser':
 									Ti.Platform.openURL(url);
 									break;
 								case 'open_chrome':
@@ -391,7 +399,7 @@ ak.ti.constructors.createWebWindow = function(_args:WindowParams & {
 		rclass: 'WebToolbarButton',
 		title: $.sRefresh,
 		enabled: true
-	}).on('click', app.debounce(function() {
+	}).on('click', app.debounce(function () {
 		if (webView.loading) {
 			webView.stopLoading(false);
 		} else {
@@ -431,7 +439,7 @@ ak.ti.constructors.createWebWindow = function(_args:WindowParams & {
 			}
 		}]
 	}) as View & {
-		progress:View
+		progress: View
 	};
 	self.container.navBar.add(loadingIndicatorView, 0);
 
@@ -484,7 +492,7 @@ ak.ti.constructors.createWebWindow = function(_args:WindowParams & {
 				}
 			});
 			if (!hideLoadingTimer) {
-				hideLoadingTimer = setTimeout(function() {
+				hideLoadingTimer = setTimeout(function () {
 					if (webView == null) {
 						return;
 					}
@@ -512,7 +520,7 @@ ak.ti.constructors.createWebWindow = function(_args:WindowParams & {
 				width: 'FILL',
 				opacity: 0,
 				duration: 200
-			}, function() {
+			}, function () {
 
 			});
 			// loadingIndicatorView.animate({
@@ -527,20 +535,20 @@ ak.ti.constructors.createWebWindow = function(_args:WindowParams & {
 	}
 	self.container.add(webView, 1);
 
-	webView.on('load', function(e) {
+	webView.on('load', function (e) {
 		if (webView) {
 			sdebug('userAgent', webView.userAgent);
 		}
 		// sdebug('on load done load', e.url);
 		// setProgress(1);
-	}).on('loadprogress', function(e) {
+	}).on('loadprogress', function (e) {
 		// if (e.progress !== 1) {
 		setProgress(e.progress);
 		// }
-	}).on('error', function(e) {
+	}).on('error', function (e) {
 		setProgress(1);
 	});
-	self.onBack = function() {
+	self.onBack = function () {
 		var canGoBack = webView.canGoBack();
 		sdebug('onBack', canGoBack);
 		if (canGoBack) {
@@ -582,7 +590,7 @@ ak.ti.constructors.createWebWindow = function(_args:WindowParams & {
 	// });
 
 	//END OF CLASS. NOW GC 
-	self.GC = app.composeFunc(self.GC, function() {
+	self.GC = app.composeFunc(self.GC, function () {
 		if (hideLoadingTimer) {
 			clearTimeout(hideLoadingTimer);
 			hideLoadingTimer = null;

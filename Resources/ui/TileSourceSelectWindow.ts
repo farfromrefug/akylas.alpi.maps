@@ -1,4 +1,4 @@
-ak.ti.constructors.createTileSourceSelectWindow = function (_args: WindowParams & {
+export function create(_args: WindowParams & {
     module: TileSourceManager,
     baseSources: { [k: string]: Provider }
     overlaySources: { [k: string]: Provider }
@@ -202,7 +202,7 @@ ak.ti.constructors.createTileSourceSelectWindow = function (_args: WindowParams 
 
     function createSearchListView(_title: string, _base: { [k: string]: Provider }, _isOverlay = false) {
 
-        var sections = fillSections(_base);
+        // var sections = fillSections(_base);
         // var index = 0;
         // _.each(letters, function(letter) {
         //     var newIndex = _.findIndex(items, function(item) {
@@ -243,7 +243,7 @@ ak.ti.constructors.createTileSourceSelectWindow = function (_args: WindowParams 
                     'default': app.templates.row.colTileSource
                 },
                 defaultItemTemplate: 'default',
-                sections: sections
+                sections: fillSections(_base)
             },
             events: {
                 longpress: function (e) {
@@ -306,7 +306,11 @@ ak.ti.constructors.createTileSourceSelectWindow = function (_args: WindowParams 
                         module.addTileSource(e.item.sourceId);
                         navWindow.closeMe();
                     }
-                })
+                }),
+                // first_load:function(e) {
+                //     console.log('first+load', _title);
+                //     e.source.sections = fillSections(_base);
+                // }
             }
             // }]
         });
@@ -412,7 +416,7 @@ ak.ti.constructors.createTileSourceSelectWindow = function (_args: WindowParams 
                 events: {
                     change: function (e) {
                         var searchText = e.value;
-                        _.each(tabView.getTabs(), function (_view) {
+                        tabView.getTabs().forEach(function (_view) {
                             _view.applyProperties({
                                 // listView: {
                                 searchText: searchText

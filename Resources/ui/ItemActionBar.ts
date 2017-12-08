@@ -1,9 +1,11 @@
-declare class ItemActionBar extends View {
-    updateForItem(_item, _desc, _animated)
-    onInit(_window, _mapHandler)
+declare global {
+    class ItemActionBar extends View {
+        updateForItem(_item, _desc, _animated)
+        onInit(_window, _mapHandler)
+    }
 }
 
-ak.ti.constructors.createItemActionBar = function(_args) {
+export function create(_args) {
     var mapHandler = _.remove(_args, 'mapHandler'),
         window = _.remove(_args, 'window'),
         layout = _.remove(_args, 'layout', 'horizontal'),
@@ -39,7 +41,7 @@ ak.ti.constructors.createItemActionBar = function(_args) {
                 // contentWidth: isVertical ? 'FILL' : 'SIZE',
                 layout: layout
             },
-            childTemplates: _.reduce(itemHandler.actionsForItem(mapHandler, _item, _desc, onMap), function(memo,
+            childTemplates: _.reduce(itemHandler.actionsForItem(mapHandler, _item, _desc, onMap), function (memo,
                 value,
                 key) {
                 memo.push(new ActionButton(Object.assign({
@@ -53,14 +55,14 @@ ak.ti.constructors.createItemActionBar = function(_args) {
     function clearView(_view) {
         if (_view) {
             _view.removeFromParent();
-            _.each(_view.children, function(btn) {
-                btn.GC();
+            _view.children.forEach(element => {
+                element.GC();
             });
             _view = null;
         }
     }
 
-    self.updateForItem = function(_item, _desc, _animated) {
+    self.updateForItem = function (_item, _desc, _animated) {
         if (item === _item && desc === _desc) {
             return;
         }
@@ -71,18 +73,19 @@ ak.ti.constructors.createItemActionBar = function(_args) {
 
         if (isVertical) {
             self.animate({
-                height: (Math.min(currentView.children.length, 4)) * 54
+                height: (Math.min(currentView.children.length, 4)) * 54,
+                duration: 150
             });
         }
         self.transitionViews(oldView, currentView, {
             style: Ti.UI.TransitionStyle.FADE,
-            duration: 200
-        }, function() {
+            duration: 150
+        }, function () {
             clearView(oldView);
         });
 
     };
-    app.onDebounce(self, 'click', function(e) {
+    app.onDebounce(self, 'click', function (e) {
         if (cancelClick) {
             // sdebug('actionbar', 'canceledClick');
             cancelClick = false;
@@ -94,23 +97,23 @@ ak.ti.constructors.createItemActionBar = function(_args) {
             itemHandler.handleItemAction(callbackId, item, desc, null, window, mapHandler);
         }
     });
-    app.onDebounce(self, 'longpress', function(e) {
+    app.onDebounce(self, 'longpress', function (e) {
         // cancelClick = true;
         var callbackId = e.source.callbackId;
         if (callbackId) {
             itemHandler.handleItemAction(callbackId + '_long', item, desc, null, window, mapHandler, {
-                onMap:onMap
+                onMap: onMap
             });
         }
     });
 
-    self.onInit = function(_window, _mapHandler) {
+    self.onInit = function (_window, _mapHandler) {
         window = _window;
         mapHandler = _mapHandler;
     };
 
     //END OF CLASS. NOW GC
-    self.GC = app.composeFunc(self.GC, function() {
+    self.GC = app.composeFunc(self.GC, function () {
         clearView(currentView);
         self = null;
         window = null;

@@ -1,8 +1,9 @@
-declare class OptionsListWindow extends AppWindow {
-    updateTitle(title:string)
+declare global {
+    class OptionsListWindow extends AppWindow {
+        updateTitle(title: string)
+    }
 }
-
-ak.ti.constructors.createOptionsListWindow = function(_args) {
+export function create(_args) {
     var options = _.remove(_args, 'options'),
         hideOnClick = _args.hideOnClick !== false,
         color = options.color || $.cTheme.main,
@@ -70,13 +71,13 @@ ak.ti.constructors.createOptionsListWindow = function(_args) {
             defaultItemTemplate: 'default',
             sections: [{
                 headerView: headerView,
-                items: _.reduce(options.items, function(memo, value, key, list) {
+                items: _.reduce(options.items, function (memo, value, key, list) {
                     memo.push(value);
                     return memo;
                 }, [])
             }]
         },
-        events: __APPLE__?{
+        events: __APPLE__ ? {
             scroll: {
                 variables: {
                     tx: 'contentOffset.y',
@@ -90,14 +91,14 @@ ak.ti.constructors.createOptionsListWindow = function(_args) {
                     }
                 }]
             },
-            dragend: function(e) {
+            dragend: function (e) {
                 if (e.contentOffset.y < -closeY) {
                     listView.canFade = false;
                     cancel();
                 }
                 // sdebug(e.contentOffset.y);
             }
-        }:undefined
+        } : undefined
     });
     var rowHeight = templates.default.properties.height || listView.rowHeight;
     var heightForListView = topRect.height - 40;
@@ -107,7 +108,7 @@ ak.ti.constructors.createOptionsListWindow = function(_args) {
         type: 'Ti.UI.View',
         properties: {
             // touchEnabled: false,
-            bubbleParent:false,
+            bubbleParent: false,
             height: Math.round(app.deviceinfo.height * (100 - percent) / 100)
         },
         events: {
@@ -117,7 +118,7 @@ ak.ti.constructors.createOptionsListWindow = function(_args) {
     };
     self.container.add([listView, cancelBtn]);
 
-    app.onDebounce(listView, 'itemclick', function(e) {
+    app.onDebounce(listView, 'itemclick', function (e) {
         dataToSend = {
             cancel: false,
             index: e.itemIndex,
@@ -149,7 +150,8 @@ ak.ti.constructors.createOptionsListWindow = function(_args) {
             },
             to: {
                 opacity: 1,
-            }
+            },
+            duration: 150
         },
         container: {
             cancel: {
@@ -170,11 +172,11 @@ ak.ti.constructors.createOptionsListWindow = function(_args) {
             }
         },
 
-        duration: 300
+        duration: 200
     });
     // };
 
-    self.closeMe = function(_args) {
+    self.closeMe = function (_args) {
         self.animate({
             underContainer: {
                 opacity: 0,
@@ -189,9 +191,9 @@ ak.ti.constructors.createOptionsListWindow = function(_args) {
                 },
             },
             duration: 200
-        }, function() {
-            app.ui.closeWindow(self, _args);
+        }, function () {
             self.emit('click', dataToSend);
+            app.ui.closeWindow(self, _args);
         });
         // backView.animate({
         //     opacity: 0,
@@ -203,12 +205,12 @@ ak.ti.constructors.createOptionsListWindow = function(_args) {
         // });
     };
 
-    self.updateTitle = function(_title) {
+    self.updateTitle = function (_title) {
         headerView.html = _title;
     };
 
     //END OF CLASS. NOW GC
-    self.GC = app.composeFunc(self.GC, function() {
+    self.GC = app.composeFunc(self.GC, function () {
         cancelBtn = null;
         listView = null;
         headerView = null;

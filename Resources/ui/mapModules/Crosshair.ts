@@ -1,4 +1,5 @@
 
+import { MapModule } from './MapModule'
 export class Crosshair extends MapModule {
     visible = false
     formatter = app.utils.geolib.formatter

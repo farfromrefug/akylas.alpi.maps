@@ -1,19 +1,27 @@
 
-declare class FullscreenImageWindowContainer extends Container {
+declare global {
+    class FullscreenImageWindowContainer extends Container {
 
-}
-declare class FullscreenImageWindow extends AppWindow {
-    container: FullscreenImageWindowContainer
-}
+    }
+    class FullscreenImageWindow extends AppWindow {
+        container: FullscreenImageWindowContainer
+    }
 
-declare interface Photo {
-    image: string
-    attribution?: {
-        logo?: string,
-        author?: string,
-        description?: string,
-        link?: string
-        author_link?: string
+    interface FullscreenImageWindowParams extends WindowParams {
+        photos: Photo[]
+        photoIndex: number
+        fromView: ImageView
+    }
+
+    interface Photo {
+        image: string
+        attribution?: {
+            logo?: string,
+            author?: string,
+            description?: string,
+            link?: string
+            author_link?: string
+        }
     }
 }
 
@@ -40,10 +48,7 @@ function photoAttribution(_photo: Photo) {
     return attribution;
 }
 
-ak.ti.constructors.createFullscreenImageWindow = function (_args?: WindowParams & {
-    photos: Photo[]
-    fromView: ImageView
-}) {
+export function create(_args?: FullscreenImageWindowParams) {
     var _photos = _.remove(_args, 'photos'),
         _photoIndex = _.remove(_args, 'photoIndex', 0),
         sourceRect,
@@ -314,7 +319,7 @@ ak.ti.constructors.createFullscreenImageWindow = function (_args?: WindowParams 
         });
     }
     var bottomToolbar = _args.bottomToolbar = new ScrollView(scrollViewArgs) as ScrollView & {
-        label:Label
+        label: Label
     };
     _args.bottomToolbarVisible = _args.topToolbarVisible = optionsVisible;
     var self: FullscreenImageWindow = new AppWindow(_.assign(_args, {

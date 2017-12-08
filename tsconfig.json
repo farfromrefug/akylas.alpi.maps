@@ -11,13 +11,11 @@
         "sourceMap": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-        "outDir": "build/ts"
-   },
-    "exclude": [
-        "node_modules",
-        ".git",
-        "build",
-        "dist",
-        "test"
+        "outDir": "build/ts",
+        "noImplicitUseStrict": true
+    },
+    "include": [
+        "Resources/**/*.ts",
+        "node_modules/**/*.d.ts"
     ]
 }

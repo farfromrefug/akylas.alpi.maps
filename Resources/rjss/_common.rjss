@@ -86,6 +86,7 @@ FullscreenImageWindow {
     }
     ,
     localLoadSync:false,
+    autorotate:true,
     onlyTransitionIfRemote: false,
     width:'FILL',
     height:'FILL'
@@ -173,7 +174,7 @@ AppTabView {
     },*/
     width:'FILL',
     height:'FILL',
-    scrollingEnabled:false,
+    scrollingEnabled:true,
     disableBounce:true
 }
 
@@ -259,7 +260,6 @@ SlideMenu {
     navBarHidden:true,
     showUnderStatusBar:true,
     panningMode:app.modules.slidemenu.MENU_PANNING_NONE,
-    exitOnClose:true,
     shadowWidth:2,
     leftViewDisplacement: -40,
     backgroundColor:$.cMenuBack,

@@ -1,9 +1,10 @@
 
-declare class ActionButton extends Label {
+declare global {
+    class ActionButton extends Label {
 
+    }
 }
-
-ak.ti.constructors.createActionButton = function(_args) {
+export function create(_args) {
     var icon = _.remove(_args, 'icon');
     var color = _.remove(_args, 'color', $.cTheme.main);
     var enabled = _.remove(_args, 'enabled', true);
@@ -29,39 +30,39 @@ ak.ti.constructors.createActionButton = function(_args) {
     var args = {
         properties: Object.assign(_args, {
             callbackId: id,
-            selector:color,
+            selector: color,
             text: icon,
             color: color,
-            states:{
-                pressed:{
-                    duration:100,
-                    transform:'s1.05',
-                    tutorial:{
-                        transform:'s1.05',
+            states: {
+                pressed: {
+                    duration: 100,
+                    transform: 's1.05',
+                    tutorial: {
+                        transform: 's1.05',
                     }
                 }
             }
         })
     };
     // if (app.tutorialManager.enabled) {
-        if (!_args.width) {
-            args.properties.width = 70;
+    if (!_args.width) {
+        args.properties.width = 70;
+    }
+    args.properties.padding = { bottom: 10 };
+    args.childTemplates = [{
+        type: 'Ti.UI.Label',
+        bindId: 'tutorial',
+        properties: {
+            rclass: 'ActionButtonLabel',
+            width: 'FILL',
+            text: trc(text).toUpperCase(),
+            color: color
         }
-        args.properties.padding = {bottom:10};
-        args. childTemplates = [{
-            type: 'Ti.UI.Label',
-            bindId: 'tutorial',
-            properties: {
-                rclass: 'ActionButtonLabel',
-                width:'FILL',
-                text: trc(text).toUpperCase(),
-                color: color
-            }
-        }];
+    }];
     // }
 
     var self = new Label(args);
-    self.setEnabled = function(_enabled) {
+    self.setEnabled = function (_enabled) {
         var theColor = _enabled ? color : $.gray;
         // sdebug('setEnabled', _enabled, theColor);
         self.applyProperties({
@@ -73,12 +74,12 @@ ak.ti.constructors.createActionButton = function(_args) {
         enabled = _enabled;
 
     };
-    self.isEnabled = function() {
+    self.isEnabled = function () {
         return enabled;
     };
     self.setEnabled(enabled);
     //END OF CLASS. NOW GC 
-    self.GC = app.composeFunc(self.GC, function() {
+    self.GC = app.composeFunc(self.GC, function () {
         self = null;
     });
     return self;

@@ -1,4 +1,4 @@
-ak.ti.constructors.createSettingsWindow = function (_args) {
+export function create(_args) {
     var distance_units = ['kilometers', 'miles'],
         temp_units = ['°C (degrees)', '°F (fahrenheit)'],
         formatter = app.utils.geolib.formatter,
@@ -62,9 +62,9 @@ ak.ti.constructors.createSettingsWindow = function (_args) {
         var licenses = Ti.App.license;
         var commonLicenses = licenses.commonLicences;
         var items = [];
-        _.each(licenses, function (value, key, list) {
-
+        for (const key in licenses) {
             if (key !== 'commonLicences') {
+                let value = licenses[key];
                 items.push({
                     label: {
                         text: value.title
@@ -77,8 +77,7 @@ ak.ti.constructors.createSettingsWindow = function (_args) {
                     }
                 });
             }
-
-        });
+        }
 
         var currentItem;
         var args = {

@@ -1,6 +1,8 @@
-var iqsdkReady = false;
-var CIQ_APP_UUID = '4346c75cc36a4ae3aadaa85492288be7';
-var connectIqModule;
+import { MapModule } from './MapModule'
+
+let iqsdkReady = false;
+const CIQ_APP_UUID = '4346c75cc36a4ae3aadaa85492288be7';
+let connectIqModule;
 
 function selectDevice(callback) {
     var devices = app.modules.connectiq.getKnownDevices();
@@ -25,33 +27,34 @@ function selectDevice(callback) {
     }).bind(this)).show();
 }
 export function onSettingsClickOrChange(e) {
+    console.log('onSettingsClickOrChange', e, iqsdkReady);
     var callbackId = (e.item && e.item.callbackId) || e.bindId;
     switch (callbackId) {
         case 'connect':
             if (e.item.deviceId == -1) {
                 // app.modules.connectiq.initSDK(function (err) {
-                    // console.log('on init from button 1', err, iqsdkReady);
-                    // if (connectIqModule) {
-                    //     // console.log('on init from button 2', err, iqsdkReady);
-                    //     connectIqModule.onSDKInit(err);
-                    // } else if (err) {
-                    //     app.emit('error', err);
-                    // } else {
-                    //     iqsdkReady = true;
-                    // }
-                    // console.log('on init from button', err, iqsdkReady);
-                    if (iqsdkReady) {
-                        selectDevice(function (device) {
-                            e.section.updateItemAt(e.itemIndex, {
-                                title: {
-                                    text: 'disconnect'
-                                },
-                                subtitle: {
-                                    text: device.name
-                                }
-                            });
+                // console.log('on init from button 1', err, iqsdkReady);
+                // if (connectIqModule) {
+                //     // console.log('on init from button 2', err, iqsdkReady);
+                //     connectIqModule.onSDKInit(err);
+                // } else if (err) {
+                //     app.emit('error', err);
+                // } else {
+                //     iqsdkReady = true;
+                // }
+                // console.log('on init from button', err, iqsdkReady);
+                if (iqsdkReady) {
+                    selectDevice(function (device) {
+                        e.section.updateItemAt(e.itemIndex, {
+                            title: {
+                                text: 'disconnect'
+                            },
+                            subtitle: {
+                                text: device.name
+                            }
                         });
-                    }
+                    });
+                }
                 // });
             } else {
                 connectIqModule && connectIqModule.onDeviceRemoved();
@@ -128,23 +131,33 @@ class ConnectIqModule extends MapModule {
     }
     onMessage = (e) => {
         console.log(e, e.data, e.status);
-        Ti.Media.vibrate();
+        // Ti.Media.vibrate();
         try {
             let toParse = e.data[0].split('=>').join(':');
             // console.log('toParse', toParse);
 
+
             let json = JSON.parse(toParse);
-            app.setCurrentLocation({
-                coords: {
-                    latitude: json.location[0],
-                    longitude: json.location[1],
-                    altitude: json.altitude,
-                    accuracy: json.accuracy,
-                    speed: json.speed,
-                    heading: json.heading,
-                    timestamp: json.timestamp * 1000
-                }
-            });
+            switch (json.type) {
+                case 'unlock':
+                    Ti.Platform.Android.wakeUpScreen();
+                    Ti.Platform.Android.unlockDevice();
+                    break;
+                case 'location':
+                    app.setCurrentLocation({
+                        coords: {
+                            latitude: json.location[0],
+                            longitude: json.location[1],
+                            altitude: json.altitude,
+                            accuracy: json.accuracy,
+                            speed: json.speed,
+                            heading: json.heading,
+                            timestamp: json.timestamp * 1000
+                        }
+                    });
+                    break;
+            }
+
             //{altitude=>2265.995850, accuracy=>4, timestamp=>1487838128, heading=>0.000000, speed=>9.200062, location=>[38.896074, -94.760896]}
 
         } catch (e) {

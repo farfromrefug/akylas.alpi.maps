@@ -1,4 +1,4 @@
-ak.ti.constructors.createEditListWindow = function (_args?: WindowParams & {
+export function create(_args?: WindowParams & {
     list?: ItemList
 }) {
     var list = _.remove(_args, 'list'),
@@ -266,7 +266,7 @@ ak.ti.constructors.createEditListWindow = function (_args?: WindowParams & {
     };
     self.closeMe = app.composeFunc(self.closeMe, function () {
         if (cancelled) {
-            _.forEach(changes.newPhotos, function (photo) {
+            changes.newPhotos.forEach( function (photo) {
                 Ti.Filesystem.getFile(app.getImagePath(photo.image)).deleteFile();
             });
         }
@@ -275,7 +275,7 @@ ak.ti.constructors.createEditListWindow = function (_args?: WindowParams & {
     if (currentItem) {
         var nbPhotos = 0;
         var photos = [];
-        var photoItem = function (_photo, _index: number, _aboutToAnimate?: boolean) {
+        var photoItem = function (_photo:ItemPhoto, _index: number, _aboutToAnimate?: boolean) {
             return {
                 type: 'Ti.UI.View',
                 properties: {
@@ -301,6 +301,7 @@ ak.ti.constructors.createEditListWindow = function (_args?: WindowParams & {
                             rclass: 'EditPhotoRemoveBtn',
                             callbackId: 'remove',
                             photoId: _photo.image,
+                            thumbnailPhotoId: _photo.thumbnailImage,
                             imageIndex: _index
                         }
                     }]
@@ -333,8 +334,13 @@ ak.ti.constructors.createEditListWindow = function (_args?: WindowParams & {
                         if (!changes.deletedPhotos) {
                             changes.deletedPhotos = [];
                         }
-                        photos = _.reject(photos, { image: e.source.photoId });
+                        //ask for photo files removal
                         changes.deletedPhotos.push(e.source.photoId);
+                        if (e.source.thumbnailPhotoId) {
+                            changes.deletedPhotos.push(e.source.thumbnailPhotoId);
+                        }
+                        //remove photo from item
+                        photos = _.reject(photos, { image: e.source.photoId });
                         var holder = e.source.parent;
                         holder.animate({
                             transform: 's0.1',
@@ -349,7 +355,7 @@ ak.ti.constructors.createEditListWindow = function (_args?: WindowParams & {
                         nbPhotos--;
                     } else if (callbackId == 'add') {
                         itemHandler.handleItemAction('acquire_photo', currentItem, list, function (
-                            options, newPhoto, image) {
+                            options, newPhoto:ItemPhoto) {
                             if (newPhoto) {
                                 if (!changes.newPhotos) {
                                     changes.newPhotos = [];

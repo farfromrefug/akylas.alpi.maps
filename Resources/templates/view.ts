@@ -1,9 +1,6 @@
 
-
-
-class ViewTemplates extends TemplateModule {
-    [key: string]: Template
-    
+import TemplateModule from 'akylas.commonjs/TemplateModule'
+export default class CViewTemplates extends TemplateModule {    
     constructor() {
         super({
             prepareTemplate: ak.ti.prepareListViewTemplate
@@ -131,11 +128,16 @@ class ViewTemplates extends TemplateModule {
                 }]
             }
         }
-        _.forEach(toAdd, this.addTemplate);        
+        for (const key in toAdd) {
+            this.addTemplate(toAdd[key], key);
+        }    
     }
 }
 
+declare global {
+    type ViewTemplates = CViewTemplates
+}
 
-exports.load = function (_context) {
-    return new ViewTemplates();
+export function load (_context) {
+    return new CViewTemplates();
 };

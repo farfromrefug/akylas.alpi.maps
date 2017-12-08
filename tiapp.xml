@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ti:app xmlns:ti="http://ti.appcelerator.org">
-    <sdk-version>6.2.0.AKYLAS</sdk-version>
+    <sdk-version>7.0.0.AKYLAS</sdk-version>
     <id>akylas.alpi.maps</id>
     <name>Alpi Maps</name>
-    <version>1.3.2</version>
+    <version>1.4.0</version>
     <publisher>Akylas</publisher>
     <url>http://www.akylas.fr</url>
     <description></description>
@@ -11,13 +11,30 @@
     <icon>appicon.png</icon>
     <analytics>false</analytics>
     <guid>cb816e58-37f3-4cc2-adba-16b2dbea6a76</guid>
-    <run-on-main-thread>false</run-on-main-thread>
-    <use-babel>true</use-babel>
+    <theme>BaseTheme</theme>
+    <use-babel>false</use-babel>
+    <compile-js>false</compile-js>
+    <android xmlns:android="http://schemas.android.com/apk/res/android">
+        <abi>armeabi-v7a,x86</abi>
+        <manifest android:installLocation="auto" android:versionCode="106">
+            <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="26" />
+            <uses-feature android:name="android.hardware.location.gps" />
+            <application android:hardwareAccelerated="true" android:allowBackup="true">
+                <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyB3S2bww_0PrPmpCO8NgGuEmgGs6DxnQ78" />
+                <meta-data android:name="com.google.android.gms.version" android:value="10298000" />
+            </application>
+            <uses-permission android:name="android.permission.WAKE_LOCK" />
+            <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+        </manifest>
+        <services>
+            <service url="mbtilesgenerator.js" />
+        </services>
+    </android>
     <ios>
-        <use-jscore-framework>false</use-jscore-framework>
+        <use-jscore-framework>true</use-jscore-framework>
         <!-- <use-app-thinning>true</use-app-thinning> -->
-        <min-ios-ver>8.0</min-ios-ver>
-        <enable-launch-screen-storyboard>false</enable-launch-screen-storyboard>
+        <!-- <min-ios-ver>8.0</min-ios-ver> -->
+        <!-- <enable-launch-screen-storyboard>false</enable-launch-screen-storyboard> -->
         <plist>
             <dict>
                 <key>UIViewControllerBasedStatusBarAppearance</key>
@@ -62,13 +79,6 @@
                     <string>googlechrome</string>
                     <string>comgooglemaps</string>
                 </array>
-                <key>UISupportedInterfaceOrientations~ipad</key>
-                <array>
-                    <string>UIInterfaceOrientationPortrait</string>
-                    <string>UIInterfaceOrientationPortraitUpsideDown</string>
-                    <string>UIInterfaceOrientationLandscapeLeft</string>
-                    <string>UIInterfaceOrientationLandscapeRight</string>
-                </array>
                 <key>UIFileSharingEnabled</key>
                 <true/>
                 <key>CFBundleDocumentTypes</key>
@@ -96,58 +106,43 @@
                         </dict>
                     </dict>
                 </array>
+                <key>CFBundleLocalizations</key>
+                <array>
+                    <string>en</string>
+                    <string>fr</string>
+                </array>
             </dict>
         </plist>
     </ios>
-    <theme>BaseTheme</theme>
-    <android xmlns:android="http://schemas.android.com/apk/res/android">
-        <manifest android:installLocation="auto" android:versionCode="82">
-            <uses-sdk android:minSdkVersion="13" android:targetSdkVersion="23" />
-            <uses-feature android:name="android.hardware.location.gps" />
-            <application android:hardwareAccelerated="true">
-                <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyB3S2bww_0PrPmpCO8NgGuEmgGs6DxnQ78" />
-                <meta-data android:name="com.google.android.gms.version" android:value="10298000" />
-            </application>
-        </manifest>
-        <services>
-            <service url="mbtilesgenerator.js" />
-        </services>
-        <!-- <abi>armeabi-v7a,x86</abi> -->
-    </android>
+    <deployment-targets>
+        <target device="android">true</target>
+        <target device="ipad">true</target>
+        <target device="iphone">true</target>
+    </deployment-targets>
     <plugins>
         <plugin>akylas.nodejs</plugin>
     </plugins>
     <modules>
-        <module>akylas.commonjs</module>
+        <!-- <module>akylas.commonjs</module> -->
         <module>akylas.slidemenu</module>
         <module>akylas.shapes</module>
         <module>akylas.googlemap</module>
-        <!--<module>akylas.charts</module>-->
+        <module>akylas.camera</module>
         <module>akylas.charts2</module>
-        <!--<module>akylas.admob</module>-->
         <module>akylas.zoomableimage</module>
         <module>akylas.motion</module>
         <module>ti.paint</module>
-        <module platform="iphone">com.wikitude.ti</module>
         <module platform="iphone">akylas.statusbarnotification</module>
         <module platform="iphone">akylas.plcrashreporter</module>
         <module platform="android">akylas.connectiq</module>
-        <module>akylas.opencv</module>
+        <!-- <module platform="android">akylas.carto</module> -->
+        <!-- <module platform="iphone">akylas.googlemap</module> -->
+        <!-- <module>akylas.opencv</module> -->
     </modules>
-    <deployment-targets>
-        <target device="tizen">false</target>
-        <target device="blackberry">false</target>
-        <target device="android">true</target>
-        <target device="ipad">true</target>
-        <target device="iphone">true</target>
-        <target device="mobileweb">false</target>
-    </deployment-targets>
-
+    <property name="run-on-main-thread" type="bool">true</property>
     <property name="ti.hexColorFormat">rgba</property>
     <property name="ti.ui.defaultunit" type="string">dp</property>
-    <property name="ti.android.fastdev" type="bool">false</property>
     <property name="ti.android.debug" type="bool">true</property>
-    <property name="ti.compilejs" type="bool">false</property>
     <property name="ti.android.bug2373.finishfalseroot" type="bool">true</property>
     <property name="akylas.modules.key">cf739fd1658a4d50ee021071062e641ebf4ecc16</property>
 </ti:app>

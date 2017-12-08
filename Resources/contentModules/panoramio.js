@@ -1,3 +1,5 @@
+// import {ContentModule} from '../ui/mapModules/MapModule'
+const ContentModule = require('../ui/mapModules/MapModule').ContentModule;
 exports.settings = {
     color: '#1B85B8',
     name: 'panoramio',
@@ -25,7 +27,7 @@ exports.create = function(_context, _args, _additional) {
         htmlIcon = app.utilities.htmlIcon,
         cleanUpString = app.api.cleanUpString,
         key = 'panoramio',
-        self = new _context.ContentModule(_args);
+        self = new ContentModule(_args);
 
     var baseUrl = 'http://www.panoramio.com/map/get_panoramas.php';
 

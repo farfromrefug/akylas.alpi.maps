@@ -1,4 +1,4 @@
-ak.ti.constructors.createPDFWindow = function (_args?: WindowParams & {
+export function create(_args?: WindowParams & {
     file?: ItemFile
 }) {
     _args = _args || {};

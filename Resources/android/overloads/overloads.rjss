@@ -56,3 +56,7 @@ CustomAlertView, .TutorialWindow {
 .SearchWindow {
     windowSoftInputMode:Ti.UI.Android.SOFT_INPUT_STATE_HIDDEN | Ti.UI.Android.SOFT_INPUT_STATE_VISIBLE | Ti.UI.Android.SOFT_INPUT_ADJUST_RESIZE
 }
+
+Window {
+    androidDontUseNavWindow:true
+}

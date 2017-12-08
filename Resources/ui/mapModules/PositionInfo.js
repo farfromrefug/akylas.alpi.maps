@@ -1,3 +1,5 @@
+// import MapModule from './MapModule'
+const MapModule = require('./MapModule').MapModule;
 exports.create = function(_context, _args, _additional) {
     var settings = _args.settings,
         visible = false,
@@ -6,7 +8,7 @@ exports.create = function(_context, _args, _additional) {
         geolib = itemHandler.geolib,
         formatter = geolib.formatter,
         initialized = false,
-        self = new _context.MapModule(_args),
+        self = new MapModule(_args),
         animationDuration = 150,
         compassView = new ImageView({
             opacity: 0,
@@ -291,8 +293,8 @@ exports.create = function(_context, _args, _additional) {
                 text: data.latitude + ' ' + data.longitude
             },
             altitude: {
-                visible: !!data.elevation,
-                text: data.elevation || ''
+                visible: !!data.altitude,
+                text: data.altitude || ''
             },
             sunrise: {
                 visible: true,
@@ -380,7 +382,7 @@ exports.create = function(_context, _args, _additional) {
     function updateAll() {
         update();
         updateScaleView({
-            mpp:self.parent.mpp
+            mpp:self.parent.getMpp()
         }, true);
     }
 

@@ -1,4 +1,4 @@
-ak.ti.constructors.createAllFeaturesListWindow = function (_args?: WindowParams & {
+export function create(_args?: WindowParams & {
     lists?: ItemList[]
 }) {
     var lists: ItemList[] = _.flatten(_.remove(_args, 'lists')),
@@ -227,10 +227,13 @@ ak.ti.constructors.createAllFeaturesListWindow = function (_args?: WindowParams 
         updateSectionCount(e.desc, -1);
     }
 
-    function onMoved(e) {
-        _.forEach(e.oldItems, function (value) {
+    function onMoved(e: ItemsMovedEvent) {
+        let value;
+        for (const key in e.oldItems) {
+            value = e.oldItems[key];
             updateSectionCount(value.desc, -value.items.length);
-        });
+
+        }
         updateSectionCount(e.desc, e.items.length);
     }
 

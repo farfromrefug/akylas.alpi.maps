@@ -1,3 +1,4 @@
+import { MapModule } from './MapModule'
 export class ListModule extends MapModule {
     constructor(_context, _args, _additional) {
         super(_args);

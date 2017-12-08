@@ -2,7 +2,7 @@ Window, SlideMenu {
     /*extendEdges: [Ti.UI.EXTEND_EDGE_ALL],*/
     /*autoAdjustScrollViewInsets: true,*/
     /*navBarHidden: true,*/
-    statusBarStyle: Titanium.UI.iPhone.StatusBar.LIGHT_CONTENT
+    statusBarStyle: Titanium.UI.iOS.StatusBar.LIGHT_CONTENT
 }
 
 ListView, CollectionView {
@@ -22,7 +22,7 @@ MapWindow {
         color:'#33333388'
     }
 }
-
+ 
 .FloatingAction {
     /*backgroundSelectedColor:$.cTheme.selector,*/
     selectedColor:$.cTheme.main,

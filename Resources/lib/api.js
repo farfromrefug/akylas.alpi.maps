@@ -1,3 +1,4 @@
+const EventEmitter = require('events').EventEmitter;
 class PrivateHTTPPromise extends Promise {
     constructor(executor) {
         super(executor);
@@ -211,7 +212,7 @@ function createApi(_context) {
     };
 
     function latlongToString(_point) {
-        if (_.isArray(_point) && _point.length == 2) {
+        if (Array.isArray(_point) && _point.length == 2) {
             return _point[0].toFixed(4) + ',' + _point[1].toFixed(4);
         } else if (_point.hasOwnProperty('latitude')) {
             return _point.latitude.toFixed(4) + ',' + _point.longitude.toFixed(4);
@@ -219,7 +220,7 @@ function createApi(_context) {
     }
 
     function regionToString(_region) {
-        if (_.isArray(_region) && _region.length == 4) {
+        if (Array.isArray(_region) && _region.length == 4) {
             return 'bbox:' + _region[0].toFixed(4) + ',' + _region[1].toFixed(4) + ',' + _region[2].toFixed(
                 4) + ',' + _region[3].toFixed(4);
         } else if (_region.hasOwnProperty('ne')) {
@@ -229,7 +230,7 @@ function createApi(_context) {
 
     function radiusToString(_point, _radius) {
         var result = 'around:' + _radius + ',';
-        if (_.isArray(_point) && _point.length == 2) {
+        if (Array.isArray(_point) && _point.length == 2) {
             result += _point[0].toFixed(4) + ',' + _point[1].toFixed(4);
         } else if (_point.hasOwnProperty('latitude')) {
             result += _point.latitude.toFixed(4) + ',' + _point.longitude.toFixed(4);
@@ -355,7 +356,7 @@ function createApi(_context) {
         });
     }
 
-    var api = new _context.EventEmitter({
+    var api = new EventEmitter({
         osAPIURL: osAPIURL,
         networkConnected: false,
         offlineMode: false,
@@ -657,10 +658,10 @@ function createApi(_context) {
                 var route = result.routes[0];
                 var distance = 0;
                 var duration = 0;
-                _.each(route.legs, function (leg) {
+                route.legs.forEach(function (leg) {
                     distance += leg.distance.value;
                     duration += leg.duration.value;
-                    _.each(leg.steps, function (step) {
+                    leg.steps.forEach(function (step) {
                         stepPoints = decodeLine(step.polyline.points);
                         // step.pointsStartIndex = points.length;
                         // step.pointsCount = stepPoints.length;
@@ -735,7 +736,7 @@ function createApi(_context) {
                 var route = result.trip;
                 // var distance = 0;
                 // var duration = 0;
-                _.each(route.legs, function (leg) {
+                route.legs.forEach(function (leg) {
                     // distance += leg.summary.length;
                     // duration += leg.summary.time;
                     // _.each(leg.maneuvers, function (step) {
@@ -1655,13 +1656,13 @@ function createApi(_context) {
                 },
                 postParamsString: {
                     url: _url,
-                    'viewport-size': app.deviceinfo.width + 'x' + app.deviceinfo.height,
+                    'viewport-size': app.deviceinfo.pixelWidth + 'x' + app.deviceinfo.pixelHeight,
                     // 'page-size':'A3',
-                    zoom: 2,
+                    zoom: 1,
                     // 'page-width':11,
                     // 'page-height':15,
                     // dpi:app.deviceinfo.dpi,
-                    'disable-smart-shrinking': true,
+                    'enable-smart-shrinking': true,
                     encoding: 'UTF-8',
 
                     T: 0,
@@ -1722,6 +1723,7 @@ function createApi(_context) {
                             function (e2) {
                                 if (e2.image) {
                                     result.thumbnailImage = e2.imageName;
+                                    delete result.thumbnail;
                                 }
                                 return result;
                             });
@@ -1923,6 +1925,15 @@ function createApi(_context) {
         }
         onError(res, failureCallback, _lastcall);
     }).bind(api);
+
+
+        //Fix for samsung devices and there device maintenance system which shut down networks on sleep
+        //we don't get the network change event and it takes a bit of time to reconnect
+        Ti.App.on('resume', e => {
+            setTimeout(() => {
+                api.updateNetwork();
+            }, 1000);
+        });
     return api;
 }
 

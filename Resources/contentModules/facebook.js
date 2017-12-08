@@ -1,3 +1,6 @@
+// import {ContentModule} from '../ui/mapModules/MapModule'
+const stringScore = require('string-score');
+const ContentModule = require('../ui/mapModules/MapModule').ContentModule;
 exports.settings = {
     color: '#4C64A9',
     name: 'Facebook',
@@ -19,14 +22,14 @@ exports.lang = {
     }
 };
 
-exports.create = function(_context, _args, _additional) {
+exports.create = function (_context, _args, _additional) {
     var phoneReg = /\s*(?:\+?(\d{1,3}))?([-. (]*(\d{2,3})[-. )]*)?((\d{2,3})[-. ]*(\d{2,4})(?:[-.x ]*(\d+))?)/g,
         itemHandler = app.itemHandler,
         geolib = itemHandler.geolib,
         formatter = itemHandler.geolib.formatter,
         cleanUpString = app.api.cleanUpString,
         convert = app.utils.convert,
-        self = new _context.ContentModule(_args);
+        self = new ContentModule(_args);
 
     function fbHoursToOSM(_hours) {
         var result = {};
@@ -41,10 +44,10 @@ exports.create = function(_context, _args, _additional) {
             }
         }
         result = _.invert(result, true);
-        _.mapValues(result, function(value) {
+        _.mapValues(result, function (value) {
             return value.join(',');
         });
-        return _.reduce(result, function(memo, value, key) {
+        return _.reduce(result, function (memo, value, key) {
             memo += value + ' ' + key + ';';
             return memo;
         }, '');
@@ -105,7 +108,7 @@ exports.create = function(_context, _args, _additional) {
                 access_token: app.servicesKeys.facebook,
                 fields: 'hours,phone,name,location,cover,about,description,emails,food_styles,restaurant_services,restaurant_specialties,payment_options,link,price_range,website',
             }
-        }).then(function(result) {
+        }).then(function (result) {
             if (result.location && result.location.latitude) {
                 return parseObject(result);
             }
@@ -123,13 +126,13 @@ exports.create = function(_context, _args, _additional) {
                 center: (_params.center.latitude + ',' + _params.center.longitude),
                 distance: 20
             },
-        }).then(function(result) {
+        }).then(function (result) {
             var data, item, items = [];
             if (result.data.length > 0) {
                 var distance;
-                _.each(result.data, function(data) {
+                result.data.forEach(function (data) {
                     if (data.location && data.location.latitude) {
-                        var score = _params.query ? (_params.query.score(data.name, 1)) : 1;
+                        var score = _params.query ? (stringScore(_params.query, data.name, 1)) : 1;
                         if (score > 0.5) {
                             item = parseObject(data);
                             if (item) {
@@ -145,13 +148,13 @@ exports.create = function(_context, _args, _additional) {
     }
 
     Object.assign(self, {
-        GC: app.composeFunc(self.GC, function() {
+        GC: app.composeFunc(self.GC, function () {
             view = null;
         }),
-        onInit: function() {
+        onInit: function () {
 
         },
-        shouldBeEnabledByDefault: function() {
+        shouldBeEnabledByDefault: function () {
             return false;
         },
         // getSearchCalls: function(memo, _params) {
@@ -175,25 +178,25 @@ exports.create = function(_context, _args, _additional) {
         //         });
         //     };
         // },
-        getDetailsCalls: function(memo, _query, _item, _desc) {
+        getDetailsCalls: function (memo, _query, _item, _desc) {
             if (_item.fb) {
                 memo['fb'] = _.partial(getDetails, _item.fb.id);
                 return;
             }
             var isRoute = itemHandler.isItemARoute(_item);
             if (!isRoute) {
-                memo['fb'] = function() {
+                memo['fb'] = function () {
                     return search({
                         query: _query,
                         center: _.pick(_item, 'latitude', 'longitude')
-                    }).then(function(result) {
+                    }).then(function (result) {
                         if (result.length > 0) {
                             var data;
                             var bestScore = 0;
                             var bestI = -1;
                             for (var i = 0; i < result.length; i++) {
                                 data = result[i];
-                                var score = _query.score(data.title);
+                                var score = stringScore(_query, data.title);
                                 distance = geolib.getDistanceSimple(_item, data);
                                 var realScore = score / distance;
                                 if (realScore > bestScore) {

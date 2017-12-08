@@ -1,6 +1,6 @@
+import { MapModule } from './MapModule'
 export class MapActionButtons extends MapModule {
     visibleMultipleAction = null
-    itemHandler = app.itemHandler
     visible = true
     view: View
     constructor(_context, _args, _additional) {

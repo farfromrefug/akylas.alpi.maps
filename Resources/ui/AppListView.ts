@@ -1,17 +1,19 @@
-declare class AppListView extends ListView {
-    startLoading()
-    stopLoading()
-    update()
-    showPullView()
-    closePullView()
-    doneLoading()
+declare global {
+    class AppListView extends ListView {
+        startLoading()
+        stopLoading()
+        update()
+        showPullView()
+        closePullView()
+        doneLoading()
+    }
 }
 
-ak.ti.constructors.createAppListView = function (_args?: AKAppListViewParams) {
+export function create(_args?: AKAppListViewParams) {
 
     _args = _args || {};
     var pullToRefresh: PullToRefresh;
-    if (_args.noPullView !== true) {
+    if (_args.noPullView === false) {
         pullToRefresh = new PullToRefresh({
             rclass: _args.pullToRefreshClass || 'PullToRefresh'
         });

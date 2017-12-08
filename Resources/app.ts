@@ -1,5 +1,13 @@
+console.time('start')
 
-import * as process from 'process'
+import * as processModule from 'process'
+process = processModule
+if (Ti.App.deployType !== 'production') {
+    require('source-map-support').install();
+}
+
+import * as momentModule from 'moment'
+moment = momentModule
 
 interface MetaData {
     [k: string]: any
@@ -7,22 +15,24 @@ interface MetaData {
     bounds?: { sw: { latitude: number, longitude?: number }, ne: { latitude: number, longitude?: number } }
 }
 
-require('akylas.commonjs.dev/akylas.commonjs').load(this, {
-    // app = require('akylas.commonjs').createApp(this, {
-    // not using var seems very important, cant really see why!
-    underscore: '../lodash',
-    modules: ['ti', 'moment', 'lang'],
+require('akylas.commonjs/akylas.commonjs').load(this, {
+    userCoreJS: false,
+    underscore: 'lodash',
+    modulesDir: null,
+    modules: ['ti', 'lang'],
     additions: ['string']
 });
 
-Ti.include('ui/mapModules/MapModule.js');
-require('lib/moment-duration-format');
-const OpeningHours = require('lib/opening_hours');
+console.debug('test simu', __SIMULATOR__, Ti.Platform.model);
 
-import { AKApp } from './akylas.commonjs.dev/AkInclude/App'
-import { ItemHdlr } from './lib/itemHandler'
+require('moment-duration-format');
+
+import AKApp from 'akylas.commonjs/AkInclude/App'
+import { ItemHandler } from './lib/itemHandler'
+import { LocationManager } from './lib/locationManager'
 import * as Color from 'tinycolor2';
 declare global {
+    var moment: typeof momentModule
     var Color: Color;
     interface ContrastColor {
         isLight: boolean
@@ -38,7 +48,7 @@ declare global {
     }
 }
 export function getContrastColors(_color): ContrastColor {
-    let color: tinycolorInstance = Color(_color);
+    let color = Color(_color);
     //light means dark content and thus white contrast
     var light = color.getBrightness() < 140;
 
@@ -47,31 +57,32 @@ export function getContrastColors(_color): ContrastColor {
     var result = {
         isLight: light,
         luminance: color.getLuminance(),
-        color: color.toRgbString(),
-        contrast: color1.toRgbString(),
+        color: color.toHex8String(),
+        contrast: color1.toHex8String(),
         contrastGray: color1.clone()[method].apply(color1, [0.2])
-            .toRgbString(),
+            .toHex8String(),
         darkerRel: color.clone()[method].apply(color, [0.2])
-            .toRgbString(),
+            .toHex8String(),
         lightenRel: color.clone()[method].apply(color, [-0.2])
-            .toRgbString(),
+            .toHex8String(),
         darker: color.clone()
             .darken(8)
-            .toRgbString(),
+            .toHex8String(),
         darkest: color.clone()
             .darken(20)
-            .toRgbString(),
+            .toHex8String(),
         darkestRel: color[method].apply(color, [20])
-            .toRgbString()
+            .toHex8String()
     };
     return result;
 }
 var dataDir = Ti.Filesystem.applicationDataDirectory;
 var paths = {};
-_.each(['images', 'files', 'mbtiles'], function (key) {
+['images', 'files', 'mbtiles'].forEach( function (key) {
     var holdingDir = Ti.Filesystem.getFile(dataDir, key);
     if (!holdingDir.exists()) {
-        holdingDir.createDirectory();
+        let result = holdingDir.createDirectory();
+        console.debug('createDirectory', holdingDir, result);
     }
     var theDir = holdingDir.nativePath;
     if (!_.endsWith(theDir, '/')) {
@@ -100,26 +111,25 @@ export class App extends AKApp {
     constructor(context) {
         super(context, {
             modules: {
-                // admob: 'akylas.admob',
                 shapes: 'akylas.shapes',
                 slidemenu: 'akylas.slidemenu',
-                map: 'akylas.googlemap',
-                // charts: 'akylas.charts',
                 charts2: 'akylas.charts2',
                 paint: 'ti.paint',
                 zoomableimage: 'akylas.zoomableimage',
-                opencv: 'akylas.opencv',
+                // opencv: 'akylas.opencv',
                 motion: 'akylas.motion',
-                ios: {
-                    wikitude: 'com.wikitude.ti',
-                },
-                android: {
+                camera: 'akylas.camera',
+                // ios: {
+                map: 'akylas.googlemap',
+                // },
+                android: __SIMULATOR__?undefined:{
+                    // map: 'akylas.carto',
                     connectiq: 'akylas.connectiq',
                     // crosswalk: 'com.universalavenue.ticrosswalk'
                 }
             },
 
-            defaultLanguage: 'en-US',
+            defaultLanguage: 'en',
             forceLanguage: Ti.App.Properties.getString('language'),
             templates: ['row', 'view'],
             mappings: {
@@ -150,13 +160,12 @@ export class App extends AKApp {
             //     ak.ti.redux.fn.addNaturalConstructor(this, 'crosswalk', 'WebView', 'WebView');
             // },
             windowManager: {
-                androidNav: true
+                // androidNav: true
             }
         });
-        if (__ANDROID__) {
+        if (this.modules.connectiq) {
             this.mapModules.push('Connectiq');
         }
-        __DEVELOPMENT__ = this.info.deployType === 'development';
         if (Ti.App.Properties.getString('update.check.version', '') !== this.info.version) {
             this.updates = {
                 annot_images: true
@@ -167,7 +176,7 @@ export class App extends AKApp {
         this.developerMode = Ti.App.Properties.getBool('developerMode', __DEVELOPMENT__)
 
         var indexIcons = [];
-        for (var key in this.icons) {
+        for (let key in this.icons) {
             indexIcons.push([trc(key), this.icons[key]]);
         }
         this.indexedIcons = _.sortBy(indexIcons, function (n) {
@@ -188,8 +197,8 @@ export class App extends AKApp {
         'Directions',
         'LocationButton',
         'TileSourceManager',
-        'Wikitude',
-        'PointToLocation',
+        'AugmentedReality',
+        // 'PointToLocation',
         'Weather'
     ]
     errorToString(error) {
@@ -271,11 +280,11 @@ export class App extends AKApp {
         }, filename) + '.' + ext;
         var result = app.getImagePath(imageId);
         var file = Ti.Filesystem.getFile(result);
-        console.log('getFilteredImage', _image, _options, result, file.exists());
 
-        // if (!file.exists()) {
-        file.write(Ti.Image.getFilteredImage(_image, _options));
-        // }
+        if (!file.exists()) {
+            console.log('getFilteredImage', _image, _options, result, file.exists());
+            file.write(Ti.Image.getFilteredImage(_image, _options));
+        }
         return result;
     }
     getImagePath = _.partial(getDataPath, 'images')
@@ -294,8 +303,17 @@ export class App extends AKApp {
     indexedColors = _(require('data/palette').colors).toPairs().value()
     developerMode = false
     texts: { [key: string]: string }
-    utils: { [key: string]: any }
-    locationManager = require('lib/locationManager').create(this)
+    utils = {
+        filesize: require('./lib/filesize'),
+        geolib: require('./lib/geolib'),
+        // openingHours: require('lib/opening_hours'),
+        convert: require('./lib/convert'),
+        // humanizeDuration: require('lib/humanize-duration'),
+        suncalc: require('suncalc') as {
+            getTimes(date: number | Date, latitude: number, longitude: number)
+        },
+    }
+    locationManager = new LocationManager()
     itemHandler: ItemHandler
     tempMetrics = false
     setMetrics = (_value) => {
@@ -339,9 +357,10 @@ export class App extends AKApp {
         }
     }
     openingHours(_value, _args) {
+        const OpeningHours = require('lib/opening_hours');
         return new OpeningHours(_value, _args, 2);
     }
-    currentLocation: Location
+    currentLocation: TiLocation
     setCurrentLocation = (e) => {
         // sdebug('setCurrentLocation', e);
         var coords = e.coords;
@@ -428,9 +447,10 @@ export class App extends AKApp {
         });
         app.ui.openWindow(win);
     }
+    //TODO: bring back c2c
     contentModules = Ti.Filesystem.getFile('contentModules')
         .getDirectoryListing().filter(function (name) {
-            return _.endsWith(name, 'js');
+            return _.endsWith(name, 'js') && !/c2c/.test(name);
         }).map(
         function (value) {
             return value.slice(0, -3);
@@ -527,34 +547,41 @@ __ITEMS__ = 'items';
 __ROUTES__ = 'routes';
 
 
+console.timeEnd('start')
 
-require('lib/string_score.min');
 app = new App(this);
+console.timeEnd('start')
 
 // ak.locale.storeMissingTranslations = true;
 app.main();
-app.utils = {
-    filesize: require('lib/filesize'),
-    geolib: require('lib/geolib'),
-    // openingHours: require('lib/opening_hours'),
-    convert: require('lib/convert'),
-    humanizeDuration: require('lib/humanize-duration'),
-    suncalc: require('suncalc'),
-}
 app.texts = {
     ccopyright: '<small><font color="gray">' + app.utilities.htmlIcon($.sCC) +
-    'BY-SA 2.0</font></small>'
+        'BY-SA 2.0</font></small>'
 };
+console.timeEnd('start')
+
 app.api = require('lib/api').init(this)
-app.itemHandler = new ItemHdlr();
+console.timeEnd('start')
+
+app.itemHandler = new ItemHandler();
+console.timeEnd('start')
+
+// if (__APPLE__) {
 app.modules.map.googleMapAPIKey = app.servicesKeys.google;
+// } else {
+// app.modules.map.license = app.servicesKeys.carto;
+// }
 
 app.setMetrics(Ti.App.Properties.getBool('distance_metric', true));
+console.timeEnd('start')
+
 app.setTempMetrics(Ti.App.Properties
     .getBool('temp_metric', true));
 app.setOfflineMode(Ti.App.Properties.getBool('offline', false));
-app.locationManager
-    .watchPosition(app.setCurrentLocation);
+app.locationManager.watchPosition(app.setCurrentLocation);
+console.timeEnd('start')
+
+// console.debug(app.modules.map.getOfflineServerPackages());
 
 // if (__APPLE__) {
 //     app.mapModules.push('Weather');
@@ -575,6 +602,8 @@ app.ui.topWindow = app.ui.rootWindow = app.ui.slidemenu = new SlideMenu({
     leftView: app.ui.leftmenu,
     centerView: app.ui.mainwindow
 });
+console.timeEnd('start')
+
 
 // if (app.tutorialManager.enabled) {
 app.ui.slidemenu.once('openmenu', function () {
@@ -606,14 +635,12 @@ Ti.App.Properties.setInt(
     'rating_count', appRatingTimingCount);
 
 function showRatingAlert() {
-    var title = trc('rate')
-        .assign(app.info.name);
+    var title = trc('rate').assign(app.info.name);
     var dialog = Ti.UI.createAlertDialog({
         cancel: 1,
         persistent: true,
         buttonNames: [trc('rate_now'), trc('later'), trc('no_thanks')],
-        message: trc('rate_question')
-            .assign(app.info.name),
+        message: trc('rate_question').assign(app.info.name),
         title: title
     });
     dialog.addEventListener('click', function (e) {
@@ -631,13 +658,12 @@ function showRatingAlert() {
     dialog.show();
 }
 
-Ti.App.on('resume', function (e) {
-    app.api.updateNetwork();
-});
-
 app.ui.slidemenu.once('open', function () {
     Ti.App.emit('resume');
 });
+
+console.timeEnd('start')
+
 app.ui.openWindow(app.ui.slidemenu);
 
 Ti.Network.on('change', app.api.updateNetwork);

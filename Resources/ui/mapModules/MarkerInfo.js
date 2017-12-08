@@ -1,3 +1,5 @@
+// import MapModule from './MapModule'
+const MapModule = require('./MapModule').MapModule;
 exports.create = function(_context, _args, _additional) {
     var visible = false,
         selectedItem = null,
@@ -7,7 +9,7 @@ exports.create = function(_context, _args, _additional) {
         actionsVisibleBeforeHide = false,
         supplViewVisibleBeforeHide = false,
         currentTouchPoint,
-        self = Object.assign(new _context.MapModule(_args), {
+        self = Object.assign(new MapModule(_args), {
             runAction: function(_action, _callback) {
                 itemHandler.handleItemAction(_action, selectedItem.item, selectedItem.desc, _callback, self
                     .window,
@@ -168,7 +170,7 @@ exports.create = function(_context, _args, _additional) {
             self.onLocation = onLocation;
             getView()
                 .setSelectedItem(selectedItem);
-            view.showMe();
+            // view.showMe();
         }
     }
 

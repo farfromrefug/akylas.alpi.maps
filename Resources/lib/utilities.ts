@@ -1,5 +1,3 @@
-
-
 class Utils {
     queryString(params, location) {
         var obj = {},
@@ -158,7 +156,7 @@ class Utils {
             if (theRow.hours.length > 0) {
                 moments = [];
 
-                _.forEach(theRow.hours, function (values) {
+                theRow.hours.forEach( function (values) {
                     theMoment.hours(values[0][0]);
                     theMoment.minutes(values[0][1]);
                     moments.push(theMoment.clone());

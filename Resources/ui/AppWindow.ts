@@ -1,42 +1,44 @@
-declare class Container extends View {
-    titleView: View
-    topToolbarHolder: View
-    navBarHolder: View
-    navBar: View
+declare global {
+    class Container extends View {
+        titleView: View
+        topToolbarHolder: View
+        navBarHolder: View
+        navBar: View
+    }
+
+    class AppWindow extends BaseWindow {
+        manager: MainWindow
+        showLeftMenuButton: boolean
+        customNavBar: boolean
+        androidDontUseNavWindow: boolean
+        customModal: boolean
+        createManagedWindow(constructor, args)
+        showTopToolbar()
+        hideTopToolbar()
+        showHideTopToolbar()
+        showBottomToolbar()
+        hideBottomToolbar()
+        showHideBottomToolbar()
+        setColors(color, _withNavBar?: boolean, _barColor?: string)
+        showError(err)
+        updateTitle(title: string, subtitle?: string)
+        runPromise<T>(p: Promise<T>): Promise<T>
+        cancelRunningRequest()
+        topToolbarVisible: boolean
+        bottomToolbarVisible: boolean
+        withLoadingIndicator: boolean
+        container: Container
+        window: AppWindow
+        listView: AppListView
+        loadingView: LoadingView
+        headerTemplate: any
+        headerView: any
+        onLogin?()
+        onLogout?()
+    }
 }
 
-declare class AppWindow extends BaseWindow {
-    manager:MainWindow
-    showLeftMenuButton: boolean
-    customNavBar: boolean
-    androidDontUseNavWindow: boolean
-    customModal: boolean
-    createManagedWindow(constructor, args)
-    showTopToolbar()
-    hideTopToolbar()
-    showHideTopToolbar()
-    showBottomToolbar()
-    hideBottomToolbar()
-    showHideBottomToolbar()
-    setColors(color, _withNavBar?: boolean, _barColor?: string)
-    showError(err)
-    updateTitle(title: string, subtitle?: string)
-    runPromise<T>(p: Promise<T>): Promise<T>
-    cancelRunningRequest()
-    topToolbarVisible: boolean
-    bottomToolbarVisible: boolean
-    withLoadingIndicator: boolean
-    container: Container
-    window: AppWindow
-    listView: AppListView
-    loadingView: LoadingView
-    headerTemplate: any
-    headerView: any
-    onLogin?()
-    onLogout?()
-}
-
-ak.ti.constructors.createAppWindow = function (_args:WindowParams) {
+export function create(_args: WindowParams) {
     var bottomToolbarHolder,
         realContainer,
         hasContentLoading = false;
@@ -276,7 +278,7 @@ ak.ti.constructors.createAppWindow = function (_args:WindowParams) {
             _args.activity = _args.activity || {};
             _args.activity.onCreateOptionsMenu = function (e) {
                 var menu = e.menu;
-                _.each(buttons, function (view, index, list) {
+                buttons.forEach(function (view, index, list) {
                     var args = {
                         actionView: view,
                         showAsAction: Ti.Android.SHOW_AS_ACTION_IF_ROOM
@@ -314,13 +316,13 @@ ak.ti.constructors.createAppWindow = function (_args:WindowParams) {
                     app.ui.slidemenu.toggleLeftView();
                 });
             } else {
-                self.applyProperties({
-                    homeAsUpIndicator: 'images/menu.png',
-                    displayHomeAsUp: true,
-                    onHomeIconItemSelected: function () {
-                        app.ui.slidemenu.toggleLeftView();
-                    }
-                });
+                // self.applyProperties({
+                //     homeAsUpIndicator: 'images/menu.png',
+                //     displayHomeAsUp: true,
+                //     onHomeIconItemSelected: function () {
+                //         app.ui.slidemenu.toggleLeftView();
+                //     }
+                // });
             }
         }
 
@@ -589,7 +591,7 @@ ak.ti.constructors.createAppWindow = function (_args:WindowParams) {
                 };
             }
 
-            _.forEach(self.container.navBarHolder.children, function (child: Label) {
+            self.container.navBarHolder.children.forEach(function (child: Label) {
                 child.color = colors.contrast;
             });
         } else {

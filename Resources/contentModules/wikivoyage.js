@@ -1,3 +1,5 @@
+// import {ContentModule} from '../ui/mapModules/MapModule'
+const ContentModule = require('../ui/mapModules/MapModule').ContentModule;
 exports.settings = {
     color: '#00659B',
     name: trc('wikivoyage'),
@@ -28,7 +30,7 @@ exports.create = function(_context, _args, _additional) {
         cleanUpString = app.api.cleanUpString,
         key = 'wikivoyage',
         supportedLangs = ['en', 'fr', 'de', 'fa', 'it', 'nl', 'pl', 'sv']
-    self = new _context.ContentModule(_args);
+    self = new ContentModule(_args);
 
     var lang = ak.locale.currentLanguage.split('-')[0].toLowerCase();
     if (!_.includes(supportedLangs, lang)) {

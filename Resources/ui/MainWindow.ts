@@ -1,8 +1,11 @@
 
-declare class MainWindow extends NavWindow {
-    handleOpenWindow(_id: string, _args)
+declare global {
+    class MainWindow extends NavWindow {
+        stackSize: number
+        handleOpenWindow(_id: string, _args)
+    }
 }
-ak.ti.constructors.createMainWindow = function (_args) {
+export function create(_args) {
 
     var windowsMap = {
         'map': 'MapWindow',
@@ -12,14 +15,14 @@ ak.ti.constructors.createMainWindow = function (_args) {
             showLeftMenuButton: true,
             winGCId: 'map'
         }) as MapWindow,
-        geoFeatureWindow = ak.ti.createFromConstructor(windowsMap['geofeature'], {
-            // showLeftMenuButton: true,
-            mapHandler: rootWindow,
-            winGCId: 'geofeature'
-        }) as GeoFeatureWindow,
+        // geoFeatureWindow = ak.ti.createFromConstructor(windowsMap['geofeature'], {
+        //     // showLeftMenuButton: true,
+        //     mapHandler: rootWindow,
+        //     winGCId: 'geofeature'
+        // }) as GeoFeatureWindow,
         windows = {
             'map': rootWindow,
-            'geofeature': geoFeatureWindow,
+            // 'geofeature': geoFeatureWindow,
         },
         self = new AppWindow(Object.assign(_args, {
             window: rootWindow
@@ -43,9 +46,16 @@ ak.ti.constructors.createMainWindow = function (_args) {
             var win;
             if (!windows.hasOwnProperty(_id)) {
                 if (windowsMap[_id]) {
-                    win = ak.ti.createFromConstructor(windowsMap[_id], {
-                        showLeftMenuButton: true
-                    });
+                    if (_id === 'geofeature') {
+                        win = ak.ti.createFromConstructor(windowsMap[_id], {
+                            mapHandler: rootWindow,
+                            showLeftMenuButton: true
+                        })
+                    } else {
+                        win = ak.ti.createFromConstructor(windowsMap[_id], {
+                            showLeftMenuButton: true
+                        })
+                    }
                 }
                 if (win) {
                     win.winGCId = _id;

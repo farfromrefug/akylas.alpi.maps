@@ -1,3 +1,4 @@
+import { MapModule } from './MapModule'
 
 declare global {
     type TutorialManager = TutorialMgr

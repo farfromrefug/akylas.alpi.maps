@@ -1,8 +1,0 @@
-{
-  "dependencies": {
-    "lodash": "registry:dt/lodash#4.14.0+20161220120806"
-  },
-  "globalDependencies": {
-    "moment": "registry:dt/moment#2.11.1+20161010105546"
-  }
-}

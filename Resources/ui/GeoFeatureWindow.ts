@@ -1,13 +1,15 @@
-declare class GeoFeatureWindow extends AppWindow {
-    handleArgs(args)
+declare global {
+    class GeoFeatureWindow extends AppWindow {
+        handleArgs(args)
+    }
+
+    class SectionHeaderView extends View {
+        titleHolder: View
+        gfheader: View
+    }
 }
 
-declare class SectionHeaderView extends View {
-    titleHolder: View
-    gfheader: View
-}
-
-ak.ti.constructors.createGeoFeatureWindow = function (_args:WindowParams) {
+export function create(_args: WindowParams) {
     var itemHandler = app.itemHandler,
         geolib = itemHandler.geolib,
         formatter = geolib.formatter,
@@ -324,7 +326,7 @@ ak.ti.constructors.createGeoFeatureWindow = function (_args:WindowParams) {
         }
 
         if (currentItem.notes) {
-            _.each(currentItem.notes, function (note, index) {
+            currentItem.notes.forEach(function (note, index) {
                 items.push(createTextItem({
                     callbackId: 'note',
                     html: '<b>{1}</b>'.assign(note.title),
@@ -749,7 +751,7 @@ ak.ti.constructors.createGeoFeatureWindow = function (_args:WindowParams) {
                                 var data = app.utilities.ohWeekString(ohInfos.oh);
                                 var length = data.length,
                                     isLast;
-                                _.each(data, function (value, index) {
+                                    data.forEach(function (value, index) {
                                     isLast = index === length - 1;
                                     var isToday = value[0].day() === today;
                                     if (isToday) {
@@ -921,7 +923,7 @@ ak.ti.constructors.createGeoFeatureWindow = function (_args:WindowParams) {
             self.setColors(iconicColor, false);
         } else if (top > limit && sectionHeaderViewAtTop) {
             sectionHeaderViewAtTop = false;
-            self.setColors('transparent', false, iconicColor);
+            self.setColors('transparent', true, iconicColor);
         }
     }
 

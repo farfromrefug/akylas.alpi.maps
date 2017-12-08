@@ -1,3 +1,4 @@
+import { MapModule } from './MapModule'
 export function settings(enabled) {
     var service = Ti.App.Properties.getString('directions.service', 'google');
     var sections = [];
@@ -43,9 +44,8 @@ export class Directions extends MapModule {
 
     settings
     visible = false
-    itemHandler:ItemHandler = app.itemHandler
     geolib = app.itemHandler.geolib
-    simplify = app.itemHandler.simplify
+    // simplify = app.itemHandler.simplify
     htmlIcon = app.utilities.htmlIcon
     mode = 'walking'
     tempRoute = null
@@ -336,7 +336,7 @@ export class Directions extends MapModule {
                                 case 'bicycling':
                                 case 'driving':
                                     this.mode = callbackId;
-                                    _.each(this.view.modeHolder.children,  button => {
+                                    this.view.modeHolder.children.forEach(button => {
                                         // sdebug(button.callbackId, button.callbackId !== this.mode);
                                         button.enabled = button.callbackId !== this.mode;
                                     });
@@ -683,13 +683,14 @@ export class Directions extends MapModule {
         });
     }
 
-    onMapPress = (e: TiEvent) => {
+    onMapPress?(e: TiEvent)
+    HandleOnMapPress = (e: TiEvent) => {
         var nb = this.wayPointsAnnotations.length;
         if (nb >= this.maxPoints) {
             app.showAlert(trc('too_many_points'));
             return;
         }
-        var loc: Location = _.pick(e, 'latitude', 'longitude', 'altitude');
+        var loc: TiLocation = _.pick(e, 'latitude', 'longitude', 'altitude');
         var item: Item = Object.assign(loc, {
             title: trc('waypoint'),
             id: 'waypoint_' + nb,
@@ -710,7 +711,7 @@ export class Directions extends MapModule {
     show = () => {
         if (!this.visible) {
             this.onMapMarkerSelected = this.onAnnotationPressOrSelected;
-            this.onMapPress = this.onMapPress;
+            this.onMapPress = this.HandleOnMapPress;
             this.onAnnotationPress = _.partialRight(this.onAnnotationPressOrSelected, true);
             this.parent.runGetMethodOnModules('onStartExclusiveAction', 'direction');
             // self.parent.runMethodOnModules('hideModule', {

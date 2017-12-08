@@ -1,3 +1,6 @@
+// import {ContentModule} from '../ui/mapModules/MapModule'
+const stringScore = require('string-score');
+const ContentModule = require('../ui/mapModules/MapModule').ContentModule;
 exports.settings = {
     color: '#BD732C',
     name: 'Refuges.info',
@@ -33,7 +36,7 @@ exports.create = function(_context, _args, _additional) {
         geolib = itemHandler.geolib,
         formatter = itemHandler.geolib.formatter,
         // cleanUpString = app.api.cleanUpString,
-        self = new _context.ContentModule(_args),
+        self = new ContentModule(_args),
         key = 'ri',
         type = itemHandler.initializeType(key, {
             icon: app.icons.house,
@@ -125,7 +128,7 @@ exports.create = function(_context, _args, _additional) {
         };
         var props = obj.properties;
 
-        _.each(['acces', 'remarque', 'proprio'], function(key) {
+        ['acces', 'remarque', 'proprio'].forEach(function(key) {
             var theObj = props[key];
             if (theObj && theObj.nom.length > 0 && theObj.valeur.length > 0) {
                 result.notes = result.notes || [];
@@ -160,12 +163,12 @@ exports.create = function(_context, _args, _additional) {
             result.tags.website = details.site_officiel.url;
         }
 
-        _.each(riTags, function(value, key) {
+        for (let key in riTags) {
             var theObj = details[key];
             if (theObj) {
-                result.tags[value] = parseInt(theObj.valeur) === 1;
+                result.tags[riTags[key]] = parseInt(theObj.valeur) === 1;
             }
-        });
+        }
         result.photos = [];
         var photoPath = 'http://www.refuges.info';
         _.each(props.coms, function(com) {
@@ -243,7 +246,7 @@ exports.create = function(_context, _args, _additional) {
                             for (var i = 0; i < result.length; i++) {
                                 data = result[i];
                                 distance = geolib.getDistanceSimple(_item, data);
-                                var score = _query.score(data.title, 1);
+                                var score = stringScore(_query, data.title, 1);
                                 var realScore = score / distance;
                                 if (realScore > bestScore) {
                                     bestScore = realScore;

@@ -1,3 +1,5 @@
+// import {ContentModule} from '../ui/mapModules/MapModule'
+const ContentModule = require('../ui/mapModules/MapModule').ContentModule;
 exports.settings = {
     color: '#FFAB4F',
     name: 'CampToCamp',
@@ -25,14 +27,14 @@ exports.lang = {
         "c2c_itineraries": "itinéraires CampToCamp",
     }
 };
-exports.create = function(_context, _args, _additional) {
+exports.create = function (_context, _args, _additional) {
     var itemHandler = app.itemHandler,
         geolib = itemHandler.geolib,
         formatter = itemHandler.geolib.formatter,
         htmlIcon = app.utilities.htmlIcon,
         cleanUpString = app.api.cleanUpString,
-        self = new _context.ContentModule(_args),
-        baseUrl = 'http://www.camptocamp.org/routes/list/',
+        self = new ContentModule(_args),
+        baseUrl = 'https://api.camptocamp.org/outings/',
         type = itemHandler.initializeType('c2c', {
             icon: '\ue800',
             title: trc('c2c_itineraries'),
@@ -277,7 +279,7 @@ exports.create = function(_context, _args, _additional) {
             return;
         }
         var last;
-        var points = _.reduce(coordinates, function(memo, coord) {
+        var points = _.reduce(coordinates, function (memo, coord) {
             coord.reverse();
             if (last && _.isEqual(last, coord)) {
                 return memo;
@@ -327,9 +329,9 @@ exports.create = function(_context, _args, _additional) {
                 points: points
             }
         };
-        _.each(['description', 'avalanceDesc', 'gear', 'weather', 'conditions', 'outingComments', 'hutComments',
+        ['description', 'avalanceDesc', 'gear', 'weather', 'conditions', 'outingComments', 'hutComments',
             'remarks'
-        ], function(key) {
+        ].forEach(function (key) {
             var theObj = props[key];
             if (theObj) {
                 result.notes = result.notes || [];
@@ -345,8 +347,8 @@ exports.create = function(_context, _args, _additional) {
 
     function getC2CResultsFromPage(_url, res) {
         res = res || {
-            type:type,
-            items:[]
+            type: type,
+            items: []
         };
         return app.api.call({
             url: _url,
@@ -374,7 +376,7 @@ exports.create = function(_context, _args, _additional) {
             // },
 
             // onError: chain.error
-        }).then(function(result) {
+        }).then(function (result) {
             if (result.features && result.features.length > 0) {
                 var items = _.mapIfDefined(result.features, parseObject);
                 if (items.length > 0) {
@@ -396,10 +398,9 @@ exports.create = function(_context, _args, _additional) {
     }
 
     function getDetails(_item) {
-        var url = baseUrl + 'id/' + _item.c2c.id +
-            '/geom/yes/format/json-track-full-html';
+        var url = baseUrl + _item.c2c.id;
         var id = _item.c2c && _item.c2c.id;
-        return getC2CResultsFromPage(url).then(function(result) {
+        return getC2CResultsFromPage(url).then(function (result) {
             if (result && result.items.length > 0) {
                 return result.c2c.items[0];
             }
@@ -407,14 +408,14 @@ exports.create = function(_context, _args, _additional) {
     }
 
     Object.assign(self, {
-        GC: app.composeFunc(self.GC, function() {
+        GC: app.composeFunc(self.GC, function () {
             view = null;
         }),
-        onInit: function() {
+        onInit: function () {
             Object.assign(app.icons, icons);
 
         },
-        getSearchFilters: function() {
+        getSearchFilters: function () {
             return {
                 id: 'c2c',
                 icon: type.icon,
@@ -423,13 +424,13 @@ exports.create = function(_context, _args, _additional) {
             };
         },
 
-        shouldBeEnabledByDefault: function() {
+        shouldBeEnabledByDefault: function () {
             return /fr|es|it|de|si|ch/i.test(app.localeInfo.currentCountry.toLowerCase());
         },
-        getSearchCalls: function(memo, _params) {
+        getSearchCalls: function (memo, _params) {
             memo['c2c'] = _.partial(search, _params);
         },
-        getDetailsCalls: function(memo, _query, _item, _desc) {
+        getDetailsCalls: function (memo, _query, _item, _desc) {
             // var isRoute = itemHandler.isItemARoute(_item);
             if (_item.c2c) {
                 memo['c2c'] = _.partial(getDetails, _item);
@@ -470,10 +471,10 @@ exports.create = function(_context, _args, _additional) {
         // getGeoFeatures: function(memo) {
         //     memo['c2c'] = type;
         // },
-        getItemTypes: function(memo) {
+        getItemTypes: function (memo) {
             memo['c2c'] = type;
         },
-        prepareDetailsListView: function(item, itemDesc, sections, createItem, colors, iconicColor) {
+        prepareDetailsListView: function (item, itemDesc, sections, createItem, colors, iconicColor) {
             if (item.c2c) {
                 sections[0].items.push(createItem({
                     html: 'Camp2Camp' + '  ' + app.texts.ccopyright,
@@ -497,7 +498,7 @@ exports.create = function(_context, _args, _additional) {
                                 html: htmlIcon(type.icon, 1) + ' Camp2Camp'
                             }
                         }),
-                        items: _.reduce(obj.linkedParkings, function(items, value) {
+                        items: _.reduce(obj.linkedParkings, function (items, value) {
                             items.push(createItem({
                                 text: value.name,
                                 icon: app.icons.parking,
@@ -520,7 +521,7 @@ exports.create = function(_context, _args, _additional) {
 
             }
         },
-        actionsForItem: function(_item, _desc, _onMap, result) {
+        actionsForItem: function (_item, _desc, _onMap, result) {
             // sdebug('actionsForItem', _onMap, result);
             if (_onMap) {
                 result.splice(result.length - 1, 0, ['c2c_around', {
@@ -529,16 +530,23 @@ exports.create = function(_context, _args, _additional) {
                 }]);
             }
         },
-        onModuleAction: function(_params) {
+        onModuleAction: function (_params) {
             if (_params.command === 'c2c_around') {
                 self.window.manager.closeToRootWindow();
                 var loc = geolib.coords(_params.item.start || _params.item);
                 // sdebug('loc', loc);
+                var region = geolib.getBoundsOfDistance(loc, 2000);
                 var url = baseUrl + 'sarnd/' + loc.longitude + ',' + loc.latitude +
                     ',2000/geom/yes/npp/100/format/json-track-full-html';
 
                 var module = self.parent.getModule('Search');
-                var request = getC2CResultsFromPage(url).then(module.showSearchResults).then(self.window.hideLoading)
+                var request = getC2CResultsFromPage(url).then(module.showSearchResults).catch(function (e) {
+                    self.window && self.window.showError(e)
+                }).then(function (r) {
+                    self.window && self.window.hideLoading();
+                    return r;
+                });
+
                 self.window.showLoading({
                     request: request,
                     label: {

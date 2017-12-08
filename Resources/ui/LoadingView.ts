@@ -1,9 +1,11 @@
-declare class LoadingView extends View {
-    stopLoading()
-    startLoading(args?)
-    holder:View
+declare global {
+    class LoadingView extends View {
+        stopLoading()
+        startLoading(args?)
+        holder: View
+    }
 }
-ak.ti.constructors.createLoadingView = function(_args) {
+export function create(_args) {
 
     var self = new View({
         properties: _args,
@@ -18,7 +20,7 @@ ak.ti.constructors.createLoadingView = function(_args) {
                 bindId: 'label',
                 properties: {
                     rclass: 'LoadingViewLabel',
-                    padding:{bottom:0},
+                    padding: { bottom: 0 },
                 }
             }, {
                 type: 'Ti.UI.ActivityIndicator',
@@ -30,14 +32,14 @@ ak.ti.constructors.createLoadingView = function(_args) {
                 type: 'Ti.UI.Label',
                 bindId: 'sublabel',
                 properties: {
-                    padding:{top:0},
+                    padding: { top: 0 },
                     rclass: 'LoadingViewLabel'
                 }
             }]
         }]
     }) as LoadingView;
 
-    self.startLoading = function(_args) {
+    self.startLoading = function (_args) {
         _args = _args || {};
         _args.label = _args.label || {
             text: ''
@@ -46,11 +48,11 @@ ak.ti.constructors.createLoadingView = function(_args) {
         // self.indicator.show();
     };
 
-    self.stopLoading = function() {
+    self.stopLoading = function () {
         // self.indicator.hide();
     };
     //END OF CLASS. NOW GC 
-    self.GC = app.composeFunc(self.GC, function() {
+    self.GC = app.composeFunc(self.GC, function () {
         self = null;
     });
     return self;

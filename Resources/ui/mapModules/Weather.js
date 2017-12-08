@@ -1,3 +1,5 @@
+// import MapModule from './MapModule'
+const MapModule = require('./MapModule').MapModule;
 exports.create = function(_context, _args, _additional) {
     var settings = _args.settings,
         itemHandler = app.itemHandler,
@@ -54,7 +56,7 @@ exports.create = function(_context, _args, _additional) {
                 }
             }]
         }),
-        self = new _context.MapModule(_args);
+        self = new MapModule(_args);
 
     function getCluster() {
         if (!cluster) {
@@ -137,7 +139,7 @@ exports.create = function(_context, _args, _additional) {
 
     function onRemoved(e) {
         sdebug('onRemoved', e);
-        _.each(e.items, function(item) {
+        e.items.forEach(function(item) {
             delete itemWeatherData[item.id];
         });
         Ti.App.Properties.setObject('weather', itemWeatherData);

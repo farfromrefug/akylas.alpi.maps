@@ -1,7 +1,7 @@
 
+import TemplateModule from 'akylas.commonjs/TemplateModule'
 
-class RowTemplates extends TemplateModule {
-    [key: string]: Template
+export default class CRowTemplates extends TemplateModule {
     icons = {
         share: '\ue6c0',
         delete: '\ue287',
@@ -687,7 +687,18 @@ class RowTemplates extends TemplateModule {
                     type: 'Akylas.Charts2.LineChart',
                     properties: {
                         rclass: 'ElevationProfileRowLineChart',
-                        clipChildren: false
+                        clipChildren: false,
+                        data: {
+                            highlight: true,
+                            datasets: [{
+                                bindId:'chartset',
+                                drawCircles: false,
+                                drawCircleHole: false,
+                                drawFilled: true,
+                                drawValues: false,
+                                lineWidth: 2
+                            }]
+                        }
                     },
                     childTemplates: [{
                         //     type: 'AkylasCharts.PlotLine',
@@ -753,7 +764,7 @@ class RowTemplates extends TemplateModule {
                                 bottom: 0,
                                 transform: 'r180',
                                 width: 10,
-                                height: 5,
+                                height: 6,
                                 verticalAlign: 'top',
                                 // wordWrap:false,
                                 // maxLines:1,
@@ -1223,7 +1234,9 @@ class RowTemplates extends TemplateModule {
                 }]
             }
         };
-        _.forEach(toAdd, this.addTemplate);
+        for (const key in toAdd) {
+            this.addTemplate(toAdd[key], key);
+        }
 
         this.iteminfosmall = this.cloneTemplateAndFill('iteminfo', {
             properties: {
@@ -1530,7 +1543,10 @@ class RowTemplates extends TemplateModule {
     }
 }
 
+declare global {
+    type RowTemplates = CRowTemplates
+}
 
-exports.load = function (_context) {
-    return new RowTemplates();
+export function load (_context) {
+    return new CRowTemplates();
 };

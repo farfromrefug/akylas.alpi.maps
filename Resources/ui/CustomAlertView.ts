@@ -1,11 +1,13 @@
-declare class CustomAlertView extends AppWindow {
-    container: Container & {
-        alertView: View
+declare global {
+    class CustomAlertView extends AppWindow {
+        container: Container & {
+            alertView: View
+        }
+        showMe(force?: boolean)
     }
-    showMe(force?: boolean)
 }
-ak.ti.constructors.createCustomAlertView = function (_args?:AKCustomAlertViewParams) {
-    var cancel = _.remove(_args, 'cancel'),
+export function create(_args?: WindowParams) {
+    let cancel = _.remove(_args, 'cancel'),
         hideOnClick = _.remove(_args, 'hideOnClick'),
         tapOutDismiss = _.remove(_args, 'tapOutDismiss', true),
         buttonNames = _.remove(_args, 'buttonNames', [trc('ok').toUpperCase()]),

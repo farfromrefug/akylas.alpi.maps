@@ -1,23 +1,24 @@
-declare class ItemInfoView extends View {
-    setSuppViewsVisible(visible:boolean)
-    suppViewsVisible(visible:boolean)
-    setActionBarVisible(visible:boolean)
-    actionBarVisible(visible:boolean)
-    animateChanges()
-    update()
-    updateSupplyView()
-    updateLocation(location)
-    showMe()
-    hideMe()
-    setSelectedItem(item:Item)
-    onInit(_window, _mapHandler)
-    onItemTouched(e)
-    canShowActionButtons:boolean
-    grabber:View
-    supplHolder:View
+declare global {
+    class ItemInfoView extends View {
+        setSuppViewsVisible(visible: boolean)
+        suppViewsVisible(visible: boolean)
+        setActionBarVisible(visible: boolean)
+        actionBarVisible(visible: boolean)
+        animateChanges()
+        update()
+        updateSupplyView()
+        updateLocation(location)
+        showMe()
+        hideMe()
+        setSelectedItem(item: Item)
+        onInit(_window, _mapHandler)
+        onItemTouched(e)
+        canShowActionButtons: boolean
+        grabber: View
+        supplHolder: View
+    }
 }
-
-ak.ti.constructors.createItemInfoView = function (_args) {
+export function create(_args: WindowParams) {
     var mapHandler = _.remove(_args, 'mapHandler'),
         window = _.remove(_args, 'window'),
         onMap = _.remove(_args, 'onMap', false),
@@ -33,7 +34,7 @@ ak.ti.constructors.createItemInfoView = function (_args) {
         supplyViewsTemplates,
         suppViewsVisible = true,
         GRABBER_LENGTH_2 = 15,
-        ANIMATION_DURATION = 200,
+        ANIMATION_DURATION = 150,
         actionBar = new ItemActionBar({
             bindId: 'actionBar',
             // backgroundColor: null
@@ -42,47 +43,47 @@ ak.ti.constructors.createItemInfoView = function (_args) {
             properties: _args,
 
             childTemplates: [{
-                    type: 'AkylasShapes.View',
-                    bindId: 'grabberView',
+                type: 'AkylasShapes.View',
+                bindId: 'grabberView',
+                properties: {
+                    width: 'FILL',
+                    height: 18
+                },
+                childTemplates: [{
+                    type: 'AkylasShapes.Line',
+                    bindId: 'grabber',
                     properties: {
-                        width: 'FILL',
-                        height: 18
-                    },
-                    childTemplates: [{
-                        type: 'AkylasShapes.Line',
-                        bindId: 'grabber',
-                        properties: {
-                            touchEnabled: false,
-                            retina: true,
-                            antialiasing: true,
-                            lineColor: '#1E1D30',
-                            anchor: app.modules.shapes.CENTER,
-                            lineWidth: 6,
-                            lineCap: 1,
-                            lineJoin: 1,
-                            points: [
-                                [-GRABBER_LENGTH_2, 0],
-                                [0, 0],
-                                [GRABBER_LENGTH_2, 0]
-                            ]
-                        }
-                    }]
-                }, {
-                    type: 'Ti.UI.View',
-                    bindId: 'supplHolder',
-                    properties: {
-                        height: 'SIZE'
+                        touchEnabled: false,
+                        retina: true,
+                        antialiasing: true,
+                        lineColor: '#1E1D30',
+                        anchor: app.modules.shapes.CENTER,
+                        lineWidth: 6,
+                        lineCap: 1,
+                        lineJoin: 1,
+                        points: [
+                            [-GRABBER_LENGTH_2, 0],
+                            [0, 0],
+                            [GRABBER_LENGTH_2, 0]
+                        ]
                     }
-                }, Object.assign(app.templates.row.cloneTemplateAndFill('iteminfosmallanimated', onMap ? {
-                    properties: {
-                        backgroundColor: null,
-                        right: 54,
-                    },
-                    accessory: {
-                        visible: showAccessory,
-                        width: 80,
-                    }
-                } : {
+                }]
+            }, {
+                type: 'Ti.UI.View',
+                bindId: 'supplHolder',
+                properties: {
+                    height: 'SIZE'
+                }
+            }, Object.assign(app.templates.row.cloneTemplateAndFill('iteminfosmallanimated', onMap ? {
+                properties: {
+                    backgroundColor: null,
+                    right: 54,
+                },
+                accessory: {
+                    visible: showAccessory,
+                    width: 80,
+                }
+            } : {
                     accessory: {
                         visible: showAccessory
                     }
@@ -107,9 +108,9 @@ ak.ti.constructors.createItemInfoView = function (_args) {
                             self.setActionBarVisible(true);
                             self.animateChanges();
                             break;
-                            // case 'left':
-                            //     self.runAction('details');
-                            //     break;
+                        // case 'left':
+                        //     self.runAction('details');
+                        //     break;
                     }
                 },
                 click: function (e) {
@@ -165,13 +166,12 @@ ak.ti.constructors.createItemInfoView = function (_args) {
                 height: suppViewsVisible ? 'SIZE' : 0,
                 right: actionHolderVisible ? 0 : 50,
             },
-            duration: 200
+            duration: ANIMATION_DURATION
         });
     };
 
     self.setActionBarVisible = function (_visible) {
         if (_visible !== actionHolderVisible && (!_visible || self.canShowActionButtons)) {
-            var animDuration = 100;
             actionHolderVisible = _visible;
             needsAnimationChanges = true;
         }
@@ -219,7 +219,7 @@ ak.ti.constructors.createItemInfoView = function (_args) {
         }
     };
 
-    function updateSupplyView(_item?:Item, _desc?:ItemType) {
+    function updateSupplyView(_item?: Item, _desc?: ItemType) {
         _item = _item || selectedItem.item;
         _desc = _desc || selectedItem.desc;
         var supplViews = mapHandler.runGetMethodOnModules('getItemSupplViews', _item, _desc, {
@@ -346,18 +346,20 @@ ak.ti.constructors.createItemInfoView = function (_args) {
                         .profile
                         .points);
                     if (data && data.distance <= 20) {
-                        // sdebug('location close to profile', data);
-                        var lineData = currentSupplViews.line.getDataForIndex(data.index);
-                        // sdebug('lineData', lineData);
-                        if (lineData) {
-                            // sdebug('lineData', lineData);
-                            currentSupplViews.applyProperties({
-                                userLocation: {
-                                    visible: true,
-                                    center: [lineData.line.x, lineData.line.y]
-                                }
-                            });
+                        sdebug('location close to profile', data);
+                        if (currentSupplViews.chart) {
+                            var lineData = currentSupplViews.chart.getDataForIndex(0, data.index);
+                            if (lineData) {
+                                sdebug('lineData', lineData);
+                                currentSupplViews.applyProperties({
+                                    userLocation: {
+                                        visible: true,
+                                        center: { x: lineData.xPx, y: lineData.yPx }
+                                    }
+                                });
+                            }
                         }
+
 
                     } else {
                         currentSupplViews.applyProperties({
@@ -373,8 +375,13 @@ ak.ti.constructors.createItemInfoView = function (_args) {
 
     self.setSelectedItem = function (_item) {
         selectedItem = _item;
+        if (!selectedItem) {
+            self.hideMe();
+            return;
+        }
         actionBar.updateForItem(selectedItem.item, selectedItem.desc, visible);
         self.update();
+        self.showMe();
         // sdebug(TAG, 'setSelectedItem', _item, visible);
     };
 

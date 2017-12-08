@@ -1,12 +1,14 @@
 
-declare class PullToRefresh extends View {
-    goToLoading()
-    arrow: View
-    label: Label
-    reset()
-    setListView(listView: ListView | CollectionView)
+declare global {
+    class PullToRefresh extends View {
+        goToLoading()
+        arrow: View
+        label: Label
+        reset()
+        setListView(listView: ListView | CollectionView)
+    }
 }
-ak.ti.constructors.createPullToRefresh = function (_args) {
+export function create(_args) {
     var rclass = _args.rclass || '';
     var needsReset = true;
     var unrotate = '';
@@ -66,7 +68,7 @@ ak.ti.constructors.createPullToRefresh = function (_args) {
         self.goToLoading();
         self.fireEvent('pulled');
     };
-    self.reset = function() {
+    self.reset = function () {
         listView.removeEventListener('pull', self.reset);
         self.label.text = pullMessage;
         self.arrow.transform = unrotate;

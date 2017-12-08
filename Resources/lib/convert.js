@@ -4,7 +4,7 @@ var OSMReplaceKeys = {
     'contact:phone': 'phone',
     via_ferrata_scale: 'difficulty'
 };
-var htmlIcon = app.utilities.htmlIcon;
+// var htmlIcon = app.utilities.htmlIcon;
 var OSMClassProps = ['amenity', 'natural', 'leisure', 'shop', 'sport', 'place', 'highway', 'waterway',
     'historic', 'railway',
     'landuse', 'aeroway', 'boundary', 'office', 'tourism'
@@ -37,7 +37,7 @@ function osmAddress(result) {
         display_name: result.display_name
     };
     if (!result.hasOwnProperty('house_number')) {
-        _.each(streetParams, function(param) {
+        streetParams.forEach(function(param) {
             if (result.address[param]) {
                 var match = result.address[param].match(/^([0-9]+)[,]?\s(.*)/);
                 if (match) {
@@ -64,8 +64,8 @@ function osmAddress(result) {
                     return false;
                 }
             };
-            if (_.isArray(value)) {
-                _.forEach(value, function(key) {
+            if (Array.isArray(value)) {
+                value.forEach(function(key) {
                     return handleValue(result.address[key]);
                 });
             } else {
@@ -112,7 +112,7 @@ function prepareOSMObject(ele, _withIcon, _testForGeoFeature) {
         tags: ele.tags,
 
     };
-    _.each(OSMClassProps, function(key) {
+    OSMClassProps.forEach(function(key) {
         if (ele.tags[key]) {
             result.osm.class = key;
             result.osm.subtype = ele.tags[key];
@@ -180,8 +180,7 @@ function prepareOSMObject(ele, _withIcon, _testForGeoFeature) {
 function prepareOSMWay(way, nodes, geolib) {
     var points = [];
     if (_.size(nodes) > 0) {
-        _.each(way.nodes,
-            function(node) {
+        way.nodes.forEach(function(node) {
                 // sdebug('handling', node);
                 node = nodes[node +
                     ''][0];
@@ -190,8 +189,7 @@ function prepareOSMWay(way, nodes, geolib) {
                 ]);
             });
     } else {
-        _.each(way.geometry,
-            function(node) {
+        way.geometry.forEach(function(node) {
                 // sdebug('handling', node);
                 // node = nodes[node +
                 //     ''][0];
@@ -285,7 +283,7 @@ function prepareUtfGridResult(ele) {
     };
     var osmClass;
     var osmSub;
-    _.each(OSMClassProps, function(key) {
+    OSMClassProps.forEach(function(key) {
         if (ele.tags[key]) {
             osmClass = key;
             osmSub = ele.tags[key];
@@ -418,7 +416,7 @@ function osmTagsFastDetails(_item) {
         //     }
         // });
         // var possibleWithoutKey = ['cuisine', 'sport'];
-        _.each(OSMTagsWithoutKey, function(value) {
+        OSMTagsWithoutKey.forEach(function(value) {
             if (_item.tags[value]) {
                 result.push(trc(_item.tags[value]));
             }
@@ -489,6 +487,7 @@ function handleTagPropForIcon(value, key) {
         value = level;
     }
     var icon = _.isString(key) && app.icons[key];
+    const htmlIcon = app.utilities.htmlIcon;
     if (icon) {
         // sdebug('handling icon ', key);
         var integerValue = parseFloat(value);
@@ -516,7 +515,7 @@ function osmTagsIconsHTML(_item, _colorOff) {
     var result = '';
     if (_item.tags) {
         _.each(_.omit(_item.tags, OSMTagsIgnoreKey, OSMTagsWithoutKey), function(value, key) {
-            if (_.isArray(value)) {
+            if (Array.isArray(value)) {
                 for (var i = 0; i < value.length; i++) {
                     result += handleTagPropForIcon(undefined, value[i]);
                 }

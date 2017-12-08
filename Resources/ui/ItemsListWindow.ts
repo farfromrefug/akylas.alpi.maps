@@ -1,18 +1,21 @@
 
-declare class MultiSelectView extends View {
-    children: Label[]
+declare global {
+    class MultiSelectView extends View {
+        children: Label[]
+    }
 }
-ak.ti.constructors.createItemsListWindow = function (_args:WindowParams) {
+export function create(_args: WindowParams) {
     let htmlIcon = app.utilities.htmlIcon,
         mapHandler = _.remove(_args, 'mapHandler'),
         itemHandler = app.itemHandler,
         infoRowItemForItem = itemHandler.infoRowItemForItem,
         updateParamsForLocation = itemHandler.updateParamsForLocation,
         desc = _.remove(_args, 'itemDesc'),
-        items: Item[],
-        editing:boolean,
+        // items: Item[],
+        rowItems: RowItem[] = [],
+        editing: boolean,
         selectedItems: { [k: string]: boolean } = {},
-        selectedItemIndexes:string[],
+        selectedItemIndexes: string[],
         isCollection = false;
 
     // }
@@ -24,14 +27,13 @@ ak.ti.constructors.createItemsListWindow = function (_args:WindowParams) {
         // sdebug('setEditing', editing);
         if (!editing && __ANDROID__) {
             // sdebug('t est', selectedItems);
-            _.forEach(selectedItems, function (value, key) {
-                // sdebug('test2', value, key);
+            for (const key in selectedItems) {
                 self.listView.updateItemAt(0, parseInt(key), {
                     properties: {
                         backgroundColor: null
                     }
                 });
-            });
+            }
             selectedItems = {};
         }
 
@@ -150,7 +152,7 @@ ak.ti.constructors.createItemsListWindow = function (_args:WindowParams) {
                     sdebug('item click', e);
 
                     var item = e.item;
-                    if (!item || item.template === 'admob' || !!editing) {
+                    if (!item || !!editing) {
                         return;
                     }
                     var callbackId = e.source.callbackId || 'details';
@@ -216,7 +218,7 @@ ak.ti.constructors.createItemsListWindow = function (_args:WindowParams) {
                     setEditing(false);
                     return;
                 }
-                var theItems:Item[] = _.map(_.at(rowItems, selectedItemIndexes), 'item');
+                var theItems: Item[] = _.map(_.at(rowItems, selectedItemIndexes), 'item');
                 sdebug('click', callbackId, theItems, e);
                 itemHandler.handleItemAction(callbackId, theItems, desc, function (_result) {
                     // setTimeout(function() {
@@ -230,9 +232,8 @@ ak.ti.constructors.createItemsListWindow = function (_args:WindowParams) {
     }) as MultiSelectView;
 
     var self = new AppWindow(_args);
-    let rowItems: RowItem[] = [];
     function updateItems() {
-        items = _.flatten(mapHandler.runGetMethodOnModules('getItems', desc.id));
+        let items = _.flatten(mapHandler.runGetMethodOnModules('getItems', desc.id));
         rowItems = _.sortBy(_.reduce(items, function (result, value, index) {
             result.push(infoRowItemForItem(value, desc));
             return result;
@@ -257,7 +258,6 @@ ak.ti.constructors.createItemsListWindow = function (_args:WindowParams) {
     }
 
     self.setColors = _.flow(self.setColors, function (colors) {
-        sdebug('setColors', colors);
         if (self.isOpened) {
             multiSelectView.animate({
                 backgroundColor: colors.color,
@@ -270,11 +270,11 @@ ak.ti.constructors.createItemsListWindow = function (_args:WindowParams) {
                 backgroundColor: colors.color
             });
         }
-        _.forEach(multiSelectView.children, function (child) {
+        multiSelectView.children.forEach(function (child) {
             // if (child.color) {
             child.color = colors.contrast;
             // }
-            _.forEach(child.children, function (child2) {
+            child.children.forEach(function (child2) {
                 // if (child2.color) {
                 child2.color = colors.contrast;
                 // }
@@ -315,20 +315,17 @@ ak.ti.constructors.createItemsListWindow = function (_args:WindowParams) {
         if (e.desc.id !== desc.id) {
             return;
         }
-        _.forEach(e.items, function (item) {
+        e.items.forEach(function (item) {
             var index = findItemIndex(item.id);
 
             if (index >= 0) {
-                items.splice(index, 1);
+                rowItems.splice(index, 1);
                 self.listView.deleteItemsAt(0, index, 1, {
                     animated: true
                 });
             }
         });
-        sdebug('items');
-        if (items.length - _.filter(items, {
-            template: 'admob'
-        }).length === 0) {
+        if (rowItems.length === 0) {
             self.closeMe();
         }
     }
@@ -340,12 +337,14 @@ ak.ti.constructors.createItemsListWindow = function (_args:WindowParams) {
     }
 
     function onMoved(e: ItemsMovedEvent) {
-        _.forEach(e.oldItems, function (value) {
+        let value;
+        for (const key in e.oldItems) {
+            value = e.oldItems[key];
             if (value.desc.id === desc.id) {
-                _.forEach(value.items, function (item) {
+                value.items.forEach(function (item) {
                     var index = findItemIndex(item.id);
                     if (index >= 0) {
-                        items.splice(index, 1);
+                        rowItems.splice(index, 1);
                         self.listView.deleteItemsAt(0, index, 1, {
                             animated: true
                         });
@@ -353,7 +352,10 @@ ak.ti.constructors.createItemsListWindow = function (_args:WindowParams) {
                 });
                 return false;
             }
-        });
+        };
+        if (rowItems.length === 0) {
+            self.closeMe();
+        }
     }
     updateList();
     self.showLoading();

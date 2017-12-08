@@ -1,3 +1,5 @@
+// import MapModule from './MapModule'
+const MapModule = require('./MapModule').MapModule;
 exports.create = function (_context, _args, _additional) {
     var settings = _args.settings,
         visible = false,
@@ -20,7 +22,7 @@ exports.create = function (_context, _args, _additional) {
         enabledSearchFilters = [],
         cluster,
         searchRoutes = [],
-        self = new _context.MapModule(_args),
+        self = new MapModule(_args),
         resultView,
         satSection = new ListSection(),
         satCount = 0,
@@ -191,6 +193,8 @@ exports.create = function (_context, _args, _additional) {
                                         handleOnAdd(e, false, false);
                                     }
                                     hide();
+                                } else {
+                                    hide();
                                 }
                             })
                         }
@@ -289,11 +293,13 @@ exports.create = function (_context, _args, _additional) {
                 var items = [];
                 var instantItems = self.parent.runReduceMethodOnModules('searchItems', _query);
                 sdebug(instantItems);
-                _.each(instantItems, function (list) {
-                    _.each(list.items, function (item) {
+                let list;
+                for (const key in instantItems) {
+                    list = instantItems[key];
+                    list.items.forEach(function (item) {
                         items.push(satItem(item, list.desc));
                     });
-                });
+                }
                 sdebug('instantItems', instantItems, items);
                 satSection.items = items;
                 satCount = items.length;

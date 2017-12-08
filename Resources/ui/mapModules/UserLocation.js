@@ -1,3 +1,5 @@
+// import MapModule from './MapModule'
+const MapModule = require('./MapModule').MapModule;
 exports.create = function(_context, _args, _additional) {
     var TAG = 'UserLocation',
         settings = _args.settings,
@@ -24,7 +26,7 @@ exports.create = function(_context, _args, _additional) {
 
     function update(_location) {
         var updateArgs = {};
-        sdebug('userlocation update', _location);
+        // sdebug('userlocation update', _location);
         if (_location) {
             // updateArgs.customView = {
             //     template: 'userLocation',
@@ -74,7 +76,7 @@ exports.create = function(_context, _args, _additional) {
         }
     }
 
-    var self = new _context.MapModule(_args),
+    var self = new MapModule(_args),
         userLocationAnnot = settings.userAnnotation = new MapAnnotation({
             flat: true,
             // bubbleParent: true,
@@ -82,7 +84,7 @@ exports.create = function(_context, _args, _additional) {
             hasInfo: false,
             zIndex: 799,
             selectable: false,
-            anchorPoint: [0.5, 0.5],
+            anchorPoint: [0.5, 0.535],
             // touchable:false,
             title: trc('your_location'),
             image: getAccuracyImage(currentAccuracyLevel)

@@ -1,3 +1,4 @@
+import { EventEmitter } from 'events'
 declare global {
     interface ItemChanges {
         title?: string
@@ -16,10 +17,18 @@ declare global {
         customView?: TiDict
         address?: ItemAddress
     }
-    type ItemHandler = ItemHdlr
+    // type ItemHandler = ItemHdlr
 }
 
-export class ItemHdlr extends EventEmitter {
+export interface ImageResult {
+    width: number
+    height: number
+    imageId: number
+    imageName: string
+    thumbnailImageName?: string
+}
+
+export class ItemHandler extends EventEmitter {
     convert = app.utils.convert
     // openingHours = app.utils.openingHours,
     localImageCache = {}
@@ -308,6 +317,7 @@ export class ItemHdlr extends EventEmitter {
 
         this.localImageCache[imageId] = this.getImagePath(imageId);
         var file = Ti.Filesystem.getFile(this.localImageCache[imageId]);
+        // sdebug('getAnnotImage', imageId, this.localImageCache[imageId], file.exists(), app.needsUpdate('annot_images'));
 
         if (!app.needsUpdate('annot_images') && file.exists()) {
             return imageId;
@@ -370,7 +380,7 @@ export class ItemHdlr extends EventEmitter {
         if (_type.getPrefKey) {
             return _type; //already done
         }
-        // sdebug('initializeType', _id);
+        // sdebug('initializeType', _id, _type);
         _type.propertyKey = _id + '_items';
         _type.getPrefKey = function (_suffix) {
             return this.id + '_' + _suffix;
@@ -379,7 +389,6 @@ export class ItemHdlr extends EventEmitter {
         _type.id = _id;
         _type.rclass = 'MapAnnot' + _.capitalize(_id);
         _type.colors = app.getContrastColors(_type.color);
-        // sdebug('initializeType', _id, _type.colors);
         _type.image = this.getAnnotImage(_type);
         _type.selectedImage = this.getAnnotImage(_type, undefined, true);
         ak.ti.redux.fn.setDefault('.' + _type.rclass, {
@@ -468,7 +477,7 @@ export class ItemHdlr extends EventEmitter {
             if (!!_item.route.encoded) {
                 var decodeLine = app.api.decodeLine;
                 var arrPush = Array.prototype.push;
-                if (_.isArray(points)) {
+                if (Array.isArray(points)) {
                     points = _.reduce(points, function (memo, value) {
                         arrPush.apply(memo, decodeLine(value));
                         return memo;
@@ -519,14 +528,15 @@ export class ItemHdlr extends EventEmitter {
         return toUsePoints;
     }
     itemProfileDesc(_item: Route) {
-        if (_item.route_mode !== 'walking') return '';
-        var duration = this.computeProfileEstimatedTime({
-            distance: _item.route.distance,
-            dplus: (_item.profile && _item.profile.dplus) || _item.tags.dplus,
-            dmin: (_item.profile && _item.profile.dmin) || _item.tags.dmin
-        });
-        return trc('estimated') + ' ' + this.htmlIcon(String.fromCharCode(0xe08e), 0, $.black) + moment.duration(
-            duration).format('h[h]m[m]');
+        return '';
+        // if (_item.route_mode !== 'walking') return '';
+        // var duration = this.computeProfileEstimatedTime({
+        //     distance: _item.route.distance,
+        //     dplus: (_item.profile && _item.profile.dplus) || _item.tags.dplus,
+        //     dmin: (_item.profile && _item.profile.dmin) || _item.tags.dmin
+        // });
+        // return trc('estimated') + ' ' + this.htmlIcon(String.fromCharCode(0xe08e), 0, $.black) + moment.duration(
+        //     duration).format('h[h]m[m]');
     }
     computeProfileEstimatedTime(_args) {
         // sdebug('computeProfileEstimatedTime', _args);
@@ -619,8 +629,8 @@ export class ItemHdlr extends EventEmitter {
         var count = 0;
         return _.reduce(params, function (memo, value, index) {
             if (count < 3 || index < 5) {
-                if (_.isArray(value)) {
-                    _.forEach(value, function (key) {
+                if (Array.isArray(value)) {
+                    value.forEach(function (key) {
                         var toAdd = address[key];
                         if (toAdd) {
                             memo += toAdd;
@@ -662,39 +672,42 @@ export class ItemHdlr extends EventEmitter {
             animated: _animated
         }, _deltaScreen);
     }
-    updateCamera = (_mapView: MapView, _params: MapUpdateCamParams, _deltaScreen?: { top?, bottom?, left?, right?}) => {
+    updateCamera = (_mapView: MapView, _params: MapUpdateCamParams, _deltaScreen?: { top?, bottom?, left?, right?}, _zoom?: number) => {
         var geolib = this.geolib,
             zoom, deltaSpan;
+        sdebug('updateCamera', _params, _deltaScreen);
         if (_params.region) {
             var region = _params.region;
             var center = geolib.getCenter([region.sw, region.ne]);
-            if (_deltaScreen) {
-                zoom = geolib.getBoundsZoomLevel(region, app.deviceinfo);
-                // sdebug('updateCamera', region, center, zoom, _deltaScreen);
-                if (_deltaScreen.bottom) {
-                    deltaSpan = geolib.getSpanFromPixels(_deltaScreen.bottom,
-                        center, zoom);
-                    region.sw.latitude -= deltaSpan;
-                }
-                if (_deltaScreen.top) {
-                    deltaSpan = geolib.getSpanFromPixels(_deltaScreen.top,
-                        center, zoom);
-                    region.ne.latitude += deltaSpan;
-                }
-                // sdebug('updateCamera2', region);
-            }
+            // if (_deltaScreen) {
+            // zoom = geolib.getBoundsZoomLevel(region, app.deviceinfo);
+            // if (_deltaScreen.bottom) {
+            //     deltaSpan = geolib.getSpanFromPixels(_deltaScreen.bottom,
+            //         center, zoom);
+            //     region.sw.latitude -= deltaSpan;
+            // }
+            // if (_deltaScreen.top) {
+            //     deltaSpan = geolib.getSpanFromPixels(_deltaScreen.top,
+            //         center, zoom);
+            //     region.ne.latitude += deltaSpan;
+            // }
+            // sdebug('updateCamera2', region);
+            // }
         } else if (_params.centerCoordinate) {
-            zoom = _params.zoom || _mapView.zoom;
+            zoom = _params.zoom || _zoom;
             var location = this.geolib.coords(_params.centerCoordinate);
-            if (_deltaScreen.bottom) {
-                deltaSpan = geolib.getSpanFromPixels(_deltaScreen.bottom / 2, location, zoom);
-                location.latitude -= deltaSpan;
-            }
-            if (_deltaScreen.top) {
-                deltaSpan = geolib.getSpanFromPixels(_deltaScreen.top / 2, location, zoom);
-                location.latitude += deltaSpan;
-            }
+            // if (_deltaScreen.bottom) {
+            //     deltaSpan = geolib.getSpanFromPixels(_deltaScreen.bottom / 2, location, zoom);
+            //     // location.latitude -= deltaSpan;
+            // }
+            // if (_deltaScreen.top) {
+            //     deltaSpan = geolib.getSpanFromPixels(_deltaScreen.top / 2, location, zoom);
+            //     // location.latitude += deltaSpan;
+            // }
             _params.centerCoordinate = location;
+        }
+        if (_deltaScreen) {
+            _params.focusOffset = [_deltaScreen.left - _deltaScreen.right, _deltaScreen.bottom - _deltaScreen.top];
         }
 
         _mapView.updateCamera(_params);
@@ -743,7 +756,7 @@ export class ItemHdlr extends EventEmitter {
             delete item.newPhotos;
         }
         if (_changes.deletedPhotos) {
-            _.forEach(_changes.deletedPhotos, function (photoName) {
+            _changes.deletedPhotos.forEach(function (photoName) {
                 item.photos = _.reject(item.photos, { 'image': photoName });
             });
             if (item.photos.length === 0) {
@@ -763,7 +776,7 @@ export class ItemHdlr extends EventEmitter {
             delete item.newNotes;
         }
         if (_changes.deletedNotes) {
-            _.forEach(_changes.deletedNotes, function (noteId) {
+            _changes.deletedNotes.forEach( function (noteId) {
                 item.notes = _.reject(item.notes, { 'id': noteId });
             });
             if (item.notes.length === 0) {
@@ -780,7 +793,7 @@ export class ItemHdlr extends EventEmitter {
             delete item.newFiles;
         }
         if (_changes.deletedFiles) {
-            _.forEach(_changes.deletedFiles, function (fileId) {
+            _changes.deletedFiles.forEach(function (fileId) {
                 item.files = _.reject(item.files, { 'fileName': fileId });
             });
             if (item.files.length === 0) {
@@ -816,7 +829,7 @@ export class ItemHdlr extends EventEmitter {
 
         return item;
     }
-    updateParamsForLocation(_item: Item, _location: Location) {
+    updateParamsForLocation(_item: Item, _location: TiLocation) {
         var args: any = {};
         if (!_item) {
             return args;
@@ -892,7 +905,7 @@ export class ItemHdlr extends EventEmitter {
             return result;
         }
     }
-    infoRowItemForItem = (_item: Item, _itemDesc: ItemType, _defaults?, _currentLocation?: Location) => {
+    infoRowItemForItem = (_item: Item, _itemDesc: ItemType, _defaults?, _currentLocation?: TiLocation) => {
         if (_currentLocation === undefined) {
             _currentLocation = app.currentLocation;
         }
@@ -1013,15 +1026,17 @@ export class ItemHdlr extends EventEmitter {
 
         _mapHandler.runMethodOnModules('actionsForItem', _item, _desc, _onMap, options);
         // sdebug('actionsForItem', options);
+        console.error('actionsForItem', options);
         options = options.map(key => {
             if (typeof key === 'string' && this.itemActions.hasOwnProperty(key)) {
                 return [key, this.itemActions[key]];
             }
             return key;
         })
+
         // var result = _.mapValues(options, function(value, key){
         //     sdebug('test', value, key);
-        //     if (!_.isArray(value) && itemActions.hasOwnProperty(key)) {
+        //     if (!Array.isArray(value) && itemActions.hasOwnProperty(key)) {
         //         return [key, itemActions[key]];
         //     }
         //     return value;
@@ -1044,15 +1059,12 @@ export class ItemHdlr extends EventEmitter {
         _mapHandler.runMethodOnModules('moreActionsForItem', _item, _desc, !!_params.onMap, options);
 
         new OptionDialog({
-            options: _.map(options, function (value,
-                index) {
-                return trc(value);
-            }),
+            options: _.map(options, value => trc(value)),
             buttonNames: [trc('cancel')],
             cancel: 0,
             tapOutDismiss: true
         })
-            .on('click', (function (e) {
+            .on('click', ((e) => {
                 if (!e.cancel) {
                     var option = options[e.index];
                     this.handleItemAction(option, _item, _desc, _callback, _parent,
@@ -1062,44 +1074,90 @@ export class ItemHdlr extends EventEmitter {
                 .bind(this))
             .show();
     }
-    handlePhotoTaken = (_parent: AppWindow, _callback: Function, e: TiEvent) => {
+    handlePhotoTaken = (_parent: AppWindow, e: TiMediaEvent) => {
         _parent.showLoading({
             label: {
                 html: trc('saving_photo') + '...'
             }
         });
         sdebug(e);
-        var image = e.media;
-        var imageId = moment()
-            .valueOf();
-        var imageName = 'photo_' + imageId + '.jpg';
-        Ti.Filesystem.getFile(this.getImagePath(imageName))
-            .write(image);
-        _callback(image, imageId, imageName);
+        return new Promise((resolve: (res: ImageResult) => void) => {
+            const image = e.media;
+            const imageWidth = e.width;
+            const imageHeight = e.height;
+            const imageId = moment().valueOf();
+            const imageName = 'photo_' + imageId + '.jpg';
 
-        _parent.hideLoading();
+            const result: ImageResult = {
+                width: imageWidth,
+                height: imageHeight,
+                imageId: imageId,
+                imageName: imageName
+            }
+            const MAX_WIDTH = 600;
+            sdebug('writing image', result);
+            Ti.Filesystem.getFile(this.getImagePath(imageName)).write(image);
+            if (imageWidth > MAX_WIDTH || imageHeight > MAX_WIDTH) {
+                const thumbnailImageName = 'photo_' + imageId + '_thumbnail.jpg';
+                sdebug('creating image thumbnail', thumbnailImageName);
+                result.thumbnailImageName = thumbnailImageName;
+                Ti.Image.getFilteredImage(image, {
+                    scale: MAX_WIDTH / Math.max(imageWidth, imageHeight), callback: (e: TiImageEvent) => {
+                        sdebug('created image thumbnail', e);
+                        Ti.Filesystem.getFile(this.getImagePath(thumbnailImageName)).write(e.image);
+                        _parent.hideLoading();
+                        resolve(result);
+                    }
+                })
+            } else {
+                _parent.hideLoading();
+                resolve(result);
+            }
+            // _callback(image, imageId, imageName, thumbnailImageName);
+        })
+
+
+
     }
     getItemSetting(prop, _item: Item, _desc: ItemType) {
         return (_item.settings && !!_item.settings[prop]) ||
             (_desc.settings && !!_desc.settings[prop]);
     }
-    takePhoto = (_parent: AppWindow, _callback: (...args) => any) => {
-        Titanium.Media.requestCameraPermissions(() => {
-            Titanium.Media.showCamera({
-                success: _.partial(this.handlePhotoTaken, _parent, _callback),
-                cancel: _callback,
-                error: function (error) {
-                    if (error.code == Titanium.Media.NO_CAMERA) {
-                        app.showAlert('Please run this on device');
-                    } else {
-                        app.showAlert('Unexpected error: ' + error.code);
-                    }
-                    _callback();
-                },
-                saveToPhotoGallery: true,
-                mediaTypes: [Ti.Media.MEDIA_TYPE_PHOTO]
+    takePhoto = (_parent: AppWindow) => {
+        return new Promise((resolve, reject) => {
+            Titanium.Media.requestCameraPermissions(() => {
+                Titanium.Media.showCamera({
+                    success: resolve,
+                    cancel: reject,
+                    error: function (error) {
+                        if (error.code == Titanium.Media.NO_CAMERA) {
+                            app.showAlert('Please run this on device');
+                        } else {
+                            app.showAlert('Unexpected error: ' + error.code);
+                        }
+                        reject();
+                    },
+                    saveToPhotoGallery: false,
+                    mediaTypes: [Ti.Media.MEDIA_TYPE_PHOTO]
+                });
             });
+        }).then((e: TiMediaEvent) => {
+            return this.handlePhotoTaken(_parent, e);
         });
+        // Titanium.Media.showCamera({
+        //     success: _.partial(this.handlePhotoTaken, _parent, _callback),
+        //     cancel: _callback,
+        //     error: function (error) {
+        //         if (error.code == Titanium.Media.NO_CAMERA) {
+        //             app.showAlert('Please run this on device');
+        //         } else {
+        //             app.showAlert('Unexpected error: ' + error.code);
+        //         }
+        //         _callback();
+        //     },
+        //     saveToPhotoGallery: false,
+        //     mediaTypes: [Ti.Media.MEDIA_TYPE_PHOTO]
+        // });
 
     }
     handleItemAction = (_option: string, _items: Item | Item[], _desc: ItemType, _callback: Function, _parent: AppWindow, _mapHandler: MapWindow, _params?) => {
@@ -1165,17 +1223,13 @@ export class ItemHdlr extends EventEmitter {
             case 'add_photo':
                 {
                     this.handleItemAction('acquire_photo', _item, _desc, (option,
-                        photo: {
-                            width: number,
-                            height: number,
-                            image: string
-                        }, image) => {
+                        photo: ItemPhoto) => {
                         if (photo) {
                             let result = this.updateItem(_item, _desc, {
                                 newPhotos: [photo]
                             }, _mapHandler);
                             if (_callback) {
-                                _callback(_option, result, image);
+                                _callback(_option, result);
                             }
                         }
                     }, _parent, _mapHandler);
@@ -1183,21 +1237,6 @@ export class ItemHdlr extends EventEmitter {
                 }
             case 'acquire_photo':
                 {
-                    var onSuccess = (_image, _imageId, _imageName) => {
-                        var result;
-                        if (_imageId) {
-                            result = {
-                                width: _image.width,
-                                height: _image.height,
-                                image: _imageName
-                            };
-
-                            // showMessage('address_found', color);
-                        }
-                        if (_callback) {
-                            _callback(_option, result, _image);
-                        }
-                    };
                     new OptionDialog({
                         options: [trc('take_picture'), trc('select_gallery')],
 
@@ -1208,19 +1247,39 @@ export class ItemHdlr extends EventEmitter {
                     }).on('click', (e: TiEvent) => {
                         sdebug(e);
                         if (!e.cancel) {
-                            if (e.index === 0) {
-                                this.takePhoto(_parent, onSuccess);
-                            } else if (e.index === 1) {
-                                Titanium.Media.openPhotoGallery({
-                                    success: _.partial(this.handlePhotoTaken,
-                                        _parent,
-                                        onSuccess),
-                                    cancel: onSuccess,
-                                    // allowEditing: true,
-                                    mediaTypes: [Ti.Media.MEDIA_TYPE_PHOTO]
-                                });
-                            }
-                        }
+                            return Promise.resolve().then(() => {
+                                if (e.index === 0) {
+                                    return this.takePhoto(_parent);
+                                } else if (e.index === 1) {
+                                    return new Promise((resolve, reject) => {
+                                        Titanium.Media.openPhotoGallery({
+                                            success: resolve,
+                                            cancel: reject,
+                                            error: reject,
+                                            // allowEditing: true,
+                                            mediaTypes: [Ti.Media.MEDIA_TYPE_PHOTO]
+                                        }).then((e: TiMediaEvent) => {
+                                            return this.handlePhotoTaken(_parent, e);
+                                        });
+                                    }) as Promise<ImageResult>
+                                }
+                            }).then(r => {
+                                let result: ItemPhoto;
+                                if (r) {
+                                    result = {
+                                        width: r.width,
+                                        height: r.height,
+                                        image: r.imageName,
+                                        thumbnailImage: r.thumbnailImageName
+                                    };
+
+                                    // showMessage('address_found', color);
+                                }
+                                if (_callback) {
+                                    _callback(_option, result);
+                                }
+                            })
+                        };
                     }).show();
 
                     break;
@@ -1236,22 +1295,20 @@ export class ItemHdlr extends EventEmitter {
                     var q = clearUpString(_item.title || _desc.defaultTitle);
                     var hasChanged = false;
 
-                    var calls = _mapHandler.runReduceMethodOnModules(
-                        'getDetailsCalls', q, _item, _desc);
+                    var calls = _mapHandler.runReduceMethodOnModules('getDetailsCalls', q, _item, _desc);
                     calls.osm = _.partial(app.api.osmDetails, _item);
 
                     var request = app.api.parallelMapRequests(calls).then(function (res) {
                         var callsToAdd = [];
-                        _.forEach(res, function (value, key) {
+                        res.forEach(function (value, key) {
                             if (_.isObject(value)) {
                                 if (value.photos) {
-                                    _.forEach(value.photos, function (photo) {
+                                    value.photos.forEach(function (photo) {
                                         var url = photo.url || photo;
                                         var existing = _.findIndex(_item.photos, { 'url ': url });
                                         if (existing === -1) {
                                             hasChanged = true;
-                                            console.log('downloading photo',
-                                                photo);
+                                            console.log('downloading photo', photo);
                                             callsToAdd.push(app.api.getPhoto(photo));
                                         }
                                     });
@@ -1259,7 +1316,7 @@ export class ItemHdlr extends EventEmitter {
                                 }
 
                                 if (value.notes) {
-                                    _.forEach(value.notes, function (note) {
+                                    value.notes.forEach(function (note) {
                                         var id = note.title;
                                         var existing = _.findIndex(_item.notes, { 'title': id });
                                         if (existing === -1) {
@@ -1295,7 +1352,7 @@ export class ItemHdlr extends EventEmitter {
                         if (res && res.photos) {
                             result.newPhotos = result.newPhotos || [];
 
-                            _.each(res.photos, function (photo) {
+                            res.photos.forEach(function (photo) {
                                 result.newPhotos.push(photo);
                                 sdebug('adding newPhoto', photo);
                             });
@@ -1309,24 +1366,20 @@ export class ItemHdlr extends EventEmitter {
                             }
                             return _.merge(value, srcValue, customizer);
                         };
-                        _.each(res, function (value, key) {
-                            // if (result[key].hash !== value[key].hash) {
-                            // sdebug('update from', key, value);
-                            //     _.merge(result, value, customizer);
-                            // } else {
+                        for (let key in res) {
+                            let value = res[key];
                             _.merge(result, _.omit(value,
                                 'id', 'title', 'address'
                             ), customizer);
                             if (!_item.address && value.address) {
                                 result.address = value.address;
                             }
-                            // }
-                        });
+                        }
                         console.log('about to return success', result);
                         return result;
                     }).then((changes) => {
                         console.log('changes', changes);
-                        _.each(['icon', 'settings'], function (value) {
+                        ['icon', 'settings'].forEach(function (value) {
                             if (changes.hasOwnProperty(value) && !_item.hasOwnProperty(
                                 value) && _desc.hasOwnProperty(value) &&
                                 _.isEqual(_desc[value], changes[value])) {
@@ -1471,7 +1524,6 @@ export class ItemHdlr extends EventEmitter {
             case 'update_profile':
             case 'query_profile':
                 {
-
                     var factor = 1;
                     //app.simplify(_item.route.points, factor/3779)
                     var route = (_item as Route).route;
@@ -1541,6 +1593,7 @@ export class ItemHdlr extends EventEmitter {
                         'description'), { 'isList': true });
                     // _.filter(_mapHandler.runGetMethodOnModules('getLists'));
                     // var isRoute = this.isItemARoute(_item);
+                    _item = _item || _items[0];
                     app.showOptionsListDialog({
                         title: trc('choose_list'),
                         items: _.reduce(lists, function (memo, _list, type) {
@@ -1589,10 +1642,8 @@ export class ItemHdlr extends EventEmitter {
                         var _this = this;
                         var currentPos = _.pick(app.currentLocation, 'latitude',
                             'longitude', 'altitude');
-                        _this.takePhoto(_parent, function (_image, _imageId, _imageName) {
-                            if (!_image) {
-                                return;
-                            }
+
+                        this.takePhoto(_parent).then(r => {
                             var type = 'photo';
                             var existingItem = _mapHandler.runGetSingleMethodOnModules(
                                 'getItem', currentPos, type);
@@ -1602,19 +1653,21 @@ export class ItemHdlr extends EventEmitter {
                                 existingItem.item = _this.updateItem(existingItem.item,
                                     existingItem.desc, {
                                         newPhotos: [{
-                                            width: _image.width,
-                                            height: _image.height,
-                                            image: _imageName
+                                            width: r.width,
+                                            height: r.height,
+                                            image: r.imageName,
+                                            thumbnailImage: r.thumbnailImageName
                                         }]
                                     }, _mapHandler);
                             } else {
                                 var newItem = Object.assign({
-                                    id: _imageId,
-                                    timestamp: _imageId,
+                                    id: r.imageId,
+                                    timestamp: r.imageId,
                                     photos: [{
-                                        width: _image.width,
-                                        height: _image.height,
-                                        image: _imageName
+                                        width: r.width,
+                                        height: r.height,
+                                        image: r.imageName,
+                                        thumbnailImage: r.thumbnailImageName
                                     }]
                                 }, _.pick(app.currentLocation, 'latitude',
                                     'longitude', 'altitude'));

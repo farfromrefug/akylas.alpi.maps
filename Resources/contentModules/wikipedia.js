@@ -1,3 +1,6 @@
+// import {ContentModule} from '../ui/mapModules/MapModule'
+const stringScore = require('string-score');
+const ContentModule = require('../ui/mapModules/MapModule').ContentModule;
 exports.settings = {
     color: '#ffffff',
     name: trc('wikipedia'),
@@ -27,7 +30,7 @@ exports.create = function(_context, _args, _additional) {
         htmlIcon = app.utilities.htmlIcon,
         cleanUpString = app.api.cleanUpString,
         key = 'wikipedia',
-        self = new _context.ContentModule(_args);
+        self = new ContentModule(_args);
 
     var lang = ak.locale.currentLanguage.split('-')[0].toLowerCase();
     var baseUrl = createBaseUrl(lang);
@@ -206,7 +209,7 @@ exports.create = function(_context, _args, _additional) {
                             for (var i = 0; i < result.length; i++) {
                                 data = result[i];
                                 distance = geolib.getDistanceSimple(_item, data);
-                                var score = _query.score(data.title, 1);
+                                var score = stringScore(_query, data.title, 1);
                                 var realScore = score / distance;
                                 if (realScore > bestScore) {
                                     bestScore = realScore;

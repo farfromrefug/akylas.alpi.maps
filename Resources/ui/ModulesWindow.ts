@@ -1,14 +1,13 @@
 
-// declare global {
-declare class ModulesWindow extends NavWindow {
+declare global {
+    class ModulesWindow extends NavWindow {
+    }
+    class ModuleWindow extends AppWindow {
+        showSettingSelection(_title: string, _values: string[], _selectedIndex: number, callback: (index: number) => void)
+    }
 }
-declare class ModuleWindow extends AppWindow {
-    showSettingSelection(_title: string, _values: string[], _selectedIndex: number, callback: (index: number) => void)
 
-}
-// }
-
-ak.ti.constructors.createModulesWindow = function (_args) {
+export function create(_args) {
     var modules: { [k: string]: MapModule } = {};
 
     function showSettingSelection(_title: string, _values: string[], _selectedIndex: number, callback: (index: number) => void) {
@@ -185,7 +184,7 @@ ak.ti.constructors.createModulesWindow = function (_args) {
 
             });
         }
-        _.forEach(settings.preferencesSections, function (section) {
+        settings.preferencesSections.forEach(function (section) {
             sections.push({
                 headerTitle: section.title,
                 items: _.reduce(section.items, function (memo, value) {

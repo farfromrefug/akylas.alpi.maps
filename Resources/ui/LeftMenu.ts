@@ -1,10 +1,12 @@
-declare class LeftMenu extends View {
-    constructor(args?);
-    // update(_type, _args)
+declare global {
+    class LeftMenu extends View {
+        constructor(args?);
+        // update(_type, _args)
+    }
 }
-ak.ti.constructors.createLeftMenu = function (_args) {
+export function create(_args) {
 
-    function createIconItem(_icon:string, _id:string, _text?:string) {
+    function createIconItem(_icon: string, _id: string, _text?: string) {
         return app.templates.row.cloneTemplateAndFill('menu', {
             properties: {
                 callbackId: _id,
