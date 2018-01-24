@@ -1,0 +1,159 @@
+{
+  "layers": [
+    "housenumber", 
+    "transportation_name", 
+    "water_name", 
+    "poi", 
+    "place", 
+    "building", 
+    "transportation", 
+    "aeroway", 
+    "boundary", 
+    "water", 
+    "waterway", 
+    "mountain_peak", 
+    "park", 
+    "landuse", 
+    "landcover"
+  ], 
+  "styles": [
+    "darkmatter/style.mss", 
+    "darkmatter/admin.mss", 
+    "darkmatter/hydro.mss", 
+    "darkmatter/landuse.mss", 
+    "darkmatter/roads.mss", 
+    "darkmatter/labels.mss"
+  ], 
+  "files": {
+    "fonts/Montserrat-Regular.ttf": {
+      "md5": "f7213526ec9296ff43426bfe3eae8926", 
+      "size": 190648
+    }, 
+    "darkmatter/images/capital_shield_dark_444.svg": {
+      "md5": "60af564583f5195bd238e26e115e3b9e", 
+      "size": 614
+    }, 
+    "fonts/Montserrat-SemiBold.ttf": {
+      "md5": "31e34a4dc526ffb104e2d988f6f52516", 
+      "size": 192268
+    }, 
+    "darkmatter/style.mss": {
+      "md5": "b00a05d405a14784475d25b22b020538", 
+      "size": 1351
+    }, 
+    "darkmatter/images/park-halftone-1.png": {
+      "md5": "d68def69037325f4c11a0316e4c49df3", 
+      "size": 4413
+    }, 
+    "fonts/Montserrat-Medium.ttf": {
+      "md5": "5f797490f806b3b229299f0a66de89c9", 
+      "size": 192488
+    }, 
+    "fonts/AzoSans-Italic.otf": {
+      "md5": "7ffde00f7697ddcdcb08d32c2cc84800", 
+      "size": 67304
+    }, 
+    "darkmatter/landuse.mss": {
+      "md5": "16df64b82995611e65b67dd093455f08", 
+      "size": 3358
+    }, 
+    "darkmatter/images/city_shield_light.svg": {
+      "md5": "273bf79370628271a904d631e6dc5562", 
+      "size": 302
+    }, 
+    "fonts/LICENSE_OFL.txt": {
+      "md5": "e4429555d14db1f02c5213788d343350", 
+      "size": 4393
+    }, 
+    "darkmatter/images/city_shield_dark_666.svg": {
+      "md5": "611b9deed7b9863de892cfd81edf21ec", 
+      "size": 297
+    }, 
+    "darkmatter/hydro.mss": {
+      "md5": "ac6dc62f6a7ee1ee1c7b1e43c5992934", 
+      "size": 991
+    }, 
+    "fonts/AzoSans-Regular.otf": {
+      "md5": "a181e792bad0f23fdfb570b3e9ec9d9b", 
+      "size": 67216
+    }, 
+    "darkmatter/images/capital_shield_dark.svg": {
+      "md5": "f1e8daa5c04471edcc99e4f76d3b216f", 
+      "size": 614
+    }, 
+    "fonts/NotoSans-Regular.ttf": {
+      "md5": "c19576a225dc8ca62f530285801b6aae", 
+      "size": 1145872
+    }, 
+    "darkmatter/labels.mss": {
+      "md5": "63aa7b1e3c33e4a2b33eaf9864d11297", 
+      "size": 11624
+    }, 
+    "darkmatter/images/capital_shield_dark_666.svg": {
+      "md5": "c782766ee4eac3b3da287fb5efed0f91", 
+      "size": 614
+    }, 
+    "darkmatter/README.md": {
+      "md5": "1bb19c069d9e5e186d5fe427ee450739", 
+      "size": 45
+    }, 
+    "fonts/Montserrat-Italic.ttf": {
+      "md5": "8777b44e5f19cd64f83171126db732f0", 
+      "size": 191936
+    }, 
+    "darkmatter/images/city_shield_dark.svg": {
+      "md5": "d35a5e6c157c6fe15e744aed257866d3", 
+      "size": 299
+    }, 
+    "darkmatter/roads.mss": {
+      "md5": "0e9275b1007349f450d02a5427c400f6", 
+      "size": 14192
+    }, 
+    "darkmatter/admin.mss": {
+      "md5": "4316b5b0d0abf88f31a71377be90babc", 
+      "size": 2163
+    }, 
+    "darkmatter/images/city_shield_dark_444.svg": {
+      "md5": "a90bf7151e8da4a2f8d49b144f34c778", 
+      "size": 297
+    }
+  }, 
+  "nutiparameters": {
+    "lang": {
+      "default": "en"
+    }, 
+    "buildings": {
+      "default": 1, 
+      "values": {
+        "1": 1, 
+        "0": 0, 
+        "2": 2
+      }
+    }, 
+    "fallback_lang": {
+      "default": "en"
+    }, 
+    "texts3d": {
+      "default": "nutibillboard", 
+      "values": {
+        "1": "nutibillboard", 
+        "0": "point"
+      }
+    }, 
+    "markers3d": {
+      "default": "nutibillboard", 
+      "values": {
+        "1": "nutibillboard", 
+        "0": "point"
+      }
+    }, 
+    "shields3d": {
+      "default": "nutibillboard", 
+      "values": {
+        "1": "nutibillboard", 
+        "0": "point"
+      }
+    }
+  }, 
+  "name": "positron"
+}

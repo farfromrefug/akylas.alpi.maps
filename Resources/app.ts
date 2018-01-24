@@ -59,11 +59,11 @@ export function getContrastColors(_color): ContrastColor {
         luminance: color.getLuminance(),
         color: color.toHex8String(),
         contrast: color1.toHex8String(),
-        contrastGray: color1.clone()[method].apply(color1, [0.2])
+        contrastGray: color1.clone() [method].apply(color1, [0.2])
             .toHex8String(),
-        darkerRel: color.clone()[method].apply(color, [0.2])
+        darkerRel: color.clone() [method].apply(color, [0.2])
             .toHex8String(),
-        lightenRel: color.clone()[method].apply(color, [-0.2])
+        lightenRel: color.clone() [method].apply(color, [-0.2])
             .toHex8String(),
         darker: color.clone()
             .darken(8)
@@ -78,7 +78,7 @@ export function getContrastColors(_color): ContrastColor {
 }
 var dataDir = Ti.Filesystem.applicationDataDirectory;
 var paths = {};
-['images', 'files', 'mbtiles'].forEach( function (key) {
+['images', 'files', 'mbtiles'].forEach(function (key) {
     var holdingDir = Ti.Filesystem.getFile(dataDir, key);
     if (!holdingDir.exists()) {
         let result = holdingDir.createDirectory();
@@ -108,6 +108,7 @@ export class App extends AKApp {
     offlineMode = false
     servicesKeys = require('API_KEYS').keys
     utilities: Utils = require('lib/utilities')
+    indexedIcons: [string, string][]
     constructor(context) {
         super(context, {
             modules: {
@@ -119,11 +120,11 @@ export class App extends AKApp {
                 // opencv: 'akylas.opencv',
                 motion: 'akylas.motion',
                 camera: 'akylas.camera',
-                // ios: {
-                map: 'akylas.googlemap',
-                // },
-                android: __SIMULATOR__?undefined:{
-                    // map: 'akylas.carto',
+                ios: {
+                    map: 'akylas.googlemap',
+                },
+                android: __SIMULATOR__ ? undefined : {
+                    map: 'akylas.carto',
                     connectiq: 'akylas.connectiq',
                     // crosswalk: 'com.universalavenue.ticrosswalk'
                 }
@@ -175,7 +176,7 @@ export class App extends AKApp {
         }
         this.developerMode = Ti.App.Properties.getBool('developerMode', __DEVELOPMENT__)
 
-        var indexIcons = [];
+        var indexIcons: [string, string][] = [];
         for (let key in this.icons) {
             indexIcons.push([trc(key), this.icons[key]]);
         }
@@ -299,8 +300,7 @@ export class App extends AKApp {
     needsUpdate = (_key) => {
         return this.updates && !!this.updates[_key];
     }
-    indexedIcons: string[]
-    indexedColors = _(require('data/palette').colors).toPairs().value()
+    indexedColors: [string, string][]
     developerMode = false
     texts: { [key: string]: string }
     utils = {
@@ -566,11 +566,11 @@ console.timeEnd('start')
 app.itemHandler = new ItemHandler();
 console.timeEnd('start')
 
-// if (__APPLE__) {
-app.modules.map.googleMapAPIKey = app.servicesKeys.google;
-// } else {
-// app.modules.map.license = app.servicesKeys.carto;
-// }
+if (__APPLE__) {
+    app.modules.map.googleMapAPIKey = app.servicesKeys.google;
+} else {
+    app.modules.map.license = app.servicesKeys.carto;
+}
 
 app.setMetrics(Ti.App.Properties.getBool('distance_metric', true));
 console.timeEnd('start')
@@ -811,4 +811,3 @@ if (app.modules.motion.hasBarometer) {
         console.log(e);
     })
 }
-

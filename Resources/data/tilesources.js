@@ -1,22 +1,38 @@
 exports.data = {
-    // AkMap:{
-    //     options:{
-    //         maxZoom: 24,
-    //         // style:'style',
-    //         // styleFile:'mapzen.zip'
-    //     },
-    //     url:['carto.streets',
-    //         // 'https://tile.mapzen.com/mapzen/vector/v1/all/{z}/{x}/{y}.mvt?api_key=' + app.servicesKeys.mapzen,
-    //         'https://a.tiles.mapbox.com/v4/mapbox.mapbox-terrain-v2/{zoom}/{x}/{y}.vector.pbf?access_token=' + app.servicesKeys.mapbox]
-    // },
-    // MapZen:{
-    //     options:{
-    //         maxZoom: 24,
-    //         style:'default',
-    //         styleFile:'osm.zip'
-    //     },
-    //     url:'https://tile.mapzen.com/mapzen/vector/v1/all/{z}/{x}/{y}.mvt?api_key=' + app.servicesKeys.mapzen
-    // },
+    AkMap: {
+        options: {
+            maxZoom: 24,
+            // style:'style',
+            // styleFile:'mapzen.zip'
+        },
+        url: ['carto.streets,contours',
+            'https://a.tiles.mapbox.com/v4/mapbox.mapbox-terrain-v2/{zoom}/{x}/{y}.vector.pbf?access_token=' + app.servicesKeys.mapbox
+        ]
+    },
+    MapBoxVector: {
+        styleFile: 'mapbox.zip',
+        url: '//a.tiles.mapbox.com/v4/{variant}/{zoom}/{x}/{y}.vector.pbf?access_token=' + app.servicesKeys.mapbox,
+        options: {
+            attribution: 'Imagery from <a href="http://mapbox.com/about/maps/">MapBox</a> &mdash; ' +
+                'Map data {attribution.OpenStreetMap}',
+            variant: 'mapbox.mapbox-streets-v7'
+        },
+        variants: {
+            terrain: {
+                options: {
+                    variant: 'mapbox.mapbox-terrain-v2',
+                }
+            }
+        }
+    },
+    ESRI_Vector: {
+        url: 'https://basemaps.arcgis.com/v1/arcgis/rest/services/{variant}/VectorTileServer/tile/{z}/{y}/{x}.pbf',
+        options: {
+            attribution: 'Tiles &copy; Esri',
+            maxZoom: 15,
+            variant: 'World_Basemap'
+        }
+    },
     RefugesInfo: {
         category: 'europe,topo',
         url: '//maps.refuges.info/hiking/{z}/{x}/{y}.png',
@@ -136,8 +152,8 @@ exports.data = {
         }
 
     },
-    Avalanches:{
-        url:'http://vmapfishbda.grenoble.cemagref.fr/cgi-bin/mapserv?map=/var/www/prod/test.map&LAYERS=zont%2Clint&TRANSPARENT=true&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&EXCEPTIONS=application%2Fvnd.ogc.se_inimage&FORMAT=image%2Fpng&SRS=EPSG%3A27572&BBOX={bbox}&WIDTH=300&HEIGHT=300'
+    Avalanches: {
+        url: 'http://vmapfishbda.grenoble.cemagref.fr/cgi-bin/mapserv?map=/var/www/prod/test.map&LAYERS=zont%2Clint&TRANSPARENT=true&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&EXCEPTIONS=application%2Fvnd.ogc.se_inimage&FORMAT=image%2Fpng&SRS=EPSG%3A27572&BBOX={bbox}&WIDTH=300&HEIGHT=300'
     },
     OpenStreetMap: {
         url: '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -329,23 +345,7 @@ exports.data = {
             WheatPaste: 'mapbox.wheatpaste',
         }
     },
-    // MapBoxVector: {
-    //     styleFile:'mapbox.zip',
-    //     url: '//a.tiles.mapbox.com/v4/{variant}/{zoom}/{x}/{y}.vector.pbf?access_token=' + app.servicesKeys.mapbox,
-    //     options: {
-    //         attribution: 'Imagery from <a href="http://mapbox.com/about/maps/">MapBox</a> &mdash; ' +
-    //             'Map data {attribution.OpenStreetMap}',
-    //         variant: 'mapbox.mapbox-streets-v7'
-    //     },
-    //     variants: {
-    //         terrain: {
-    //             options: {
-    //                 variant: 'mapbox.mapbox-terrain-v2',
-    //                 style:'terrain'
-    //             }
-    //         }
-    //     }
-    // },
+
     Stamen: {
         url: '//stamen-tiles-{s}.a.ssl.fastly.net/{variant}/{z}/{x}/{y}.png',
         options: {
@@ -496,14 +496,7 @@ exports.data = {
             }
         }
     },
-    // ESRI_Vector: {
-    //     url: 'https://basemaps.arcgis.com/v1/arcgis/rest/services/{variant}/VectorTileServer/tile/{z}/{y}/{x}.pbf',
-    //     options: {
-    //         attribution: 'Tiles &copy; Esri',
-    //         maxZoom: 15,
-    //         variant: 'World_Basemap'
-    //     }
-    // },
+
     OpenWeatherMap: {
         category: 'weather',
         url: 'http://{s}.tile.openweathermap.org/map/{variant}/{z}/{x}/{y}.png',
@@ -824,21 +817,21 @@ exports.data = {
                 }
             }
         }
-    // },
-    // 'piemonte': {
-    //     category: 'italie',
+        // },
+        // 'piemonte': {
+        //     category: 'italie',
 
-    //     url: '//www.webgis.csi.it/cataloghiradex_f/cataloghi_TMS/sfondi/sfondo_europa_piemonte/{z}/{x}/{y}.png',
-    //     options: {
-    //         attribution: 'http://www.regione.piemonte.it/sentgis/jsp/cartografia/mappa.do',
-    //         forceHTTP: true,
-    //         maxZoom: 18
-    //     }
+        //     url: '//www.webgis.csi.it/cataloghiradex_f/cataloghi_TMS/sfondi/sfondo_europa_piemonte/{z}/{x}/{y}.png',
+        //     options: {
+        //         attribution: 'http://www.regione.piemonte.it/sentgis/jsp/cartografia/mappa.do',
+        //         forceHTTP: true,
+        //         maxZoom: 18
+        //     }
     },
-    USGS:{
-        url:'http://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/WMTS/tile/1.0.0/USGSTopo/default/GoogleMapsCompatible/{zoom}/{y}/{x}',
-        options:{
-            attribution:'USGS The National Map. The National Boundaries Dataset, National Elevation Dataset, Geographic Names Information System, National Hydrography Dataset, National Land Cover Database, National Structures Dataset, and National Transportation Dataset; U.S. Census Bureau - TIGER/Line; HERE Road Data. USGS MapServer'
+    USGS: {
+        url: 'http://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/WMTS/tile/1.0.0/USGSTopo/default/GoogleMapsCompatible/{zoom}/{y}/{x}',
+        options: {
+            attribution: 'USGS The National Map. The National Boundaries Dataset, National Elevation Dataset, Geographic Names Information System, National Hydrography Dataset, National Land Cover Database, National Structures Dataset, and National Transportation Dataset; U.S. Census Bureau - TIGER/Line; HERE Road Data. USGS MapServer'
         }
     }
 };

@@ -15,8 +15,8 @@
     <use-babel>false</use-babel>
     <compile-js>false</compile-js>
     <android xmlns:android="http://schemas.android.com/apk/res/android">
-        <abi>armeabi-v7a,x86</abi>
-        <manifest android:installLocation="auto" android:versionCode="106">
+        <abi>armeabi-v7a</abi>
+        <manifest android:installLocation="auto" android:versionCode="108">
             <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="26" />
             <uses-feature android:name="android.hardware.location.gps" />
             <application android:hardwareAccelerated="true" android:allowBackup="true">
@@ -123,10 +123,9 @@
         <plugin>akylas.nodejs</plugin>
     </plugins>
     <modules>
-        <!-- <module>akylas.commonjs</module> -->
+        <module>akylas.commonjs</module>
         <module>akylas.slidemenu</module>
         <module>akylas.shapes</module>
-        <module>akylas.googlemap</module>
         <module>akylas.camera</module>
         <module>akylas.charts2</module>
         <module>akylas.zoomableimage</module>
@@ -135,9 +134,8 @@
         <module platform="iphone">akylas.statusbarnotification</module>
         <module platform="iphone">akylas.plcrashreporter</module>
         <module platform="android">akylas.connectiq</module>
-        <!-- <module platform="android">akylas.carto</module> -->
-        <!-- <module platform="iphone">akylas.googlemap</module> -->
-        <!-- <module>akylas.opencv</module> -->
+        <module platform="android">akylas.carto</module>
+        <module platform="iphone">akylas.googlemap</module>
     </modules>
     <property name="run-on-main-thread" type="bool">true</property>
     <property name="ti.hexColorFormat">rgba</property>

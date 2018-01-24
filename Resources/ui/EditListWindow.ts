@@ -21,6 +21,10 @@ export function create(_args?: WindowParams & {
         cancelled = true;
     // indexedIcons = _.values(app.icons);
     var icons = app.indexedIcons;
+
+    if (!app.indexedColors) {
+        app.indexedColors = _.toPairs(require('data/palette'));
+    }
     var colors = app.indexedColors;
     // sdebug('icons', icons);
     // sdebug('colors', colors);

@@ -1,4 +1,7 @@
 
+/// <reference path="/Volumes/data/dev/titanium/dist/modules/iphone/akylas.commonjs/5.0/documentation/akylas.commonjs.d.ts" />
+/// <reference path="/Volumes/data/dev/titanium/dist/modules/iphone/akylas.commonjs/5.0/documentation/lodash.d.ts" />
+
 declare var app: IApp;
 
 declare var __LIST__: string;

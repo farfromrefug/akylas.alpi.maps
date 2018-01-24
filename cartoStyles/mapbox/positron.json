@@ -1,0 +1,159 @@
+{
+  "layers": [
+    "housenumber", 
+    "transportation_name", 
+    "water_name", 
+    "poi", 
+    "place", 
+    "building", 
+    "transportation", 
+    "aeroway", 
+    "boundary", 
+    "water", 
+    "waterway", 
+    "mountain_peak", 
+    "park", 
+    "landuse", 
+    "landcover"
+  ], 
+  "styles": [
+    "positron/style.mss", 
+    "positron/admin.mss", 
+    "positron/hydro.mss", 
+    "positron/landuse.mss", 
+    "positron/roads.mss", 
+    "positron/labels.mss"
+  ], 
+  "files": {
+    "positron/images/capital_shield_dark_666.svg": {
+      "md5": "c782766ee4eac3b3da287fb5efed0f91", 
+      "size": 614
+    }, 
+    "fonts/Montserrat-Regular.ttf": {
+      "md5": "f7213526ec9296ff43426bfe3eae8926", 
+      "size": 190648
+    }, 
+    "positron/labels.mss": {
+      "md5": "319a1eabb01ddc0a3ecca7aea332acd3", 
+      "size": 11597
+    }, 
+    "fonts/Montserrat-SemiBold.ttf": {
+      "md5": "31e34a4dc526ffb104e2d988f6f52516", 
+      "size": 192268
+    }, 
+    "positron/images/capital_shield_dark_444.svg": {
+      "md5": "60af564583f5195bd238e26e115e3b9e", 
+      "size": 614
+    }, 
+    "positron/style.mss": {
+      "md5": "6cab4bb680a22c8d25fd6c82e84b4c0b", 
+      "size": 1380
+    }, 
+    "positron/README.md": {
+      "md5": "1bb19c069d9e5e186d5fe427ee450739", 
+      "size": 45
+    }, 
+    "positron/images/capital_shield_light.svg": {
+      "md5": "9968aeb0fae1886bafc84a9fa744c71e", 
+      "size": 1676
+    }, 
+    "fonts/AzoSans-Italic.otf": {
+      "md5": "7ffde00f7697ddcdcb08d32c2cc84800", 
+      "size": 67304
+    }, 
+    "positron/hydro.mss": {
+      "md5": "a7190fe06e9636876c89816c4631d011", 
+      "size": 1001
+    }, 
+    "positron/images/city_shield_dark_666.svg": {
+      "md5": "611b9deed7b9863de892cfd81edf21ec", 
+      "size": 297
+    }, 
+    "positron/landuse.mss": {
+      "md5": "c002dc9ccc046a62fd0d17d020d664ac", 
+      "size": 3436
+    }, 
+    "fonts/LICENSE_OFL.txt": {
+      "md5": "e4429555d14db1f02c5213788d343350", 
+      "size": 4393
+    }, 
+    "positron/roads.mss": {
+      "md5": "7600f00369960c429fd06a41f3fac4f1", 
+      "size": 13962
+    }, 
+    "positron/images/capital_shield_dark.svg": {
+      "md5": "f1e8daa5c04471edcc99e4f76d3b216f", 
+      "size": 614
+    }, 
+    "fonts/AzoSans-Regular.otf": {
+      "md5": "a181e792bad0f23fdfb570b3e9ec9d9b", 
+      "size": 67216
+    }, 
+    "positron/admin.mss": {
+      "md5": "e2863432f49eead4cfb99e88b1d306ab", 
+      "size": 2182
+    }, 
+    "fonts/Montserrat-Medium.ttf": {
+      "md5": "5f797490f806b3b229299f0a66de89c9", 
+      "size": 192488
+    }, 
+    "positron/images/city_shield_dark_444.svg": {
+      "md5": "a90bf7151e8da4a2f8d49b144f34c778", 
+      "size": 297
+    }, 
+    "fonts/NotoSans-Regular.ttf": {
+      "md5": "c19576a225dc8ca62f530285801b6aae", 
+      "size": 1145872
+    }, 
+    "fonts/Montserrat-Italic.ttf": {
+      "md5": "8777b44e5f19cd64f83171126db732f0", 
+      "size": 191936
+    }, 
+    "positron/images/city_shield_light.svg": {
+      "md5": "273bf79370628271a904d631e6dc5562", 
+      "size": 302
+    }, 
+    "positron/images/city_shield_dark.svg": {
+      "md5": "d35a5e6c157c6fe15e744aed257866d3", 
+      "size": 299
+    }
+  }, 
+  "nutiparameters": {
+    "lang": {
+      "default": "en"
+    }, 
+    "buildings": {
+      "default": 1, 
+      "values": {
+        "1": 1, 
+        "0": 0, 
+        "2": 2
+      }
+    }, 
+    "fallback_lang": {
+      "default": "en"
+    }, 
+    "texts3d": {
+      "default": "nutibillboard", 
+      "values": {
+        "1": "nutibillboard", 
+        "0": "point"
+      }
+    }, 
+    "markers3d": {
+      "default": "nutibillboard", 
+      "values": {
+        "1": "nutibillboard", 
+        "0": "point"
+      }
+    }, 
+    "shields3d": {
+      "default": "nutibillboard", 
+      "values": {
+        "1": "nutibillboard", 
+        "0": "point"
+      }
+    }
+  }, 
+  "name": "positron"
+}
