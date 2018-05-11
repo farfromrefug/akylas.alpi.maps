@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ti:app xmlns:ti="http://ti.appcelerator.org">
-    <sdk-version>7.0.0.AKYLAS</sdk-version>
+    <sdk-version>7.3.0.AKYLAS</sdk-version>
     <id>akylas.alpi.maps</id>
     <name>Alpi Maps</name>
     <version>1.4.0</version>
@@ -16,12 +16,12 @@
     <compile-js>false</compile-js>
     <android xmlns:android="http://schemas.android.com/apk/res/android">
         <abi>armeabi-v7a</abi>
-        <manifest android:installLocation="auto" android:versionCode="108">
+        <manifest android:installLocation="auto" android:versionCode="112">
             <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="26" />
             <uses-feature android:name="android.hardware.location.gps" />
             <application android:hardwareAccelerated="true" android:allowBackup="true">
                 <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyB3S2bww_0PrPmpCO8NgGuEmgGs6DxnQ78" />
-                <meta-data android:name="com.google.android.gms.version" android:value="10298000" />
+                <meta-data android:name="com.google.android.gms.version" android:value="11020000" />
             </application>
             <uses-permission android:name="android.permission.WAKE_LOCK" />
             <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
@@ -123,7 +123,7 @@
         <plugin>akylas.nodejs</plugin>
     </plugins>
     <modules>
-        <module>akylas.commonjs</module>
+        <!-- <module>akylas.commonjs</module> -->
         <module>akylas.slidemenu</module>
         <module>akylas.shapes</module>
         <module>akylas.camera</module>
@@ -132,10 +132,10 @@
         <module>akylas.motion</module>
         <module>ti.paint</module>
         <module platform="iphone">akylas.statusbarnotification</module>
-        <module platform="iphone">akylas.plcrashreporter</module>
+        <!-- <module platform="iphone">akylas.plcrashreporter</module> -->
         <module platform="android">akylas.connectiq</module>
-        <module platform="android">akylas.carto</module>
-        <module platform="iphone">akylas.googlemap</module>
+        <!-- <module platform="android">akylas.carto</module> -->
+        <module platform="android">akylas.googlemap</module>
     </modules>
     <property name="run-on-main-thread" type="bool">true</property>
     <property name="ti.hexColorFormat">rgba</property>
