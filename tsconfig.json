@@ -8,14 +8,15 @@
         "noImplicitAny": false,
         "removeComments": true,
         "noLib": false,
-        "sourceMap": true,
+        "sourceMap": false,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "outDir": "build/ts",
-        "noImplicitUseStrict": true
+        "noImplicitUseStrict": true,
+        "baseUrl": "./",
+        "paths": {
+            "*": ["*", "Resources/*"]
+        }
     },
-    "include": [
-        "Resources/**/*.ts",
-        "node_modules/**/*.d.ts"
-    ]
+    "include": ["Resources/**/*.ts"]
 }
