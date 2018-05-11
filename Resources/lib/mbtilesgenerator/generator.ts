@@ -1,3 +1,5 @@
+import { EventEmitter } from 'events'
+import * as Utils from './utils';
 
 declare global {
   type MBTilesGenerator = MBTilesGntr
@@ -32,8 +34,7 @@ declare global {
   
 }
 
-Promise = require('./promise-simple');
-import * as Utils from './utils';
+// Promise = require('./promise-simple');
 var WMS_ORIGIN_X = -20037508.34789244;
 var WMS_ORIGIN_Y = 20037508.34789244;
 var WMS_MAP_SIZE = 20037508.34789244 * 2;
@@ -47,7 +48,7 @@ if (!mbtilesHoldingDir.exists()) {
   mbtilesHoldingDir.createDirectory();
 }
 var DB_DIR = mbtilesHoldingDir.nativePath;
-var tilebelt = require('@mapbox/tilebelt');
+// var tilebelt = require('@mapbox/tilebelt');
 
 if (!_.endsWith(DB_DIR, '/')) {
   DB_DIR += '/';
