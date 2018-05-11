@@ -199,7 +199,9 @@ export class LocationButton extends MapModule {
         } else { // heading
             this.settings.updateBearing = e.state;
             if (this.settings.updateBearing) {
-                this.mapView.userTrackingMode = 1;
+                this.mapView.applyProperties({
+                    userTrackingMode: 1
+                });
                 this.parent.updateUserLocation();
             } else {
                 this.mapView.bearing = 0;
@@ -311,7 +313,9 @@ export class LocationButton extends MapModule {
         sdebug('onGPSEnabled', _enabled);
         if (_enabled) {
             app.showTutorials(['follow_heading']);
-            this.mapView.userTrackingMode = 1;
+            this.mapView.applyProperties({
+                userTrackingMode: 1
+            });
             this.updateButton();
         } else {
             if (this.settings.updateBearing) {
