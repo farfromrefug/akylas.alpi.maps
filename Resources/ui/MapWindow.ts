@@ -876,7 +876,9 @@ export function create(_args) {
 
     function onPause() {
         console.log('onPause', settings.enabledGPS, mapView.userTrackingMode);
-        mapView.userTrackingMode = 0;
+        mapView.applyProperties({
+            userTrackingMode: 0
+        });
         stopLocationUpdate();
         runMethodOnModules('onPause');
     };
@@ -885,7 +887,9 @@ export function create(_args) {
         console.log('onResume', settings.enabledGPS);
         if (settings.enabledGPS) {
             startLocationUpdate();
-            mapView.userTrackingMode = 1;
+            mapView.applyProperties({
+                userTrackingMode: 1
+            });
         }
         runMethodOnModules('onResume');
     };
