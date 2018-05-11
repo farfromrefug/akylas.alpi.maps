@@ -365,9 +365,10 @@
 #mountain_peak {
     [zoom>=4][comment =~'.*Highest.*'],
     [zoom>=4][comment =~'.*highest.*'],
-    [zoom>=6][ele>=1000],
-    [zoom>=8][ele>=1500],
-    [zoom>=9][elevation>=500] {
+    [zoom>=6][ele>=3000],
+    [zoom>=8][ele>=2000],
+    [zoom>=11][elevation>=1000]
+    [zoom>=13][elevation>=500] {
       shield-name: @name + '\n'  + [ele] + 'm';
       shield-face-name: @mont;
       shield-size: 11;

@@ -22,7 +22,7 @@
     "voyager/style.mss", 
     "shared/admin.mss", 
     "shared/hydro.mss", 
-    "shared/landuse.mss", 
+    "shared/landuse.mss",  
     "shared/roads.mss", 
     "shared/labels.mss",
     "shared/terrain.mss" 

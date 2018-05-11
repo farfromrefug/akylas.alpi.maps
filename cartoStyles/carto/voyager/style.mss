@@ -162,8 +162,8 @@ Map {
 //Moutain peaks
 @peak: #206512;
 @peak_label:@peak;
-@peak_halo: rgba(255,255,255,1.0);
-@peak_shield: url(images/peak.png);
+@peak_halo: rgba(255,255,255,1.0); 
+@peak_shield: url(images/peak.png); 
 
 //Road widths
 
