@@ -1,39 +1,39 @@
-import { EventEmitter } from 'events'
+import { EventEmitter } from 'events';
 declare global {
     interface ItemChanges {
-        title?: string
-        image?: string
-        icon?: string
-        color?: string
-        selectedImage?: string
-        newPhotos?: ItemPhoto[]
-        deletedPhotos?: string[]
-        deletedFiles?: string[]
-        deletedNotes?: string[]
-        newFiles?: ItemFile[]
-        newNotes?: ItemNote[]
-        tags?: { [k: string]: any }
-        showInfoWindow?: boolean
-        customView?: TiDict
-        address?: ItemAddress
+        title?: string;
+        image?: string;
+        icon?: string;
+        color?: string;
+        selectedImage?: string;
+        newPhotos?: ItemPhoto[];
+        deletedPhotos?: string[];
+        deletedFiles?: string[];
+        deletedNotes?: string[];
+        newFiles?: ItemFile[];
+        newNotes?: ItemNote[];
+        tags?: { [k: string]: any };
+        showInfoWindow?: boolean;
+        customView?: TiDict;
+        address?: ItemAddress;
     }
     // type ItemHandler = ItemHdlr
 }
 
 export interface ImageResult {
-    width: number
-    height: number
-    imageId: number
-    imageName: string
-    thumbnailImageName?: string
+    width: number;
+    height: number;
+    imageId: number;
+    imageName: string;
+    thumbnailImageName?: string;
 }
 
 export class ItemHandler extends EventEmitter {
-    convert = app.utils.convert
+    convert = app.utils.convert;
     // openingHours = app.utils.openingHours,
-    localImageCache = {}
-    showMessage = app.showMessage
-    htmlIcon = app.utilities.htmlIcon
+    localImageCache = {};
+    showMessage = app.showMessage;
+    htmlIcon = app.utilities.htmlIcon;
     itemActions = {
         search_google: {
             icon: $.sGoogle,
@@ -63,11 +63,11 @@ export class ItemHandler extends EventEmitter {
             text: 'directions'
         },
         more: {
-            icon: $.sHOptions,
+            icon: $.sHOptions
         },
         move: {
             icon: app.icons.folder,
-            color: '#839098',
+            color: '#839098'
         },
         query_profile: {
             icon: $.sElevationProfile,
@@ -101,7 +101,7 @@ export class ItemHandler extends EventEmitter {
             color: '#0D83D4',
             text: 'directions'
         }
-    }
+    };
     iconStyleViews = {
         0: new Label({
             properties: {
@@ -122,26 +122,28 @@ export class ItemHandler extends EventEmitter {
                 strokeWidth: 2,
                 text: app.icons.circle
             },
-            childTemplates: [{
-                type: 'Ti.UI.Label',
-                bindId: 'label',
-                properties: {
-                    font: {
-                        family: $.iconicfontfamily,
-                        size: 16
-                    },
-                    width: 'FILL',
-                    height: 'FILL',
-                    verticalAlign: 'middle',
-                    padding: {
-                        bottom: __APPLE__ ? 2 : 0,
-                    },
-                    strokeWidth: 1,
-                    strokeColor: $.black,
-                    textAlign: 'center',
-                    color: $.white
+            childTemplates: [
+                {
+                    type: 'Ti.UI.Label',
+                    bindId: 'label',
+                    properties: {
+                        font: {
+                            family: $.iconicfontfamily,
+                            size: 16
+                        },
+                        width: 'FILL',
+                        height: 'FILL',
+                        verticalAlign: 'middle',
+                        padding: {
+                            bottom: __APPLE__ ? 2 : 0
+                        },
+                        strokeWidth: 1,
+                        strokeColor: $.black,
+                        textAlign: 'center',
+                        color: $.white
+                    }
                 }
-            }]
+            ]
         }),
         1: new Label({
             properties: {
@@ -163,29 +165,30 @@ export class ItemHandler extends EventEmitter {
                 // shadowOffset: [0, 1],
                 // shadowRadius: 1,
                 strokeWidth: 2,
-                text: $.sPin,
+                text: $.sPin
             },
 
-            childTemplates: [{
-
-                type: 'Ti.UI.Label',
-                bindId: 'label',
-                properties: {
-                    font: {
-                        family: $.iconicfontfamily,
-                        size: 18
-                    },
-                    width: 'FILL',
-                    // backgroundColor:'#00ff0088',
-                    height: 24,
-                    top: __APPLE__ ? 10 : 4,
-                    // strokeWidth: 4,
-                    strokeWidth: 1,
-                    strokeColor: $.black,
-                    textAlign: 'center',
-                    color: $.white,
+            childTemplates: [
+                {
+                    type: 'Ti.UI.Label',
+                    bindId: 'label',
+                    properties: {
+                        font: {
+                            family: $.iconicfontfamily,
+                            size: 18
+                        },
+                        width: 'FILL',
+                        // backgroundColor:'#00ff0088',
+                        height: 24,
+                        top: __APPLE__ ? 10 : 4,
+                        // strokeWidth: 4,
+                        strokeWidth: 1,
+                        strokeColor: $.black,
+                        textAlign: 'center',
+                        color: $.white
+                    }
                 }
-            }]
+            ]
         }),
         2: new Label({
             properties: {
@@ -201,7 +204,7 @@ export class ItemHandler extends EventEmitter {
                 },
                 textAlign: 'center',
                 color: $.white,
-                strokeWidth: 1,
+                strokeWidth: 1
                 // shadowColor: '#00000044',
                 // shadowRadius: 1,
                 // shadowOffset: [0, 1],
@@ -244,11 +247,11 @@ export class ItemHandler extends EventEmitter {
                 width: 20,
                 height: 20
             }
-        }),
-    }
+        })
+    };
 
-    geolib = app.utils.geolib
-    private _moveOnFirstChange: boolean = Ti.App.Properties.getBool('items.firstchangemove', false)
+    geolib = app.utils.geolib;
+    private _moveOnFirstChange: boolean = Ti.App.Properties.getBool('items.firstchangemove', false);
     get moveOnFirstChange(): boolean {
         return this._moveOnFirstChange;
     }
@@ -259,22 +262,21 @@ export class ItemHandler extends EventEmitter {
     // openingHours: {
     //     value: openingHours
     // },
-    simplify = require('lib/simplify')
+    simplify = require('lib/simplify');
     showFloatingWebView = (_title: string, _url: string, _item: Item, _desc: ItemType, _parent: AppWindow, _mapHandler: MapWindow) => {
         var floating = app.ui.mainwindow.stackSize == 1;
-        (floating ? app.ui : _parent.manager)
-            .createAndOpenWindow('WebWindow', {
-                floating: floating,
-                mapHandler: _mapHandler,
-                showBackButton: true,
-                title: trc(_title),
-                item: _item,
-                itemDesc: _desc,
-                itemHandler: this,
-                // barColor:_mapItem.item.color,
-                url: _url
-            });
-    }
+        (floating ? app.ui : _parent.manager).createAndOpenWindow('WebWindow', {
+            floating: floating,
+            mapHandler: _mapHandler,
+            showBackButton: true,
+            title: trc(_title),
+            item: _item,
+            itemDesc: _desc,
+            itemHandler: this,
+            // barColor:_mapItem.item.color,
+            url: _url
+        });
+    };
 
     getImagePath = app.getImagePath;
     getThumbnailImagePath = app.getThumbnailImagePath;
@@ -284,10 +286,14 @@ export class ItemHandler extends EventEmitter {
 
         var colors = _markerType.colors;
         var icon = _markerType.icon;
-        var iconSettings = _.merge({
-            style: 1,
-            scale: 1
-        }, _markerType.iconSettings, _item && _item.iconSettings);
+        var iconSettings = _.merge(
+            {
+                style: 1,
+                scale: 1
+            },
+            _markerType.iconSettings,
+            _item && _item.iconSettings
+        );
 
         if (_item) {
             if (_item.color) {
@@ -295,18 +301,9 @@ export class ItemHandler extends EventEmitter {
             }
 
             icon = _item.icon || icon;
-
         }
 
-        var imageId = [
-            'annot',
-            iconSettings.style,
-            iconSettings.scale | 1,
-            parseInt((colors.color)
-                .slice(1), 16),
-            icon.charCodeAt(0),
-            selected ? 'on' : 'off'
-        ].join('_');
+        var imageId = ['annot', iconSettings.style, iconSettings.scale | 1, parseInt(colors.color.slice(1), 16), icon.charCodeAt(0), selected ? 'on' : 'off'].join('_');
         if (__APPLE__) {
             imageId += '@' + app.deviceinfo.densityFactor + 'x';
         }
@@ -322,27 +319,32 @@ export class ItemHandler extends EventEmitter {
         if (!app.needsUpdate('annot_images') && file.exists()) {
             return imageId;
         }
-        var textColor = (colors.luminance > 0.8) ? colors.contrast : $.white;
+        var textColor = colors.luminance > 0.8 ? colors.contrast : $.white;
         var view = this.iconStyleViews[iconSettings.style + ''];
         var color = colors.color,
             darkenColor = Color(color)
                 .darken(20)
                 .saturate(10)
                 .toHex8String(),
-            image, params: TiDict = {
-                color: selected ? Color(color)
-                    .saturate(8)
-                    .toHex8String() : Color(color)
-                        .setAlpha(0.6)
-                        .toHex8String(),
-                strokeColor: selected ? textColor : Color(darkenColor)
-                    .setAlpha(0.4)
-                    .toHex8String(),
+            image,
+            params: TiDict = {
+                color: selected
+                    ? Color(color)
+                          .saturate(8)
+                          .toHex8String()
+                    : Color(color)
+                          .setAlpha(0.6)
+                          .toHex8String(),
+                strokeColor: selected
+                    ? textColor
+                    : Color(darkenColor)
+                          .setAlpha(0.4)
+                          .toHex8String(),
                 label: {
                     text: icon,
                     strokeColor: colors.darkest,
                     color: textColor
-                },
+                }
             };
 
         // if (iconSettings.style === 1) {
@@ -351,9 +353,11 @@ export class ItemHandler extends EventEmitter {
         // params.label.color = textColor;
         // } else
         if (iconSettings.style === 2) {
-            params.strokeColor = selected ? colors.darkest : Color(darkenColor)
-                .setAlpha(0.7)
-                .toHex8String();
+            params.strokeColor = selected
+                ? colors.darkest
+                : Color(darkenColor)
+                      .setAlpha(0.7)
+                      .toHex8String();
             // params.color = selected ? darkenColor : color;
             params.text = icon;
         } else if (iconSettings.style === 11) {
@@ -375,14 +379,14 @@ export class ItemHandler extends EventEmitter {
         }
         file.write(image);
         return imageId;
-    }
+    };
     initializeType = (_id: string, _type: ItemType) => {
         if (_type.getPrefKey) {
             return _type; //already done
         }
         // sdebug('initializeType', _id, _type);
         _type.propertyKey = _id + '_items';
-        _type.getPrefKey = function (_suffix) {
+        _type.getPrefKey = function(_suffix) {
             return this.id + '_' + _suffix;
         };
         _type.visible = Ti.App.Properties.getBool(_type.getPrefKey('visible'), true);
@@ -396,7 +400,7 @@ export class ItemHandler extends EventEmitter {
             calloutAnchorPoint: _type.calloutAnchorPoint
         });
         return _type;
-    }
+    };
     getFormattedDistance = (...args) => this.geolib.getFormattedDistance.apply(this.geolib, args);
     // getImagePath: app.getImagePath,
     customViewForAnnot = (_item: Item, _needsLoading?: boolean) => {
@@ -424,12 +428,12 @@ export class ItemHandler extends EventEmitter {
             },
             loading: {
                 visible: false
-            },
+            }
             // time: {
             //     text: moment(_item.timestamp).format('LL')
             // }
         };
-    }
+    };
     annotationParamsFromItem = (_item: Item, _markerType: ItemType) => {
         // sdebug('annotationParamsFromItem', _item, _markerType);
         var annot: TiPropertiesT<MapAnnotation> = {
@@ -469,7 +473,7 @@ export class ItemHandler extends EventEmitter {
             annot.customView = this.customViewForAnnot(_item);
         }
         return ak.ti.style(annot, 'MapAnnotation');
-    }
+    };
     routeParamsFromItem(_item: Route, _routeType: RouteType) {
         var points = _item.points;
         if (_item.route) {
@@ -478,10 +482,14 @@ export class ItemHandler extends EventEmitter {
                 var decodeLine = app.api.decodeLine;
                 var arrPush = Array.prototype.push;
                 if (Array.isArray(points)) {
-                    points = _.reduce(points, function (memo, value) {
-                        arrPush.apply(memo, decodeLine(value));
-                        return memo;
-                    }, []);
+                    points = _.reduce(
+                        points,
+                        function(memo, value) {
+                            arrPush.apply(memo, decodeLine(value));
+                            return memo;
+                        },
+                        []
+                    );
                 } else {
                     points = decodeLine(points);
                 }
@@ -493,7 +501,9 @@ export class ItemHandler extends EventEmitter {
             visible: _routeType.visible,
             points: points,
             title: _item.title,
-            color: Color(_item.color || _routeType.routeColor || _routeType.color).setAlpha(0.5).toHex8String(),
+            color: Color(_item.color || _routeType.routeColor || _routeType.color)
+                .setAlpha(0.5)
+                .toHex8String(),
             selectedColor: _routeType.routeSelectedColor,
             rclass: _routeType.rclass,
             bubbleParent: true
@@ -526,7 +536,7 @@ export class ItemHandler extends EventEmitter {
             simplifyTolerance += 2;
         }
         return toUsePoints;
-    }
+    };
     itemProfileDesc(_item: Route) {
         return '';
         // if (_item.route_mode !== 'walking') return '';
@@ -551,12 +561,11 @@ export class ItemHandler extends EventEmitter {
             lossRate = _args.dminrate || 600,
             totalLoss = loss / lossRate,
             totalElevation = totalGain - totalLoss,
-            movingRate = (totalMeters / 1609 / pti),
+            movingRate = totalMeters / 1609 / pti,
             movingTime = movingRate + totalElevation, //hours
             shortBreaksTotal = Math.floor(movingTime - Math.floor(movingTime / 4.5)) * 5, //min
             longBreaksTotal = Math.floor(movingTime / 4.5) * 30, //min
-            totalTime = Math.round((movingTime * 60 + (shortBreaksTotal) + (longBreaksTotal)) *
-                10) / 10 * 60 * 1000;
+            totalTime = Math.round((movingTime * 60 + shortBreaksTotal + longBreaksTotal) * 10) / 10 * 60 * 1000;
         // sdebug('totalElevation', totalElevation);
         // sdebug('totalMeters', totalMeters);
         // sdebug('totalLoss', totalLoss);
@@ -567,12 +576,11 @@ export class ItemHandler extends EventEmitter {
         return totalTime;
     }
     itemDetails = (_item: Item, _desc: ItemType) => {
-        return this.convert.osmTagsFastDetails(_item)
-            .join(', ');
-    }
+        return this.convert.osmTagsFastDetails(_item).join(', ');
+    };
     itemIcons = (_item: Item, _color: string) => {
         return this.convert.osmTagsIconsHTML(_item, _color);
-    }
+    };
     itemSubtitle = (_item: Item, _desc: ItemType) => {
         var subtitle;
         if (_item.description) {
@@ -587,8 +595,7 @@ export class ItemHandler extends EventEmitter {
                 var isRoute = this.isItemARoute(_item);
                 if (isRoute) {
                     var route = (_item as Route).route;
-                    subtitle = this.htmlIcon($.sDist, 0, $.black) + this.geolib.formatter.distance(
-                        route.distance);
+                    subtitle = this.htmlIcon($.sDist, 0, $.black) + this.geolib.formatter.distance(route.distance);
                     // if (route.duration > 0) {
                     // console.log('duraation', route.duration);
                     // subtitle += ' ' + htmlIcon(String.fromCharCode(0xe08e), 0, $.black) + moment
@@ -598,14 +605,10 @@ export class ItemHandler extends EventEmitter {
                     var profile = (_item as Route).profile || _item.tags;
                     if (profile) {
                         if (profile.dplus) {
-                            subtitle += ' ' + this.htmlIcon($.sDplus, 0, $.black) + this.geolib
-                                .formatter
-                                .altitude(profile.dplus);
+                            subtitle += ' ' + this.htmlIcon($.sDplus, 0, $.black) + this.geolib.formatter.altitude(profile.dplus);
                         }
                         if (profile.dmin) {
-                            subtitle += ' ' + this.htmlIcon($.sDmin, 0, $.black) + this.geolib
-                                .formatter
-                                .altitude(Math.abs(profile.dmin));
+                            subtitle += ' ' + this.htmlIcon($.sDmin, 0, $.black) + this.geolib.formatter.altitude(Math.abs(profile.dmin));
                         }
                     }
                 } else {
@@ -615,42 +618,42 @@ export class ItemHandler extends EventEmitter {
         }
 
         return subtitle;
-    }
+    };
     getAddressSearchTermOSM(_item: Item) {
         var address = _item.address.address || _item.address;
         sdebug('getAddressSearchTermOSM', address);
         if (_item.osm && address[_item.osm.subtype]) {
             return address[_item.osm.subtype];
         }
-        var params = [
-            ['address26', 'address29', 'footway', 'pedestrian', 'road'],
-            ['city', 'town', 'village']
-        ];
+        var params = [['address26', 'address29', 'footway', 'pedestrian', 'road'], ['city', 'town', 'village']];
         var count = 0;
-        return _.reduce(params, function (memo, value, index) {
-            if (count < 3 || index < 5) {
-                if (Array.isArray(value)) {
-                    value.forEach(function (key) {
-                        var toAdd = address[key];
-                        if (toAdd) {
-                            memo += toAdd;
-                            memo += ' ';
-                            count++;
-                            return false;
-                        }
-                    });
-                    // } else {
-                    //     var toAdd = address[value];
-                    //     if (toAdd) {
-                    //         memo += toAdd;
-                    //         memo += ' ';
-                    //         count++;
-                    //     }
+        return _.reduce(
+            params,
+            function(memo, value, index) {
+                if (count < 3 || index < 5) {
+                    if (Array.isArray(value)) {
+                        value.forEach(function(key) {
+                            var toAdd = address[key];
+                            if (toAdd) {
+                                memo += toAdd;
+                                memo += ' ';
+                                count++;
+                                return false;
+                            }
+                        });
+                        // } else {
+                        //     var toAdd = address[value];
+                        //     if (toAdd) {
+                        //         memo += toAdd;
+                        //         memo += ' ';
+                        //         count++;
+                        //     }
+                    }
                 }
-
-            }
-            return memo;
-        }, '');
+                return memo;
+            },
+            ''
+        );
     }
     itemSearchTerm = (_item: Item) => {
         sdebug('itemSearchTerm', _item);
@@ -664,17 +667,22 @@ export class ItemHandler extends EventEmitter {
         } else {
             return this.geolib.formatter.latLngString(_item, 0, ',');
         }
-    }
-    setMapRegion = (_mapView: MapView, _region: Region, _deltaFactor: number, _animated?: boolean, _deltaScreen?: { top?, bottom?, left?, right?}) => {
+    };
+    setMapRegion = (_mapView: MapView, _region: Region, _deltaFactor: number, _animated?: boolean, _deltaScreen?: { top?; bottom?; left?; right? }) => {
         sdebug('setMapRegion', _region, _deltaFactor, _animated, _deltaScreen);
-        this.updateCamera(_mapView, {
-            region: this.geolib.scaleBounds(_region, _deltaFactor),
-            animated: _animated
-        }, _deltaScreen);
-    }
-    updateCamera = (_mapView: MapView, _params: MapUpdateCamParams, _deltaScreen?: { top?, bottom?, left?, right?}, _zoom?: number) => {
+        this.updateCamera(
+            _mapView,
+            {
+                region: this.geolib.scaleBounds(_region, _deltaFactor),
+                animated: _animated
+            },
+            _deltaScreen
+        );
+    };
+    updateCamera = (_mapView: MapView, _params: MapUpdateCamParams, _deltaScreen?: { top?; bottom?; left?; right? }, _zoom?: number) => {
         var geolib = this.geolib,
-            zoom, deltaSpan;
+            zoom,
+            deltaSpan;
         sdebug('updateCamera', _params, _deltaScreen);
         if (_params.region) {
             var region = _params.region;
@@ -711,7 +719,7 @@ export class ItemHandler extends EventEmitter {
         }
 
         _mapView.updateCamera(_params);
-    }
+    };
     updateItem = (_item: Item, _desc: ItemType, _changes: ItemChanges, _mapHandler: MapWindow) => {
         var currentFirstPhoto = _item && _item.photos && _item.photos[0];
         var item = _.merge(_item, _changes);
@@ -728,10 +736,11 @@ export class ItemHandler extends EventEmitter {
 
         if (_changes.tags) {
             if (_changes.tags.image) {
-                _changes.newPhotos = (_changes.newPhotos || [])
-                    .concat([{
+                _changes.newPhotos = (_changes.newPhotos || []).concat([
+                    {
                         image: _changes.tags.image
-                    }]);
+                    }
+                ]);
             }
             if (_changes.tags.colour && !item.color) {
                 item.color = _changes.tags.colour;
@@ -745,19 +754,18 @@ export class ItemHandler extends EventEmitter {
             item.photos = item.photos || [];
             for (i = 0; i < _changes.newPhotos.length; i++) {
                 var photo = _changes.newPhotos[i];
-                var existing = _.findIndex(item.photos, { 'image': photo.image });
+                var existing = _.findIndex(item.photos, { image: photo.image });
                 if (existing === -1) {
                     item.photos.push(photo);
                 }
-
             }
             delete item.newNotes;
             _changes.showInfoWindow = item.photos.length > 0;
             delete item.newPhotos;
         }
         if (_changes.deletedPhotos) {
-            _changes.deletedPhotos.forEach(function (photoName) {
-                item.photos = _.reject(item.photos, { 'image': photoName });
+            _changes.deletedPhotos.forEach(function(photoName) {
+                item.photos = _.reject(item.photos, { image: photoName });
             });
             if (item.photos.length === 0) {
                 _changes.showInfoWindow = false;
@@ -776,8 +784,8 @@ export class ItemHandler extends EventEmitter {
             delete item.newNotes;
         }
         if (_changes.deletedNotes) {
-            _changes.deletedNotes.forEach( function (noteId) {
-                item.notes = _.reject(item.notes, { 'id': noteId });
+            _changes.deletedNotes.forEach(function(noteId) {
+                item.notes = _.reject(item.notes, { id: noteId });
             });
             if (item.notes.length === 0) {
                 delete item.notes;
@@ -793,8 +801,8 @@ export class ItemHandler extends EventEmitter {
             delete item.newFiles;
         }
         if (_changes.deletedFiles) {
-            _changes.deletedFiles.forEach(function (fileId) {
-                item.files = _.reject(item.files, { 'fileName': fileId });
+            _changes.deletedFiles.forEach(function(fileId) {
+                item.files = _.reject(item.files, { fileName: fileId });
             });
             if (item.files.length === 0) {
                 delete item.files;
@@ -803,8 +811,7 @@ export class ItemHandler extends EventEmitter {
         }
 
         var newPhotosCount = item && item.photos && item.photos.length;
-        if (newPhotosCount > 0 &&
-            (!currentFirstPhoto || _.isEqual(currentFirstPhoto, item.photos[0]))) {
+        if (newPhotosCount > 0 && (!currentFirstPhoto || _.isEqual(currentFirstPhoto, item.photos[0]))) {
             _changes.customView = this.customViewForAnnot(item);
         }
 
@@ -815,7 +822,6 @@ export class ItemHandler extends EventEmitter {
                 command: 'move',
                 items: [item],
                 moveType: 'modified'
-
             });
             app.showTutorials('item.firstchangemoved');
         } else {
@@ -828,7 +834,7 @@ export class ItemHandler extends EventEmitter {
         }
 
         return item;
-    }
+    };
     updateParamsForLocation(_item: Item, _location: TiLocation) {
         var args: any = {};
         if (!_item) {
@@ -855,9 +861,7 @@ export class ItemHandler extends EventEmitter {
             var heading = geolib.getCompassDirection(_location, startPoint);
             // _location.altitude = Math.round(Math.random() * 1000);
             if (args.altitude && _location.hasOwnProperty('altitude')) {
-                args.altitude.text += ' (' + geolib.formatter.altitude(startPoint.altitude -
-                    _location.altitude) +
-                    ')';
+                args.altitude.text += ' (' + geolib.formatter.altitude(startPoint.altitude - _location.altitude) + ')';
             }
 
             args.distance = {
@@ -868,7 +872,7 @@ export class ItemHandler extends EventEmitter {
             bearing -= _location.heading || 0;
             args.orientation = {
                 visible: true,
-                transform: (bearing !== 0) ? ('r' + bearing) : null
+                transform: bearing !== 0 ? 'r' + bearing : null
             };
         }
 
@@ -878,13 +882,16 @@ export class ItemHandler extends EventEmitter {
         if (_item.tags && _item.tags.opening_hours) {
             var result: any = {};
             var now = moment();
-            var address = _.merge({
-                country_code: app.localeInfo.currentCountry.toLowerCase()
-            }, _item.address);
+            var address = _.merge(
+                {
+                    country_code: app.localeInfo.currentCountry.toLowerCase()
+                },
+                _item.address
+            );
             var oh = app.openingHours(_item.tags.opening_hours, {
                 lat: _item.latitude,
                 lon: _item.longitude,
-                address: address,
+                address: address
             });
             var it = oh.getIterator();
             var state = it.getState();
@@ -924,8 +931,7 @@ export class ItemHandler extends EventEmitter {
             searchableText: _.deburr(title),
             icon: {
                 text: _item.icon || _itemDesc.icon,
-                color: (colors.luminance > 0.8) ? colors.contrast : colors.color,
-
+                color: colors.luminance > 0.8 ? colors.contrast : colors.color
             },
             title: {
                 text: title
@@ -956,18 +962,18 @@ export class ItemHandler extends EventEmitter {
         if (ohInfos) {
             args.opened = {
                 visible: true,
-                color: app.colors[ohInfos.opened ? 'green' : 'red'].darkerRel,
+                color: app.colors[ohInfos.opened ? 'green' : 'red'].darkerRel
             };
             if (ohInfos.nextTime) {
                 args.opendetails = {
                     visible: true,
                     text: ohInfos.nextTime.format('LT'),
-                    color: app.colors[ohInfos.opened ? 'red' : 'green'].darkerRel,
+                    color: app.colors[ohInfos.opened ? 'red' : 'green'].darkerRel
                 };
             }
         }
         return args;
-    }
+    };
     createAnnotItem(_feature, _data, _id?: string) {
         // sdebug('createAnnotItem', _data);
         // var item = {
@@ -990,8 +996,7 @@ export class ItemHandler extends EventEmitter {
         //     item.id = now;
         // }
         // return item;
-        var now = moment()
-            .valueOf();
+        var now = moment().valueOf();
         var item = _.defaults(_data, {
             type: _feature.id,
             timestamp: now,
@@ -1001,8 +1006,7 @@ export class ItemHandler extends EventEmitter {
         return item;
     }
     createRouteItem(_routeType: RouteType, _data, _id?: string) {
-        var now = moment()
-            .valueOf();
+        var now = moment().valueOf();
         var item = _.defaults(_data, {
             type: _routeType.id,
             timestamp: now,
@@ -1032,7 +1036,7 @@ export class ItemHandler extends EventEmitter {
                 return [key, this.itemActions[key]];
             }
             return key;
-        })
+        });
 
         // var result = _.mapValues(options, function(value, key){
         //     sdebug('test', value, key);
@@ -1044,7 +1048,7 @@ export class ItemHandler extends EventEmitter {
         // sdebug('actionsForItem2', options);
         // var result = _.pairs(_.pick(itemActions, options));
         return options;
-    }
+    };
     showMoreOptionMenuForItem(_item: Item, _desc: ItemType, _callback: Function, _parent: AppWindow, _mapHandler: MapWindow, _params?) {
         _params = _params || {};
         // var options = ['add_photo', 'move', 'share'];
@@ -1064,14 +1068,15 @@ export class ItemHandler extends EventEmitter {
             cancel: 0,
             tapOutDismiss: true
         })
-            .on('click', ((e) => {
-                if (!e.cancel) {
-                    var option = options[e.index];
-                    this.handleItemAction(option, _item, _desc, _callback, _parent,
-                        _mapHandler);
-                }
-            })
-                .bind(this))
+            .on(
+                'click',
+                (e => {
+                    if (!e.cancel) {
+                        var option = options[e.index];
+                        this.handleItemAction(option, _item, _desc, _callback, _parent, _mapHandler);
+                    }
+                }).bind(this)
+            )
             .show();
     }
     handlePhotoTaken = (_parent: AppWindow, e: TiMediaEvent) => {
@@ -1093,7 +1098,7 @@ export class ItemHandler extends EventEmitter {
                 height: imageHeight,
                 imageId: imageId,
                 imageName: imageName
-            }
+            };
             const MAX_WIDTH = 600;
             sdebug('writing image', result);
             Ti.Filesystem.getFile(this.getImagePath(imageName)).write(image);
@@ -1102,26 +1107,23 @@ export class ItemHandler extends EventEmitter {
                 sdebug('creating image thumbnail', thumbnailImageName);
                 result.thumbnailImageName = thumbnailImageName;
                 Ti.Image.getFilteredImage(image, {
-                    scale: MAX_WIDTH / Math.max(imageWidth, imageHeight), callback: (e: TiImageEvent) => {
+                    scale: MAX_WIDTH / Math.max(imageWidth, imageHeight),
+                    callback: (e: TiImageEvent) => {
                         sdebug('created image thumbnail', e);
                         Ti.Filesystem.getFile(this.getImagePath(thumbnailImageName)).write(e.image);
                         _parent.hideLoading();
                         resolve(result);
                     }
-                })
+                });
             } else {
                 _parent.hideLoading();
                 resolve(result);
             }
             // _callback(image, imageId, imageName, thumbnailImageName);
-        })
-
-
-
-    }
+        });
+    };
     getItemSetting(prop, _item: Item, _desc: ItemType) {
-        return (_item.settings && !!_item.settings[prop]) ||
-            (_desc.settings && !!_desc.settings[prop]);
+        return (_item.settings && !!_item.settings[prop]) || (_desc.settings && !!_desc.settings[prop]);
     }
     takePhoto = (_parent: AppWindow) => {
         return new Promise((resolve, reject) => {
@@ -1129,7 +1131,7 @@ export class ItemHandler extends EventEmitter {
                 Titanium.Media.showCamera({
                     success: resolve,
                     cancel: reject,
-                    error: function (error) {
+                    error: function(error) {
                         if (error.code == Titanium.Media.NO_CAMERA) {
                             app.showAlert('Please run this on device');
                         } else {
@@ -1158,8 +1160,7 @@ export class ItemHandler extends EventEmitter {
         //     saveToPhotoGallery: false,
         //     mediaTypes: [Ti.Media.MEDIA_TYPE_PHOTO]
         // });
-
-    }
+    };
     handleItemAction = (_option: string, _items: Item | Item[], _desc: ItemType, _callback: Function, _parent: AppWindow, _mapHandler: MapWindow, _params?) => {
         sdebug('handleItemAction', _option);
         let _item: Item;
@@ -1182,8 +1183,7 @@ export class ItemHandler extends EventEmitter {
                 this.showFloatingWebView(_option, url, _item, _desc, _parent, _mapHandler);
                 break;
             case 'more':
-                this.showMoreOptionMenuForItem(_item, _desc, _callback, _parent, _mapHandler,
-                    _params);
+                this.showMoreOptionMenuForItem(_item, _desc, _callback, _parent, _mapHandler, _params);
 
                 break;
             case 'edit':
@@ -1206,106 +1206,124 @@ export class ItemHandler extends EventEmitter {
                     itemDesc: _desc
                 });
                 break;
-            case 'phone':
-                {
-                    var phone = _item.tags.phone;
-                    if (phone) {
-                        app.confirmAction({
+            case 'phone': {
+                var phone = _item.tags.phone;
+                if (phone) {
+                    app.confirmAction(
+                        {
                             buttonNames: [trc('cancel'), trc('call')],
                             message: phone,
                             title: null
-                        }, function () {
+                        },
+                        function() {
                             Ti.Platform.openURL('tel:' + phone);
-                        });
-                    }
-                    break;
+                        }
+                    );
                 }
-            case 'add_photo':
-                {
-                    this.handleItemAction('acquire_photo', _item, _desc, (option,
-                        photo: ItemPhoto) => {
+                break;
+            }
+            case 'add_photo': {
+                this.handleItemAction(
+                    'acquire_photo',
+                    _item,
+                    _desc,
+                    (option, photo: ItemPhoto) => {
                         if (photo) {
-                            let result = this.updateItem(_item, _desc, {
-                                newPhotos: [photo]
-                            }, _mapHandler);
+                            let result = this.updateItem(
+                                _item,
+                                _desc,
+                                {
+                                    newPhotos: [photo]
+                                },
+                                _mapHandler
+                            );
                             if (_callback) {
                                 _callback(_option, result);
                             }
                         }
-                    }, _parent, _mapHandler);
-                    break;
-                }
-            case 'acquire_photo':
-                {
-                    new OptionDialog({
-                        options: [trc('take_picture'), trc('select_gallery')],
+                    },
+                    _parent,
+                    _mapHandler
+                );
+                break;
+            }
+            case 'acquire_photo': {
+                new OptionDialog({
+                    options: [trc('take_picture'), trc('select_gallery')],
 
-                        buttonNames: [trc('cancel')],
-                        title: trc(_option),
-                        cancel: 0,
-                        tapOutDismiss: true
-                    }).on('click', (e: TiEvent) => {
+                    buttonNames: [trc('cancel')],
+                    title: trc(_option),
+                    cancel: 0,
+                    tapOutDismiss: true
+                })
+                    .on('click', (e: TiEvent) => {
                         sdebug(e);
                         if (!e.cancel) {
-                            return Promise.resolve().then(() => {
-                                if (e.index === 0) {
-                                    return this.takePhoto(_parent);
-                                } else if (e.index === 1) {
-                                    return new Promise((resolve, reject) => {
-                                        Titanium.Media.openPhotoGallery({
-                                            success: resolve,
-                                            cancel: reject,
-                                            error: reject,
-                                            // allowEditing: true,
-                                            mediaTypes: [Ti.Media.MEDIA_TYPE_PHOTO]
-                                        }).then((e: TiMediaEvent) => {
-                                            return this.handlePhotoTaken(_parent, e);
-                                        });
-                                    }) as Promise<ImageResult>
-                                }
-                            }).then(r => {
-                                let result: ItemPhoto;
-                                if (r) {
-                                    result = {
-                                        width: r.width,
-                                        height: r.height,
-                                        image: r.imageName,
-                                        thumbnailImage: r.thumbnailImageName
-                                    };
+                            return Promise.resolve()
+                                .then(() => {
+                                    if (e.index === 0) {
+                                        return this.takePhoto(_parent);
+                                    } else if (e.index === 1) {
+                                        return new Promise((resolve, reject) => {
+                                            Titanium.Media.openPhotoGallery({
+                                                success: resolve,
+                                                cancel: reject,
+                                                error: reject,
+                                                // allowEditing: true,
+                                                mediaTypes: [Ti.Media.MEDIA_TYPE_PHOTO]
+                                            }).then((e: TiMediaEvent) => {
+                                                return this.handlePhotoTaken(_parent, e);
+                                            });
+                                        }) as Promise<ImageResult>;
+                                    }
+                                })
+                                .then(r => {
+                                    let result: ItemPhoto;
+                                    if (r) {
+                                        result = {
+                                            width: r.width,
+                                            height: r.height,
+                                            image: r.imageName,
+                                            thumbnailImage: r.thumbnailImageName
+                                        };
 
-                                    // showMessage('address_found', color);
-                                }
-                                if (_callback) {
-                                    _callback(_option, result);
-                                }
-                            })
-                        };
-                    }).show();
+                                        // showMessage('address_found', color);
+                                    }
+                                    if (_callback) {
+                                        _callback(_option, result);
+                                    }
+                                });
+                        }
+                    })
+                    .show();
 
-                    break;
-                }
-            case 'refresh_tags':
-                {
-                    var clearUpString = function (s) {
-                        return _.deburr(s)
-                            .toLowerCase()
-                            .replace(/^(the|le|la|el)\s/, '')
-                            .trim();
-                    };
-                    var q = clearUpString(_item.title || _desc.defaultTitle);
-                    var hasChanged = false;
+                break;
+            }
+            case 'refresh_tags': {
+                var clearUpString = function(s) {
+                    return _.deburr(s)
+                        .toLowerCase()
+                        .replace(/^(the|le|la|el)\s/, '')
+                        .trim();
+                };
+                var q = clearUpString(_item.title || _desc.defaultTitle);
+                var hasChanged = false;
 
-                    var calls = _mapHandler.runReduceMethodOnModules('getDetailsCalls', q, _item, _desc);
-                    calls.osm = _.partial(app.api.osmDetails, _item);
+                var calls = _mapHandler.runReduceMethodOnModules('getDetailsCalls', q, _item, _desc);
+                calls.osm = _.partial(app.api.osmDetails, _item);
 
-                    var request = app.api.parallelMapRequests(calls).then(function (res) {
-                        var callsToAdd = [];
-                        res.forEach(function (value, key) {
+                var request = app.api
+                    .parallelMapRequests(calls)
+                    .then(function(res) {
+                        var callsToAdd = [],
+                            value;
+                        for (let key in res) {
+                            value = res[key];
                             if (_.isObject(value)) {
                                 if (value.photos) {
-                                    value.photos.forEach(function (photo) {
+                                    value.photos.forEach(function(photo) {
                                         var url = photo.url || photo;
-                                        var existing = _.findIndex(_item.photos, { 'url ': url });
+                                        var existing = _item.photos.findIndex(v => v.url === url);
                                         if (existing === -1) {
                                             hasChanged = true;
                                             console.log('downloading photo', photo);
@@ -1316,26 +1334,24 @@ export class ItemHandler extends EventEmitter {
                                 }
 
                                 if (value.notes) {
-                                    value.notes.forEach(function (note) {
+                                    value.notes.forEach(function(note) {
                                         var id = note.title;
-                                        var existing = _.findIndex(_item.notes, { 'title': id });
+                                        const existing = _item.notes.findIndex(v => v.title === id);
                                         if (existing === -1) {
                                             hasChanged = true;
-                                            value.newNotes = value.newNotes ||
-                                                [];
-                                            value.newNotes.push(
-                                                note);
+                                            value.newNotes = value.newNotes || [];
+                                            value.newNotes.push(note);
                                         }
                                     });
                                     delete value.notes;
                                 }
                             }
-                        });
+                        }
                         console.log('callsToAdd', callsToAdd);
                         if (callsToAdd.length > 0) {
-                            return Promise.all(callsToAdd).then(function (photos) {
+                            return Promise.all(callsToAdd).then(function(photos) {
                                 console.log('downloaded photos', photos);
-                                photos = photos.filter(function (p) {
+                                photos = photos.filter(function(p) {
                                     return !!p;
                                 });
                                 if (photos.length > 0) {
@@ -1346,19 +1362,19 @@ export class ItemHandler extends EventEmitter {
                         } else {
                             return res;
                         }
-                    }).then(function (res) {
+                    })
+                    .then(function(res) {
                         console.log('res', JSON.stringify(res));
                         var result: ItemChanges = {};
                         if (res && res.photos) {
                             result.newPhotos = result.newPhotos || [];
 
-                            res.photos.forEach(function (photo) {
+                            res.photos.forEach(function(photo) {
                                 result.newPhotos.push(photo);
                                 sdebug('adding newPhoto', photo);
                             });
                         }
-                        var customizer = function (value, srcValue, key, object,
-                            source) {
+                        var customizer = function(value, srcValue, key, object, source) {
                             if (!value && srcValue) {
                                 // hasChanged = true;
                                 // sdebug('needChanges for', key, value, srcValue);
@@ -1368,30 +1384,24 @@ export class ItemHandler extends EventEmitter {
                         };
                         for (let key in res) {
                             let value = res[key];
-                            _.merge(result, _.omit(value,
-                                'id', 'title', 'address'
-                            ), customizer);
+                            _.merge(result, _.omit(value, 'id', 'title', 'address'), customizer);
                             if (!_item.address && value.address) {
                                 result.address = value.address;
                             }
                         }
                         console.log('about to return success', result);
                         return result;
-                    }).then((changes) => {
+                    })
+                    .then(changes => {
                         console.log('changes', changes);
-                        ['icon', 'settings'].forEach(function (value) {
-                            if (changes.hasOwnProperty(value) && !_item.hasOwnProperty(
-                                value) && _desc.hasOwnProperty(value) &&
-                                _.isEqual(_desc[value], changes[value])) {
+                        ['icon', 'settings'].forEach(function(value) {
+                            if (changes.hasOwnProperty(value) && !_item.hasOwnProperty(value) && _desc.hasOwnProperty(value) && _.isEqual(_desc[value], changes[value])) {
                                 delete changes[value];
                             }
                         });
                         if (changes && _.size(changes) > 0) {
                             if (!hasChanged) {
-                                var test = _.omit(_item, 'id', 'title', 'type',
-                                    'image', 'selectedImage', 'profile',
-                                    'timestamp',
-                                    'settings', 'photos', 'notes', 'address');
+                                var test = _.omit(_item, 'id', 'title', 'type', 'image', 'selectedImage', 'profile', 'timestamp', 'settings', 'photos', 'notes', 'address');
                                 // sdebug('changes', changes);
                                 // var hashCode1 = convert.hashCode(JSON.stringify(test));
                                 // var hashCode2 = convert.hashCode(JSON.stringify(changes));
@@ -1402,8 +1412,7 @@ export class ItemHandler extends EventEmitter {
                             }
                             if (hasChanged) {
                                 app.showMessage(trc('item_refreshed'), _desc.colors);
-                                var result = this.updateItem(_item, _desc, changes,
-                                    _mapHandler);
+                                var result = this.updateItem(_item, _desc, changes, _mapHandler);
                                 if (_callback) {
                                     _callback(_option, result);
                                 }
@@ -1413,58 +1422,56 @@ export class ItemHandler extends EventEmitter {
                         } else {
                             this.showMessage(trc('nothing_to_update'), colors);
                         }
-                    }).catch(e => _parent && _parent.showError(e)).then((r) => { _parent && _parent.hideLoading(); return r; });
-                    if (_parent) {
-                        _parent.showLoading({
-                            request: request,
-                            label: {
-                                text: trc('refreshing') + '...'
-                            }
-                        });
-                    }
-                    break;
+                    })
+                    .catch(e => _parent && _parent.showError(e))
+                    .then(r => {
+                        _parent && _parent.hideLoading();
+                        return r;
+                    });
+                if (_parent) {
+                    _parent.showLoading({
+                        request: request,
+                        label: {
+                            text: trc('refreshing') + '...'
+                        }
+                    });
                 }
+                break;
+            }
             case 'twitter':
             case 'facebook':
             case 'website':
-                this.showFloatingWebView(_option, _item.tags[_option], _item, _desc, _parent,
-                    _mapHandler);
+                this.showFloatingWebView(_option, _item.tags[_option], _item, _desc, _parent, _mapHandler);
                 break;
-            case 'search_google':
-                {
-                    url = 'https://www.google.com/search?z=14&q=' + escape(this.itemSearchTerm(
-                        _item));
-                    this.showFloatingWebView(_option, url, _item, _desc, _parent, _mapHandler);
-                    break;
-                }
-            case 'share':
-                {
-                    var data = this.geolib.formatter.latLngString(_item, 0) + '\n' +
-                        ' shared using Alpi Maps';
-                    app.share({
-                        text: data,
-                        image: _mapHandler.mapViewSnapshot()
-                    });
-                    break;
-                }
-            case 'open_maps':
-                {
-                    url = 'http://maps.apple.com/?q=';
-                    url += this.geolib.formatter.latLngString(_item, 0, ',');
-                    Ti.Platform.openURL(url);
-                    break;
-                }
-            case 'open_google_maps':
-                {
-                    url =
-                        'comgooglemaps://?zoom=14&q=';
-                    url += this.geolib.formatter.latLngString(_item, 0, ',');
-                    Ti.Platform.openURL(url);
-                    break;
-                }
-            case 'reverse_geo':
-                {
-                    request = app.api.reverseGeocode(_item).then((res) => {
+            case 'search_google': {
+                url = 'https://www.google.com/search?z=14&q=' + escape(this.itemSearchTerm(_item));
+                this.showFloatingWebView(_option, url, _item, _desc, _parent, _mapHandler);
+                break;
+            }
+            case 'share': {
+                var data = this.geolib.formatter.latLngString(_item, 0) + '\n' + ' shared using Alpi Maps';
+                app.share({
+                    text: data,
+                    image: _mapHandler.mapViewSnapshot()
+                });
+                break;
+            }
+            case 'open_maps': {
+                url = 'http://maps.apple.com/?q=';
+                url += this.geolib.formatter.latLngString(_item, 0, ',');
+                Ti.Platform.openURL(url);
+                break;
+            }
+            case 'open_google_maps': {
+                url = 'comgooglemaps://?zoom=14&q=';
+                url += this.geolib.formatter.latLngString(_item, 0, ',');
+                Ti.Platform.openURL(url);
+                break;
+            }
+            case 'reverse_geo': {
+                request = app.api
+                    .reverseGeocode(_item)
+                    .then(res => {
                         var changes: ItemChanges = {
                             address: res
                         };
@@ -1478,96 +1485,103 @@ export class ItemHandler extends EventEmitter {
                         }
 
                         this.showMessage(trc('address_found'), colors);
-                        var result = this.updateItem(_item, _desc, changes,
-                            _mapHandler);
+                        var result = this.updateItem(_item, _desc, changes, _mapHandler);
                         return result;
-                    }).catch(e => _parent && _parent.showError(e)).then((r) => { _parent && _parent.hideLoading(); return r; });
-                    if (_parent) {
-                        _parent.showLoading({
-                            request: request,
-                            label: {
-                                text: trc(_option) + '...'
-                            }
-                        });
-                    }
-                    break;
+                    })
+                    .catch(e => _parent && _parent.showError(e))
+                    .then(r => {
+                        _parent && _parent.hideLoading();
+                        return r;
+                    });
+                if (_parent) {
+                    _parent.showLoading({
+                        request: request,
+                        label: {
+                            text: trc(_option) + '...'
+                        }
+                    });
                 }
-            case 'images':
-                {
-                    this.showFloatingWebView(_option, 'http://www.google.com/images?q=' + escape(this.itemSearchTerm(
-                        _item)),
-                        _item, _desc,
-                        _parent, _mapHandler);
+                break;
+            }
+            case 'images': {
+                this.showFloatingWebView(_option, 'http://www.google.com/images?q=' + escape(this.itemSearchTerm(_item)), _item, _desc, _parent, _mapHandler);
 
-                    break;
-                }
-            case 'consolidate_alt':
-                {
-                    request = app.api.ignElevation(_item).then(changes => {
+                break;
+            }
+            case 'consolidate_alt': {
+                request = app.api
+                    .ignElevation(_item)
+                    .then(changes => {
                         this.showMessage(trc('elevation_found'), colors);
-                        var result = this.updateItem(_item, _desc, changes,
-                            _mapHandler);
+                        var result = this.updateItem(_item, _desc, changes, _mapHandler);
                         if (_callback) {
                             _callback(_option, result);
                         }
-                    }).catch(e => _parent && _parent.showError(e)).then((r) => { _parent && _parent.hideLoading(); return r; });
-                    if (_parent) {
-                        _parent.showLoading({
-                            request: request,
-                            label: {
-                                text: trc(_option) + '...'
-                            }
-                        });
-                    }
-                    break;
-                }
-            case 'update_profile':
-            case 'query_profile':
-                {
-                    var factor = 1;
-                    //app.simplify(_item.route.points, factor/3779)
-                    var route = (_item as Route).route;
-                    var points = route.points;
-                    // var toUsePoints = this.simplify(_item.route.points, factor / 3779);
-                    // sdebug(_option, points.length, toUsePoints.length);
-                    request = app.api.ignElevationProfile(this, route.points).then(
-                        (changes) => {
-                            this.showMessage(trc('profile_found'), colors);
-                            var result = this.updateItem(_item, _desc, changes,
-                                _mapHandler);
-                            if (_callback) {
-                                _callback(_option, result);
-                            }
-                            // } else {
-                            //     app.showAlert(e);
-                            if (_parent) {
-                                _parent.hideLoading();
-                            }
-                        }).catch(e => _parent && _parent.showError(e)).then((r) => { _parent && _parent.hideLoading(); return r; });
-                    if (_parent) {
-                        _parent.showLoading({
-                            request: request,
-                            label: {
-                                text: trc(_option) + '...'
-                            }
-                        });
-                    }
-                    break;
-                }
-            case 'remove':
-            case 'delete':
-                {
-                    var result = _mapHandler.runMethodOnModules('spreadModuleAction', {
-                        id: _desc.id,
-                        command: 'remove',
-                        items: _items
-
+                    })
+                    .catch(e => _parent && _parent.showError(e))
+                    .then(r => {
+                        _parent && _parent.hideLoading();
+                        return r;
                     });
-                    if (_callback) {
-                        _callback(_option, result);
-                    }
-                    break;
+                if (_parent) {
+                    _parent.showLoading({
+                        request: request,
+                        label: {
+                            text: trc(_option) + '...'
+                        }
+                    });
                 }
+                break;
+            }
+            case 'update_profile':
+            case 'query_profile': {
+                var factor = 1;
+                //app.simplify(_item.route.points, factor/3779)
+                var route = (_item as Route).route;
+                var points = route.points;
+                // var toUsePoints = this.simplify(_item.route.points, factor / 3779);
+                // sdebug(_option, points.length, toUsePoints.length);
+                request = app.api
+                    .ignElevationProfile(this, route.points)
+                    .then(changes => {
+                        this.showMessage(trc('profile_found'), colors);
+                        var result = this.updateItem(_item, _desc, changes, _mapHandler);
+                        if (_callback) {
+                            _callback(_option, result);
+                        }
+                        // } else {
+                        //     app.showAlert(e);
+                        if (_parent) {
+                            _parent.hideLoading();
+                        }
+                    })
+                    .catch(e => _parent && _parent.showError(e))
+                    .then(r => {
+                        _parent && _parent.hideLoading();
+                        return r;
+                    });
+                if (_parent) {
+                    _parent.showLoading({
+                        request: request,
+                        label: {
+                            text: trc(_option) + '...'
+                        }
+                    });
+                }
+                break;
+            }
+            case 'remove':
+            case 'delete': {
+                var result = _mapHandler.runMethodOnModules('spreadModuleAction', {
+                    id: _desc.id,
+                    command: 'remove',
+                    items: _items
+                });
+                if (_callback) {
+                    _callback(_option, result);
+                }
+                break;
+            }
             // case 'searcharound':
             //     _mapHandler.runMethodOnModules('spreadModuleAction', {
             //         id: _option,
@@ -1586,39 +1600,41 @@ export class ItemHandler extends EventEmitter {
                 }
                 _parent.manager.closeToRootWindow();
                 break;
-            case 'move':
-                {
-                    var lists: ItemList[] = _.filter(_.map(_.flatten(_mapHandler.runGetMethodOnModules(
-                        'getLists')),
-                        'description'), { 'isList': true });
-                    // _.filter(_mapHandler.runGetMethodOnModules('getLists'));
-                    // var isRoute = this.isItemARoute(_item);
-                    _item = _item || _items[0];
-                    app.showOptionsListDialog({
+            case 'move': {
+                var lists: ItemList[] = _.filter(_.map(_.flatten(_mapHandler.runGetMethodOnModules('getLists')), 'description'), { isList: true });
+                // _.filter(_mapHandler.runGetMethodOnModules('getLists'));
+                // var isRoute = this.isItemARoute(_item);
+                _item = _item || _items[0];
+                app.showOptionsListDialog(
+                    {
                         title: trc('choose_list'),
-                        items: _.reduce(lists, function (memo, _list, type) {
-                            if (_list.id !== _item.type) {
-                                memo.push({
-                                    list: _list,
-                                    properties: {},
-                                    title: {
-                                        text: _list.title,
-                                    },
-                                    icon: {
-                                        text: _list.icon,
-                                        color: _list.color,
-                                        visible: true
-                                    },
-                                    accessory: {
-                                        visible: false
-                                    }
-                                });
+                        items: _.reduce(
+                            lists,
+                            function(memo, _list, type) {
+                                if (_list.id !== _item.type) {
+                                    memo.push({
+                                        list: _list,
+                                        properties: {},
+                                        title: {
+                                            text: _list.title
+                                        },
+                                        icon: {
+                                            text: _list.icon,
+                                            color: _list.color,
+                                            visible: true
+                                        },
+                                        accessory: {
+                                            visible: false
+                                        }
+                                    });
+                                }
 
-                            }
-
-                            return memo;
-                        }, [])
-                    }, function (e) {
+                                return memo;
+                            },
+                            []
+                        )
+                    },
+                    function(e) {
                         var result = false;
                         if (e.cancel === false) {
                             result = _mapHandler.runMethodOnModules('spreadModuleAction', {
@@ -1626,81 +1642,82 @@ export class ItemHandler extends EventEmitter {
                                 command: 'move',
                                 items: _items,
                                 moveType: e.item.list.id
-
                             });
                         }
                         if (_callback) {
                             _callback(_option, result);
                         }
-                    });
-                    break;
-                }
+                    }
+                );
+                break;
+            }
             case 'take_photo':
                 {
                     sdebug('take_photo command', app.currentLocation);
                     if (app.currentLocation) {
                         var _this = this;
-                        var currentPos = _.pick(app.currentLocation, 'latitude',
-                            'longitude', 'altitude');
+                        var currentPos = _.pick(app.currentLocation, 'latitude', 'longitude', 'altitude');
 
                         this.takePhoto(_parent).then(r => {
                             var type = 'photo';
-                            var existingItem = _mapHandler.runGetSingleMethodOnModules(
-                                'getItem', currentPos, type);
+                            var existingItem = _mapHandler.runGetSingleMethodOnModules('getItem', currentPos, type);
                             sdebug('existingItem', existingItem);
                             if (existingItem) {
                                 app.showMessage(trc('item_updated'), existingItem.desc.colors);
-                                existingItem.item = _this.updateItem(existingItem.item,
-                                    existingItem.desc, {
-                                        newPhotos: [{
-                                            width: r.width,
-                                            height: r.height,
-                                            image: r.imageName,
-                                            thumbnailImage: r.thumbnailImageName
-                                        }]
-                                    }, _mapHandler);
+                                existingItem.item = _this.updateItem(
+                                    existingItem.item,
+                                    existingItem.desc,
+                                    {
+                                        newPhotos: [
+                                            {
+                                                width: r.width,
+                                                height: r.height,
+                                                image: r.imageName,
+                                                thumbnailImage: r.thumbnailImageName
+                                            }
+                                        ]
+                                    },
+                                    _mapHandler
+                                );
                             } else {
-                                var newItem = Object.assign({
-                                    id: r.imageId,
-                                    timestamp: r.imageId,
-                                    photos: [{
-                                        width: r.width,
-                                        height: r.height,
-                                        image: r.imageName,
-                                        thumbnailImage: r.thumbnailImageName
-                                    }]
-                                }, _.pick(app.currentLocation, 'latitude',
-                                    'longitude', 'altitude'));
-                                var result = _mapHandler.runMethodOnModules(
-                                    'spreadModuleAction', {
-                                        id: type,
-                                        command: 'create',
-                                        item: newItem
-                                    });
-                                existingItem = _mapHandler.runGetSingleMethodOnModules(
-                                    'getItem', currentPos, type);
+                                var newItem = Object.assign(
+                                    {
+                                        id: r.imageId,
+                                        timestamp: r.imageId,
+                                        photos: [
+                                            {
+                                                width: r.width,
+                                                height: r.height,
+                                                image: r.imageName,
+                                                thumbnailImage: r.thumbnailImageName
+                                            }
+                                        ]
+                                    },
+                                    _.pick(app.currentLocation, 'latitude', 'longitude', 'altitude')
+                                );
+                                var result = _mapHandler.runMethodOnModules('spreadModuleAction', {
+                                    id: type,
+                                    command: 'create',
+                                    item: newItem
+                                });
+                                existingItem = _mapHandler.runGetSingleMethodOnModules('getItem', currentPos, type);
                             }
-                            _this.handleItemAction('select', existingItem.item,
-                                existingItem
-                                    .desc, _callback,
-                                _parent, _mapHandler, _params);
+                            _this.handleItemAction('select', existingItem.item, existingItem.desc, _callback, _parent, _mapHandler, _params);
                         });
                     }
                 }
                 break;
             default:
-                _mapHandler.runMethodOnModules(
-                    'spreadModuleAction', {
-                        id: _item.type,
-                        parent: _parent,
-                        mapHandler: _mapHandler,
-                        command: _option,
-                        params: _params,
-                        item: _item,
-                        desc: _desc,
-                    });
+                _mapHandler.runMethodOnModules('spreadModuleAction', {
+                    id: _item.type,
+                    parent: _parent,
+                    mapHandler: _mapHandler,
+                    command: _option,
+                    params: _params,
+                    item: _item,
+                    desc: _desc
+                });
                 break;
         }
-    }
+    };
 }
-
