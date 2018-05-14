@@ -53,7 +53,7 @@ $.TSCountrolsHeight='50%';
 }
 
 TileSourceSelectWindow {
-    modal: true,
+    modal: !!__APPLE__,
     navWindow:true,
 }
 .TileSourceSelectRealWindow {
@@ -72,31 +72,17 @@ TileSourceSelectWindow {
 
 .TSSelectRowHolder {
     layout:'vertical',
-    backgroundColor:$.white,
+    backgroundColor:'#000000cc',
     backgroundSelectedColor:'#ecf2fb',
-    top:2,
-    left:2,
-    bottom:2,
-    right:2,
+    height:70,
+    bottom:0,
 }
 
 .TSSelectionListView {
     backgroundColor:'#ddd',
     /*separatorStyle:Ti.UI.ListViewSeparatorStyle.SINGLE_LINE,*/
-    columnWidth:'50%',
+    /* columnWidth:'50%', */
     rowHeight:200,
-}
-
-.TSSelectRowMapView {
-    animateChanges:false,
-    touchEnabled:false,
-    backgroundColor:$.white,
-    mapType:'none',
-    top:6,
-    left:6,
-    right:6,
-    width:'FILL',
-    height:90
 }
 
 .TSSelectRowImageView {
@@ -111,16 +97,29 @@ TileSourceSelectWindow {
     width:'FILL',
     height:90,
 }
+.TSSelectRowMapView {
+    touchEnabled:false,
+    backgroundColor:$.white,
+    top:6,
+    left:6,
+    right:6,
+    bottom:6,
+    width:'FILL',
+    height:'FILL',
+    mapType:app.modules.map.MapType.none,
+    animateChanges:false,
+}
 
 .TSSelectRowLabel {
     left:6,right:6,
     width: 'FILL',
     height:'SIZE',
-    color: $.black,
+    color: $.white,
     touchEnabled:false,
     font: {
         size: 13,
     },
+    minHeight:13,
     maxLines: 2,
     ellipsize: Ti.UI.TEXT_ELLIPSIZE_TAIL
 }
@@ -131,6 +130,7 @@ TileSourceSelectWindow {
         size: 15,
     },
     minimumFontSize:10,
+    minHeight:15,
     height:'SIZE',
     maxLines:1
 }
@@ -139,8 +139,9 @@ TileSourceSelectWindow {
     rclass:'TSSelectRowLabel',
     maxLines: 3,
     verticalAlign:'top',
-    height:'FILL',
-    color:'gray'
+    minHeight:15,
+    height:'SIZE',
+    color:'lightgray'
 }
 .TSSelectRowAttribution {
     rclass:'TSSelectRowLabel',

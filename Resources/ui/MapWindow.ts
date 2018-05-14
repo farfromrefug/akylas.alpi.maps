@@ -5,8 +5,10 @@ declare global {
     class MapWindow extends AppWindow {
         childrenHolder: View
         mapTopToolbar: View
+        mapBottomToolbar:View
         // mpp: number
         getMpp(): number
+        getCurrentRegion():MapRegion
         setMapFakePadding(name: string, args: TiDict)
         setRegion(_region: MapRegion, _deltaFactor: number, _animated: boolean, _deltaScreen?)
         updateCamera(_params, _deltaScreen?)
@@ -594,6 +596,9 @@ export function create(_args) {
         },
         getZoom() {
             return currentZoom
+        },
+        getCurrentRegion() {
+            return currentRegion;
         },
         setRegion: function (_region, _deltaFactor, _animated, _deltaScreen) {
             var padding = _.clone(_deltaScreen || currentPadding);

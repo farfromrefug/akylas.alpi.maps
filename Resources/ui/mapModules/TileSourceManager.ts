@@ -1385,6 +1385,7 @@ export class TileSourceMgr extends MapModule {
     showSourceSelection() {
         app.ui.createAndOpenWindow('TileSourceSelectWindow', {
             module: this,
+            region:this.parent.getCurrentRegion(),
             baseSources: this.baseSources,
             overlaySources: this.overlaySources
         });

@@ -64,6 +64,7 @@ declare global {
     interface ItemNote {
         title: string
         text?: string
+        url?: string
     }
 
     interface IconSettings {
@@ -295,7 +296,7 @@ export class Items extends MapModule {
                         });
                         // sdebug(attributeSet);
                         return memo;
-                    }, []));
+                    }, []), null);
                 };
                 this.indexRemoveItemsIds = (_items) => {
                     this.indexer.deleteSearchableItemsByIdentifiers(_items);
@@ -368,7 +369,7 @@ export class Items extends MapModule {
         return this.__clusters[_type];
     }
     onInit() {
-        app.on(__ITEMS__ + 'Changed', this.onChanged);
+        app.on(_EVENT_ITEMS_CHANGED_, this.onChanged);
         let key;
         for (key in this.lists) {
             if (!this.__types[key]) {
@@ -381,7 +382,7 @@ export class Items extends MapModule {
                 this.__types[key] = thirdTypes[key];
             }
         }
-        this.__types = _.omit(this.__types, function (e) {
+        this.__types = _.omit(this.__types,  (e) =>{
             return !!e.hidden;
         });
         for (key in this.__types) {
@@ -398,7 +399,7 @@ export class Items extends MapModule {
     }
     GC() {
         super.GC();
-        app.off(__ITEMS__ + 'Changed', this.onChanged);
+        app.off(_EVENT_ITEMS_CHANGED_, this.onChanged);
         this.__items = null;
         this.__clusters = null;
         this.__currentIds = null;
@@ -519,7 +520,7 @@ export class Items extends MapModule {
                 }
 
                 if (_fireEvent !== false && (annots.length + routes.length) > 0) {
-                    app.emit(__ITEMS__ + 'Added', {
+                    app.emit(_EVENT_ITEMS_ADDED_, {
                         items: addedMarkers.concat(addedRoutes),
                         desc: type
                     });
@@ -621,7 +622,7 @@ export class Items extends MapModule {
                     Ti.App.Properties.setObject(type.propertyKey, this.__items[_type]);
                     removed = true;
                     if (_realDelete !== false) {
-                        app.emit(__ITEMS__ + 'Removed', {
+                        app.emit(_EVENT_ITEMS_REMOVED_, {
                             items: grouped[_type],
                             desc: type
                         });
@@ -1017,7 +1018,7 @@ export class Items extends MapModule {
             var geofeatureTypes = ['refuge', 'peak', 'saddle', 'lake', 'water', 'glacier'];
             var index = 0;
             var onDone = function () {
-                app.off(__ITEMS__ + 'Added', onItems);
+                app.off(_EVENT_ITEMS_ADDED_, onItems);
                 // sdebug(addedItems);
                 win.hideLoading();
                 if (_params.callback) {
@@ -1036,7 +1037,7 @@ export class Items extends MapModule {
                 }
 
             };
-            app.on(__ITEMS__ + 'Added', onItems);
+            app.on(_EVENT_ITEMS_ADDED_, onItems);
             queryFeatures(onDone);
         } else if (key === __ITEMS__) {
             switch (_params.command) {
@@ -1334,7 +1335,7 @@ export class Items extends MapModule {
         this.addItems(newItems, false);
 
         //the order is important as anyone listening to it must be able to find the newly moved(added) annotation
-        app.emit(__ITEMS__ + 'Moved', {
+        app.emit(_EVENT_ITEMS_MOVED_, {
             oldItems: _.mapValues(_.groupBy(itemsToMove, 'type'), (items, key) => {
                 return {
                     desc: this.__types[key],

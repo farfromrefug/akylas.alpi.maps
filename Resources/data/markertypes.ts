@@ -1,4 +1,4 @@
-exports.data = {
+export const data = {
     dropped: {
         defaultTitle: trc('dropped_pin'),
         title: trc('dropped'),

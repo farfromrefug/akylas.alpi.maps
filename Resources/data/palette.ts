@@ -1,4 +1,4 @@
-exports.colors = {
+export const colors = {
     'pomegranate': '#f44336',
     'lavender-blush': '#ffebee',
     'pastel-pink': '#ffcdd2',

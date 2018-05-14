@@ -117,17 +117,16 @@ export function create(_args: WindowParams & {
                             text: subtitle
                         },
 
-                        // mapView: {
-                        //     region:region,
-                        //     mapType:'none',
-                        //     animateChanges:false,
-                        //     touchEnabled:false,
-                        //     tileSource:[_.defaults({
-                        //         id:value.id,
-                        //         tileSize:512,
-                        //         url:value.url
-                        //     }, value.options)]
-                        // },
+                        mapView: {
+                            region:region,
+                            minZoom:value.options.minZoom,
+                            maxZoom:value.options.maxZoom,
+                            tileSource:[_.defaults({
+                                id:value.id,
+                                tileSize:512,
+                                url:value.url
+                            }, value.options)]
+                        },
                         realAttribution: value.options && value.options.attribution,
                     };
                     if (mbtiles) {
@@ -240,10 +239,10 @@ export function create(_args: WindowParams & {
                 caseInsensitiveSearch: true,
                 // sectionIndexTitles:indexes,
                 templates: {
-                    'default': app.templates.row.colTileSource
+                    'default': app.templates.row.colTileSource2
                 },
                 defaultItemTemplate: 'default',
-                sections: fillSections(_base)
+                // sections: fillSections(_base)
             },
             events: {
                 longpress: function (e) {
@@ -306,14 +305,13 @@ export function create(_args: WindowParams & {
                         module.addTileSource(e.item.sourceId);
                         navWindow.closeMe();
                     }
-                }),
-                // first_load:function(e) {
-                //     console.log('first+load', _title);
-                //     e.source.sections = fillSections(_base);
-                // }
+                })
             }
             // }]
         });
+        result.loadList = function() {
+            result.sections = fillSections(_base);
+        }
 
         return result;
     }
@@ -345,6 +343,9 @@ export function create(_args: WindowParams & {
         createSearchListView('offline_maps', mbTiles, true),
         ]
     }).on('change', function (e) {
+        if (!!e.firstLoad && e.currentPage !== 0) {
+            e.view.loadList();
+        }
         if (e.oldView) {
             e.oldView.applyProperties({
                 // listView: {
@@ -435,6 +436,13 @@ export function create(_args: WindowParams & {
         }
     });
     var navWindow = new AppWindow(_args);
+
+    self.once('open', function(){
+        // setTimeout(function(){
+            tabView.getTab(0).loadList();
+        // }, 100);
+        
+    })
 
     //END OF CLASS. NOW GC
     self.GC = app.composeFunc(self.GC, function () {

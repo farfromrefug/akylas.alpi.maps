@@ -83,18 +83,18 @@ export const data = {
                     variant: "ORTHOIMAGERY.ORTHOPHOTOS"
                 }
             },
-            Buildings: {
-                options: {
-                    variant: "BUILDINGS.BUILDINGS",
-                    format: "image/png"
-                }
-            },
-            Cadastre: {
-                options: {
-                    variant: "CADASTRALPARCELS.PARCELS",
-                    format: "image/png"
-                }
-            },
+            // Buildings: {
+            //     options: {
+            //         variant: "BUILDINGS.BUILDINGS",
+            //         format: "image/png"
+            //     }
+            // },
+            // Cadastre: {
+            //     options: {
+            //         variant: "CADASTRALPARCELS.PARCELS",
+            //         format: "image/png"
+            //     }
+            // },
             ScanExpress: {
                 options: {
                     variant: "GEOGRAPHICALGRIDSYSTEMS.MAPS.SCAN-EXPRESS.STANDARD"
@@ -293,7 +293,7 @@ export const data = {
         }
     },
     MapBox: {
-        url: "//api.tiles.mapbox.com/v4/{variant}/{z}/{x}/{y}{2x}.png?access_token=" + app.servicesKeys.mapbox,
+        url: "https://{s}.tiles.mapbox.com/v4/{variant}/{z}/{x}/{y}{2x}.png?access_token=" + app.servicesKeys.mapbox,
         options: {
             attribution: 'Imagery from <a href="http://mapbox.com/about/maps/">MapBox</a> &mdash; ' + "Map data {attribution.OpenStreetMap}",
             subdomains: "abcd",
@@ -545,24 +545,24 @@ export const data = {
             }
         }
     },
-    Acetate: {
-        url: "http://a{s}.acetate.geoiq.com/tiles/{variant}/{z}/{x}/{y}.png",
-        options: {
-            attribution: "&copy;2012 Esri & Stamen, Data from OSM and Natural Earth",
-            subdomains: "0123",
-            minZoom: 2,
-            maxZoom: 17,
-            variant: "acetate-base"
-        },
-        variants: {
-            terrain: "terrain",
-            all: "acetate-hillshading",
-            foreground: "acetate-fg",
-            roads: "acetate-roads",
-            labels: "acetate-labels",
-            hillshading: "hillshading"
-        }
-    },
+    // Acetate: {
+    //     url: "http://a{s}.acetate.geoiq.com/tiles/{variant}/{z}/{x}/{y}.png",
+    //     options: {
+    //         attribution: "&copy;2012 Esri & Stamen, Data from OSM and Natural Earth",
+    //         subdomains: "0123",
+    //         minZoom: 2,
+    //         maxZoom: 17,
+    //         variant: "acetate-base"
+    //     },
+    //     variants: {
+    //         terrain: "terrain",
+    //         all: "acetate-hillshading",
+    //         foreground: "acetate-fg",
+    //         roads: "acetate-roads",
+    //         labels: "acetate-labels",
+    //         hillshading: "hillshading"
+    //     }
+    // },
     FreeMapSK: {
         category: "slovenia",
         url: "http://{s}.freemap.sk/T/{z}/{x}/{y}.jpeg",

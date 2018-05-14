@@ -1,4 +1,4 @@
-exports.icons = {
+export const icons = {
     'aerialway': 0xe620,
     'airfield': 0xe621,
     'airport': 0xe622,

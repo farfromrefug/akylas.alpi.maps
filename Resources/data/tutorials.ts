@@ -1,4 +1,4 @@
-exports.tutorials = {
+export const tutorials = {
     'locationbutton': {
         title: 'location_button',
         text: 'location_button_tutorial',

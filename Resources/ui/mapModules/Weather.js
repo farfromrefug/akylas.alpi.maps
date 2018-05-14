@@ -147,11 +147,11 @@ exports.create = function(_context, _args, _additional) {
 
     Object.assign(self, {
         GC: app.composeFunc(self.GC, function() {
-            app.off(__ITEMS__ + 'Removed', onRemoved);
+            app.off(_EVENT_ITEMS_REMOVED_, onRemoved);
             cluster = null;
         }),
         onInit: function() {
-            app.on(__ITEMS__ + 'Removed', onRemoved);
+            app.on(_EVENT_ITEMS_REMOVED_, onRemoved);
         },
         clear: function() {
             if (cluster) {

@@ -340,8 +340,11 @@ function createApi(_context) {
     function parallelMapRequests(_calls) {
         var keys = [];
         return parallelRequests(_.reduce(_calls, function (memo, f, key) {
-            keys.push(key);
-            memo.push(f);
+            if (f) {
+                keys.push(key);
+                memo.push(f);
+            }
+            
             return memo;
         }, [])).then(function (results) {
             var res = {};

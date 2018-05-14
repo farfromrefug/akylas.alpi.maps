@@ -240,16 +240,16 @@ export function create(_args?: WindowParams & {
     app.on(__LIST__ + 'Created', onListAdded)
         .on(__LIST__ + 'Changed', onListChanged)
         .on(__LIST__ + 'Removed', onListRemoved)
-        .on(__ITEMS__ + 'Moved', onMoved)
-        .on(__ITEMS__ + 'Removed', onRemoved);
+        .on(_EVENT_ITEMS_MOVED_, onMoved)
+        .on(_EVENT_ITEMS_REMOVED_, onRemoved);
 
     //END OF CLASS. NOW GC 
     self.GC = app.composeFunc(self.GC, function () {
         app.off(__LIST__ + 'Created', onListAdded)
             .off(__LIST__ + 'Changed', onListChanged)
             .off(__LIST__ + 'Removed', onListRemoved)
-            .off(__ITEMS__ + 'Moved', onMoved)
-            .off(__ITEMS__ + 'Removed', onRemoved);
+            .off(_EVENT_ITEMS_MOVED_, onMoved)
+            .off(_EVENT_ITEMS_REMOVED_, onRemoved);
         self = null;
         sections = null;
         mapHandler = null;

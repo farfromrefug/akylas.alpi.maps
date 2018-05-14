@@ -9,6 +9,15 @@ declare var __MARKERS__: string;
 declare var __ITEMS__: string;
 declare var __ROUTES__: string;
 declare var __DEVELOPMENT__: boolean;
+declare var _EVENT_ITEMS_MOVED_: string;
+declare var _EVENT_ITEMS_ADDED_: string;
+declare var _EVENT_ITEMS_CHANGED_: string;
+declare var _EVENT_ITEMS_REMOVED_: string;
+declare var _EVENT_ROUTES_MOVED_: string;
+declare var _EVENT_ROUTES_ADDED_: string;
+declare var _EVENT_ROUTES_CHANGED_: string;
+declare var _EVENT_ROUTES_REMOVED_: string;
+
 
 declare interface WindowManager extends AK.IWindowManager {
     leftmenu: LeftMenu

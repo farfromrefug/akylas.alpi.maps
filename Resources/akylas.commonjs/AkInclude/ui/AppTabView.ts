@@ -53,12 +53,17 @@ export function create(_args) {
                 if (!e.hasOwnProperty('currentPage')) {
                     return;
                 }
-                self.emit('change', e);
                 self.currentView = e.view;
+                let firstLoad = false;
                 if (loadedTabs.indexOf(e.currentPage) === -1) {
                     loadedTabs.push(e.currentPage);
-                    self.currentView.emit('first_load');
+                    firstLoad = true;
+                    e.view.emit('first_load');
                 }
+                self.emit('change', Object.assign(e, {
+                    firstLoad:firstLoad
+                }));
+                
             }
         }
     });

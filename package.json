@@ -1,7 +1,7 @@
 {
     "titanium": {
         "ignores": [
-            "**/{.,AUTHOR,COPYING,INSTALL,NEWS,PORTING,CHANGELOG,CONTRIBUTION,ChangeLog,Makefile,README,readme,LICENSE,sample,example,demo,htdocs,composer.json,gulpfile}*",
+            "**/{.,AUTHOR,COPYING,INSTALL,NEWS,PORTING,CHANGELOG,CONTRIBUTION,ChangeLog,Makefile,README,readme,LICENSE,sample,example,demo,htdocs,composer.json,gulpfile,package-lock}*",
             "**/{obj,obj.target,test,tests,doc,docs,msvc,Xcode,bin}{,/**/*}",
             "**/*.{sublime-workspace,o,hprof,orig,pyc,pyo,rbc,swp,sln,dsp,dsw,cmd,vcproj,vcxproj,vcxproj.filters,pdb,exp,obj,lib,md,sh,gypi,gyp,h,cpp,yml,log,tlog,d.ts,Makefile,mk,c,cc,rc,xcodeproj,xcconfig,lock,map}",
             "**/node_modules/**/*browser*",

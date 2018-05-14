@@ -451,6 +451,7 @@ export function create(_args: WindowParams) {
                                 },
                                 verticalAlign: 'top',
                                 backgroundColor: '#000000aa',
+                                maxLines:2,
                                 html: app.utilities.photoAttribution(photo)
                             }
                         }, {
@@ -976,9 +977,9 @@ export function create(_args: WindowParams) {
     self.onOpen = app.composeFunc(self.onOpen, function () {
         sectionHeaderView.gfheader.on('postlayout', onPostLayout);
         sdebug('onOpen');
-        app.on(__ITEMS__ + 'Changed', onChanged)
-            .on(__ITEMS__ + 'Moved', onMoved)
-            .on(__ITEMS__ + 'Removed', onRemoved)
+        app.on(_EVENT_ITEMS_CHANGED_, onChanged)
+            .on(_EVENT_ITEMS_MOVED_, onMoved)
+            .on(_EVENT_ITEMS_REMOVED_, onRemoved)
             .on('ItemSupplyViewUpdate', onItemSupplyViewUpdate);
         if (currentItem) {
             setDataFromItem();
@@ -1009,9 +1010,9 @@ export function create(_args: WindowParams) {
         listView.applyProperties({
             sections: []
         });
-        app.off(__ITEMS__ + 'Changed', onChanged)
-            .off(__ITEMS__ + 'Moved', onMoved)
-            .off(__ITEMS__ + 'Removed', onRemoved)
+        app.off(_EVENT_ITEMS_CHANGED_, onChanged)
+            .off(_EVENT_ITEMS_MOVED_, onMoved)
+            .off(_EVENT_ITEMS_REMOVED_, onRemoved)
             .off('ItemSupplyViewUpdate', onItemSupplyViewUpdate);
     });
 

@@ -631,7 +631,7 @@ export default class CRowTemplates extends TemplateModule {
                     rclass: 'TSSelectRow'
                 },
                 childTemplates: [{
-                    type: __ANDROID__ ? 'Ti.UI.Android.CardView' : 'Ti.UI.View',
+                    type: 'Ti.UI.View',
                     properties: {
                         rclass: 'TSSelectRowHolder'
                     },
@@ -667,6 +667,51 @@ export default class CRowTemplates extends TemplateModule {
                         properties: {
                             rclass: 'TSSelectRowAttribution'
 
+                        }
+                    }]
+                }]
+            },
+            colTileSource2: {
+                properties: {
+                    rclass: 'TSSelectRow'
+                },
+                childTemplates: [{
+                    bindId: 'mapView',
+                    type: 'Akylas.Googlemap.View',
+                    properties: {
+                        rclass: 'TSSelectRowMapView'
+                    },
+                    childTemplates: [{
+                        type: 'Ti.UI.View',
+                        properties: {
+                            rclass: 'TSSelectRowHolder'
+                        },
+                        childTemplates: [{
+                            type: 'Ti.UI.Label',
+                            bindId: 'title',
+                            properties: {
+                                rclass: 'TSSelectRowTitle'
+                            }
+                        }, {
+                            type: 'Ti.UI.Label',
+                            bindId: 'subtitle',
+                            properties: {
+                                rclass: 'TSSelectRowSubtitle'
+                            }
+                        }, {
+                            type: 'Ti.UI.Label',
+                            bindId: 'attribution',
+                            properties: {
+                                rclass: 'TSSelectRowAttribution'
+    
+                            }
+                        }]
+                    },{
+                        type: 'Ti.UI.Label',
+                        bindId: 'delete',
+                        properties: {
+                            rclass: 'EditPhotoRemoveBtn',
+                            visible: false
                         }
                     }]
                 }]

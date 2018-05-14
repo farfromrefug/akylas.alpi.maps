@@ -784,9 +784,10 @@ export class ItemHandler extends EventEmitter {
             delete item.newNotes;
         }
         if (_changes.deletedNotes) {
-            _changes.deletedNotes.forEach(function(noteId) {
-                item.notes = _.reject(item.notes, { id: noteId });
-            });
+            item.notes = item.notes.filter(n=>_changes.deletedNotes.indexOf(n.title) === -1)
+            // _changes.deletedNotes.forEach(function(noteId) {
+            //     item.notes = _.reject(item.notes, { id: noteId });
+            // });
             if (item.notes.length === 0) {
                 delete item.notes;
             }
@@ -825,7 +826,7 @@ export class ItemHandler extends EventEmitter {
             });
             app.showTutorials('item.firstchangemoved');
         } else {
-            app.emit(__ITEMS__ + 'Changed', {
+            app.emit(_EVENT_ITEMS_CHANGED_, {
                 // bubbles: true,
                 desc: _desc,
                 item: item,
@@ -1311,10 +1312,12 @@ export class ItemHandler extends EventEmitter {
 
                 var calls = _mapHandler.runReduceMethodOnModules('getDetailsCalls', q, _item, _desc);
                 calls.osm = _.partial(app.api.osmDetails, _item);
+                console.log('getDetailsCalls', calls);
 
                 var request = app.api
                     .parallelMapRequests(calls)
                     .then(function(res) {
+                        console.log('getDetailsCalls returned', res);
                         var callsToAdd = [],
                             value;
                         for (let key in res) {
@@ -1323,7 +1326,7 @@ export class ItemHandler extends EventEmitter {
                                 if (value.photos) {
                                     value.photos.forEach(function(photo) {
                                         var url = photo.url || photo;
-                                        var existing = _item.photos.findIndex(v => v.url === url);
+                                        var existing = _item.photos?_item.photos.findIndex(v => v.url === url):-1;
                                         if (existing === -1) {
                                             hasChanged = true;
                                             console.log('downloading photo', photo);
@@ -1336,7 +1339,7 @@ export class ItemHandler extends EventEmitter {
                                 if (value.notes) {
                                     value.notes.forEach(function(note) {
                                         var id = note.title;
-                                        const existing = _item.notes.findIndex(v => v.title === id);
+                                        var existing = _item.notes?_item.notes.findIndex(v => v.url === url):-1;
                                         if (existing === -1) {
                                             hasChanged = true;
                                             value.newNotes = value.newNotes || [];

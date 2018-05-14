@@ -124,8 +124,8 @@ export class App extends AKApp {
                     map: 'akylas.googlemap',
                 },
                 android: __SIMULATOR__ ? undefined : {
-                    map: 'akylas.carto',
-                    connectiq: 'akylas.connectiq',
+                    map: 'akylas.googlemap',
+                    // connectiq: 'akylas.connectiq',
                     // crosswalk: 'com.universalavenue.ticrosswalk'
                 }
             },
@@ -544,7 +544,15 @@ export class App extends AKApp {
 __LIST__ = 'list';
 __MARKERS__ = 'markers';
 __ITEMS__ = 'items';
+_EVENT_ITEMS_ADDED_ = __ITEMS__ + 'Added';
+_EVENT_ITEMS_MOVED_ = __ITEMS__ + 'Moved';
+_EVENT_ITEMS_CHANGED_ = __ITEMS__ + 'Changed';
+_EVENT_ITEMS_REMOVED_ = __ITEMS__ + 'Removed';
 __ROUTES__ = 'routes';
+_EVENT_ROUTES_ADDED_ = __ROUTES__ + 'Added';
+_EVENT_ROUTES_MOVED_ = __ROUTES__ + 'Moved';
+_EVENT_ROUTES_CHANGED_ = __ROUTES__ + 'Changed';
+_EVENT_ROUTES_REMOVED_ = __ROUTES__ + 'Removed';
 
 
 console.timeEnd('start')

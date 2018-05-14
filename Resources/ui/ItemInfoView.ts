@@ -1,9 +1,9 @@
 declare global {
     class ItemInfoView extends View {
         setSuppViewsVisible(visible: boolean)
-        suppViewsVisible(visible: boolean)
+        suppViewsVisible(visible?: boolean)
         setActionBarVisible(visible: boolean)
-        actionBarVisible(visible: boolean)
+        actionBarVisible(visible?: boolean)
         animateChanges()
         update()
         updateSupplyView()

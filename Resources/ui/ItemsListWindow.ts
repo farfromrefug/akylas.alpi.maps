@@ -375,18 +375,18 @@ export function create(_args: WindowParams) {
 
     app.on(__LIST__ + 'Changed', onListChanged)
         .on(__LIST__ + 'Removed', onListRemoved)
-        .on(__ITEMS__ + 'Changed', onChanged)
-        .on(__ITEMS__ + 'Moved', onMoved)
-        .on(__ITEMS__ + 'Removed', onRemoved)
+        .on(_EVENT_ITEMS_CHANGED_, onChanged)
+        .on(_EVENT_ITEMS_MOVED_, onMoved)
+        .on(_EVENT_ITEMS_REMOVED_, onRemoved)
         .on('location', onLocation);
 
     //END OF CLASS. NOW GC 
     self.GC = app.composeFunc(self.GC, function () {
         app.off(__LIST__ + 'Changed', onListChanged)
             .off(__LIST__ + 'Removed', onListRemoved)
-            .off(__ITEMS__ + 'Changed', onChanged)
-            .off(__ITEMS__ + 'Moved', onMoved)
-            .off(__ITEMS__ + 'Removed', onRemoved)
+            .off(_EVENT_ITEMS_CHANGED_, onChanged)
+            .off(_EVENT_ITEMS_MOVED_, onMoved)
+            .off(_EVENT_ITEMS_REMOVED_, onRemoved)
             .off('location', onLocation);
         self = null;
         // sections = null;

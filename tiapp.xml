@@ -14,9 +14,10 @@
     <theme>BaseTheme</theme>
     <use-babel>false</use-babel>
     <compile-js>false</compile-js>
+    <minify-js>true</minify-js>
     <android xmlns:android="http://schemas.android.com/apk/res/android">
         <abi>armeabi-v7a</abi>
-        <manifest android:installLocation="auto" android:versionCode="112">
+        <manifest android:installLocation="auto" android:versionCode="116">
             <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="26" />
             <uses-feature android:name="android.hardware.location.gps" />
             <application android:hardwareAccelerated="true" android:allowBackup="true">
@@ -32,9 +33,8 @@
     </android>
     <ios>
         <use-jscore-framework>true</use-jscore-framework>
-        <!-- <use-app-thinning>true</use-app-thinning> -->
-        <!-- <min-ios-ver>8.0</min-ios-ver> -->
-        <!-- <enable-launch-screen-storyboard>false</enable-launch-screen-storyboard> -->
+        <enable-launch-screen-storyboard>true</enable-launch-screen-storyboard>
+        <default-background-color>#0CA3CA</default-background-color>
         <plist>
             <dict>
                 <key>UIViewControllerBasedStatusBarAppearance</key>
@@ -58,6 +58,8 @@
                 <key>NSLocationWhenInUseUsageDescription</key>
                 <string>Can we use your location?</string>
                 <key>NSLocationAlwaysUsageDescription</key>
+                <string>Can we use your location?</string>
+                <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
                 <string>Can we use your location?</string>
                 <key>UIBackgroundModes</key>
                 <array>
@@ -121,6 +123,7 @@
     </deployment-targets>
     <plugins>
         <plugin>akylas.nodejs</plugin>
+        <plugin>rjss</plugin>
     </plugins>
     <modules>
         <!-- <module>akylas.commonjs</module> -->
@@ -133,9 +136,9 @@
         <module>ti.paint</module>
         <module platform="iphone">akylas.statusbarnotification</module>
         <!-- <module platform="iphone">akylas.plcrashreporter</module> -->
-        <module platform="android">akylas.connectiq</module>
+        <!-- <module platform="android">akylas.connectiq</module> -->
         <!-- <module platform="android">akylas.carto</module> -->
-        <module platform="android">akylas.googlemap</module>
+        <module>akylas.googlemap</module>
     </modules>
     <property name="run-on-main-thread" type="bool">true</property>
     <property name="ti.hexColorFormat">rgba</property>

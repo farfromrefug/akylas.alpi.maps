@@ -1,4 +1,4 @@
-exports.data = {
+export const data = {
     computed: {
         icon: $.sTrace,
         title: trc('calculated_routes'),
