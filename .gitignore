@@ -21,6 +21,7 @@ version.js
 .ctags
 dist
 Resources/API_KEYS.js
+Resources/API_KEYS.ts
 Resources/akylas.commonjs.dev
 typings
 tags
