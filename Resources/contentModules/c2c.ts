@@ -221,7 +221,7 @@ exports.create = function (_context, _args, _additional) {
         return hash_map;
     }
 
-    function html_entity_decode(string, quote_style) {
+    function html_entity_decode(string, quote_style?) {
         //  discuss at: http://phpjs.org/functions/html_entity_decode/
         // original by: john (http://www.jd-tech.net)
         //    input by: ger
@@ -345,7 +345,7 @@ exports.create = function (_context, _args, _additional) {
         return result;
     }
 
-    function getC2CResultsFromPage(_url, res) {
+    function getC2CResultsFromPage(_url, res?) {
         res = res || {
             type: type,
             items: []
@@ -409,7 +409,7 @@ exports.create = function (_context, _args, _additional) {
 
     Object.assign(self, {
         GC: app.composeFunc(self.GC, function () {
-            view = null;
+            // view = null;
         }),
         onInit: function () {
             Object.assign(app.icons, icons);

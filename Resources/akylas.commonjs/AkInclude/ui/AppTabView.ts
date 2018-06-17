@@ -50,6 +50,7 @@ export function create(_args) {
 
             },
             change: function (e) {
+                console.log('change', 'change', e.currentPage, loadedTabs );
                 if (!e.hasOwnProperty('currentPage')) {
                     return;
                 }
@@ -109,7 +110,7 @@ export function create(_args) {
 
     var self: AppTabView = Object.assign(new View(_args), {
         setTab: function (_index) {
-            console.log('setTab', _index, currentPage);
+            // console.log('setTab', _index, currentPage);
             if (currentPage != _index) {
                 self.pager.scrollToView(_index);
             } else {

@@ -87,7 +87,7 @@ export function create(_args) {
     };
     app.onDebounce(self, 'click', function (e) {
         if (cancelClick) {
-            // sdebug('actionbar', 'canceledClick');
+            // console.debug('actionbar', 'canceledClick');
             cancelClick = false;
             return;
         }

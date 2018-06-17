@@ -24,9 +24,9 @@ export function create(_args: WindowParams) {
             return;
         }
         editing = _editing;
-        // sdebug('setEditing', editing);
+        // console.debug('setEditing', editing);
         if (!editing && __ANDROID__) {
-            // sdebug('t est', selectedItems);
+            // console.debug('t est', selectedItems);
             for (const key in selectedItems) {
                 self.listView.updateItemAt(0, parseInt(key), {
                     properties: {
@@ -47,7 +47,7 @@ export function create(_args: WindowParams) {
 
     function setItemSelected(e) {
         var index = e.itemIndex;
-        sdebug('setItemSelected', e.itemIndex, selectedItems)
+        console.debug('setItemSelected', e.itemIndex, selectedItems)
         if (selectedItems.hasOwnProperty(index)) {
             delete selectedItems[index];
             if (__ANDROID__) {
@@ -69,9 +69,9 @@ export function create(_args: WindowParams) {
         }
         selectedItemIndexes = _.keys(selectedItems);
         // selectedItemIndexes = _.map(self.listView.selectedItems, 'index');
-        sdebug('selectedItemIndexes', selectedItemIndexes);
+        console.debug('selectedItemIndexes', selectedItemIndexes);
         var count = selectedItemIndexes.length;
-        sdebug('multiselect', count);
+        console.debug('multiselect', count);
         multiSelectView.applyProperties({
             countLabel: {
                 text: trc("{1} item(s)").assign(count)
@@ -95,7 +95,7 @@ export function create(_args: WindowParams) {
         self.showBottomToolbar();
     }
 
-    // sdebug('items', items);
+    // console.debug('items', items);
     Object.assign(_args, {
         title: htmlIcon(desc.icon, 1) + ' ' + desc.title,
         showBackButton: true,
@@ -149,7 +149,7 @@ export function create(_args: WindowParams) {
 
                 },
                 click: app.debounce(function (e) {
-                    sdebug('item click', e);
+                    console.debug('item click', e);
 
                     var item = e.item;
                     if (!item || !!editing) {
@@ -173,7 +173,7 @@ export function create(_args: WindowParams) {
                 }),
                 longpress: function (e) {
                     // if (!editing) {
-                    sdebug('longpress');
+                    console.debug('longpress');
                     setEditing(!editing, e);
                     // }
                 }
@@ -219,7 +219,7 @@ export function create(_args: WindowParams) {
                     return;
                 }
                 var theItems: Item[] = _.map(_.at(rowItems, selectedItemIndexes), 'item');
-                sdebug('click', callbackId, theItems, e);
+                console.debug('click', callbackId, theItems, e);
                 itemHandler.handleItemAction(callbackId, theItems, desc, function (_result) {
                     // setTimeout(function() {
                     setEditing(false);
@@ -311,7 +311,7 @@ export function create(_args: WindowParams) {
     }
 
     function onRemoved(e: ItemsEvent) {
-        sdebug('onRemoved', e);
+        console.debug('onRemoved', e);
         if (e.desc.id !== desc.id) {
             return;
         }

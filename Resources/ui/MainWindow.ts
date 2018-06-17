@@ -68,14 +68,14 @@ export function create(_args) {
             if (_args && win.handleArgs) {
                 win.handleArgs(_args);
             }
-            sdebug('opening existing window');
+            console.debug('opening existing window');
             app.ui.slidemenu.closeViews();
             self.navOpenWindow(win);
         }
     };
 
     self.canGCWindow = function (_win: TiWindow) {
-        sdebug('canGCWindow', _win.title, _win.winGCId);
+        console.debug('canGCWindow', _win.title, _win.winGCId);
         var canGC = !_win.winGCId || !(windows.hasOwnProperty(_win.winGCId));
         return canGC;
     };

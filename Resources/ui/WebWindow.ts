@@ -104,15 +104,15 @@ export function create(_args: WindowParams & {
 			if (!innerWidth) {
 				return;
 			}
-			sdebug('innerWidth', innerWidth);
+			console.debug('innerWidth', innerWidth);
 
 			var f = innerWidth / viewWidth;
 			var x = (e.x * f);
 			var y = (e.y * f);
 			var line = 'getLinkSRCAtPoint(' + x + ',' + y + ');';
-			sdebug('line', line);
+			console.debug('line', line);
 			imageLink = webView.evalJS(line);
-			sdebug('getLinkSRCAtPoint res', imageLink);
+			console.debug('getLinkSRCAtPoint res', imageLink);
 			if (!/https?:/.test(imageLink)) {
 				imageLink = undefined;
 			} // if (!imageLink) {
@@ -134,17 +134,17 @@ export function create(_args: WindowParams & {
 					visible: note.length > 0
 				}
 			});
-			sdebug('imageLink', imageLink);
-			sdebug('note', note);
+			console.debug('imageLink', imageLink);
+			console.debug('note', note);
 		}
 		var scrolling = false;
 		webView
 			// .on('scroll', function(e) {
 			// scrolling = true;
-			// sdebug('scroll');
+			// console.debug('scroll');
 			// })
 			.on('touchend', function (e) {
-				// sdebug('touchend');
+				// console.debug('touchend');
 				if (loaded && !scrolling) {
 					_.delay(checkForImageNote, 500, e);
 				}
@@ -152,7 +152,7 @@ export function create(_args: WindowParams & {
 			}).on('postlayout', function (e) {
 				viewWidth = webView.rect.width;
 			}).on('longpress', function (e) {
-				sdebug('longpress', e);
+				console.debug('longpress', e);
 				if (loaded) {
 					checkForImageNote(e);
 				}
@@ -214,7 +214,7 @@ export function create(_args: WindowParams & {
 			click: app.debounce(function (e) {
 				var bindId = e.bindId;
 				var colors = app.getColors(currentItem, itemDesc);
-				sdebug('click', bindId);
+				console.debug('click', bindId);
 				if (bindId === 'back') {
 					webView.goBack();
 				} else if (bindId === 'forward') {
@@ -225,7 +225,7 @@ export function create(_args: WindowParams & {
 					if (note) {
 						var phoneNb = note.match(phoneReg);
 						if (phoneNb) {
-							sdebug(phoneNb);
+							console.debug(phoneNb);
 							app.confirmAction({
 								message: phoneNb[0],
 								title: trc('add_phone') + '?'
@@ -259,8 +259,8 @@ export function create(_args: WindowParams & {
 							}, function (f) {
 								if (!f.cancel) {
 									var test = f.source;
-									sdebug('fuck', test);
-									sdebug(test.children);
+									console.debug('fuck', test);
+									console.debug(test.children);
 									var test2 = test.textfield;
 									var title = test2.value;
 									if (title && title.length > 0) {
@@ -286,7 +286,7 @@ export function create(_args: WindowParams & {
 							message: '',
 							image: imageLink
 						}, function () {
-							sdebug('confirmedAction');
+							console.debug('confirmedAction');
 							self.showLoading();
 							if (_.isString(imageLink)) {
 								app.api.call({
@@ -358,7 +358,7 @@ export function create(_args: WindowParams & {
 									self.showLoading({
 										request: app.api.webToPDF(url, currentTitle).then(function (e) {
 											if (e.file) {
-												sdebug(e);
+												console.debug(e);
 												app.showMessage(trc('document_created'), colors);
 												itemHandler.updateItem(currentItem, itemDesc, {
 													newFiles: [_.omit(e, 'file')]
@@ -451,7 +451,7 @@ export function create(_args: WindowParams & {
 		if (webView == null || currentProgress === _progress) {
 			return;
 		}
-		sdebug('setProgress', _progress);
+		console.debug('setProgress', _progress);
 		currentProgress = _progress;
 		if (_progress === 0) {
 			loaded = false;
@@ -485,7 +485,7 @@ export function create(_args: WindowParams & {
 		if (_progress === 1) {
 			loaded = true;
 			currentTitle = webView.evalJS('document.title');
-			sdebug('load', currentTitle);
+			console.debug('load', currentTitle);
 			self.container.applyProperties({
 				titleView: {
 					text: currentTitle
@@ -498,7 +498,7 @@ export function create(_args: WindowParams & {
 					}
 					loadingIndicatorView.cancelAllAnimations();
 					refreshButton.title = $.sRefresh;
-					// sdebug('update webview', webView.canGoBack(), webView.canGoForward());
+					// console.debug('update webview', webView.canGoBack(), webView.canGoForward());
 					toolBar.applyProperties({
 						back: {
 							enabled: webView.canGoBack()
@@ -537,9 +537,9 @@ export function create(_args: WindowParams & {
 
 	webView.on('load', function (e) {
 		if (webView) {
-			sdebug('userAgent', webView.userAgent);
+			console.debug('userAgent', webView.userAgent);
 		}
-		// sdebug('on load done load', e.url);
+		// console.debug('on load done load', e.url);
 		// setProgress(1);
 	}).on('loadprogress', function (e) {
 		// if (e.progress !== 1) {
@@ -550,7 +550,7 @@ export function create(_args: WindowParams & {
 	});
 	self.onBack = function () {
 		var canGoBack = webView.canGoBack();
-		sdebug('onBack', canGoBack);
+		console.debug('onBack', canGoBack);
 		if (canGoBack) {
 			webView.goBack();
 		} else {
@@ -564,7 +564,7 @@ export function create(_args: WindowParams & {
 		} else if (e.url) {
 			note = _.unescape(e.url);
 		}
-		sdebug(note);
+		console.debug(note);
 		if (/\.(jpg|jpeg|bmp|png)$/i.test(note)) {
 			imageLink = note;
 			note = '';
@@ -578,7 +578,7 @@ export function create(_args: WindowParams & {
 				visible: note.length > 0
 			}
 		});
-		sdebug(e, imageLink, note);
+		console.debug(e, imageLink, note);
 	}
 	if (currentItem) {
 		Ti.UI.Clipboard.on('change', onClipboardChange);

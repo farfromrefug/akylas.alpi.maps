@@ -1,5 +1,6 @@
-// import MapModule from './MapModule'
-const MapModule = require('./MapModule').MapModule;
+import { MapModule } from './MapModule';
+import filesize from '../../lib/filesize';
+
 exports.create = function(_context, _args, _additional) {
     var settings = _args.settings,
         visible = false,
@@ -88,7 +89,7 @@ exports.create = function(_context, _args, _additional) {
         }),
         currentLLFormat = 1,
         view,
-        createItemGeoInfoLabel = function(_id, _icon, _right) {
+        createItemGeoInfoLabel = function(_id, _icon, _right?) {
             return {
                 type: 'Ti.UI.Label',
                 bindId: _id,
@@ -271,7 +272,7 @@ exports.create = function(_context, _args, _additional) {
             //     width: data.scaleWidth,
             // },
             label2: {
-                text: '1:' + app.utils.filesize(metersPerCM * 100, {
+                text: '1:' + filesize(metersPerCM * 100, {
                     // exponent: -2,
                     base:10,
                     round: 0
@@ -287,7 +288,7 @@ exports.create = function(_context, _args, _additional) {
         }
         var data = formatter.latLng(_location, currentLLFormat);
         var sundata = suncalc.getTimes(new Date(), _location.latitude, _location.longitude);
-        var params = {
+        var params:any = {
             latlon: {
                 visible: true,
                 text: data.latitude + ' ' + data.longitude
@@ -335,7 +336,7 @@ exports.create = function(_context, _args, _additional) {
                 goal = value - 360.0;
             }
             currentHeading = _.mod(goal, 360);
-            var data = geolib.getCompassInfo(currentHeading);
+            var compassData = geolib.getCompassInfo(currentHeading);
             // view.applyProperties({
             //     headingLabel: {
             //         text: currentHeading.toFixed() + '° ' + data.exact,
@@ -343,7 +344,7 @@ exports.create = function(_context, _args, _additional) {
             // });
             params.heading = {
                 visible: true,
-                text: currentHeading.toFixed() + '° ' + data.exact
+                text: currentHeading.toFixed() + '° ' + compassData.exact
             };
             compassView.animate({
                 opacity: 1,

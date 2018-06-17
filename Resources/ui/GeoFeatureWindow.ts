@@ -86,7 +86,7 @@ export function create(_args: WindowParams) {
                 },
                 events: {
                     click: app.debounce(function (e) {
-                        sdebug(e.source);
+                        console.debug(e.source);
                         if (e.source.imageIndex >= 0) {
                             app.showImageFullscreen(currentItem.photos, e.source.imageIndex, e.source);
                         }
@@ -167,7 +167,7 @@ export function create(_args: WindowParams) {
     }
 
     function setDataFromItem() {
-        sdebug('setDataFromItem', currentItem.id, itemDesc.id, currentItem);
+        // console.debug('setDataFromItem', currentItem.id, itemDesc.id, currentItem);
         colors = currentItem.color ? app.getContrastColors(currentItem.color) : itemDesc.colors;
         var isDark = colors.luminance > 0.8;
         iconicColor = isDark ? colors.contrast : colors.color;
@@ -568,7 +568,7 @@ export function create(_args: WindowParams) {
                 var item = e.item;
                 var options = ['copy', 'share'];
                 var data;
-                sdebug('longpress', callbackId, item);
+                console.debug('longpress', callbackId, item);
                 switch (callbackId) {
                     case 'latlon':
                         options.shift();
@@ -598,7 +598,7 @@ export function create(_args: WindowParams) {
                         break;
                 }
                 if (data) {
-                    sdebug('longpress data', data);
+                    console.debug('longpress data', data);
                     new OptionDialog({
                         options: _.map(options, function (value,
                             index) {
@@ -637,7 +637,7 @@ export function create(_args: WindowParams) {
                 }
                 var item = e.item;
                 var isShowingFull: boolean, today;
-                sdebug('click', callbackId, item);
+                console.debug('click', callbackId, item);
                 if (e.phoneNumber || e.link) {
                     if (e.phoneNumber) {
                         app.confirmAction({
@@ -654,7 +654,7 @@ export function create(_args: WindowParams) {
                     } else if (e.link[0] !== '#') {
                         Ti.Platform.openURL(e.link);
                     }
-                    // sdebug(e.phoneNumber || e.link);
+                    // console.debug(e.phoneNumber || e.link);
                     return;
                 }
                 switch (callbackId) {
@@ -911,14 +911,14 @@ export function create(_args: WindowParams) {
     });
 
     // listView.on('scroll', function(e) {
-    //     sdebug('scroll', e.contentOffset.y);
+    //     console.debug('scroll', e.contentOffset.y);
     // });
 
     var limit = (__APPLE__ ? -$.navBarTop : 1);
 
     function onPostLayout(e) {
         var top = e.source.absoluteRect.y;
-        // sdebug('postlayout', top, sectionHeaderViewAtTop);
+        // console.debug('postlayout', top, sectionHeaderViewAtTop);
         if (top <= limit && !sectionHeaderViewAtTop) {
             sectionHeaderViewAtTop = true;
             self.setColors(iconicColor, false);
@@ -947,7 +947,7 @@ export function create(_args: WindowParams) {
     }
 
     function onRemoved(e: ItemsEvent) {
-        sdebug('onRemoved', e);
+        console.debug('onRemoved', e);
         var index = _.findIndex(e.items, function (item) {
             return item.id === currentItem.id;
         });
@@ -959,7 +959,7 @@ export function create(_args: WindowParams) {
     function onMoved(e: ItemsMovedEvent) {
         var index = _.findIndex(e.items, { id: currentItem.id });
         if (index >= 0) {
-            sdebug('onMapMarkerMoved', e);
+            console.debug('onMapMarkerMoved', e);
             currentItem = e.items[index];
             itemDesc = e.desc;
             setDataFromItem();
@@ -976,7 +976,7 @@ export function create(_args: WindowParams) {
 
     self.onOpen = app.composeFunc(self.onOpen, function () {
         sectionHeaderView.gfheader.on('postlayout', onPostLayout);
-        sdebug('onOpen');
+        console.debug('onOpen');
         app.on(_EVENT_ITEMS_CHANGED_, onChanged)
             .on(_EVENT_ITEMS_MOVED_, onMoved)
             .on(_EVENT_ITEMS_REMOVED_, onRemoved)
@@ -988,7 +988,7 @@ export function create(_args: WindowParams) {
     });
     self.onClose = app.composeFunc(self.onClose, function () {
         sectionHeaderView.gfheader.off('postlayout', onPostLayout);
-        sdebug('onClose');
+        console.debug('onClose');
         self.setColors('transparent', false, iconicColor);
         sectionHeaderViewAtTop = false;
         sectionHeaderView.applyProperties({

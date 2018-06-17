@@ -184,7 +184,7 @@ export class AKClass {
             const x = Math.pow(self.pixelWidth / self.xdpi, 2);
             const y = Math.pow(self.pixelHeight / self.ydpi, 2);
             const screenInches = Math.sqrt(x + y);
-            sdebug("Screen inches", screenInches);
+            console.debug("Screen inches", screenInches);
             self.isTablet = screenInches >= 6;
         }
         return self;

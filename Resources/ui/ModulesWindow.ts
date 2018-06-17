@@ -216,7 +216,7 @@ export function create(_args) {
         }
         var callbackId = (e.item && e.item.callbackId) || e.bindId,
             currentValue;
-        sdebug(callbackId, e.item, e.value);
+        console.debug(callbackId, e.item, e.value);
         switch (callbackId) {
             case 'link':
                 self.manager.createAndOpenWindow('WebWindow', {
@@ -278,7 +278,7 @@ export function create(_args) {
     }
 
     function addModule(_isContent, memo, moduleKey) {
-        // sdebug('addModule', moduleKey, _isContent);
+        // console.debug('addModule', moduleKey, _isContent);
         var module = modules[moduleKey] = require((_isContent ? '/contentModules' : '/ui/mapModules') + '/' + moduleKey);
         var settings = module.settings;
         var enabled = Ti.App.Properties.getBool('module_' + moduleKey +

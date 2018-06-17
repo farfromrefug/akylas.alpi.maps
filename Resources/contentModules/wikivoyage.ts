@@ -1,24 +1,28 @@
 // import {ContentModule} from '../ui/mapModules/MapModule'
-const ContentModule = require('../ui/mapModules/MapModule').ContentModule;
+import { ContentModule } from '../ui/mapModules/MapModule';
 exports.settings = {
     color: '#00659B',
     name: trc('wikivoyage'),
     description: 'wikivoyage_desc',
-    preferencesSections: [{
-        items: [{
-            id: 'copyrights',
-            type: 'link',
-            subtitle: app.texts.ccopyright,
-            url: 'https://en.wikivoyage.org/wiki/Wikivoyage:Copyleft'
-        }]
-    }]
+    preferencesSections: [
+        {
+            items: [
+                {
+                    id: 'copyrights',
+                    type: 'link',
+                    subtitle: app.texts.ccopyright,
+                    url: 'https://en.wikivoyage.org/wiki/Wikivoyage:Copyleft'
+                }
+            ]
+        }
+    ]
 };
 exports.lang = {
     en: {
-        "wikivoyage_desc": "search and display wikivoyage geo points on the map.",
+        wikivoyage_desc: 'search and display wikivoyage geo points on the map.'
     },
     fr: {
-        "wikivoyage_desc": "cherche et affiche les points géographiques wikivoyage sur la carte",
+        wikivoyage_desc: 'cherche et affiche les points géographiques wikivoyage sur la carte'
     }
 };
 
@@ -29,8 +33,8 @@ exports.create = function(_context, _args, _additional) {
         htmlIcon = app.utilities.htmlIcon,
         cleanUpString = app.api.cleanUpString,
         key = 'wikivoyage',
-        supportedLangs = ['en', 'fr', 'de', 'fa', 'it', 'nl', 'pl', 'sv']
-    self = new ContentModule(_args);
+        supportedLangs = ['en', 'fr', 'de', 'fa', 'it', 'nl', 'pl', 'sv'],
+        self = new ContentModule(_args);
 
     var lang = ak.locale.currentLanguage.split('-')[0].toLowerCase();
     if (!_.includes(supportedLangs, lang)) {
@@ -39,8 +43,7 @@ exports.create = function(_context, _args, _additional) {
     var baseUrl = createBaseUrl(lang);
 
     function createBaseUrl(_lang) {
-        return 'https://' + _lang + '.wikivoyage.org/w/api.php?action=query&format=json&formatversion=2&uselang=' +
-            _lang;
+        return 'https://' + _lang + '.wikivoyage.org/w/api.php?action=query&format=json&formatversion=2&uselang=' + _lang;
     }
 
     var defaultParams = {
@@ -52,7 +55,7 @@ exports.create = function(_context, _args, _additional) {
         // exsentences: 2,
         // exlimit: 'max',
         // explaintext: true,
-        inprop: 'url',
+        inprop: 'url'
 
         // piprop: 'thumbnail|original',
         // pithumbsize: 1000,
@@ -63,26 +66,32 @@ exports.create = function(_context, _args, _additional) {
 
     function geoSearch(_params, _feature, _itemHandler) {
         var around = geolib.getAroundData(_params.region);
-        return app.api.call({
-            url: baseUrl,
-            silent: _.remove(_params, 'silent'),
-            params: Object.assign(defaultParams, {
-                generator: 'geosearch',
-                ggscoord: around.centerCoordinate.latitude + '|' + around.centerCoordinate.longitude,
-                ggsradius: Math.min(around.radius, 10000),
-                ggslimit: 50
+        return app.api
+            .call({
+                url: baseUrl,
+                silent: _.remove(_params, 'silent'),
+                params: Object.assign(defaultParams, {
+                    generator: 'geosearch',
+                    ggscoord: around.centerCoordinate.latitude + '|' + around.centerCoordinate.longitude,
+                    ggsradius: Math.min(around.radius, 10000),
+                    ggslimit: 50
+                })
             })
-        }).then(function(result) {
-            var results = result.query && _.reduce(result.query.pages, function(
-                memo, page) {
-                if (page.coordinates && page.coordinates[0].lat) {
-                    memo.push(_itemHandler.createAnnotItem(type, parseObject(
-                        page)));
-                }
-                return memo;
-            }, []);
-            return results;
-        });
+            .then(function(result) {
+                var results =
+                    result.query &&
+                    _.reduce(
+                        result.query.pages,
+                        function(memo, page) {
+                            if (page.coordinates && page.coordinates[0].lat) {
+                                memo.push(_itemHandler.createAnnotItem(type, parseObject(page)));
+                            }
+                            return memo;
+                        },
+                        []
+                    );
+                return results;
+            });
     }
     var type = itemHandler.initializeType(key, {
         icon: app.icons.wikipedia,
@@ -95,12 +104,11 @@ exports.create = function(_context, _args, _additional) {
             style: 0
         },
         settings: {
-            geofeature: true,
+            geofeature: true
         }
     });
 
     function getDetails(_item) {
-
         var url = baseUrl;
         var params = _.clone(defaultParams);
         if (_item.wvoyage) {
@@ -119,24 +127,28 @@ exports.create = function(_context, _args, _additional) {
         } else {
             return;
         }
-        return app.api.call({
-            url: url,
-            params: params
-        }).then(function(result, _options) {
-            sdebug('wvoyage', result);
-            var data, item, items = [];
-            if (result.query && result.query.pages.length > 0) {
-                for (var i = 0; i < result.query.pages.length; i++) {
-                    data = result.query.pages[i];
-                    if (data.missing !== true) {
-                        return parseObject(data);
-                    }
-                    // if (data.coordinates && data.coordinates[0].lat) {
+        return app.api
+            .call({
+                url: url,
+                params: params
+            })
+            .then(function(result, _options) {
+                sdebug('wvoyage', result);
+                var data,
+                    item,
+                    items = [];
+                if (result.query && result.query.pages.length > 0) {
+                    for (var i = 0; i < result.query.pages.length; i++) {
+                        data = result.query.pages[i];
+                        if (data.missing !== true) {
+                            return parseObject(data);
+                        }
+                        // if (data.coordinates && data.coordinates[0].lat) {
 
-                    // }
+                        // }
+                    }
                 }
-            }
-        });
+            });
     }
 
     function getProp(obj, key) {
@@ -183,11 +195,10 @@ exports.create = function(_context, _args, _additional) {
 
     Object.assign(self, {
         GC: app.composeFunc(self.GC, function() {
-            view = null;
+            // view = null;
         }),
         onInit: function() {
             // Object.assign(app.icons, icons);
-
         },
         // getSearchFilters: function() {
         //     return {
@@ -217,15 +228,17 @@ exports.create = function(_context, _args, _additional) {
         },
         prepareDetailsListView: function(item, itemDesc, sections, createItem) {
             if (item.wvoyage) {
-                sections[0].items.push(createItem({
-                    text: trc('wikivoyage'),
-                    icon: app.icons.wikipedia,
-                    callbackId: 'url',
-                    data: {
-                        url: item.tags.wikivoyage
-                    },
-                    isLink: true
-                }));
+                sections[0].items.push(
+                    createItem({
+                        text: trc('wikivoyage'),
+                        icon: app.icons.wikipedia,
+                        callbackId: 'url',
+                        data: {
+                            url: item.tags.wikivoyage
+                        },
+                        isLink: true
+                    })
+                );
             }
         }
     });

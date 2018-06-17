@@ -25,7 +25,7 @@ var osmIcons = _.mapValues({
     return String.fromCharCode(value);
 });
 
-function osmAddress(result) {
+export function osmAddress(result) {
     // result.osm_display_name = result.display_name;
     var count = 0;
     var streetParams = ['street', 'road', 'footway', 'pedestrian', 'address26'];
@@ -78,13 +78,13 @@ function osmAddress(result) {
     return result;
 };
 
-function osmIcon(osmClass, osmSub, osmSubValue) {
-    // sdebug('osmIcon', osmClass, osmSub, osmSubValue);
+function osmIcon(osmClass, osmSub, osmSubValue?) {
+    // console.debug('osmIcon', osmClass, osmSub, osmSubValue);
     return osmIcons[osmSubValue] || app.icons[osmSubValue] || osmIcons[osmSub] || app.icons[osmSub] || osmIcons[osmClass] ||
         app.icons[osmClass];
 }
 
-function osmIsGeoFeature(osmClass, osmSub, osmSubValue) {
+function osmIsGeoFeature(osmClass, osmSub, osmSubValue?) {
     return /natur/.test(osmClass) || /hut|shelter|guidepost|water/.test(osmSub);
 }
 
@@ -99,19 +99,19 @@ function filterTag(tag, key, tags) {
 
 }
 
-function prepareOSMObject(ele, _withIcon, _testForGeoFeature) {
-    // sdebug('prepareOSMObject', ele, _withIcon, _testForGeoFeature);
+export function prepareOSMObject(ele, _withIcon?, _testForGeoFeature?) {
+    console.debug('prepareOSMObject', ele, _withIcon, _testForGeoFeature);
     var tags = ele.tags;
     var id = isNaN(ele.id) ? ele.id : ele.id.toString();
     var result = {
         osm: {
             id: ele.id,
             type: ele.type,
-        },
+        } as any,
         id: id,
         tags: ele.tags,
 
-    };
+    } as any;
     OSMClassProps.forEach(function(key) {
         if (ele.tags[key]) {
             result.osm.class = key;
@@ -130,7 +130,7 @@ function prepareOSMObject(ele, _withIcon, _testForGeoFeature) {
         result.latitude = ele.lat;
         result.longitude = ele.lon;
     } else if (ele.type == 'relation' && ele.members) {
-        var index = _.findIndex(ele.members, function(member) {
+        var index = _.findIndex(ele.members, function(member:any) {
             return /centre/.test(member.role);
         });
         if (index != -1) {
@@ -174,14 +174,15 @@ function prepareOSMObject(ele, _withIcon, _testForGeoFeature) {
             };
         }
     }
+    console.debug('prepareOSMObject done ', result);
     return result;
 }
 
-function prepareOSMWay(way, nodes, geolib) {
+export function prepareOSMWay(way, nodes, geolib) {
     var points = [];
     if (_.size(nodes) > 0) {
         way.nodes.forEach(function(node) {
-                // sdebug('handling', node);
+                // console.debug('handling', node);
                 node = nodes[node +
                     ''][0];
                 points.push([node.lat,
@@ -190,7 +191,7 @@ function prepareOSMWay(way, nodes, geolib) {
             });
     } else {
         way.geometry.forEach(function(node) {
-                // sdebug('handling', node);
+                // console.debug('handling', node);
                 // node = nodes[node +
                 //     ''][0];
                 points.push([node.lat,
@@ -200,7 +201,7 @@ function prepareOSMWay(way, nodes, geolib) {
     }
 
     var region = geolib.getBounds(points);
-    var result = {
+    var result:any = {
         route: {
             distance: geolib.getPathLength(
                 points),
@@ -260,7 +261,7 @@ function prepareOSMWay(way, nodes, geolib) {
     return result;
 }
 
-function prepareUtfGridResult(ele) {
+export function prepareUtfGridResult(ele) {
     if (!ele.name) {
         return;
     }
@@ -271,7 +272,7 @@ function prepareUtfGridResult(ele) {
         };
     }
     var id = isNaN(ele.osm_id) ? ele.osm_id : ele.osm_id.toString();
-    var result = {
+    var result:any = {
         title: ele.name,
         osm: {
             id: ele.osm_id,
@@ -306,7 +307,7 @@ function prepareUtfGridResult(ele) {
     return result;
 }
 
-function prepareNominatimResult(ele) {
+export function prepareNominatimResult(ele) {
     //ignores
     if (_. includes(OSMIgnoredSubtypes, ele.type)) {
         return;
@@ -346,11 +347,11 @@ function prepareNominatimResult(ele) {
             }
         });
     }
-    // sdebug('prepareNominatimResult', ele, result);
+    console.debug('prepareNominatimResult', ele, result);
     return result;
 }
 
-function preparePhotonObject(ele) {
+export function preparePhotonObject(ele) {
     //ignores
     var osmType = ele.properties.osm_type;
     switch (osmType) {
@@ -404,7 +405,7 @@ var OSMTagsIgnoreKey = ['building', 'shelter', 'website', 'facebook', 'phone', '
     'description', 'note'
 ];
 
-function osmTagsFastDetails(_item) {
+export function osmTagsFastDetails(_item) {
     var result = [];
     if (_item.tags) {
         // var possibles = ['fee', 'capacity', 'maxheight'];
@@ -425,7 +426,7 @@ function osmTagsFastDetails(_item) {
     return result;
 }
 
-function osmTagsDetails(_item) {
+export function osmTagsDetails(_item) {
     var result = [];
     if (_item.tags) {
 
@@ -489,7 +490,7 @@ function handleTagPropForIcon(value, key) {
     var icon = _.isString(key) && app.icons[key];
     const htmlIcon = app.utilities.htmlIcon;
     if (icon) {
-        // sdebug('handling icon ', key);
+        // console.debug('handling icon ', key);
         var integerValue = parseFloat(value);
         if (!isNaN(integerValue)) {
             return htmlIcon(icon) + ':' + value;
@@ -510,8 +511,8 @@ function handleTagPropForIcon(value, key) {
     return '';
 }
 
-function osmTagsIconsHTML(_item, _colorOff) {
-    // sdebug('osmTagsIconsHTML', _item);
+export function osmTagsIconsHTML(_item, _colorOff) {
+    // console.debug('osmTagsIconsHTML', _item);
     var result = '';
     if (_item.tags) {
         _.each(_.omit(_item.tags, OSMTagsIgnoreKey, OSMTagsWithoutKey), function(value, key) {
@@ -527,17 +528,7 @@ function osmTagsIconsHTML(_item, _colorOff) {
     }
     return result;
 }
-
-exports.osmAddress = osmAddress;
-exports.prepareOSMObject = prepareOSMObject;
-exports.prepareOSMWay = prepareOSMWay;
-exports.preparePhotonObject = preparePhotonObject;
-exports.prepareNominatimResult = prepareNominatimResult;
-exports.prepareUtfGridResult = prepareUtfGridResult;
-exports.osmTagsDetails = osmTagsDetails;
-exports.osmTagsIconsHTML = osmTagsIconsHTML;
-exports.osmTagsFastDetails = osmTagsFastDetails;
-exports.hashCode = function(str) {
+export function hashCode(str) {
     var hash = 5381,
         i = str.length;
 

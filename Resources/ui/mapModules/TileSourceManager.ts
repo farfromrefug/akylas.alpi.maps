@@ -1,40 +1,44 @@
 import * as MBTilesUtils from '../../lib/mbtilesgenerator/utils';
-import { MapModule } from './MapModule'
+// import * as path from 'path';
+import { MapModule } from './MapModule';
+// import { EventEmitter } from 'events';
+import geolib from '../../lib/geolib';
+import { EventEmitter } from 'events';
+import filesize from '../../lib/filesize';
 declare global {
     class SelectionView extends View {
-        listView: ListView
+        listView: ListView;
     }
     interface DataProviderOptions {
-        [k: string]: any
-        forceHTTP?: boolean
-        cacheable?: boolean
-        downloadable?: boolean
-        subdomains: string
-        attribution: string
-        devHidden?: boolean
-        minZoom?: number
-        maxZoom?: number
-        opacity?: number
-        bounds?: number[][]
-        tileSize?: number
+        [k: string]: any;
+        forceHTTP?: boolean;
+        cacheable?: boolean;
+        downloadable?: boolean;
+        subdomains?: string;
+        attribution?: string;
+        devHidden?: boolean;
+        minZoom?: number;
+        maxZoom?: number;
+        opacity?: number;
+        bounds?: number[][];
+        tileSize?: number;
     }
     interface DataProvider {
-        url: string
-        options?: DataProviderOptions
-        category: string
-        variants?: { [k: string]: Provider | string }
+        url: string;
+        options?: DataProviderOptions;
+        category: string;
+        variants?: { [k: string]: Provider | string };
     }
     interface ProviderOptions extends DataProviderOptions {
-        variantName?: string
-
+        variantName?: string;
     }
     interface Provider {
-        url: string
-        options?: ProviderOptions
-        name: string
-        id: string
-        category: string
-        variants?: { [k: string]: Provider | string }
+        url: string | Function;
+        options?: ProviderOptions;
+        name: string;
+        id: string;
+        category: string;
+        variants?: { [k: string]: Provider | string };
     }
     // interface DownloadProvider extends MapTileSourceKeys {
     //     token: string,
@@ -65,209 +69,211 @@ declare global {
     //     doneCount: number
     // }
     interface MBTilesProvider {
-        file?: string
-        token?: string
-        address?: any
-        bounds?: MapRegion
-        layer: Provider
-        minZoom?: number
-        maxZoom?: number
-        area?: number
-        size?: number
-        count?: number
-        timestamp?: number
+        file?: string;
+        token?: string;
+        address?: any;
+        bounds?: MapRegion;
+        layer: Provider;
+        minZoom?: number;
+        maxZoom?: number;
+        area?: number;
+        size?: number;
+        count?: number;
+        timestamp?: number;
     }
-    type TileSourceManager = TileSourceMgr
+    type TileSourceManager = TileSourceMgr;
 }
 
 export interface RunningMbTiles {
-    doneCount: number
-    index?: number
-    count: number
-    query: ProviderRequestLayer
-    file: string
-    token: string
-    request: any
-    bounds: Region
-    minZoom: number
-    maxZoom: number
+    doneCount: number;
+    index?: number;
+    count: number;
+    query: ProviderRequestLayer;
+    file: string;
+    token: string;
+    request: any;
+    bounds: Region;
+    minZoom: number;
+    maxZoom: number;
 }
+
+// export interface RunningMbTiles {
+//     doneCount: number;
+//     index?: number;
+//     count: number;
+//     query: ProviderRequestLayer;
+//     file: string;
+//     token: string;
+//     request: any;
+//     bounds: Region;
+//     minZoom: number;
+//     maxZoom: number;
+// }
+
+// function guid() {
+//     function s4() {
+//         return Math.floor((1 + Math.random()) * 0x10000)
+//             .toString(16)
+//             .substring(1);
+//     }
+//     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+// }
+
+// interface DownloadEvent {
+//     request: DownloadRequest;
+//     progress: number;
+//     runningRequestsCount?: number;
+//     doneCount?: number;
+// }
+
+// class TilesStatusService extends EventEmitter {
+//     mbtilesStatus: { [k: string]: TilesStatus } = {};
+//     /**
+//      * Add new MBTiles to map
+//      * @param token
+//      */
+//     create = (token: string, request: TilesRequest) => {
+//         // console.debug('create', token, request);
+//         if (!this.mbtilesStatus[token]) {
+//             this.mbtilesStatus[token] = {
+//                 status: 'generating',
+//                 doneCount: request.doneCount,
+//                 progress: (request.doneCount && request.doneCount / request.count * 100) || 0,
+//                 request: request
+//             };
+//         }
+//     };
+//     remove = (token: string) => {
+//         // console.debug('remove', token);
+//         if (this.mbtilesStatus[token]) {
+//             delete this.mbtilesStatus[token];
+//         }
+//     };
+
+//     /**
+//      * Update MBTiles status in map
+//      * @param token
+//      * @param status
+//      * @param progress
+//      */
+//     update = (token: string, status: string, doneCount: number, totalCount: number) => {
+//         // console.debug('update', token, status, doneCount, totalCount);
+//         var data = this.mbtilesStatus[token];
+//         if (data) {
+//             data.status = status;
+//             data.progress = Math.min(doneCount / totalCount * 100, 100);
+//             data.doneCount = doneCount;
+//             if (data.request) {
+//                 Ti.App.emit('mbtiles_generator_update', {
+//                     request: data.request,
+//                     status: data.status,
+//                     progress: data.progress,
+//                     doneCount: data.doneCount
+//                 });
+//                 // data.request.emit('update', data);
+//             }
+//             //   console.debug('update', _.pick(data, 'doneCount', 'count', 'progress'), totalCount);
+//         }
+//     };
+//     get = (token: string) => {
+//         return this.mbtilesStatus[token];
+//     };
+//     getCount = () => {
+//         return _.size(this.mbtilesStatus);
+//     };
+// }
+
+// const mbTilesStatusService = new TilesStatusService();
+// export class DownloadRequest extends EventEmitter {
+//     timestamp: number;
+//     layer: ProviderRequestLayer;
+//     paused = false;
+//     stopped = false;
+//     doneCount: number;
+//     size: number;
+//     count: number;
+//     minZoom: number;
+//     maxZoom: number;
+//     area: number;
+//     bounds: Region;
+//     constructor(public source: MapTileSource, public token: string, public file: string, data: MBTilesUtils.MBtilesInfo) {
+//         super();
+//         this.layer = JSON.parse(JSON.stringify(source));
+//         this.paused = this.layer.doneCount > 0;
+//         this.doneCount = this.layer.doneCount;
+//         this.bounds = data.bounds;
+//         this.timestamp = this.layer.timestamp || new Date().getTime();
+//         Object.assign(this, data);
+//     }
+
+//     pause = () => {
+//         //   var data = mbTilesStatusService.get(this.token);
+//         //   console.debug('pause', _.pick(data, 'doneCount', 'count', 'progress'));
+//         // this.layer.pauseDownloadingRegion();
+//         //   this.paused = true;
+//         //   Ti.App.emit('mbtiles_generator_state', {
+//         //     request: this,
+//         //     progress: data.progress
+//         //   });
+//     };
+//     playpause = () => {
+//         if (this.paused) {
+//             this.resume();
+//         } else {
+//             this.pause();
+//         }
+//     };
+//     resume = () => {
+//         //   var data = mbTilesStatusService.get(this.token);
+//         //   console.debug('resume', _.pick(data, 'doneCount', 'count', 'progress'));
+//         //   this.layer.resumeDownloadingRegion();
+//         //   this.paused = false;
+//         //   Ti.App.emit('mbtiles_generator_state', {
+//         //     request: this,
+//         //     progress: data.progress
+//         //   });
+//     };
+//     stop = () => {
+//         var data = mbTilesStatusService.get(this.token);
+//         console.debug('stop', _.pick(data, 'doneCount', 'count', 'progress'));
+//         this.layer.stopDownloadingRegion();
+//         Ti.Filesystem.getFile(this.file).deleteFile();
+//         this.stopped = true;
+//         mbTilesStatusService.remove(this.token);
+//         //   Ti.App.emit('mbtiles_generator_cancelled', {
+//         //     request: this,
+//         //     runningRequestsCount: mbTilesStatusService.getCount()
+//         //   });
+//     };
+// }
 // Ti.App.Properties.removeProperty('mbtiles_generating')
 export class TileSourceMgr extends MapModule {
-    TAG = 'TileSourceManager'
-    mapTypes: { [k: string]: number } = app.modules.map.MapType
-    bottomControlsVisible = false
-    baseSources: { [k: string]: Provider } = {}
-    defaultHD = app.deviceinfo.densityFactor >= 3
-    overlaySources: { [k: string]: Provider } = {}
-    mbTilesGenerator: MBTilesGenerator
-    geolib = app.utils.geolib
-    SOURCES_SECTION_INDEX = 1
-    MBTILES_SECTION_INDEX = 0
-    mbtiles: { [k: string]: MBTilesProvider } = Ti.App.Properties.getObject('mbtiles', {})
-    runningMbTiles: { [k: string]: RunningMbTiles } = Ti.App.Properties.getObject('mbtiles_generating', {})
-    runningMbTilesIndexes: string[] = []
-    generatorService: titanium.AndroidService | titanium.AppiOSBackgroundService
-    currentSources: string[] = Ti.App.Properties.getObject('tilesources', [])
-    button: Button
-    view: SelectionView
-    tileSourcesIndexed: { [k: string]: MapTileSource }
-    tileSources: MapTileSource[]
-    actionButtons: ActionButton[]
+    TAG = 'TileSourceManager';
+    mapTypes: { [k: string]: number } = app.modules.map.MapType;
+    bottomControlsVisible = false;
+    baseSources: { [k: string]: Provider } = {};
+    defaultHD = app.deviceinfo.densityFactor >= 3;
+    overlaySources: { [k: string]: Provider } = {};
+    mbTilesGenerator: MBTilesGenerator;
+    SOURCES_SECTION_INDEX = 1;
+    MBTILES_SECTION_INDEX = 0;
+    mbtiles: { [k: string]: MBTilesProvider } = Ti.App.Properties.getObject('mbtiles', {});
+    runningMbTiles: { [k: string]: RunningMbTiles } = Ti.App.Properties.getObject('mbtiles_generating', {});
+    runningMbTilesIndexes: string[] = [];
+    generatorService: titanium.AndroidService | titanium.AppiOSBackgroundService;
+    currentSources: string[] = Ti.App.Properties.getObject('tilesources', []);
+    button: Button;
+    view: SelectionView;
+    tileSourcesIndexed: { [k: string]: MapTileSource };
+    tileSources: MapTileSource[];
+    actionButtons: ActionButton[];
     constructor(_context, _args, _additional) {
         super(_args);
-        Ti.App.on('mbtiles_generator_update', (e: DownloadEvent) => {
-            // sdebug('got update', e);
-            var request = e.request,
-                running = this.runningMbTiles[request.token];
-            if (running) {
-                var index = this.runningMbTilesIndexes.indexOf(request.token);
-                if (index >= 0) {
-                    this.view.listView.updateItemAt(this.MBTILES_SECTION_INDEX, index, {
-                        progress: {
-                            value: e.progress
-                        },
-                        subtitle: {
-                            text: this.mbTilesDownloadSubTitle(e)
-                        }
-                    });
-                }
-
-                running.query.doneCount = e.doneCount;
-
-                this.saveRunningMBTiles();
-            }
-        }).on('mbtiles_generator_done', (e: DownloadEvent) => {
-            var request = e.request,
-                running = this.runningMbTiles[request.token];
-            if (running) {
-                var bounds = request.bounds;
-                var center = this.geolib.getCenter([bounds.sw, bounds.ne]);
-                app.api.reverseGeocode({
-                    latitude: center.latitude,
-                    longitude: center.longitude,
-                    // zoom:request.minZoom
-                }).then(e => {
-                    delete this.runningMbTiles[request.token];
-                    var index = this.runningMbTilesIndexes.indexOf(request.token);
-                    if (index >= 0) {
-                        this.runningMbTilesIndexes.splice(index, 1);
-                        this.view.listView.deleteItemsAt(this.MBTILES_SECTION_INDEX, index, 1, {
-                            animated: true
-                        });
-                    }
-                    this.saveRunningMBTiles();
-                    const picked = _.pick(request, 'area', 'size', 'token', 'count', 'timestamp',
-                        'file', 'bounds', 'minZoom', 'maxZoom')
-                    this.mbtiles[request.token] = {
-                        ...picked,
-                        address: e,
-                        layer: request.layer.layer
-                    }
-                    Ti.App.Properties.setObject('mbtiles', this.mbtiles);
-
-                    this.internalAddTileSource(this.createTileSource(request.token));
-                });
-
-            }
-            if (e.runningRequestsCount === 0 && this.generatorService) {
-                if (__APPLE__) {
-                    this.generatorService.unregister();
-                    this.generatorService = null;
-                } else if (__ANDROID__) {
-                    this.generatorService.stop();
-                    this.generatorService = null;
-                }
-            }
-
-        }).on('mbtiles_generator_cancelled', (e: DownloadEvent) => {
-            // console.debug('mbtiles_generator_cancelled', e.request, this.runningMbTilesIndexes);
-            var request = e.request,
-                running = this.runningMbTiles[request.token];
-            if (running) {
-                var index = this.runningMbTilesIndexes.indexOf(request.token);
-                if (index >= 0) {
-                    this.runningMbTilesIndexes.splice(index, 1);
-                    this.view.listView.deleteItemsAt(this.MBTILES_SECTION_INDEX, index, 1, {
-                        animated: true
-                    });
-                }
-
-                delete this.runningMbTiles[request.token];
-                this.saveRunningMBTiles();
-            }
-            if (e.runningRequestsCount === 0 && this.generatorService) {
-                if (__APPLE__) {
-                    this.generatorService.unregister();
-                    this.generatorService = null;
-                } else if (__ANDROID__) {
-                    this.generatorService.stop();
-                    this.generatorService = null;
-                }
-            }
-        }).on('mbtiles_generator_state', (e: DownloadEvent) => {
-            var request = e.request,
-                running = this.runningMbTiles[request.token];
-            sdebug('on mbtiles_generator_state', request);
-            if (running) {
-                var index = this.runningMbTilesIndexes.indexOf(request.token);
-                if (index >= 0) {
-                    // sdebug('on state', !!e.request.paused);
-                    this.view.listView.updateItemAt(this.MBTILES_SECTION_INDEX, index, {
-                        pause: {
-                            text: !!e.request.paused ? '\ue01b' : '\ue018'
-                        },
-                        subtitle: {
-                            text: this.mbTilesDownloadSubTitle(e)
-                        },
-                        loading: {
-                            visible: !request.paused
-                        }
-                    });
-                }
-            }
-        }).on('mbtiles_generator_start', (e: DownloadEvent) => {
-            var request = e.request;
-            console.log('mbtiles_generator_start', request);
-            this.runningMbTiles[request.token] = {
-                doneCount: request.layer.doneCount,
-                count: request.count,
-                query: Object.assign(request.layer, _.pick(request, 'token', 'timestamp', 'doneCount')),
-                file: request.file,
-                token: request.token,
-                request: request,
-                bounds: request.bounds,
-                minZoom: request.minZoom,
-                maxZoom: request.maxZoom
-            }
-            this.saveRunningMBTiles();
-            this.runningMbTilesIndexes.push(request.token);
-            // sdebug('adding mbtiles', this.runningMbTiles[request.token], request);
-            this.view.listView.appendItems(this.MBTILES_SECTION_INDEX, [{
-                template: 'mbtiles',
-                title: {
-                    html: this.sourceName(request.layer.layer)
-                },
-                subtitle: {
-                    text: this.mbTilesDownloadSubTitle(e)
-                },
-                token: request.token,
-                properties: {
-                    canMove: false,
-                },
-                loading: {
-                    visible: !request.paused
-                },
-                progress: {
-                    value: (request.doneCount > 0) ? (request.doneCount / request.count * 100) : 0
-                },
-                pause: {
-                    text: !!e.request.paused ? '\ue01b' : '\ue018'
-                }
-            }], {
-                    animated: true
-                });
-        });
+        Ti.App.on('mbtiles_generator_update', this.onDownloadProgress)
+            .on('mbtiles_generator_done', this.onDownloadComplete)
+            .on('mbtiles_generator_cancelled', this.onDownloadCancelled)
+            .on('mbtiles_generator_state', this.onDownloadState)
+            .on('mbtiles_generator_start', this.onDownloadStart);
 
         var providers = require('data/tilesources').data as { [k: string]: DataProvider };
         for (let provider in providers) {
@@ -282,279 +288,532 @@ export class TileSourceMgr extends MapModule {
         this.tileSourcesIndexed = {};
         this.tileSources = [];
 
-        this.currentSources = _.reduce(this.currentSources, (memo, value, index) => {
-            // sdebug('tilesource', value);
-            var tileSource = this.createTileSource(value, index);
-            // tileSource.clearCache();
-            if (tileSource) {
-                memo.push(value);
-                this.tileSources.push(tileSource);
-                this.tileSourcesIndexed[value] = tileSource;
-            }
+        this.currentSources = _.reduce(
+            this.currentSources,
+            (memo, value, index) => {
+                // console.debug('tilesource', value);
+                var tileSource = this.createTileSource(value, index);
+                // tileSource.clearCache();
+                if (tileSource) {
+                    memo.push(value);
+                    this.tileSources.push(tileSource);
+                    this.tileSourcesIndexed[value] = tileSource;
+                }
 
-            return memo;
-        }, []);
-        var actions = [{
-            id: 'add',
-            icon: $.sAdd
-        }, {
-            id: 'glayer',
-            icon: $.sRouting
-        // }, {
-        //     id: 'traffic',
-        //     enabled: false,
-        //     icon: app.icons.traffic
-        }, {
-            id: 'buildings',
-            enabled: false,
-            icon: app.icons.building
-        }, {
-            id: 'indoor',
-            enabled: false,
-            icon: $.sLayers
-        }];
-        this.actionButtons = _.reduce(actions, function (memo, value) {
-            memo.push(new ActionButton(Object.assign(value, {
-                width: 'FILL'
-            })));
-            return memo;
-        }, []);
+                return memo;
+            },
+            []
+        );
+        var actions = [
+            {
+                id: 'add',
+                icon: $.sAdd
+            },
+            {
+                id: 'glayer',
+                icon: $.sRouting
+                // }, {
+                //     id: 'traffic',
+                //     enabled: false,
+                //     icon: app.icons.traffic
+            },
+            {
+                id: 'buildings',
+                enabled: false,
+                icon: app.icons.building
+            },
+            {
+                id: 'packages',
+                enabled: true,
+                icon: '\ue2a8'
+            }
+        ];
+        this.actionButtons = _.reduce(
+            actions,
+            function(memo, value) {
+                memo.push(
+                    new ActionButton(
+                        Object.assign(value, {
+                            width: 'FILL'
+                        })
+                    )
+                );
+                return memo;
+            },
+            []
+        );
         this.view = new View({
             properties: {
                 rclass: 'TSControls',
-                visible: false,
+                visible: false
             },
-            childTemplates: [{
-                type: 'Ti.UI.ListView',
-                bindId: 'listView',
-                properties: {
-                    rclass: 'TSControlListView',
-                    templates: {
-                        default: app.templates.row.tilesourceControl,
-                        mbtiles: app.templates.row.mbtilesGenerator
+            childTemplates: [
+                {
+                    type: 'Ti.UI.ListView',
+                    bindId: 'listView',
+                    properties: {
+                        rclass: 'TSControlListView',
+                        templates: {
+                            default: app.templates.row.tilesourceControl,
+                            mbtiles: app.templates.row.mbtilesGenerator
+                        },
+                        defaultItemTemplate: 'default',
+                        sections: [
+                            {},
+                            {
+                                items: _.reduce(
+                                    this.tileSources,
+                                    (memo, value) => {
+                                        memo.push(this.tileSourceItem(value));
+                                        return memo;
+                                    },
+                                    []
+                                )
+                            }
+                        ] // second is for mbtiles
                     },
-                    defaultItemTemplate: 'default',
-                    sections: [{}, {
-                        items: _.reduce(this.tileSources, (memo, value) => {
-                            memo.push(this.tileSourceItem(value));
-                            return memo;
-                        }, [])
-                    }] // second is for mbtiles
-                },
-                events: {
-                    longpress: e => {
-                        sdebug('long press');
-                        this.view.listView.editing = !this.view.listView.editing;
-                    },
-                    move: e => {
-                        if (!e.item) {
-                            return;
+                    events: {
+                        longpress: e => {
+                            console.debug('long press');
+                            this.view.listView.editing = !this.view.listView.editing;
+                        },
+                        move: e => {
+                            if (!e.item) {
+                                return;
+                            }
+                            var sourceId = e.item.sourceId;
+                            console.debug('on move', e);
+                            this.moveTileSourceToIndex(sourceId, e.targetItemIndex, e.item.token);
                         }
-                        var sourceId = e.item.sourceId;
-                        sdebug('on move', e);
-                        this.moveTileSourceToIndex(sourceId, e.targetItemIndex, e.item.token);
                     }
-                }
-
-            }, {
-                type: 'Ti.UI.View',
-                properties: {
-                    rclass: 'TSControlLine',
-                    bubbleParent: false,
                 },
-                childTemplates: this.actionButtons,
-                events: {
-                    'click': app.debounce(e => {
-                        var callbackId = e.source.callbackId;
-                        sdebug('click', callbackId);
-                        if (callbackId) {
-                            var newEnabled = !e.source.isEnabled();
-                            switch (callbackId) {
-                                case 'indoor':
-                                    // if (newEnabled) {
-                                    //     this.mapView.setMapPadding('indoor', {bottom:100});
-                                    // }
-                                    // else {
-                                    //     this.mapView.removeMapPadding('indoor');
-                                    // }
-                                    var padding = this.mapView.padding as ObjectPadding;
-                                    var delta = newEnabled ? 100 : -100;
-                                    padding.bottom = (padding.bottom || 0) + delta;
-                                    padding.top = (padding.top || 0) + delta;
-                                    this.mapView.padding = padding;
-                                case 'traffic':
-                                case 'buildings':
-                                    this.mapView[callbackId] = newEnabled;
-                                    e.source.setEnabled(newEnabled);
-                                    break;
-                                case 'add':
-                                    this.showSourceSelection();
-                                    break;
-                                case 'glayer':
-                                    {
+                {
+                    type: 'Ti.UI.View',
+                    properties: {
+                        rclass: 'TSControlLine',
+                        bubbleParent: false
+                    },
+                    childTemplates: this.actionButtons,
+                    events: {
+                        click: app.debounce(e => {
+                            var callbackId = e.source.callbackId;
+                            console.debug('click', callbackId);
+                            if (callbackId) {
+                                var newEnabled = !e.source.isEnabled();
+                                switch (callbackId) {
+                                    case 'indoor':
+                                        // if (newEnabled) {
+                                        //     this.mapView.setMapPadding('indoor', {bottom:100});
+                                        // }
+                                        // else {
+                                        //     this.mapView.removeMapPadding('indoor');
+                                        // }
+                                        var padding = this.mapView.padding as ObjectPadding;
+                                        var delta = newEnabled ? 100 : -100;
+                                        padding.bottom = (padding.bottom || 0) + delta;
+                                        padding.top = (padding.top || 0) + delta;
+                                        this.mapView.padding = padding;
+                                    case 'traffic':
+                                    case 'buildings':
+                                        this.mapView[callbackId] = newEnabled;
+                                        e.source.setEnabled(newEnabled);
+                                        break;
+                                    case 'add':
+                                        this.showSourceSelection();
+                                        break;
+                                    case 'glayer': {
                                         var options = Object.keys(this.mapTypes);
                                         var currentMapType = this.mapView.mapType;
-                                        var currentType = _.getKeyByValue(this.mapTypes,
-                                            currentMapType);
-                                        sdebug('mapTypes', this.mapTypes);
-                                        sdebug('currentMapType', currentMapType);
-                                        sdebug('currentType', currentType);
-                                        sdebug('options', options);
+                                        var currentType = _.getKeyByValue(this.mapTypes, currentMapType);
+                                        console.debug('mapTypes', this.mapTypes);
+                                        console.debug('currentMapType', currentMapType);
+                                        console.debug('currentType', currentType);
+                                        console.debug('options', options);
                                         new OptionDialog({
-                                            options: _.map(Object.keys(this.mapTypes),
-                                                function (value,
-                                                    index) {
-                                                    return trc(value);
-                                                }),
+                                            options: _.map(Object.keys(this.mapTypes), function(value, index) {
+                                                return trc(value);
+                                            }),
                                             selectedIndex: options.indexOf(currentType),
                                             buttonNames: [trc('cancel')],
                                             cancel: 0,
                                             tapOutDismiss: true
-                                        }).on('click', (e) => {
-                                            if (!e.cancel) {
-                                                var newType = options[e.index];
-                                                sdebug('click', this.mapTypes,
-                                                    currentMapType,
-                                                    currentType, newType);
-                                                if (newType !== currentType) {
-                                                    this.mapView.mapType = this.mapTypes[
-                                                        newType];
-                                                    Ti.App.Properties.setString(
-                                                        'maptype', newType);
+                                        })
+                                            .on('click', e => {
+                                                if (!e.cancel) {
+                                                    var newType = options[e.index];
+                                                    console.debug('click', this.mapTypes, currentMapType, currentType, newType);
+                                                    if (newType !== currentType) {
+                                                        this.mapView.mapType = this.mapTypes[newType];
+                                                        Ti.App.Properties.setString('maptype', newType);
+                                                    }
                                                 }
-                                            }
-                                        }).show();
+                                            })
+                                            .show();
                                         break;
                                     }
+                                    case 'packages':
+                                        this.parent.showLoading();
+                                        let localPackages = _.groupBy(app.modules.map.getLocalPackages(), 'id');
+                                        let localRoutingPackages = _.groupBy(app.modules.map.getLocalRoutingPackages(), 'id');
+                                        const packages = {};
+                                        const serverpackages = app.modules.map.getServerPackages();
+                                        const serverRoutingPackages = _.groupBy(app.modules.map.getServerRoutingPackages(), 'id');
+                                        serverpackages.forEach(p => {
+                                            console.debug('preparing package ', p);
+                                            let splitted = p.name.split('/');
+                                            let length = splitted.length;
+                                            let current = packages;
+                                            for (let index = 0; index < length; index++) {
+                                                const element = splitted[index];
+                                                if (index === length - 1) {
+                                                    // current[element] = current[element] || [];
+                                                    p.splittedName = element;
+                                                    if (serverRoutingPackages.hasOwnProperty(p.id)) {
+                                                        p.routing = serverRoutingPackages[p.id][0]
+                                                    }
+                                                    if (current[element]) {
+                                                        Object.assign(current[element], p)
+                                                    }   else {
+                                                        current[element] = p;
+                                                    }
+                                                } else {
+                                                    if (!current[element]) {
+                                                        current[element] = current[element] || {
+                                                            name:element
+                                                        };
+                                                            // if (serverRoutingPackages.hasOwnProperty(p.id)) {
+                                                            //     current[element].routing = serverRoutingPackages[p.id][0]
+                                                            // }
+                                                    }
+                                                    current = current[element];
+                                                }
+                                            }
+                                        });
+                                        console.debug('serverpackages', serverpackages);
+                                        console.debug('serverRoutingPackages', serverRoutingPackages);
+                                        console.debug('test2', serverpackages['FR-U']);
+                                        console.debug('test23', serverpackages['FR']);
+                                        console.debug('test', serverRoutingPackages['FR']);
+                                        console.debug('packages', packages);
+                                        console.debug('localPackages', localPackages);
 
+                                        let eventEmitter: any = new EventEmitter();
+                                        eventEmitter.onCancelled = e => eventEmitter.emit('cancelled', e);
+                                        eventEmitter.onFailed = e => eventEmitter.emit('failed', e);
+                                        eventEmitter.onStatus = e => eventEmitter.emit('status', e);
+                                        eventEmitter.onUpdated = e => eventEmitter.emit('updated', e);
+                                        app.modules.map
+                                            .on('package_cancelled', eventEmitter.onCancelled)
+                                            .on('package_failed', eventEmitter.onFailed)
+                                            .on('package_status', eventEmitter.onStatus)
+                                            .on('package_updated', eventEmitter.onUpdated);
+
+                                        function openListWindow(title, data) {
+                                            const items = Object.keys(data).map(k => {
+                                                if (k === 'name') {
+                                                    return;
+                                                }
+                                                let p = data[k];
+                                                console.log('item', k, p.id, p.routing);
+                                                let result;
+                                                if (p.hasOwnProperty('id')) {
+                                                     result ={
+                                                        id: p.id,
+                                                        title: {
+                                                            text: `${p.splittedName}`
+                                                        },
+                                                        subtitle: {
+                                                            text: null
+                                                        },
+                                                        countLabel: {
+                                                            text: filesize(p.size, {
+                                                                round: 0
+                                                            })
+                                                        },
+                                                        iconButton: {
+                                                            visible:true,
+                                                            text:!!localPackages[p.id]?'\ue60e':'\ue0fb'
+                                                        },
+                                                        deleteButton: {
+                                                            visible: !!localPackages[p.id]
+                                                        }
+                                                    }
+                                                    
+                                                } else {
+                                                     result = {
+                                                        data: p,
+                                                        title: {
+                                                            text: p.name
+                                                        }
+                                                    }
+                                                }
+                                                if (p.routing) {
+                                                    result.iconButton2 = {
+                                                        visible:true,
+                                                        text:!!localRoutingPackages[p.routing.id]?'\ue60e':$.sRouting
+                                                    },
+                                                    result.routingId = p.routing.id;
+                                                    result.countLabel = result.countLabel || {text:''};
+                                                    result.countLabel.text += ' r' + filesize(p.routing.size, {
+                                                        round: 0
+                                                    })
+                                                    if (!!localRoutingPackages[p.routing.id]) {
+                                                        result.deleteIcon =  { visible:true};
+                                                    }
+                                                }
+                                                return result;
+                                            }).filter(p=>p !== undefined);
+                                            var onUpdate = function(e) {
+                                                localPackages = _.groupBy(app.modules.map.getLocalPackages(), 'id');
+                                                localRoutingPackages = _.groupBy(app.modules.map.getLocalRoutingPackages(), 'id');
+                                                if (data[e.id]) {
+                                                    const index = items.findIndex(d=>d.id===e.id);
+                                                    if (index != -1) {
+                                                        win.listView.updateItemAt(0, index, {
+                                                            iconButton: {
+                                                                visible: true
+                                                            },
+                                                            deleteButton: {
+                                                                visible: true
+                                                            },
+                                                            subtitle: {
+                                                                text: null
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                            var onCancelled = function(e) {
+                                                if (data[e.id]) {
+                                                    const index = items.findIndex(d=>d.id===e.id);
+                                                    if (index != -1) {
+                                                        win.listView.updateItemAt(0, index, {
+                                                            iconButton: {
+                                                                visible: false
+                                                            },
+                                                            accessory: {
+                                                                visible: false
+                                                            },
+                                                            subtitle: {
+                                                                text: null
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                            var onStatus = function(e) {
+                                                console.log('onStatus',e.status, e.id, e.progress, e.routing);
+                                                if (data[e.id]) {
+                                                    const index = items.findIndex(d=>d.id===e.id);
+                                                    console.log('onStatus found 1',e.status, e.id, e.progress, index);
+                                                    if (index != -1) {
+                                                        win.listView.updateItemAt(0, index, {
+                                                            icon: {
+                                                                visible: true
+                                                            },
+                                                            subtitle:{
+                                                                text:`downloading ... (${e.progress}%)`
+                                                            },
+                                                            accessory: {
+                                                                visible: true
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                            eventEmitter.on('status', onStatus).on('updated', onUpdate).on('cancelled', onCancelled).on('failed', onCancelled);
+                                            const win = new AppWindow({
+                                                rclass: 'NativeListWindow',
+                                                title: title,
+                                                showBackButton: true,
+                                                listViewArgs: {
+                                                    rclass: 'PackagesListView',
+                                                    templates: {
+                                                        default: app.templates.row.offlinePackages
+                                                    },
+                                                    defaultItemTemplate: 'default',
+                                                    sections: [
+                                                        {
+                                                            items: items
+                                                        }
+                                                    ]
+                                                }
+                                            }).once('close',function(){
+                                                eventEmitter.off('status', onStatus).off('updated', onUpdate).off('cancelled', onCancelled).off('failed', onCancelled);
+                                            }).on('click', function(e) {
+                                                if (e.item) {
+                                                    const callbackId = e.bindId;
+                                                    console.log('click', callbackId, e.item);
+                                                    if (e.item.data && callbackId !== 'iconButton'  && callbackId !== 'iconButton2') {
+                                                        openListWindow(e.item.title.text, e.item.data);
+                                                        return;
+                                                    }
+                                                    if (callbackId !== 'iconButton'  && callbackId !== 'iconButton2') {
+                                                        return;
+                                                    }
+                                                    switch (callbackId ) {
+                                                        case 'deleteButton':
+                                                        {
+                                                            if(e.item.routingId) {
+                                                                app.modules.map.startRoutingPackageRemove(e.item.routingId);
+                                                            } 
+                                                            if(e.item.id) {
+                                                                app.modules.map.startPackageRemove(e.item.id);
+
+                                                            }
+                                                            break;
+                                                        }
+                                                        case 'iconButton':
+                                                        case 'iconButton2':
+                                                        {
+                                                                console.log('about to download', e.item.id, e.item.routingId);
+                                                            if(callbackId === 'iconButton2') {
+                                                                app.modules.map.startRoutingPackageDownload(e.item.routingId);
+                                                            } else {
+                                                                app.modules.map.startPackageDownload(e.item.id);
+
+                                                            }
+                                                            break;
+                                                        }
+                                                    }
+                                                    
+                                                }
+                                            });
+                                            app.ui.openWindow(win);
+                                            return win;
+                                        }
+                                        openListWindow(trc('offline_packages'), packages).once('open', () => {
+                                            this.parent.hideLoading();
+                                        }).on('close', ()=>{
+                                            app.modules.map
+                                            .off('package_cancelled', eventEmitter.onCancelled)
+                                            .off('package_failed', eventEmitter.onFailed)
+                                            .off('package_status', eventEmitter.onStatus)
+                                            .off('package_updated', eventEmitter.onUpdated);
+                                            eventEmitter = null;
+                                        });
+                                }
                             }
-                        }
-
-                    })
+                        })
+                    }
                 }
-
-            }],
+            ],
             events: {
                 click: app.debounce(e => {
                     if (!e.item) {
                         return;
                     }
                     var callbackId = e.source.callbackId || e.bindId;
-                    var options: string[], current, tileSource,
+                    var options: string[],
+                        current,
+                        tileSource,
                         sourceId = e.item.sourceId;
-                    sdebug(e.type, callbackId, e.item);
+                    console.debug(e.type, callbackId, e.item);
                     switch (callbackId) {
-                        case 'delete':
-                            {
-                                if (e.item.token && this.runningMbTiles[e.item.token]) {
-                                    console.debug('about to delete', e.item.token);
-                                    var request = this.runningMbTiles[e.item.token].request;
-                                    // request.stop();
-                                    Ti.App.emit('mbtiles_generator_command', {
-                                        command: 'stop',
-                                        token: e.item.token
-                                    });
-                                } else if (sourceId) {
-                                    this.removeTileSource(sourceId);
-                                }
-                                break;
-                            }
-                        case 'enable':
-                            {
-                                current = this.tileSourcesIndexed[sourceId].visible;
-                                current = !current;
-                                e.source.applyProperties({
-                                    text: current ? $.sVisible : $.sHidden,
-                                    color: current ? $.cTheme.main : $.white
+                        case 'delete': {
+                            if (e.item.token && this.runningMbTiles[e.item.token]) {
+                                console.debug('about to delete', e.item.token);
+                                var request = this.runningMbTiles[e.item.token].request;
+                                Ti.App.emit('mbtiles_generator_command', {
+                                    command: 'stop',
+                                    token: e.item.token
                                 });
-                                Ti.App.Properties.setBool(sourceId + '_enabled', current);
-                                this.tileSourcesIndexed[sourceId].visible = current;
-                                break;
+                            } else if (sourceId) {
+                                this.removeTileSource(sourceId);
                             }
-                        case 'options':
-                            {
-                                var isMbTiles = !!this.mbtiles[sourceId];
-                                var isHd = Ti.App.Properties.getBool(sourceId + '_hd', this.defaultHD);
-                                options = ['delete'];
-                                if (isMbTiles) {
-                                    options.unshift('center_bounds');
-                                    // options.unshift('to_image');
-                                } else {
-                                    options.unshift('clear_cache');
-                                }
-                                options.unshift(isHd ? 'disable_hd' : 'enable_hd');
-                                sdebug('about to show options dialog');
-                                new OptionDialog({
-                                    options: _.map(options, function (value,
-                                        index) {
-                                        return trc(value);
-                                    }),
-                                    buttonNames: [trc('cancel')],
-                                    cancel: 0,
-                                    tapOutDismiss: true
-                                }).on('click', (f => {
-                                    if (!f.cancel) {
-                                        var option = options[f.index];
-                                        switch (option) {
-                                            case 'enable_hd':
-                                            case 'disable_hd':
-                                                isHd = !isHd;
-                                                Ti.App.Properties.setBool(sourceId + '_hd',
-                                                    isHd);
-                                                tileSource = this.tileSourcesIndexed[sourceId];
-                                                tileSource.autoHd = isHd;
-                                                tileSource.clearCache();
-                                                break;
+                            break;
+                        }
+                        case 'enable': {
+                            current = this.tileSourcesIndexed[sourceId].visible;
+                            current = !current;
+                            e.source.applyProperties({
+                                text: current ? $.sVisible : $.sHidden,
+                                color: current ? $.cTheme.main : $.white
+                            });
+                            Ti.App.Properties.setBool(sourceId + '_enabled', current);
+                            this.tileSourcesIndexed[sourceId].visible = current;
+                            break;
+                        }
+                        case 'options': {
+                            var isMbTiles = !!this.mbtiles[sourceId];
+                            var isHd = Ti.App.Properties.getBool(sourceId + '_hd', this.defaultHD);
+                            options = ['delete'];
+                            if (isMbTiles) {
+                                options.unshift('center_bounds');
+                                // options.unshift('to_image');
+                            } else {
+                                options.unshift('clear_cache');
+                            }
+                            options.unshift(isHd ? 'disable_hd' : 'enable_hd');
+                            console.debug('about to show options dialog');
+                            new OptionDialog({
+                                options: _.map(options, function(value, index) {
+                                    return trc(value);
+                                }),
+                                buttonNames: [trc('cancel')],
+                                cancel: 0,
+                                tapOutDismiss: true
+                            })
+                                .on(
+                                    'click',
+                                    (f => {
+                                        if (!f.cancel) {
+                                            var option = options[f.index];
+                                            switch (option) {
+                                                case 'enable_hd':
+                                                case 'disable_hd':
+                                                    isHd = !isHd;
+                                                    Ti.App.Properties.setBool(sourceId + '_hd', isHd);
+                                                    tileSource = this.tileSourcesIndexed[sourceId];
+                                                    tileSource.autoHd = isHd;
+                                                    tileSource.clearCache();
+                                                    break;
 
-                                            case 'clear_cache':
-                                                tileSource = this.tileSourcesIndexed[sourceId];
-                                                tileSource.clearCache();
-                                                break;
-                                            case 'delete':
-                                                this.removeTileSource(sourceId);
-                                                break;
-                                            case 'center_bounds':
-                                                var mbTile = this.mbtiles[sourceId];
-                                                this.parent.updateCamera({
-                                                    zoom: mbTile.minZoom,
-                                                    centerCoordinate: this.geolib.getCenter(
-                                                        [mbTile.bounds.sw, mbTile.bounds
-                                                            .ne
-                                                        ])
-                                                });
-                                                break;
-                                            case 'to_image':
-                                                this.saveToImage(sourceId);
-                                                break;
+                                                case 'clear_cache':
+                                                    tileSource = this.tileSourcesIndexed[sourceId];
+                                                    tileSource.clearCache();
+                                                    break;
+                                                case 'delete':
+                                                    this.removeTileSource(sourceId);
+                                                    break;
+                                                case 'center_bounds':
+                                                    var mbTile = this.mbtiles[sourceId];
+                                                    this.parent.updateCamera({
+                                                        zoom: mbTile.minZoom,
+                                                        centerCoordinate: geolib.getCenter([mbTile.bounds.sw, mbTile.bounds.ne])
+                                                    });
+                                                    break;
+                                                case 'to_image':
+                                                    this.saveToImage(sourceId);
+                                                    break;
+                                            }
                                         }
-                                    }
-                                }).bind(this)).show();
-                                break;
-                            }
-                        case 'download':
-                            {
-                                // this.createMBTiles(this.tileSourcesIndexed[sourceId], this.mapView.region);
-                                this.showDownloadAreaView(this.tileSourcesIndexed[sourceId]);
-                                break;
-                            }
-                        case 'pause':
-                            {
-                                if (e.item.token && this.runningMbTiles[e.item.token]) {
-                                    // var request = runningMbTiles[e.item.token].request;
-                                    Ti.App.emit('mbtiles_generator_command', {
-                                        command: 'playpause',
-                                        token: e.item.token
-                                    });
-                                    // if (request.paused) {
-                                    //     request.resume();
-                                    // } else {
+                                    }).bind(this)
+                                )
+                                .show();
+                            break;
+                        }
+                        case 'download': {
+                            // this.createMBTiles(this.tileSourcesIndexed[sourceId], this.mapView.region);
+                            this.showDownloadAreaView(this.tileSourcesIndexed[sourceId]);
+                            break;
+                        }
+                        case 'pause': {
+                            if (e.item.token && this.runningMbTiles[e.item.token]) {
+                                // var request = runningMbTiles[e.item.token].request;
+                                Ti.App.emit('mbtiles_generator_command', {
+                                    command: 'playpause',
+                                    token: e.item.token
+                                });
+                                // if (request.paused) {
+                                //     request.resume();
+                                // } else {
 
-                                    //     request.pause();
-                                    // }
-
-                                }
-                                break;
+                                //     request.pause();
+                                // }
                             }
+                            break;
+                        }
                     }
                 }, 100),
                 change: e => {
@@ -562,7 +821,6 @@ export class TileSourceMgr extends MapModule {
                         var sourceId = e.item.sourceId;
                         this.tileSourcesIndexed[sourceId].opacity = e.value;
                     }
-
                 },
                 stop: e => {
                     if (e.item) {
@@ -571,10 +829,9 @@ export class TileSourceMgr extends MapModule {
                             Ti.App.Properties.setDouble(sourceId + '_opacity', e.source.value);
                         }
                     }
-
                 }
             }
-        }) as SelectionView
+        }) as SelectionView;
         this.button = new Button({
             rclass: 'MapButton',
             bubbleParent: false,
@@ -586,16 +843,182 @@ export class TileSourceMgr extends MapModule {
         _additional.underContainerChildren.push(this.view);
         _additional.mapPaddedChildren.push(this.button);
 
-        this.button.on('click', this.showHide)
+        this.button.on('click', this.showHide);
         Object.assign(_additional.mapArgs, {
             tileSource: (_additional.mapArgs.tileSource || []).concat(this.tileSources),
             mapType: this.mapTypes[Ti.App.Properties.getString('maptype', 'normal')]
         });
     }
+    onDownloadProgress = (e: DownloadEvent) => {
+        var request = e.request,
+            running = this.runningMbTiles[request.token];
+        if (running) {
+            var index = this.runningMbTilesIndexes.indexOf(request.token);
+            if (index >= 0) {
+                this.view.listView.updateItemAt(this.MBTILES_SECTION_INDEX, index, {
+                    progress: {
+                        value: e.progress
+                    },
+                    subtitle: {
+                        text: this.mbTilesDownloadSubTitle(e)
+                    }
+                });
+            }
+
+            running.query.doneCount = e.doneCount;
+
+            this.saveRunningMBTiles();
+        }
+    };
+    onDownloadComplete = (e: DownloadEvent) => {
+        var request = e.request,
+            running = this.runningMbTiles[request.token];
+        if (running) {
+            var bounds = request.bounds;
+            var center = geolib.getCenter([bounds.sw, bounds.ne]);
+            app.api
+                .reverseGeocode({
+                    latitude: center.latitude,
+                    longitude: center.longitude
+                    // zoom:request.minZoom
+                })
+                .then(e => {
+                    delete this.runningMbTiles[request.token];
+                    var index = this.runningMbTilesIndexes.indexOf(request.token);
+                    if (index >= 0) {
+                        this.runningMbTilesIndexes.splice(index, 1);
+                        this.view.listView.deleteItemsAt(this.MBTILES_SECTION_INDEX, index, 1, {
+                            animated: true
+                        });
+                    }
+                    this.saveRunningMBTiles();
+                    const picked = _.pick(request, 'area', 'size', 'token', 'count', 'timestamp', 'file', 'bounds', 'minZoom', 'maxZoom');
+                    this.mbtiles[request.token] = {
+                        ...picked,
+                        address: e,
+                        layer: JSON.parse(JSON.stringify(request.layer.layer))
+                    };
+                    if (request.layer.autoHd) {
+                        this.mbtiles[request.token].layer.options = this.mbtiles[request.token].layer.options || {};
+                        this.mbtiles[request.token].layer.options.tileSize = 512;
+                    }
+                    console.log('onDownloadComplete', request.layer, this.mbtiles[request.token]);
+                    Ti.App.Properties.setObject('mbtiles', this.mbtiles);
+
+                    this.internalAddTileSource(this.createTileSource(request.token));
+                });
+        }
+        if (e.runningRequestsCount === 0 && this.generatorService) {
+            if (__APPLE__) {
+                this.generatorService.unregister();
+                this.generatorService = null;
+            } else if (__ANDROID__) {
+                this.generatorService.stop();
+                this.generatorService = null;
+            }
+        }
+    };
+    onDownloadCancelled = (e: DownloadEvent) => {
+        // console.debug('mbtiles_generator_cancelled', e.request, this.runningMbTilesIndexes);
+        var request = e.request,
+            running = this.runningMbTiles[request.token];
+        if (running) {
+            var index = this.runningMbTilesIndexes.indexOf(request.token);
+            if (index >= 0) {
+                this.runningMbTilesIndexes.splice(index, 1);
+                this.view.listView.deleteItemsAt(this.MBTILES_SECTION_INDEX, index, 1, {
+                    animated: true
+                });
+            }
+
+            delete this.runningMbTiles[request.token];
+            this.saveRunningMBTiles();
+        }
+        if (e.runningRequestsCount === 0 && this.generatorService) {
+            if (__APPLE__) {
+                this.generatorService.unregister();
+                this.generatorService = null;
+            } else if (__ANDROID__) {
+                this.generatorService.stop();
+                this.generatorService = null;
+            }
+        }
+    };
+    onDownloadState = (e: DownloadEvent) => {
+        var request = e.request,
+            running = this.runningMbTiles[request.token];
+        console.debug('on mbtiles_generator_state', request);
+        if (running) {
+            var index = this.runningMbTilesIndexes.indexOf(request.token);
+            if (index >= 0) {
+                // console.debug('on state', !!e.request.paused);
+                this.view.listView.updateItemAt(this.MBTILES_SECTION_INDEX, index, {
+                    pause: {
+                        text: !!e.request.paused ? '\ue01b' : '\ue018'
+                    },
+                    subtitle: {
+                        text: this.mbTilesDownloadSubTitle(e)
+                    },
+                    loading: {
+                        visible: !request.paused
+                    }
+                });
+            }
+        }
+    };
+    onDownloadStart = (e: DownloadEvent) => {
+        var request = e.request;
+        console.log('mbtiles_generator_start', request);
+        this.runningMbTiles[request.token] = {
+            doneCount: request.layer.doneCount,
+            count: request.count,
+            query: Object.assign(request.layer, _.pick(request, 'token', 'timestamp', 'doneCount')),
+            file: request.file,
+            token: request.token,
+            request: request,
+            bounds: request.bounds,
+            minZoom: request.minZoom,
+            maxZoom: request.maxZoom
+        };
+        this.saveRunningMBTiles();
+        this.runningMbTilesIndexes.push(request.token);
+        // console.debug('adding mbtiles', this.runningMbTiles[request.token], request);
+        this.view.listView.appendItems(
+            this.MBTILES_SECTION_INDEX,
+            [
+                {
+                    template: 'mbtiles',
+                    title: {
+                        html: this.sourceName(request.layer.layer)
+                    },
+                    subtitle: {
+                        text: this.mbTilesDownloadSubTitle(e)
+                    },
+                    token: request.token,
+                    properties: {
+                        canMove: false
+                    },
+                    loading: {
+                        visible: !request.paused
+                    },
+                    progress: {
+                        value: request.doneCount > 0 ? request.doneCount / request.count * 100 : 0
+                    },
+                    pause: {
+                        text: !!request.paused ? '\ue01b' : '\ue018'
+                    }
+                }
+            ],
+            {
+                animated: true
+            }
+        );
+    };
     isOverlay(providerName, layer) {
         if (!!layer.options.isOverlay || (layer.options.opacity && layer.options.opacity < 1)) {
             return true;
         }
+        return false;
         var overlayPatterns = [
             '^(OpenWeatherMap|OpenSeaMap|Lonvia|OpenSkiMap)',
             'OpenMapSurfer.(AdminBounds|Contours)',
@@ -606,9 +1029,7 @@ export class TileSourceMgr extends MapModule {
             'Hydda.RoadsAndLabels'
         ];
 
-        return providerName.toLowerCase().match('(' + overlayPatterns.join('|').toLowerCase() +
-            ')') !==
-            null;
+        return providerName.toLowerCase().match('(' + overlayPatterns.join('|').toLowerCase() + ')') !== null;
     }
     addLayer(arg, providers: { [k: string]: DataProvider }) {
         var parts = arg.split('.');
@@ -627,7 +1048,7 @@ export class TileSourceMgr extends MapModule {
             id: id,
             category: data.category,
             url: data.url,
-            options: Object.assign({}, data.options),
+            options: Object.assign({}, data.options)
         };
 
         // overwrite values in provider from variant.
@@ -639,13 +1060,13 @@ export class TileSourceMgr extends MapModule {
             var variantOptions;
             if (typeof variant === 'string') {
                 variantOptions = {
-                    variant: variant,
+                    variant: variant
                 };
             } else {
                 variantOptions = variant.options || {};
             }
             variantOptions.variantName = variantName;
-            provider.url = variant.url || provider.url;
+            provider.url = variantOptions.url || provider.url;
             Object.assign(provider.options, variantOptions);
         } else if (typeof provider.url === 'function') {
             provider.url = provider.url(parts.splice(1, parts.length - 1).join('.'));
@@ -654,31 +1075,28 @@ export class TileSourceMgr extends MapModule {
             return;
         }
         var forceHTTP = provider.options.forceHTTP;
-        if (provider.url.indexOf('//') === 0) {
+        if ((provider.url as string).indexOf('//') === 0) {
             provider.url = (forceHTTP ? 'http:' : 'https:') + provider.url;
             // provider.url = forceHTTP ? 'http:' : 'https:' + provider.url;
         }
         if (typeof provider.url === 'string') {
             provider.url = provider.url.assign(provider.options);
-            if (provider.url.indexOf('{variant}') >= 0) {
+            if ((provider.url as string).indexOf('{variant}') >= 0) {
                 return;
             }
         } else if (Array.isArray(provider.url)) {
-            (provider.url as string[]).map(url=>url.assign(provider.options))
+            (provider.url as string[]).map(url => url.assign(provider.options));
         }
-        
-        
+
         // replace attribution placeholders with their values from toplevel provider attribution,
         // recursively
-        var attributionReplacer = function (attr) {
+        var attributionReplacer = function(attr) {
             if (!attr || attr.indexOf('{attribution.') === -1) {
                 return attr;
             }
-            return attr.replace(/\{attribution.(\w*)\}/,
-                function (match, attributionName) {
-                    return attributionReplacer(providers[attributionName].options.attribution);
-                }
-            );
+            return attr.replace(/\{attribution.(\w*)\}/, function(match, attributionName) {
+                return attributionReplacer(providers[attributionName].options.attribution);
+            });
         };
         provider.options.attribution = attributionReplacer(provider.options.attribution);
 
@@ -688,12 +1106,11 @@ export class TileSourceMgr extends MapModule {
         } else {
             this.baseSources[id] = provider;
         }
-
     }
     downloadView: View & {
-        areaView: View
-        topView: View
-    }
+        areaView: View;
+        topView: View;
+    };
     getDownloadView = () => {
         if (!this.downloadView) {
             let areaResizing = false;
@@ -704,226 +1121,262 @@ export class TileSourceMgr extends MapModule {
                 layout: 'vertical',
                 opacity: 0,
                 touchPassThrough: true,
-                childTemplates: [{
-                    layout: 'vertical',
-                    touchPassThrough: true,
-                    childTemplates: [{
-                        backgroundColor: backColor,
+                childTemplates: [
+                    {
+                        layout: 'vertical',
                         touchPassThrough: true,
-                        bindId: 'topView',
-                        height: topViewHeight,
-                        childTemplates: [{
-                            height: 15,
-                            backgroundColor:'ffffff44',
-                            bottom: 0,
-                            events: {
-                                touchstart: function (e) {
-                                    areaResizing = true;
-                                    areaResizingStartY = e.globalPoint.y;
-                                    console.log('touchstart', topViewHeight, areaResizing, areaResizingStartY);
-                                },
-                                touchmove: (e) => {
-                                    if (areaResizing) {
-                                        console.log('touchmove', areaResizing, areaResizingStartY, e.globalPoint.y);
-                                        this.downloadView.topView.height = Math.max(60, topViewHeight + (e.globalPoint.y - areaResizingStartY));
+                        childTemplates: [
+                            {
+                                backgroundColor: backColor,
+                                touchPassThrough: true,
+                                bindId: 'topView',
+                                height: topViewHeight,
+                                childTemplates: [
+                                    {
+                                        height: 15,
+                                        backgroundColor: 'ffffff44',
+                                        bottom: 0,
+                                        events: {
+                                            touchstart: function(e) {
+                                                areaResizing = true;
+                                                areaResizingStartY = e.globalPoint.y;
+                                                console.log('touchstart', topViewHeight, areaResizing, areaResizingStartY);
+                                            },
+                                            touchmove: e => {
+                                                if (areaResizing) {
+                                                    console.log('touchmove', areaResizing, areaResizingStartY, e.globalPoint.y);
+                                                    this.downloadView.topView.height = Math.max(60, topViewHeight + (e.globalPoint.y - areaResizingStartY));
+                                                }
+                                            },
+                                            touchend: () => {
+                                                topViewHeight = this.downloadView.topView.rect.height;
+                                                console.log('touchend', areaResizing, areaResizingStartY);
+                                                areaResizing = false;
+                                                this.handleMapRegionChanged();
+                                            }
+                                        }
                                     }
+                                ]
+                            },
+                            {
+                                layout: 'horizontal',
+                                touchPassThrough: true,
+                                childTemplates: [
+                                    {
+                                        touchEnabled: false,
+                                        backgroundColor: backColor
+                                    },
+                                    {
+                                        width: '90%',
+                                        touchEnabled: false,
+                                        borderColor: $.cTheme.main,
+                                        bindId: 'areaView',
+                                        borderWidth: 2
+                                    },
+                                    {
+                                        touchEnabled: false,
+                                        backgroundColor: backColor
+                                    }
+                                ]
+                            },
+                            {
+                                properties: {
+                                    layout: 'vertical',
+                                    backgroundColor: backColor,
+                                    height: 'SIZE',
+                                    clipChildren: false, // for the slider shadow on ios
+                                    bubbleParent: false
                                 },
-                                touchend: () => {
-                                    topViewHeight = this.downloadView.topView.rect.height;
-                                    console.log('touchend', areaResizing, areaResizingStartY);
-                                    areaResizing = false;
-                                    this.handleMapRegionChanged();
+                                childTemplates: [
+                                    {
+                                        properties: {
+                                            layout: 'horizontal',
+                                            height: 'SIZE',
+                                            clipChildren: false // for the slider shadow on ios
+                                        },
+                                        childTemplates: [
+                                            {
+                                                type: 'Ti.UI.Label',
+                                                properties: {
+                                                    color: $.white,
+                                                    font: {
+                                                        size: 13
+                                                    },
+                                                    padding: {
+                                                        right: 4,
+                                                        left: 4
+                                                    },
+                                                    text: trc('min')
+                                                }
+                                            },
+                                            {
+                                                type: 'Ti.UI.Slider',
+                                                bindId: 'minSlider',
+                                                properties: {
+                                                    height: 34,
+                                                    bubbleParent: true,
+                                                    tintColor: $.cTheme.main
+                                                }
+                                            },
+                                            {
+                                                type: 'Ti.UI.Label',
+                                                bindId: 'minValue',
+                                                properties: {
+                                                    width: '40%',
+                                                    color: $.white,
+                                                    textAlign: 'right',
+                                                    font: {
+                                                        size: 13
+                                                    },
+                                                    padding: {
+                                                        right: 4,
+                                                        left: 4
+                                                    }
+                                                    // text: estimated.minScale + '(' + minZoom + ')'
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        properties: {
+                                            layout: 'horizontal',
+                                            height: 'SIZE',
+                                            clipChildren: false // for the slider shadow on ios
+                                        },
+                                        childTemplates: [
+                                            {
+                                                type: 'Ti.UI.Label',
+                                                properties: {
+                                                    color: $.white,
+                                                    font: {
+                                                        size: 13
+                                                    },
+                                                    padding: {
+                                                        right: 4,
+                                                        left: 4
+                                                    },
+                                                    text: trc('max')
+                                                }
+                                            },
+                                            {
+                                                type: 'Ti.UI.Slider',
+                                                bindId: 'maxSlider',
+                                                properties: {
+                                                    height: 34,
+                                                    tintColor: $.cTheme.main,
+                                                    bubbleParent: true
+                                                }
+                                            },
+                                            {
+                                                type: 'Ti.UI.Label',
+                                                bindId: 'maxValue',
+                                                properties: {
+                                                    color: $.white,
+                                                    width: '40%',
+                                                    textAlign: 'right',
+                                                    font: {
+                                                        size: 13
+                                                    },
+                                                    padding: {
+                                                        right: 4,
+                                                        left: 4
+                                                    }
+                                                    // text: estimated.maxScale + '(' + maxZoom + ')'
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        type: 'Ti.UI.Label',
+                                        color: $.white,
+                                        font: { size: 14 },
+                                        textAlign: 'center',
+                                        bindId: 'estimatedLabel'
+                                    }
+                                ],
+                                events: {
+                                    change: e => {
+                                        if (!this.currentDownloadEstimate || !this.currentDownloadBounds) {
+                                            return;
+                                        }
+                                        switch (e.bindId) {
+                                            case 'minSlider':
+                                                this.updateDownloadEstimate(Math.floor(e.value), this.currentDownloadEstimate.maxZoom);
+                                                break;
+                                            case 'maxSlider':
+                                                this.updateDownloadEstimate(this.currentDownloadEstimate.minZoom, Math.floor(e.value));
+                                                break;
+                                        }
+                                    }
                                 }
                             }
-                        }]
-                    }, {
-                        layout: 'horizontal',
-                        touchPassThrough: true,
-                        childTemplates: [{
-                            touchEnabled: false,
-                            backgroundColor: backColor,
-                        }, {
-                            width: '90%',
-                            touchEnabled: false,
-                            borderColor: $.cTheme.main,
-                            bindId: 'areaView',
-                            borderWidth: 2,
-
-                        },
-                        {
-                            touchEnabled: false,
-                            backgroundColor: backColor,
-                        }]
-                    }, {
-                        properties: {
-                            layout: 'vertical',
-                            backgroundColor: backColor,
-                            height: 'SIZE',
-                            clipChildren: false, // for the slider shadow on ios
-                            bubbleParent: false
-                        },
-                        childTemplates: [{
-                            properties: {
-                                layout: 'horizontal',
-                                height: 'SIZE',
-                                clipChildren: false // for the slider shadow on ios
-                            },
-                            childTemplates: [{
-                                type: 'Ti.UI.Label',
-                                properties: {
-                                    color: $.white,
-                                    font: {
-                                        size: 13
-                                    },
-                                    padding: {
-                                        right: 4,
-                                        left: 4
-                                    },
-                                    text: trc('min')
-                                }
-                            }, {
-                                type: 'Ti.UI.Slider',
-                                bindId: 'minSlider',
-                                properties: {
-                                    height: 34,
-                                    bubbleParent: true,
-                                    tintColor: $.cTheme.main
-                                }
-                            }, {
-                                type: 'Ti.UI.Label',
-                                bindId: 'minValue',
-                                properties: {
-                                    width: '40%',
-                                    color: $.white,
-                                    textAlign: 'right',
-                                    font: {
-                                        size: 13
-                                    },
-                                    padding: {
-                                        right: 4,
-                                        left: 4
-                                    },
-                                    // text: estimated.minScale + '(' + minZoom + ')'
-                                }
-                            }]
-                        }, {
-                            properties: {
-                                layout: 'horizontal',
-                                height: 'SIZE',
-                                clipChildren: false // for the slider shadow on ios
-                            },
-                            childTemplates: [{
-                                type: 'Ti.UI.Label',
-                                properties: {
-                                    color: $.white,
-                                    font: {
-                                        size: 13
-                                    },
-                                    padding: {
-                                        right: 4,
-                                        left: 4
-                                    },
-                                    text: trc('max')
-                                }
-                            }, {
-                                type: 'Ti.UI.Slider',
-                                bindId: 'maxSlider',
-                                properties: {
-                                    height: 34,
-                                    tintColor: $.cTheme.main,
-                                    bubbleParent: true,
-
-                                }
-                            }, {
-                                type: 'Ti.UI.Label',
-                                bindId: 'maxValue',
-                                properties: {
-                                    color: $.white,
-                                    width: '40%',
-                                    textAlign: 'right',
-                                    font: {
-                                        size: 13
-                                    },
-                                    padding: {
-                                        right: 4,
-                                        left: 4
-                                    },
-                                    // text: estimated.maxScale + '(' + maxZoom + ')'
-                                }
-                            }]
-                        }, {
-                            type: 'Ti.UI.Label',
-                            color: $.white,
-                            font: { size: 14 },
-                            textAlign: 'center',
-                            bindId: 'estimatedLabel'
-                        }],
-                        events: {
-                            change: e => {
-                                if (!this.currentDownloadEstimate || !this.currentDownloadBounds) {
-                                    return;
-                                }
-                                switch (e.bindId) {
-                                    case 'minSlider':
-                                        this.updateDownloadEstimate(Math.floor(e.value), this.currentDownloadEstimate.maxZoom);
-                                        break;
-                                    case 'maxSlider':
-
-                                        this.updateDownloadEstimate(this.currentDownloadEstimate.minZoom, Math.floor(e.value));
-                                        break;
-                                }
-                            }
-                        }
-                    }]
-                }, {
-                    properties: {
-                        layout: 'horizontal',
-                        backgroundColor: $.white,
-                        height: 44,
-                        tintColor: $.cTheme.main,
+                        ]
                     },
-                    childTemplates: [{
-                        type: 'Ti.UI.Button',
-                        width: 'fill',
-                        callbackId: 'cancel',
-                        title: tru('cancel')
-                    }, {
-                        type: 'Ti.UI.Button',
-                        width: 'fill',
-                        callbackId: 'download',
-                        title: tru('download')
-                    }],
-                    events: {
-                        click: app.debounce(e => {
-                            var callbackId = e.source.callbackId;
-                            switch (callbackId) {
-                                case 'cancel':
-                                    this.hideDownloadAreaView();
-                                    break;
-                                case 'download':
-                                    console.log('startMBTilesGeneration', this.currentDownloadTileSource, this.currentDownloadBounds, this.currentDownloadEstimate.minZoom, this.currentDownloadEstimate.maxZoom);
-                                    this.startMBTilesGeneration(this.currentDownloadTileSource, this.currentDownloadBounds, this.currentDownloadEstimate.minZoom, this.currentDownloadEstimate.maxZoom);
-                                    this.hideDownloadAreaView();
-                                    this.showBottomControls();
-                                    break;
+                    {
+                        properties: {
+                            layout: 'horizontal',
+                            backgroundColor: $.white,
+                            height: 44,
+                            tintColor: $.cTheme.main
+                        },
+                        childTemplates: [
+                            {
+                                type: 'Ti.UI.Button',
+                                width: 'fill',
+                                callbackId: 'cancel',
+                                title: tru('cancel')
+                            },
+                            {
+                                type: 'Ti.UI.Button',
+                                width: 'fill',
+                                callbackId: 'download',
+                                title: tru('download')
                             }
-                        })
+                        ],
+                        events: {
+                            click: app.debounce(e => {
+                                var callbackId = e.source.callbackId;
+                                switch (callbackId) {
+                                    case 'cancel':
+                                        this.hideDownloadAreaView();
+                                        break;
+                                    case 'download':
+                                        console.log(
+                                            'startMBTilesGeneration',
+                                            this.currentDownloadTileSource,
+                                            this.currentDownloadBounds,
+                                            this.currentDownloadEstimate.minZoom,
+                                            this.currentDownloadEstimate.maxZoom
+                                        );
+                                        this.startMBTilesGeneration(
+                                            this.currentDownloadTileSource,
+                                            this.currentDownloadBounds,
+                                            this.currentDownloadEstimate.minZoom,
+                                            this.currentDownloadEstimate.maxZoom
+                                        );
+                                        this.hideDownloadAreaView();
+                                        this.showBottomControls();
+                                        break;
+                                }
+                            })
+                        }
                     }
-                }]
+                ]
             }) as View & {
-                areaView: View
-                topView: View
+                areaView: View;
+                topView: View;
             };
         }
         return this.downloadView;
-    }
+    };
     handleMapRegionChanged(e?: MapRegionChangedEvent, minZoom?: number, maxZoom?: number) {
         this.currentDownloadBounds = this.getDownloadBounds();
+        console.log('currentDownloadBounds', this.currentDownloadBounds);
         this.updateDownloadEstimate(minZoom || this.currentDownloadEstimate.minZoom, maxZoom || this.currentDownloadEstimate.maxZoom);
     }
-    onMapRegionChanged?(e: MapRegionChangedEvent)
-    currentDownloadBounds: MapRegion
-    currentDownloadTileSource: MapTileSourceKeys
+    onMapRegionChanged?(e: MapRegionChangedEvent);
+    currentDownloadBounds: MapRegion;
+    currentDownloadTileSource: MapTileSource;
     getDownloadBounds() {
         let areaView = this.downloadView.areaView;
         let areaRect = areaView.rect;
@@ -935,28 +1388,32 @@ export class TileSourceMgr extends MapModule {
         return {
             sw: { latitude: coords[0][0], longitude: coords[0][1] },
             ne: { latitude: coords[1][0], longitude: coords[1][1] }
-        }
+        };
     }
 
-    currentDownloadEstimate: MBTilesUtils.MBtilesInfo
+    currentDownloadEstimate: MBTilesUtils.MBtilesInfo;
     updateDownloadEstimate = (minZoom, maxZoom) => {
-        var formatScale = function (scale) {
-            return '1:' + app.utils.filesize(scale, {
-                // exponent: -2,
-                base: 10,
-                round: 0
-            }).slice(0, -1);
-        }
+        var formatScale = function(scale) {
+            return (
+                '1:' +
+                filesize(scale, {
+                        // exponent: -2,
+                        base: 10,
+                        round: 0
+                    })
+                    .slice(0, -1)
+            );
+        };
         const tileSource = this.currentDownloadTileSource;
         // const realMinZoom = tileSource.minZoom > 0 ? tileSource.minZoom : 1;
         // const realMaxZoom = Math.min(tileSource.maxZoom || 22, 17); //prevent downloading under 17 because of bulk rules
         // const maxZoom = realMaxZoom;
         // const minZoom = Math.min(Math.max(Math.floor(this.mapView.zoom), realMinZoom), maxZoom);
         const bounds = this.currentDownloadBounds;
-        const center = this.geolib.getCenter([bounds.sw, bounds.ne]);
-        let estimated = this.currentDownloadEstimate = MBTilesUtils.computeInfoForMBTiles(tileSource, bounds, minZoom, maxZoom);
-        const minScale = this.geolib.getMapScaleAtZoom(estimated.minZoom, center);
-        const maxScale = this.geolib.getMapScaleAtZoom(estimated.maxZoom, center);
+        const center = geolib.getCenter([bounds.sw, bounds.ne]);
+        let estimated = (this.currentDownloadEstimate = MBTilesUtils.computeInfoForMBTiles(tileSource, bounds, minZoom, maxZoom));
+        const minScale = geolib.getMapScaleAtZoom(estimated.minZoom, center);
+        const maxScale = geolib.getMapScaleAtZoom(estimated.maxZoom, center);
         // Object.assign(estimated, {
         //     minScale: formatScale(minScale.realScale),
         //     maxScale: formatScale(maxScale.realScale),
@@ -964,14 +1421,23 @@ export class TileSourceMgr extends MapModule {
         console.log('estimated', estimated);
         this.getDownloadView().applyProperties({
             estimatedLabel: {
-                html: trc('area') + ': ' + Math.round(estimated.area) + ' km²\n' +
-                trc('count') + ': ' + estimated.count + ' tiles\n' +
-                // trc('minZoom') + ': ' + estimated.minZoom + ' (' + estimated.minScale + ')\n' +
-                // trc('maxZoom') + ': ' + estimated.maxZoom + ' (' + estimated.maxScale + ')\n' +
-                // trc('count') + ': ' + estimated.count + ' tiles\n' +
-                trc('estimated__download_size') + ': ' + app.utils.filesize(estimated.size, {
-                    round: 0
-                })
+                html:
+                    trc('area') +
+                    ': ' +
+                    Math.round(estimated.area) +
+                    ' km²\n' +
+                    trc('count') +
+                    ': ' +
+                    estimated.count +
+                    ' tiles\n' +
+                    // trc('minZoom') + ': ' + estimated.minZoom + ' (' + estimated.minScale + ')\n' +
+                    // trc('maxZoom') + ': ' + estimated.maxZoom + ' (' + estimated.maxScale + ')\n' +
+                    // trc('count') + ': ' + estimated.count + ' tiles\n' +
+                    trc('estimated__download_size') +
+                    ': ' +
+                    filesize(estimated.size, {
+                        round: 0
+                    })
             },
             minValue: {
                 text: formatScale(minScale.realScale) + '(' + minZoom + ')'
@@ -980,10 +1446,11 @@ export class TileSourceMgr extends MapModule {
                 text: formatScale(maxScale.realScale) + '(' + maxZoom + ')'
             }
         });
-    }
-    downloadAreaVisible = false
+    };
+    downloadAreaVisible = false;
     showDownloadAreaView(tileSource: MapTileSource) {
         this.currentDownloadTileSource = JSON.parse(JSON.stringify(tileSource));
+        // this.currentDownloadTileSource = tileSource;
         if (!this.downloadAreaVisible) {
             this.downloadAreaVisible = true;
             this.hideBottomControls();
@@ -1013,12 +1480,15 @@ export class TileSourceMgr extends MapModule {
             });
             this.parent.childrenHolder.add(theView);
             this.onMapRegionChanged = this.handleMapRegionChanged;
-            theView.animate({
-                opacity: 1,
-                duration: 200
-            }, () => {
-                this.handleMapRegionChanged(undefined, minZoom, maxZoom);
-            });
+            theView.animate(
+                {
+                    opacity: 1,
+                    duration: 200
+                },
+                () => {
+                    this.handleMapRegionChanged(undefined, minZoom, maxZoom);
+                }
+            );
         }
     }
     hideDownloadAreaView() {
@@ -1032,12 +1502,15 @@ export class TileSourceMgr extends MapModule {
                 top: true
             });
             delete this.onMapRegionChanged;
-            theView.animate({
-                opacity: 0,
-                duration: 100
-            }, () => {
-                theView.removeFromParent();
-            });
+            theView.animate(
+                {
+                    opacity: 0,
+                    duration: 100
+                },
+                () => {
+                    theView.removeFromParent();
+                }
+            );
         }
     }
 
@@ -1051,30 +1524,60 @@ export class TileSourceMgr extends MapModule {
     }
 
     saveRunningMBTiles() {
-        Ti.App.Properties.setObject('mbtiles_generating', _.mapValues(this.runningMbTiles, _.partialRight(_.omit,
-            'request')));
+        Ti.App.Properties.setObject('mbtiles_generating', _.mapValues(this.runningMbTiles, _.partialRight(_.omit, 'request')));
     }
 
     startMBTilesGeneration(_query: MapTileSourceKeys, _bounds: MapRegion, _minZoom: number, _maxZoom: number) {
-        sdebug('startMBTilesGeneration', _query, _bounds, _minZoom, _maxZoom);
-        var realQuery = function () {
+        // startMBTilesGeneration(_source: MapTileSource, _bounds: MapRegion, _minZoom: number, _maxZoom: number) {
+        // Ti.Filesystem.requestStoragePermissions(() => {
+        //     var DB_DIR = app.modules.map.getMbTilesFolder();
+        //     var data = MBTilesUtils.computeInfoForMBTiles(_source, _bounds, _minZoom, _maxZoom);
+        //     const token = guid()
+        //     var filePath = path.join(DB_DIR, token + '.pdb');
+        //     const request  = new DownloadRequest(_source, token, filePath, data);
+        //     console.log('startMBTilesGeneration', _source, _bounds, _minZoom, _maxZoom, filePath, request);
+
+        //     var onStart = () => {
+        //         this.onDownloadStart({ request, progress:0 });
+        //     };
+        //     var onProgress = (e) => {
+        //         this.onDownloadProgress({ request, progress:e.progress });
+
+        //     };
+        //     var onFailed = (e) => {
+        //         console.log('on download failed', e);
+        //     };
+        //     var onComplete = () => {
+        //         this.onDownloadComplete({ request, progress:1 });
+        //         _source.off('download_started', onStart);
+        //         _source.off('download_progress', onProgress);
+        //         _source.off('download_completed', onComplete);
+        //         _source.off('download_completed', onFailed);
+        //     };
+        //     _source.on('download_started', onStart);
+        //     _source.on('download_progress', onProgress);
+        //     _source.on('download_completed', onComplete);
+        //     _source.on('download_completed', onFailed);
+        //     _source.downloadRegion(_bounds, filePath, _minZoom, _maxZoom, _source);
+        // });
+        var realQuery = function() {
             Ti.App.emit('mbtiles_generator_command', {
                 command: app.api.networkConnected ? 'start' : 'startpaused',
                 layer: _query,
                 bounds: _bounds,
                 minZoom: _minZoom,
-                maxZoom: _maxZoom,
+                maxZoom: _maxZoom
             });
-            // Ti.App.emit('mbtiles_generator_request', {
-            //     layer: _query,
-            //     bounds: _bounds,
-            //     minZoom: _minZoom,
-            //     maxZoom: _maxZoom,
-            // });
+
+            Ti.App.emit('mbtiles_generator_request', {
+                layer: _query,
+                bounds: _bounds,
+                minZoom: _minZoom,
+                maxZoom: _maxZoom
+            });
         };
         if (__APPLE__) {
             if (!this.generatorService) {
-
                 this.getMBTilesGenerator();
                 this.generatorService = Ti.App.iOS.registerBackgroundService({
                     url: 'mbtilesgenerator.js'
@@ -1104,48 +1607,58 @@ export class TileSourceMgr extends MapModule {
         // return request;
     }
 
-
     zIndex(_index) {
         return _index;
     }
 
     createTileSource(_id: string, _index?: number) {
-        var layer: Provider, isMbTiles = false;
+        let layer: Provider,
+            filePath,
+            isMbTiles = false;
         if (this.mbtiles[_id]) {
-            // sdebug('found mbtiles', this.mbtiles[_id]);
+            console.debug('found mbtiles', this.mbtiles[_id]);
             isMbTiles = true;
+            filePath = Ti.Filesystem.getFile(
+                this.mbtiles[_id].file.startsWith('file:/') || this.mbtiles[_id].file.startsWith('/') ? this.mbtiles[_id].file : app.getPath('mbtiles') + this.mbtiles[_id].file
+            ).getNativePath();
             layer = this.mbtiles[_id].layer;
         } else {
             layer = this.baseSources[_id] || this.overlaySources[_id];
         }
         if (layer) {
             var enabled = Ti.App.Properties.getBool(_id + '_enabled', true);
-            var props = Object.assign({
-                id: _id,
-                url: (!isMbTiles) ? layer.url : undefined,
-                source: isMbTiles ? (app.getPath('mbtiles') + this.mbtiles[_id].file) : undefined,
-                layer: layer,
-                visible: enabled,
-                cacheable: !isMbTiles && (!layer.options || layer.options.cacheable !== false || !!app.developerMode),
-                maxZoom: 19,
-                zIndex: this.zIndex(_index),
-                autoHd: Ti.App.Properties.getBool(_id + '_hd', this.defaultHD),
-                // tileSize: layer.options.tileSize,
-                opacity: Ti.App.Properties.getDouble(_id + '_opacity', (layer.options && layer.options.opacity) ||
-                    1),
-            }, isMbTiles ? this.mbtiles[_id] : _.omit(layer.options, 'url'));
-            var result = new MapTileSource(props);
+            const props = Object.assign(
+                {
+                    id: _id,
+                    url: layer.url,
+                    source: filePath,
+                    layer: layer,
+                    visible: enabled,
+                    cacheable: !isMbTiles && (!layer.options || layer.options.cacheable !== false || !!app.developerMode),
+                    // maxZoom: 19,
+                    zIndex: this.zIndex(_index),
+                    autoHd: Ti.App.Properties.getBool(_id + '_hd', this.defaultHD),
+                    tileSize: layer['tileSize'] || layer.options.tileSize,
+                    opacity: Ti.App.Properties.getDouble(_id + '_opacity', (layer.options && layer.options.opacity) || 1)
+                },
+                isMbTiles ? this.mbtiles[_id] : _.omit(layer.options, 'url')
+            );
+            const result = new MapTileSource(props);
+            result.on('tile', e=>{
+                console.log('tile clicked', e.tile);
+                this.parent.runMethodOnModules('onTileClicked', e);
+            });
             // result.clearCache();
-            // sdebug('createTileSource', JSON.stringify(result));
+            // console.debug('createTileSource', JSON.stringify(result));
             return result;
         }
     }
 
-    onParentClick = (e) => {
+    onParentClick = e => {
         if (e.source === this.window || e.source === this.window.underContainer) {
             this.hideBottomControls();
         }
-    }
+    };
 
     showBottomControls() {
         console.debug('showBottomControls', this.bottomControlsVisible);
@@ -1166,7 +1679,6 @@ export class TileSourceMgr extends MapModule {
         this.window.container.animate({
             duration: 200,
             transform: '0t0,-' + $.TSCountrolsHeight
-
         });
     }
 
@@ -1184,12 +1696,15 @@ export class TileSourceMgr extends MapModule {
         this.parent.off('click', this.onParentClick);
         this.window.container.touchEnabled = true;
         this.bottomControlsVisible = false;
-        this.window.container.animate({
-            duration: 200,
-            transform: null
-        }, () => {
-            this.view.visible = false;
-        });
+        this.window.container.animate(
+            {
+                duration: 200,
+                transform: null
+            },
+            () => {
+                this.view.visible = false;
+            }
+        );
     }
 
     showHide = () => {
@@ -1198,14 +1713,13 @@ export class TileSourceMgr extends MapModule {
         } else {
             this.showBottomControls();
         }
-    }
+    };
 
     sourceName(_value) {
         var title = _value.name;
         if (_value.options) {
             if (_value.options.variantName) {
-                title += '<small> <i>' + _value.options.variantName +
-                    '</i></small>';
+                title += '<small> <i>' + _value.options.variantName + '</i></small>';
             }
         }
         return title;
@@ -1216,9 +1730,12 @@ export class TileSourceMgr extends MapModule {
         if (!_value.area) {
             return;
         }
-        var result = Math.round(_value.area) + ' km² - ' + app.utils.filesize(_value.size, {
-            round: 0
-        });
+        var result =
+            Math.round(_value.area) +
+            ' km² - ' +
+            filesize(_value.size, {
+                round: 0
+            });
         if (_showDate !== false) {
             // moment.duration(moment().valueOf() - _value.timestamp).format()
             result += ' - ' + moment.duration(moment().valueOf() - _value.timestamp).humanize();
@@ -1227,7 +1744,7 @@ export class TileSourceMgr extends MapModule {
     }
 
     mbTilesTitle(_value) {
-        // sdebug('mbTilesTitle', _value);
+        // console.debug('mbTilesTitle', _value);
         var displayName = '';
         if (_value.address) {
             var address = _value.address;
@@ -1247,24 +1764,20 @@ export class TileSourceMgr extends MapModule {
     }
 
     mbTilesDownloadSubTitle(e) {
-        return this.mbTilesSubTitle(e.request, false) + '\n' + trc(!!e.request.paused ? 'paused' : 'downloading') +
-            '  (' + e.progress
-                .toFixed() + '%)';
+        return this.mbTilesSubTitle(e.request, false) + '\n' + trc(!!e.request.paused ? 'paused' : 'downloading') + '  (' + e.progress.toFixed() + '%)';
     }
 
     tileSourceItem(_value) {
-
         var id = _value.id;
         var mbTile = this.mbtiles[id];
         var isMbTiles = !!mbTile;
         var layer = _value.layer;
-        // sdebug('tileSourceItem', id, isMbTiles, _value, app.developerMode);
+        // console.debug('tileSourceItem', id, isMbTiles, _value, app.developerMode);
         // if (id !== shadingId) {
-        var enabled = Ti.App.Properties.getBool(id + '_enabled',
-            true);
+        var enabled = Ti.App.Properties.getBool(id + '_enabled', true);
         return {
             title: {
-                html: isMbTiles ? (this.mbTilesTitle(mbTile) + ': ' + this.sourceName(layer)) : this.sourceName(layer)
+                html: isMbTiles ? this.mbTilesTitle(mbTile) + ': ' + this.sourceName(layer) : this.sourceName(layer)
             },
             subtitle: {
                 html: isMbTiles ? this.mbTilesSubTitle(mbTile, true) : undefined
@@ -1272,17 +1785,15 @@ export class TileSourceMgr extends MapModule {
             sourceId: id,
             enable: {
                 text: enabled ? $.sVisible : $.sHidden,
-                color: enabled ? $.cTheme.main : $.white,
+                color: enabled ? $.cTheme.main : $.white
             },
             slider: {
-                value: Ti.App.Properties.getDouble(id +
-                    '_opacity', 1)
+                value: Ti.App.Properties.getDouble(id + '_opacity', 1)
             },
             download: {
-                visible: !isMbTiles && (!layer.options || layer.options.cacheable !== false || !!app.developerMode),
+                visible: !isMbTiles && (!layer.options || layer.options.cacheable !== false || !!app.developerMode)
                 // visible: !isMbTiles && ((layer.options && !!layer.options.downloadable) || !!app.developerMode)
             }
-
         };
     }
     pauseDownload(token: string) {
@@ -1300,7 +1811,7 @@ export class TileSourceMgr extends MapModule {
             token: token
         });
     }
-    onNetworkChange = (e) => {
+    onNetworkChange = e => {
         console.log('TileSourceManager', 'onNetworkChange', e.connected);
         if (e.connected) {
             let value;
@@ -1313,13 +1824,12 @@ export class TileSourceMgr extends MapModule {
             for (const key in this.runningMbTiles) {
                 value = this.runningMbTiles[key];
                 this.pauseDownload(value.token);
-            };
+            }
         }
-    }
-    onInit() {
-    }
+    };
+    onInit() {}
     GC() {
-        app.api.off('networkchange', this.onNetworkChange)
+        app.api.off('networkchange', this.onNetworkChange);
         super.GC();
         this.tileSources = null;
         this.tileSourcesIndexed = null;
@@ -1333,13 +1843,12 @@ export class TileSourceMgr extends MapModule {
     onWindowOpen(_enabled) {
         app.showTutorials(['map_settings']);
         let value;
-            for (const key in this.runningMbTiles) {
-                value = this.runningMbTiles[key];
-            sdebug('runningMbTiles', value.query.token, value.bounds, value.minZoom,
-                value.maxZoom);
+        for (const key in this.runningMbTiles) {
+            value = this.runningMbTiles[key];
+            console.debug('runningMbTiles', value.query.token, value.bounds, value.minZoom, value.maxZoom);
             this.startMBTilesGeneration(value.query, value.bounds, value.minZoom, value.maxZoom);
-        };
-        app.api.on('networkchange', this.onNetworkChange)
+        }
+        app.api.on('networkchange', this.onNetworkChange);
     }
     onMapReset(_params) {
         _params = _params || {};
@@ -1359,7 +1868,6 @@ export class TileSourceMgr extends MapModule {
                 duration: 200
             });
         }
-
     }
     // onMapPadding: function(_padding, _duration) {
     //     button.animate({
@@ -1385,7 +1893,7 @@ export class TileSourceMgr extends MapModule {
     showSourceSelection() {
         app.ui.createAndOpenWindow('TileSourceSelectWindow', {
             module: this,
-            region:this.parent.getCurrentRegion(),
+            region: this.parent.getCurrentRegion(),
             baseSources: this.baseSources,
             overlaySources: this.overlaySources
         });
@@ -1399,7 +1907,7 @@ export class TileSourceMgr extends MapModule {
     }
     internalAddTileSource(tileSource: MapTileSource) {
         if (tileSource) {
-            sdebug('internalAddTileSource', tileSource);
+            console.debug('internalAddTileSource', tileSource);
             tileSource.zIndex = this.currentSources.length;
             this.currentSources.push(tileSource.id);
             this.tileSources.push(tileSource);
@@ -1436,11 +1944,11 @@ export class TileSourceMgr extends MapModule {
     }
 
     removeTileSource(_id) {
-        sdebug('remove tilesource', _id);
+        console.debug('remove tilesource', _id);
         if (this.tileSourcesIndexed[_id]) {
             var tileSource = this.tileSourcesIndexed[_id];
             var index = this.currentSources.indexOf(_id);
-            sdebug('remove tilesource index ', index, this.currentSources);
+            console.debug('remove tilesource index ', index, this.currentSources);
             if (index >= 0) {
                 this.currentSources.splice(index, 1);
                 this.tileSources.splice(index, 1);
@@ -1478,133 +1986,147 @@ export class TileSourceMgr extends MapModule {
         const mbTile = this.mbtiles[sourceId];
         const dbPath = app.getPath('mbtiles') + mbTile.file;
         console.log('saveToImage', mbTile);
-        return Promise.resolve().then(() => {
-            if (!mbTile.hasOwnProperty('minZoom') || !mbTile.hasOwnProperty('maxZoom')) {
-                var db = Ti.Database.open(dbPath);
-                var result = db.execute('SELECT min(zoom_level) as min_zoom, max(zoom_level) as max_zoom FROM tiles');
-                const minZoom = result.field(0) as number;
-                const maxZoom = result.field(1) as number;
-                console.log('read zoom', minZoom, maxZoom);
-                mbTile.minZoom = minZoom;
-                mbTile.maxZoom = maxZoom;
-                result.close();
-                db.close();
-            }
-        }).then(() => {
-            console.log('saveToImage', mbTile.file, mbTile.minZoom, mbTile.maxZoom);
-            if (mbTile.minZoom != mbTile.maxZoom) {
-                let currentZoom = Math.min(16, mbTile.maxZoom);
-                return app.confirm({
-                    buttonNames: [trc('cancel'), trc('create')],
-                    message: trc('choose zoom (usually 16 is the best)'),
-                    customView: {
-                        properties: {
-                            layout: 'vertical',
-                            height: 'SIZE',
-                            clipChildren: false // for the slider shadow on ios
-                        },
-                        childTemplates: [{
-                            properties: {
-                                layout: 'horizontal',
-                                height: 'SIZE',
-                                clipChildren: false // for the slider shadow on ios
-                            },
-                            childTemplates: [{
-                                type: 'Ti.UI.Slider',
-                                bindId: 'slider',
+        return Promise.resolve()
+            .then(() => {
+                if (!mbTile.hasOwnProperty('minZoom') || !mbTile.hasOwnProperty('maxZoom')) {
+                    var db = Ti.Database.open(dbPath);
+                    var result = db.execute('SELECT min(zoom_level) as min_zoom, max(zoom_level) as max_zoom FROM tiles');
+                    const minZoom = result.field(0) as number;
+                    const maxZoom = result.field(1) as number;
+                    console.log('read zoom', minZoom, maxZoom);
+                    mbTile.minZoom = minZoom;
+                    mbTile.maxZoom = maxZoom;
+                    result.close();
+                    db.close();
+                }
+            })
+            .then(() => {
+                console.log('saveToImage', mbTile.file, mbTile.minZoom, mbTile.maxZoom);
+                if (mbTile.minZoom != mbTile.maxZoom) {
+                    let currentZoom = Math.min(16, mbTile.maxZoom);
+                    return app
+                        .confirm({
+                            buttonNames: [trc('cancel'), trc('create')],
+                            message: trc('choose zoom (usually 16 is the best)'),
+                            customView: {
                                 properties: {
-                                    height: 34,
-                                    bubbleParent: true,
-                                    tintColor: $.cTheme.main,
-                                    min: mbTile.minZoom,
-                                    max: mbTile.maxZoom,
-                                    value: currentZoom
-                                }
-                            }, {
-                                type: 'Ti.UI.Label',
-                                bindId: 'valueLabel',
-                                properties: {
-                                    width: '40%',
-                                    textAlign: 'right',
-                                    font: {
-                                        size: 13
-                                    },
-                                    padding: {
-                                        right: 4,
-                                        left: 4
-                                    },
-                                    text: currentZoom
-                                }
-                            }]
-                        }],
-                        events: {
-                            change: e => {
-                                sdebug('change', e.bindId);
-                                if (e.bindId === 'slider') {
-                                    currentZoom = Math.floor(e.value);
-                                    e.source.parent.parent.parent.parent.applyProperties({
-                                        valueLabel: {
-                                            text: currentZoom
+                                    layout: 'vertical',
+                                    height: 'SIZE',
+                                    clipChildren: false // for the slider shadow on ios
+                                },
+                                childTemplates: [
+                                    {
+                                        properties: {
+                                            layout: 'horizontal',
+                                            height: 'SIZE',
+                                            clipChildren: false // for the slider shadow on ios
+                                        },
+                                        childTemplates: [
+                                            {
+                                                type: 'Ti.UI.Slider',
+                                                bindId: 'slider',
+                                                properties: {
+                                                    height: 34,
+                                                    bubbleParent: true,
+                                                    tintColor: $.cTheme.main,
+                                                    min: mbTile.minZoom,
+                                                    max: mbTile.maxZoom,
+                                                    value: currentZoom
+                                                }
+                                            },
+                                            {
+                                                type: 'Ti.UI.Label',
+                                                bindId: 'valueLabel',
+                                                properties: {
+                                                    width: '40%',
+                                                    textAlign: 'right',
+                                                    font: {
+                                                        size: 13
+                                                    },
+                                                    padding: {
+                                                        right: 4,
+                                                        left: 4
+                                                    },
+                                                    text: currentZoom
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ],
+                                events: {
+                                    change: e => {
+                                        console.debug('change', e.bindId);
+                                        if (e.bindId === 'slider') {
+                                            currentZoom = Math.floor(e.value);
+                                            e.source.parent.parent.parent.parent.applyProperties({
+                                                valueLabel: {
+                                                    text: currentZoom
+                                                }
+                                            });
                                         }
-                                    })
+                                    }
                                 }
-                            }
-                        }
-                    },
-                    title: trc('zoom')
-                }).then(() => currentZoom);
-            } else {
-                return mbTile.minZoom;
-            }
-        }).then(zoom => {
-            console.log('creating image at zoom', zoom);
-            //count at zoom 
-            var file = Ti.Filesystem.getFile(app.getPath('mbtiles') + mbTile.file);
-            var db = Ti.Database.open(file.nativePath);
-            var row = db.execute('SELECT COUNT(*) FROM tiles WHERE zoom_level = ?', zoom + '');
-            const count = row.field(0);
-            row.close();
-            console.log('there is', count, 'images');
-            return [db, zoom] as [titanium.DatabaseDB, number];
-        }).then(res => {
-            this.parent.showLoading();
-            console.log('SELECT tile_column,tile_row,tile_data FROM tiles WHERE zoom_level = ' + res[1]);
-            var tilesRS = res[0].execute('SELECT tile_column,tile_row,tile_data FROM tiles WHERE zoom_level = ? ORDER BY tile_row ASC, tile_column ASC', res[1] + '');
-            var tiles: any[][] = [];
-            var currentYDelta;
-            var currentXDelta;
-            while (tilesRS.isValidRow()) {
-                const tileX = tilesRS.fieldByName('tile_column', Titanium.Database.FIELD_TYPE_INT) as number;
-                const tileY = tilesRS.fieldByName('tile_row', Titanium.Database.FIELD_TYPE_INT) as number;
-                if (!currentYDelta) {
-                    currentYDelta = tileY;
+                            },
+                            title: trc('zoom')
+                        })
+                        .then(() => currentZoom);
+                } else {
+                    return mbTile.minZoom;
                 }
-                if (!currentXDelta) {
-                    currentXDelta = tileX;
+            })
+            .then(zoom => {
+                console.log('creating image at zoom', zoom);
+                //count at zoom
+                var file = Ti.Filesystem.getFile(app.getPath('mbtiles') + mbTile.file);
+                var db = Ti.Database.open(file.nativePath);
+                var row = db.execute('SELECT COUNT(*) FROM tiles WHERE zoom_level = ?', zoom + '');
+                const count = row.field(0);
+                row.close();
+                console.log('there is', count, 'images');
+                return [db, zoom] as [titanium.DatabaseDB, number];
+            })
+            .then(res => {
+                this.parent.showLoading();
+                console.log('SELECT tile_column,tile_row,tile_data FROM tiles WHERE zoom_level = ' + res[1]);
+                var tilesRS = res[0].execute('SELECT tile_column,tile_row,tile_data FROM tiles WHERE zoom_level = ? ORDER BY tile_row ASC, tile_column ASC', res[1] + '');
+                var tiles: any[][] = [];
+                var currentYDelta;
+                var currentXDelta;
+                while (tilesRS.isValidRow()) {
+                    const tileX = tilesRS.fieldByName('tile_column', Titanium.Database.FIELD_TYPE_INT) as number;
+                    const tileY = tilesRS.fieldByName('tile_row', Titanium.Database.FIELD_TYPE_INT) as number;
+                    if (!currentYDelta) {
+                        currentYDelta = tileY;
+                    }
+                    if (!currentXDelta) {
+                        currentXDelta = tileX;
+                    }
+                    const tileYs = tileY + '';
+                    const tileData = tilesRS.fieldByName('tile_data');
+                    const x = tileX - currentXDelta;
+                    const y = tileY - currentYDelta;
+                    // console.log('test', tileX, tileY, currentXDelta, currentYDelta, x, y);
+                    tiles[y] = tiles[y] || [];
+                    tiles[y][x] = _.isString(tileData) ? Ti.Utils.base64decode(tileData as string) : tileData;
+                    tilesRS.next();
                 }
-                const tileYs = tileY + '';
-                const tileData = tilesRS.fieldByName('tile_data');
-                const x = tileX - currentXDelta;
-                const y = tileY - currentYDelta;
-                // console.log('test', tileX, tileY, currentXDelta, currentYDelta, x, y);
-                tiles[y] = tiles[y] || [];
-                tiles[y][x] = _.isString(tileData) ? Ti.Utils.base64decode(tileData as string) : tileData
-                tilesRS.next();
-            }
-            tilesRS.close();
-            res[0].close();
-            return tiles.reverse();
-        }).then(streams => {
-            return app.modules.opencv.concatenateImages(streams)
-        }).then(image => {
-            // let image = r.image;
-            console.log('gotImage', image, image.width, image.height);
-            Ti.Media.saveToPhotoGallery(image);
-        }).catch(this.parent.showError).then(this.parent.hideLoading)
-
+                tilesRS.close();
+                res[0].close();
+                return tiles.reverse();
+            })
+            .then(streams => {
+                return app.modules.opencv.concatenateImages(streams);
+            })
+            .then(image => {
+                // let image = r.image;
+                console.log('gotImage', image, image.width, image.height);
+                Ti.Media.saveToPhotoGallery(image);
+            })
+            .catch(this.parent.showError)
+            .then(this.parent.hideLoading);
     }
 }
 
 export function create(_context, _args, _additional) {
     return new TileSourceMgr(_context, _args, _additional);
-};
+}

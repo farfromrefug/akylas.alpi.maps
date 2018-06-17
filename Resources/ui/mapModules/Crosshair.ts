@@ -1,8 +1,9 @@
 
 import { MapModule } from './MapModule'
+import geolib from '../../lib/geolib';
 export class Crosshair extends MapModule {
     visible = false
-    formatter = app.utils.geolib.formatter
+    formatter = geolib.formatter
     animationDuration = 150
     height_2 = 42
     width_2 = 35
@@ -108,7 +109,7 @@ export class Crosshair extends MapModule {
     update() {
         var point = this.view.convertPointToView([this.width_2, this.height_2], this.mapView);
         this.currentLatLong = this.mapView.coordinateForPoints([point])[0];
-        // sdebug('update', currentLatLong);
+        // console.debug('update', currentLatLong);
         this.view.applyProperties({
             label: {
                 text: this.formatter.latLngString(this.currentLatLong, 0, '\n')
@@ -177,7 +178,7 @@ export class Crosshair extends MapModule {
         if (e.bindId !== 'crosshair') {
             return false;
         }
-        sdebug('currentLatLong', this.currentLatLong);
+        console.debug('currentLatLong', this.currentLatLong);
         this.parent.runMethodOnModules('onMapLongPress', {
             latitude: this.currentLatLong[0],
             longitude: this.currentLatLong[1]

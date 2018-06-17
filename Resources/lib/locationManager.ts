@@ -100,7 +100,7 @@ export class LocationManager extends EventEmitter {
     constructor(_args?) {
         super();
         Ti.Geolocation.on('change', (e) => {
-            sdebug('Geolocation change', e.enabled, this.__locationServiceEnabled);
+            console.debug('Geolocation change', e.enabled, this.__locationServiceEnabled);
             if (this.__locationServiceEnabled !== e.enabled) {
                 this.__locationServiceEnabled = e.enabled;
                 this.emit('location_service_state', e);
@@ -183,7 +183,7 @@ export class LocationManager extends EventEmitter {
             // __currentPosition.coords.heading = 30;
         }
         // __currentPosition.coords.altitude = 1854;
-        // sdebug('locationManager', 'onLocation', this.__needsOneTimestamp, this.getAccuracy(),
+        // console.debug('locationManager', 'onLocation', this.__needsOneTimestamp, this.getAccuracy(),
             // this.__currentPosition.coords);
         this.onSuccess(this.__currentPosition);
 
@@ -198,7 +198,7 @@ export class LocationManager extends EventEmitter {
             this.__lastHeadingTimestamp) {
             return;
         }
-        sdebug('onHeading', e.heading);
+        console.debug('onHeading', e.heading);
         // if (e.heading.magneticHeading !== -1) {
             this.__currentHeading = e.heading;
             this.__lastHeadingTimestamp = e.timestamp;
@@ -277,7 +277,7 @@ export class LocationManager extends EventEmitter {
             return;
         }
         this.__started = false;
-        sdebug('locationManager', 'stop');
+        console.debug('locationManager', 'stop');
         Ti.Geolocation.off('location', this.onLocation);
     }
     isStarted() {
@@ -287,7 +287,7 @@ export class LocationManager extends EventEmitter {
         if (this.__started) {
             return;
         }
-        sdebug('locationManager', 'start');
+        console.debug('locationManager', 'start');
         this.__started = true;
         this.setLevel(this.__gpsLevel);
         if (__realStart !== false) {

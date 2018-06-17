@@ -1,7 +1,8 @@
+import geolib from '../lib/geolib';
 export function create(_args) {
     var distance_units = ['kilometers', 'miles'],
         temp_units = ['°C (degrees)', '°F (fahrenheit)'],
-        formatter = app.utils.geolib.formatter,
+        formatter = geolib.formatter,
         gpsLevels = _(app.locationManager.getLevels()).map('distanceFilter').map(function (d) {
             return formatter.distance(d);
         }).value();
@@ -176,7 +177,7 @@ export function create(_args) {
             sections: [{
                 headerTitle: trc('units/time'),
                 items: [
-                    createSectionItem('distance_units', trc(distance_units[app.utils.geolib
+                    createSectionItem('distance_units', trc(distance_units[geolib
                         .metrics ? 0 : 1])),
                     createSectionItem('temperature_units', trc(temp_units[app.tempMetrics ?
                         0 : 1])),
@@ -303,7 +304,7 @@ export function create(_args) {
         }
         var callbackId: string = e.item.callbackId || e.bindId,
             currentValue, currentIndex: number;
-        sdebug(callbackId, e.value);
+        console.debug(callbackId, e.value);
         // if (_.startsWith(callbackId, 'module_')) {
         //     Ti.App.Properties.setBool(callbackId + '_enabled', e.value);
         //     return;
@@ -330,7 +331,7 @@ export function create(_args) {
                 });
                 break;
             case 'distance_units':
-                currentIndex = app.utils.geolib.metrics ? 0 : 1;
+                currentIndex = geolib.metrics ? 0 : 1;
                 showSettingSelection(callbackId, distance_units, currentIndex, function (_index) {
                     if (currentIndex !== _index) {
                         app.setMetrics(_index === 0);
@@ -421,7 +422,7 @@ export function create(_args) {
 
                 break;
             case 'tutorial_reset':
-                sdebug('tutorial_reset');
+                console.debug('tutorial_reset');
                 app.tutorialManager.resetTutorials();
                 app.showAlert({
                     title: trc('tutorials_were_reset'),

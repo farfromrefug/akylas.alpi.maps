@@ -75,7 +75,7 @@ export function create(_args: WindowParams & {
                 //     }],
                 //     events:{
                 //         click:function(e) {
-                //             sdebug(e);
+                //             console.debug(e);
                 //             e.section.visible = !e.section.visible;
                 //         }
                 //     }
@@ -89,7 +89,7 @@ export function create(_args: WindowParams & {
                     if (isMbTiles) {
                         mbtiles = value as MBTilesProvider;
                         value = mbtiles.layer;
-                        sdebug('mbtiles', mbtiles);
+                        console.debug('mbtiles', mbtiles);
                     }
                     var id = value.id;
 
@@ -160,7 +160,7 @@ export function create(_args: WindowParams & {
                                 'http://raw.githubusercontent.com/farfromrefug/akylas.alpi.maps/master/images/tiles/' +
                                 encodeURI(id) + '.png'
                         }
-                        sdebug('image url', imageUrl);
+                        console.debug('image url', imageUrl);
                         Object.assign(item, {
                             sourceId: mbtiles.token || mbtiles.id,
                             delete: {
@@ -239,7 +239,7 @@ export function create(_args: WindowParams & {
                 caseInsensitiveSearch: true,
                 // sectionIndexTitles:indexes,
                 templates: {
-                    'default': app.templates.row.colTileSource2
+                    'default': app.templates.row.colTileSource
                 },
                 defaultItemTemplate: 'default',
                 // sections: fillSections(_base)
@@ -249,7 +249,7 @@ export function create(_args: WindowParams & {
                     if (!e.item) {
                         return;
                     }
-                    sdebug(e.item, e.source);
+                    console.debug(e.item, e.source);
                     app.showViewFullScreen(
                         new View(
                             app.templates.row.cloneTemplateAndFill(
@@ -343,6 +343,7 @@ export function create(_args: WindowParams & {
         createSearchListView('offline_maps', mbTiles, true),
         ]
     }).on('change', function (e) {
+        console.log('TileSourceSelectRealWindow', 'change',e.firstLoad, e.currentPage );
         if (!!e.firstLoad && e.currentPage !== 0) {
             e.view.loadList();
         }

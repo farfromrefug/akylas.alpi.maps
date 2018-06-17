@@ -1,5 +1,6 @@
 
 import { deltaAngle, DistanceOffsetMode, ARAnnotationView, UiOptions, normalizeDegree2, CoordinateIsValid, normalizeDegree, degreesToRadians, radiansToDegrees, ARTrackingManager, ReloadType, ARTrackingManagerDelegate, Location, ARAnnotation, ARStatus } from '../lib/ar'
+import geolib from '../lib/geolib';
 
 
 export declare class ArWindowContainer extends Container {
@@ -63,7 +64,7 @@ export function create(_args: WindowParams) {
             // mapHandler.runMethodOnModules('spreadModuleAction', {
             //     id: 'geofeature',
             //     window: self,
-            //     region: app.utils.geolib.getBoundsOfDistance(app.currentLocation,
+            //     region: geolib.getBoundsOfDistance(app.currentLocation,
             //         VIEW_DISTANCE),
             //     callback: function (_addedItems) {
             updateData();
@@ -73,7 +74,7 @@ export function create(_args: WindowParams) {
     }]
     // const callback:Function = _.remove(_args, 'callback');
 
-    const getPathLength = app.utils.geolib.getPathLength;
+    const getPathLength = geolib.getPathLength;
 
     let self = new AppWindow(_args) as ArWindow;
     let trackingManager = new ARTrackingManager();
@@ -198,7 +199,7 @@ export function create(_args: WindowParams) {
                 // }
                 poiData.push(toAdd);
             });
-        });
+        };
         // creates dummy poi-data around given lat/lon
 
         // this.updateLocation(location);

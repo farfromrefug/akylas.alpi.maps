@@ -62,7 +62,7 @@ export class LocationButton extends MapModule {
 
                     var current = this.mapView.userTrackingMode;
                     var isLocationServicesEnabled = app.locationManager.isLocationServicesEnabled();
-                    sdebug('location singletap', enabled, current, this.searching, isLocationServicesEnabled);
+                    console.debug('location singletap', enabled, current, this.searching, isLocationServicesEnabled);
                     if (current === 1) {
                         this.parent.updateUserLocation();
                     } else {
@@ -92,7 +92,7 @@ export class LocationButton extends MapModule {
                     if (!this.hasCompass || e.source !== this.button || !this.settings.currentLocation) {
                         return false;
                     }
-                    sdebug('location doubletap');
+                    console.debug('location doubletap');
                     var enabled = this.settings.enabledGPS;
                     // if (!enabled) {
                     //     return true;
@@ -106,15 +106,15 @@ export class LocationButton extends MapModule {
 
                 },
                 longpress: e => {
-                    sdebug('location longpress test', e.source);
+                    console.debug('location longpress test', e.source);
                     if (e.source !== this.button) {
                         return false;
                     }
-                    sdebug('location longpress', this.settings.enabledGPS, app.locationManager.isLocationServicesEnabled());
+                    console.debug('location longpress', this.settings.enabledGPS, app.locationManager.isLocationServicesEnabled());
                     if (!this.settings.enabledGPS && !app.locationManager.isLocationServicesEnabled()) {
                         this.handleGPSDisabled();
                     } else {
-                        sdebug('longpress button', this.settings.enabledGPS);
+                        console.debug('longpress button', this.settings.enabledGPS);
                         app.emit('enabled_gps', {
                             enabled: !this.settings.enabledGPS
                         });
@@ -138,7 +138,7 @@ export class LocationButton extends MapModule {
 
     updateButton = () => {
         var enabled = this.settings.enabledGPS && app.locationManager.isLocationServicesEnabled();
-        // sdebug('updateButton', settings.enabledGPS, app.locationManager.isLocationServicesEnabled(), enabled);
+        // console.debug('updateButton', settings.enabledGPS, app.locationManager.isLocationServicesEnabled(), enabled);
         var args: TiDict = {
             backgroundColor: enabled ? $.cTheme.main : app.colors.red.color
         };
@@ -158,7 +158,7 @@ export class LocationButton extends MapModule {
 
     startLoading = () => {
         if (!this.searching && !this.settings.updateBearing) {
-            sdebug('startLoading');
+            console.debug('startLoading');
             this.searching = true;
             this.animatingInterval = setInterval(this.onInterval, 500);
             this.onInterval();
@@ -166,7 +166,7 @@ export class LocationButton extends MapModule {
     }
 
     stopLoading = () => {
-        sdebug('stopLoading');
+        console.debug('stopLoading');
         // if (searching) {
         this.searching = false;
         // }
@@ -189,7 +189,7 @@ export class LocationButton extends MapModule {
     }
 
     onLocManagerState = (e) => {
-        sdebug('onLocManagerState', e);
+        console.debug('onLocManagerState', e);
         if (e.monitor === 'location') {
             if (!!e.state) {
                 this.startLoading();
@@ -247,37 +247,37 @@ export class LocationButton extends MapModule {
             }
 
         } else {
-            Ti.Geolocation.Android.checkLocationSettings(null, e => {
-                console.log('checkLocationSettings', e);
-                if (e.code === 0) {
-                    if (this.searching) {
-                        //already searching. Thus we must be waiting for better accuracy
-                        //let's stop it
-                        this.stopLoading();
-                        app.locationManager.cancelGetCurrentPosition();
-                    } else {
-                        app.locationManager.getCurrentPosition(true);
-                    }
-                }
-            });
-            // var isGpsProviderEnabled = Ti.Geolocation.Android.isProviderEnabled('gps');
-            // var isNetworkProviderEnabled = Ti.Geolocation.Android.isProviderEnabled('network');
-
-            // if(!isGpsProviderEnabled && !isNetworkProviderEnabled) {
-            //     app.confirmAction({
-            //         'title': trc('location_permission'),
-            //         'message': trc('location_permission_desc')
-            //     }, function() {
-            //         var intent = Ti.Android.createIntent({
-            //             action: 'android.settings.LOCATION_SOURCE_SETTINGS',
-            //         });
-            //         try {
-            //             Ti.Android.currentActivity.startActivity(intent);
-            //         } catch (e) {
-            //             Ti.API.debug(e);
+            // Ti.Geolocation.Android.checkLocationSettings(null, e => {
+            //     console.log('checkLocationSettings', e);
+            //     if (e.code === 0) {
+            //         if (this.searching) {
+            //             //already searching. Thus we must be waiting for better accuracy
+            //             //let's stop it
+            //             this.stopLoading();
+            //             app.locationManager.cancelGetCurrentPosition();
+            //         } else {
+            //             app.locationManager.getCurrentPosition(true);
             //         }
-            //     });
-            // }
+            //     }
+            // });
+            var isGpsProviderEnabled = Ti.Geolocation.Android.isProviderEnabled('gps');
+            var isNetworkProviderEnabled = Ti.Geolocation.Android.isProviderEnabled('network');
+
+            if(!isGpsProviderEnabled && !isNetworkProviderEnabled) {
+                app.confirmAction({
+                    'title': trc('location_permission'),
+                    'message': trc('location_permission_desc')
+                }, function() {
+                    var intent = Ti.Android.createIntent({
+                        action: 'android.settings.LOCATION_SOURCE_SETTINGS',
+                    });
+                    try {
+                        Ti.Android.currentActivity.startActivity(intent);
+                    } catch (e) {
+                        Ti.API.debug(e);
+                    }
+                });
+            }
 
         }
     }
@@ -310,7 +310,7 @@ export class LocationButton extends MapModule {
 
     }
     onGPSEnabled(_enabled) {
-        sdebug('onGPSEnabled', _enabled);
+        console.debug('onGPSEnabled', _enabled);
         if (_enabled) {
             app.showTutorials(['follow_heading']);
             this.mapView.applyProperties({
@@ -333,7 +333,7 @@ export class LocationButton extends MapModule {
         }
     }
     onWindowOpen(_enabled) {
-        // sdebug('onWindowOpen', _enabled);
+        // console.debug('onWindowOpen', _enabled);
         this.updateButton();
         app.showTutorials(['locationbutton']);
         if (_enabled) {

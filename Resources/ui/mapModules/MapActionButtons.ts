@@ -108,7 +108,7 @@ export class MapActionButtons extends MapModule {
             //     click: app.debounce(function(e) {
             //         var callbackId = _.get(e, 'source.callbackId');
             //         if (callbackId) {
-            //             sdebug(callbackId);
+            //             console.debug(callbackId);
             //             if (callbackId === 'menu') {
             //                 app.ui.slidemenu.toggleLeftView();
             //             } else {
@@ -211,7 +211,7 @@ export class MapActionButtons extends MapModule {
     onMapHolderPress(e) {
         var callbackId = _.get(e, 'source.callbackId');
         if (callbackId) {
-            sdebug(callbackId);
+            console.debug(callbackId);
             if (callbackId === 'menu') {
                 app.ui.slidemenu.toggleLeftView();
                 // } else if (callbackId === 'take_photo') {
@@ -232,7 +232,7 @@ export class MapActionButtons extends MapModule {
     //     var source = e.source;
     //     var callbackId = source.callbackId;
     //     if (callbackId) {
-    // sdebug('longpress', callbackId);
+    // console.debug('longpress', callbackId);
     //         if (source.isMultipleActionTrigger === true) {
     //             if (visibleMultipleAction !== null) {
     //                 visibleMultipleAction.animate({
@@ -252,7 +252,7 @@ export class MapActionButtons extends MapModule {
     //             }
 
     //         } else {
-    //             sdebug(callbackId);
+    //             console.debug(callbackId);
     // self.parent.runMethodOnModules('spreadLongModuleAction', {
     // id: callbackId
     // });

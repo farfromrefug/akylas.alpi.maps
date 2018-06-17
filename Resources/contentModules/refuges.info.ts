@@ -1,6 +1,6 @@
 // import {ContentModule} from '../ui/mapModules/MapModule'
-const stringScore = require('string-score');
-const ContentModule = require('../ui/mapModules/MapModule').ContentModule;
+import * as stringScore from 'string-score';
+import { ContentModule } from '../ui/mapModules/MapModule';
 exports.settings = {
     color: '#BD732C',
     name: 'Refuges.info',
@@ -197,7 +197,7 @@ exports.create = function(_context, _args, _additional) {
 
     Object.assign(self, {
         GC: app.composeFunc(self.GC, function() {
-            view = null;
+            // view = null;
         }),
         onInit: function() {
 
@@ -240,7 +240,7 @@ exports.create = function(_context, _args, _additional) {
                         region: region
                     }).then(function(result) {
                         if (result.length > 0) {
-                            var data;
+                            var data, distance;
                             var bestScore = 0;
                             var bestI = -1;
                             for (var i = 0; i < result.length; i++) {

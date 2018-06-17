@@ -1,5 +1,5 @@
 // import {ContentModule} from '../ui/mapModules/MapModule'
-const ContentModule = require('../ui/mapModules/MapModule').ContentModule;
+import { ContentModule } from '../ui/mapModules/MapModule';
 exports.settings = {
     color: '#1B85B8',
     name: 'panoramio',
@@ -113,7 +113,7 @@ exports.create = function(_context, _args, _additional) {
 
     Object.assign(self, {
         GC: app.composeFunc(self.GC, function() {
-            view = null;
+            // view = null;
         }),
         onInit: function() {},
         shouldBeEnabledByDefault: function() {

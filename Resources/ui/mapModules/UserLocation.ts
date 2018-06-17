@@ -1,5 +1,5 @@
-// import MapModule from './MapModule'
-const MapModule = require('./MapModule').MapModule;
+import { MapModule } from './MapModule';
+
 exports.create = function(_context, _args, _additional) {
     var TAG = 'UserLocation',
         settings = _args.settings,

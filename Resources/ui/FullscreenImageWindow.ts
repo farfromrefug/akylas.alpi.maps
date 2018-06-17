@@ -61,7 +61,7 @@ export function create(_args?: FullscreenImageWindowParams) {
         scaleType = _fromView.scaleType;
         sourceRect = _fromView.absoluteRect;
     }
-    sdebug('_photos', _photos);
+    console.debug('_photos', _photos);
 
     function scrollViewForPhoto(_index: number, _photo: Photo, _current) {
         console.log('scrollViewForPhoto', _photo.image);
@@ -94,7 +94,7 @@ export function create(_args?: FullscreenImageWindowParams) {
 
                     },
                     singletap: function (e) {
-                        sdebug('singletap', e);
+                        console.debug('singletap', e);
                         if (optionsVisible) {
                             optionsVisible = false;
                             self.hideBottomToolbar();
@@ -137,7 +137,7 @@ export function create(_args?: FullscreenImageWindowParams) {
             panend: function (e) {
                 scrollableView.scrollingEnabled = true;
                 if (!!canPan) {
-                    // sdebug('panend', Math.abs(e.velocity.y), Math.abs(e.translation.y));
+                    // console.debug('panend', Math.abs(e.velocity.y), Math.abs(e.translation.y));
                     if (Math.abs(e.velocity.y) > 300 && Math.abs(e.translation.y) > 40) {
                         e.source.animate({
                             transform: ((e.velocity.y > 0) ? 'ot0,100%' :
@@ -167,7 +167,7 @@ export function create(_args?: FullscreenImageWindowParams) {
             //     var current = scrollView.zoomScale;
             //     var max = scrollView.maxZoomScale;
             //     var min = scrollView.minZoomScale;
-            //     // sdebug('doubletap', current, min, max);
+            //     // console.debug('doubletap', current, min, max);
             //     scrollView.setZoomScale((current > (min + 0.02)) ? min : ((max + min) / 2), {
             //         point: [e.x, e.y],
             //         animated: true
@@ -197,10 +197,10 @@ export function create(_args?: FullscreenImageWindowParams) {
                 });
             },
             scrollend: function (e) {
-                sdebug('scrollend', canPan);
+                console.debug('scrollend', canPan);
                 var view = getCurrentView();
                 if (view !== currentView) {
-                    sdebug('view changed');
+                    console.debug('view changed');
                     currentView.zoomScale = 0;
                     currentView = view;
                 }
@@ -374,7 +374,7 @@ export function create(_args?: FullscreenImageWindowParams) {
         if (_value) {
             setCanPanTimer = setTimeout(function () {
                 canPan = _value;
-                sdebug('setCanPan', canPan);
+                console.debug('setCanPan', canPan);
                 scrollPanDict.variables.canPan = canPan;
                 scrollableView.on('pan', scrollPanDict);
             }, 200);
@@ -384,7 +384,7 @@ export function create(_args?: FullscreenImageWindowParams) {
         canPan = _value;
 
         scrollableView.off('pan', scrollPanDict);
-        sdebug('setCanPan', canPan);
+        console.debug('setCanPan', canPan);
         if (!_value) {
             if (currentView) {
                 currentView.animate({

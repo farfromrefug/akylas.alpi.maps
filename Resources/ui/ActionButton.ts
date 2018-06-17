@@ -10,9 +10,9 @@ export function create(_args) {
     var enabled = _.remove(_args, 'enabled', true);
     var id = _.remove(_args, 'id');
     var text = _.remove(_args, 'text', id);
-    // sdebug('ActionButton', åid, text);
+    // console.debug('ActionButton', åid, text);
     // function highlight(e) {
-    //     // sdebug('highlight');
+    //     // console.debug('highlight');
     //     self.animate({
     //         transform: 's0.9',
     //         duration: 100
@@ -20,7 +20,7 @@ export function create(_args) {
     // }
 
     // function unhighlight(e) {
-    //     // sdebug('unhighlight');
+    //     // console.debug('unhighlight');
     //     self.animate({
     //         cancelRunningAnimations:true,
     //         transform: null,
@@ -64,7 +64,7 @@ export function create(_args) {
     var self = new Label(args);
     self.setEnabled = function (_enabled) {
         var theColor = _enabled ? color : $.gray;
-        // sdebug('setEnabled', _enabled, theColor);
+        // console.debug('setEnabled', _enabled, theColor);
         self.applyProperties({
             color: theColor,
             tutorial: {

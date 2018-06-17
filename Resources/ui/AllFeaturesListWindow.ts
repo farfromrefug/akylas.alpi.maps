@@ -60,7 +60,7 @@ export function create(_args?: WindowParams & {
     _.forEach(_.groupBy(lists, getSectionKey), function (_groupList, _key) {
         sections[_key].items = _.sortBy(_.reduce(_groupList, function (memo, value) {
             var desc = value.description;
-            // sdebug('list', value.description.title, value.count);
+            // console.debug('list', value.description.title, value.count);
             memo.push(getItemForList(value.description, value.count));
             return memo;
         }, []), 'name');
@@ -114,7 +114,7 @@ export function create(_args?: WindowParams & {
             return;
         }
         var callbackId = e.source.callbackId;
-        sdebug('click', callbackId, item.desc);
+        console.debug('click', callbackId, item.desc);
         if (callbackId) {
             if (callbackId === 'edit') {
                 self.manager.createAndOpenWindow('EditListWindow', {
@@ -149,7 +149,7 @@ export function create(_args?: WindowParams & {
         }
     });
     self.listView.on('change', function (e) {
-        sdebug('change', e);
+        console.debug('change', e);
         var item = e.item;
         if (!item) {
             return;
@@ -165,7 +165,7 @@ export function create(_args?: WindowParams & {
     });
 
     function onListAdded(e) {
-        sdebug('onListAdded', e);
+        console.debug('onListAdded', e);
         var list = e.list;
         var section = sections[getSectionKey(list)];
         section.insertItemsAt(0, [getItemForList(list)], {
@@ -188,13 +188,13 @@ export function create(_args?: WindowParams & {
 
     function onListRemoved(e) {
         var list = e.list;
-        sdebug('onListRemoved', e);
+        console.debug('onListRemoved', e);
         var section = sections[getSectionKey(list)];
-        sdebug('section', section);
+        console.debug('section', section);
         var index = _.findIndex(section.items, {
             id: list.id
         });
-        sdebug('index', index);
+        console.debug('index', index);
         if (index >= 0) {
             section.deleteItemsAt(index, 1, {
                 animated: true

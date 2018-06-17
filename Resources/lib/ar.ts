@@ -2,6 +2,7 @@ import { Location, LocationManager, LocationEvent, Acceleration, MotionEvent, Ac
 import KalmanFilter from 'kalmanjs';
 export { Location } from './locationManager'
 const MAX_VISIBLE_ANNOTATIONS = 500// Do not change, can affect performance
+import geolib from './geolib';
 
 export function CoordinateIsValid(loc: Location) {
     return true;
@@ -827,7 +828,7 @@ export class ARTrackingManager {
             return;
         }
 
-        const distance = reloadLocationPrevious ? app.utils.geolib.getPathLength([reloadLocationPrevious, userLocation]) : 0;
+        const distance = reloadLocationPrevious ? geolib.getPathLength([reloadLocationPrevious, userLocation]) : 0;
         console.debug('distance', distance);
 
         if (!reloadLocationPrevious || distance > reloadDistanceFilter) {

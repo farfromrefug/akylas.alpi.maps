@@ -43,8 +43,8 @@ MapAnnotation {
 }
 
 MapRoute {
-    lineWidth:3,
-    selectedLineWidth:6,
+    lineWidth:2,
+    selectedLineWidth:3,
     color: '#0581FC',
     /*selectedColor: '#0581FC',*/
 }

@@ -72,16 +72,22 @@ TileSourceSelectWindow {
 
 .TSSelectRowHolder {
     layout:'vertical',
-    backgroundColor:'#000000cc',
+    backgroundColor:$.white,
+    /* backgroundColor:'#000000cc', */
     backgroundSelectedColor:'#ecf2fb',
-    height:70,
-    bottom:0,
+    /* height:70, */
+    /* bottom:0, */
+
+    top:2,
+    left:2,
+    bottom:2,
+    right:2,
 }
 
 .TSSelectionListView {
     backgroundColor:'#ddd',
     /*separatorStyle:Ti.UI.ListViewSeparatorStyle.SINGLE_LINE,*/
-    /* columnWidth:'50%', */
+    columnWidth:'50%',
     rowHeight:200,
 }
 
@@ -114,7 +120,8 @@ TileSourceSelectWindow {
     left:6,right:6,
     width: 'FILL',
     height:'SIZE',
-    color: $.white,
+    color: $.black,
+   /* color: $.white, */
     touchEnabled:false,
     font: {
         size: 13,
@@ -140,8 +147,12 @@ TileSourceSelectWindow {
     maxLines: 3,
     verticalAlign:'top',
     minHeight:15,
-    height:'SIZE',
-    color:'lightgray'
+
+    height:'FILL',
+    color:'gray'
+
+    /* height:'SIZE', */
+    /* color:'lightgray' */
 }
 .TSSelectRowAttribution {
     rclass:'TSSelectRowLabel',

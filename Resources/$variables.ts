@@ -5,6 +5,7 @@ class Variables {
         this.cMenuText = this.white;
     }
     nbButtonWidth:number
+    leftMenuWidth:number
     navBarHeight = Ti.App.defaultNavBarHeight
     navBarTop = (app.deviceinfo.isAndroid && app.deviceinfo.SDKVersion < 19) ? 0 : Ti.App.defaultStatusBarHeight
 

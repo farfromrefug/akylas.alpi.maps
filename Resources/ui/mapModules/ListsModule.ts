@@ -4,7 +4,7 @@ export class ListModule extends MapModule {
         super(_args);
     }
     onModuleAction(_params) {
-        sdebug('onModuleAction', _params.id);
+        console.debug('onModuleAction', _params.id);
         if (_params.id === 'list') {
             this.window.manager.createAndOpenWindow('AllFeaturesListWindow', {
                 lists: this.parent.runGetMethodOnModules('getLists'),

@@ -1,5 +1,7 @@
 import * as stringScore from 'string-score'
 import { MapModule } from './MapModule'
+import geolib from '../../lib/geolib';
+import filesize from '../../lib/filesize';
 
 declare global {
     interface ItemType {
@@ -190,8 +192,7 @@ export class Items extends MapModule {
     __routes:{ [k: string]: any[] } = {}
     __clusters: { [k: string]: MapCluster } = {}
     __currentIds: { [k: string]: { [k: string]: string[] } } = {}
-    geolib = app.itemHandler.geolib
-    formatter = app.itemHandler.geolib.formatter
+    formatter = geolib.formatter
     // cleanUpString = app.api.cleanUpString
     isItemARoute = app.itemHandler.isItemARoute
     getAnnotImage = app.itemHandler.getAnnotImage
@@ -209,13 +210,13 @@ export class Items extends MapModule {
         }, {
                 image: {
                     startload: function (e) {
-                        sdebug('startload');
+                        console.debug('startload');
                         e.source.parent.loading.visible = true;
                         e.source.backgroundColor = null;
                     },
                     load: function (e) {
                         e.source.parent.loading.visible = false;
-                        sdebug('load', e.colorArt, e.source.parent.loading.visible);
+                        console.debug('load', e.colorArt, e.source.parent.loading.visible);
                         if (e.colorArt) {
                             e.source.backgroundColor = e.colorArt.backgroundColor;
                         }
@@ -223,14 +224,14 @@ export class Items extends MapModule {
                     click: app.debounce(function (e) {
                         if (!e.source.parent.loading.visible) {
                             var item = (e.annotation && e.annotation.item) || (e.route && e.route.item);
-                            // sdebug('click', item);
+                            // console.debug('click', item);
                             if (item) {
                                 app.showImageFullscreen(item.photos, 0, e.source);
                             }
                         }
                     }),
                     longpress: function (e) {
-                        // sdebug('longpress', e.source.parent.loading);
+                        // console.debug('longpress', e.source.parent.loading);
                         if (!e.source.parent.loading.visible) {
                             app.share({
                                 image: e.source.toBlob()
@@ -245,7 +246,7 @@ export class Items extends MapModule {
             if (this.indexer && this.indexer.isSupported()) {
                 var contenttype = Ti.App.iOS.UTTYPE_HTML;
                 this.indexAddItems = (_items: Item[]) => {
-                    // sdebug('indexAddItems', _items);
+                    console.debug('indexAddItems', _items);
                     this.indexer.addToDefaultSearchableIndex(_.reduce(_items, (memo, item) => {
                         if (!item.title) {
                             return memo;
@@ -265,12 +266,12 @@ export class Items extends MapModule {
                         } else if (item.address) {
                             desc += '\n' + item.address.display_name;
                         }
-                        // sdebug('desc', desc);
+                        // console.debug('desc', desc);
                         var image = item.photos ? item.photos[0].image : undefined;
                         if (!image || _.startsWith(image, 'http')) {
                             image = (item.image || type.image);
                         }
-                        var attributeSet = {
+                        var attributeSet:any = {
                             contentType: contenttype,
                             title: item.title,
                             namedLocation: item.title,
@@ -294,12 +295,12 @@ export class Items extends MapModule {
                             domainIdentifier: item.type,
                             attributeSet: attributeSet
                         });
-                        // sdebug(attributeSet);
+                        // console.debug(attributeSet);
                         return memo;
                     }, []), null);
                 };
                 this.indexRemoveItemsIds = (_items) => {
-                    this.indexer.deleteSearchableItemsByIdentifiers(_items);
+                    this.indexer.deleteSearchableItemsByIdentifiers(_items, null);
                 };
                 this.indexRemoveList = (_key) => {
                     this.indexer.deleteAllSearchableItemByDomainIdentifiers([_key]);
@@ -316,7 +317,7 @@ export class Items extends MapModule {
             return;
         }
         this.__items[key] = [];
-        // sdebug('Items', 'initiateType', key, type);
+        console.debug('Items', 'initiateType', key, type);
         this.itemHandler.initializeType(key, type);
 
         this.__clusters[key] = new MapCluster({
@@ -332,6 +333,7 @@ export class Items extends MapModule {
             // color: type.colors.contrast,
             // strokeColor: $.white
         });
+        // this.__clusters[key].visible = type.visible;
         this.__currentIds[key] = {
             routes: [],
             markers: []
@@ -340,7 +342,7 @@ export class Items extends MapModule {
             this.mapArgs.calloutTemplates[key] = ak.ti.style(type.calloutTemplate);
         }
         // Ti.App.Properties.removeProperty(type.propertyKey);
-        // sdebug('initiateType', key, type);
+        // console.debug('initiateType', key, type);
     }
 
     saveLists() {
@@ -406,7 +408,7 @@ export class Items extends MapModule {
         this.__routes = null;
     }
     addItems(_items: Item[], _fireEvent?: boolean, _save?: boolean) {
-        // sdebug('addItems', _items);
+        // console.debug('addItems', _items);
         if (!_items || _items.length === 0) {
             return;
         }
@@ -415,7 +417,7 @@ export class Items extends MapModule {
         var added = false;
         for (const _type in grouped) {
             var type = this.__types[_type];
-            // sdebug('type', _type, type);
+            // console.debug('type', _type, type);
             if (!type) {
                 this.createList(Object.assign({
                     id: _type
@@ -423,7 +425,7 @@ export class Items extends MapModule {
                 type = this.__types[_type];
             }
             if (type) {
-                // sdebug('addItems', type, theItems);
+                // console.debug('addItems', type, theItems);
                 var cluster = this.__clusters[_type],
                     toAdd = [],
                     addedMarkers = [],
@@ -452,7 +454,7 @@ export class Items extends MapModule {
                                 if (_type !== key) {
                                     existing = _.includes(this.__currentIds[key][idKey], item.id);
                                     if (existing) {
-                                        sdebug('found existing in list',
+                                        console.debug('found existing in list',
                                             key);
                                         return false;
                                     }
@@ -487,7 +489,7 @@ export class Items extends MapModule {
                     Ti.App.Properties.setObject('photos', this.photosDb);
                 }
                 if (annots.length > 0) {
-                    // sdebug('about to add annotations', annots);
+                    // console.debug('about to add annotations', annots);
                     const added = this.getCluster(_type).addAnnotation(annots);
                     var addedLength = added.length;
                     if (addedLength !== annots.length) {
@@ -505,7 +507,7 @@ export class Items extends MapModule {
                         'id'));
                 }
                 if (routes.length > 0) {
-                    // sdebug('about to add routes', routes);
+                    // console.debug('about to add routes', routes);
                     this.__routes[_type] = (this.__routes[_type] || [])
                         .concat(this.mapView
                             .addRoute(routes));
@@ -530,7 +532,7 @@ export class Items extends MapModule {
         return added;
     }
     removeItems(_items: Item[], _realDelete?: boolean) {
-        sdebug('removeItems', _.pick(_items, 'id', 'type'));
+        console.debug('removeItems', _.pick(_items, 'id', 'type'));
         var grouped = _.groupBy(_items, 'type');
         var removed = false;
         for (const _type in grouped) {
@@ -546,7 +548,7 @@ export class Items extends MapModule {
                 grouped[_type].forEach((_item) => {
                     isRoute = this.isItemARoute(_item);
                     idKey = isRoute ? __ROUTES__ : __MARKERS__;
-                    sdebug('removeItem', _item.id, _type, idKey, currentTypeIds[
+                    console.debug('removeItem', _item.id, _type, idKey, currentTypeIds[
                         idKey]);
                     index = currentTypeIds[idKey].indexOf(_item.id);
                     if (index >= 0) {
@@ -570,7 +572,7 @@ export class Items extends MapModule {
                                     if (photoDb && photoDb.length === 0) {
                                         removedPhoto = true;
                                         delete this.photosDb[photo.image];
-                                        sdebug('removing photo', photo);
+                                        console.debug('removing photo', photo);
                                         Ti.Filesystem.getFile(app.getImagePath(
                                             photo.image))
                                             .deleteFile();
@@ -596,7 +598,7 @@ export class Items extends MapModule {
                                     if (fileDb && fileDb.length === 0) {
                                         removedFile = true;
                                         delete this.filesDb[file.filePath];
-                                        sdebug('removing file', file);
+                                        console.debug('removing file', file);
                                         Ti.Filesystem.getFile(app.getFilePath(
                                             file.filePath))
                                             .deleteFile();
@@ -645,7 +647,7 @@ export class Items extends MapModule {
             type = this.__types[key];
             items = [];
             this.__items[key].forEach((item) => {
-                if (this.geolib.isPointInCircle(item, _center, _radius)) {
+                if (geolib.isPointInCircle(item, _center, _radius)) {
                     items.push(item);
                 }
             });
@@ -663,7 +665,7 @@ export class Items extends MapModule {
         if (_type) {
             searchingIn = _.pick(this.__types, _type);
         }
-        // sdebug('getItem', _item, searchingIn);
+        // console.debug('getItem', _item, searchingIn);
         let type;
         for (const key in searchingIn) {
             type = searchingIn[key];
@@ -677,7 +679,7 @@ export class Items extends MapModule {
             if (params.id) {
                 params.id = params.id + '';
             }
-            // sdebug('currentTypeIds', key, params);
+            // console.debug('currentTypeIds', key, params);
             const index = _.findIndex(this.__items[key], params);
             if (index >= 0) {
                 item = this.__items[key][index];
@@ -755,14 +757,25 @@ export class Items extends MapModule {
             }
         }
     }
+    getItemById(_type: string, _id: string) {
+        if (this.__types[_type]) {
+            var index = this.__currentIds[_type][__ROUTES__].indexOf(_id);
+            if (index >= 0) {
+                return this.__items[_type][index];
+            }
+        }
+    }
+    getType(_type: string) {
+        return this.__types[_type];
+    }
     getMapItem(_type: string, _item: Item) {
-        sdebug('getMapItem', _type, _item.id);
+        console.debug('getMapItem', _type, _item.id);
         if (this.__types[_type]) {
             var isRoute = this.isItemARoute(_item);
-            // sdebug('getMapItem', _type, _item.id);
+            // console.debug('getMapItem', _type, _item.id);
             var idKey = isRoute ? __ROUTES__ : __MARKERS__;
             var index = this.__currentIds[_type][idKey].indexOf(_item.id);
-            // sdebug('getMapItem', isRoute, idKey, index);
+            // console.debug('getMapItem', isRoute, idKey, index);
             if (index >= 0) {
                 return isRoute ? this.__routes[_type][index] : this.getCluster(_type)
                     .getAnnotation(
@@ -771,7 +784,7 @@ export class Items extends MapModule {
         }
     }
     getMarkersForRegion = (_type: ItemType, region: MapRegion, _window: AppWindow, _mapHandler: MapWindow, _callback: Function) => {
-        sdebug('getMarkersForRegion', _type, region);
+        console.debug('getMarkersForRegion', _type, region);
         var calls = [];
 
         var request;
@@ -846,7 +859,7 @@ export class Items extends MapModule {
     }) {
         var key = _params.id;
         var win = _params.window || this.window;
-        sdebug('onModuleAction', key, _params.command, win.title);
+        console.debug('onModuleAction', key, _params.command, win.title);
         if (this.__types[key] !== undefined || _params.command === 'create') {
             var type = this.__types[key];
             if (_params.command) {
@@ -879,7 +892,7 @@ export class Items extends MapModule {
                                 id: key
                             }, this.listDefaults[key]), true);
                             type = this.__types[key];
-                            sdebug(_params.command, _params.item);
+                            console.debug(_params.command, _params.item);
                             if (_params.item) {
                                 var isRoute = this.isItemARoute(_params.item);
                                 let func = isRoute ? this.itemHandler.createRouteItem : this.itemHandler.createAnnotItem;
@@ -975,7 +988,7 @@ export class Items extends MapModule {
                 if (e.cancel === false) {
                     var key = e.item.id;
                     var type = this.__types[key];
-                    // sdebug(e, key, type);
+                    // console.debug(e, key, type);
                     if (type) {
                         var request = this.getMarkersForRegion(type, _params.region || this
                             .mapView.region,
@@ -1004,7 +1017,7 @@ export class Items extends MapModule {
                 }
             });
         } else if (key === 'prepare_hiking') {
-            sdebug('prepare_hiking');
+            console.debug('prepare_hiking');
             var addedItems = [];
             win.showLoading({
                 label: {
@@ -1019,7 +1032,7 @@ export class Items extends MapModule {
             var index = 0;
             var onDone = function () {
                 app.off(_EVENT_ITEMS_ADDED_, onItems);
-                // sdebug(addedItems);
+                // console.debug(addedItems);
                 win.hideLoading();
                 if (_params.callback) {
                     _params.callback(addedItems);
@@ -1080,7 +1093,7 @@ export class Items extends MapModule {
         // memo.elprofileHTML = app.templates.row.elevationProfileHTML;
         // memo.elprofileHTML.childTemplates[1].events = {
         //     load:function(e) {
-        //         // sdebug('load', e);
+        //         // console.debug('load', e);
         //         e.source.evalJS('plotChart(' + JSON.stringify(e.source.chartdata) + ')');
         //     }
         // };
@@ -1122,7 +1135,7 @@ export class Items extends MapModule {
     //         xAxis: {
     //             labels: {
     //                 formatter: function () {
-    //                     sdebug('formatter', this.value);
+    //                     console.debug('formatter', this.value);
     //                     return formatter.distance(this.value);
     //                 }
     //             },
@@ -1176,7 +1189,7 @@ export class Items extends MapModule {
             var profile = _item.profile;
             var color = _item.color || _desc.color;
             // var useHTML = profile && profile.version === 2;
-            sdebug('profile', profile);
+            // console.debug('profile', profile);
             var result = {
                 template: 'elprofile',
                 // template: useHTML ? 'elprofileHTML' : 'elprofile',
@@ -1202,8 +1215,8 @@ export class Items extends MapModule {
                 // }
                 var heigthLength = profile.max[1] - profile.min[1];
                 var delta = heigthLength / 2;
-                // sdebug('heigthLength', heigthLength);
-                // sdebug('delta', delta);
+                // console.debug('heigthLength', heigthLength);
+                // console.debug('delta', delta);
                 Object.assign(result, {
                     chartset: {
                         highlightColor: color,
@@ -1270,13 +1283,14 @@ export class Items extends MapModule {
         };
         var type = 'dropped';
         var item = this.itemHandler.createAnnotItem(this.__types[type], loc);
-        sdebug('onMapLongPress', 'create annot', item);
+        console.debug('onMapLongPress', 'create annot', item);
         this.addItems([item]);
         this.runActionOnItem(type, item, 'select');
         return true;
     }
     setVisible(_type: string, _visible: boolean) {
         var type = this.__types[_type];
+        console.debug('setVisible', _type, _visible);
         if (type) {
             type.visible = _visible;
             this.__routes[_type].forEach( function (route) {
@@ -1330,7 +1344,7 @@ export class Items extends MapModule {
         }, []);
 
         this.__movingItems = _.map(itemsToMove, 'id');
-        sdebug('__movingItems', this.__movingItems);
+        console.debug('__movingItems', this.__movingItems);
         this.removeItems(itemsToMove, false);
         this.addItems(newItems, false);
 
@@ -1364,7 +1378,7 @@ export class Items extends MapModule {
             var index = _.findIndex(this.__items[typeId], {
                 id: item.id
             });
-            sdebug('item changed', item.id, index, typeId);
+            console.debug('item changed', item.id, index, typeId);
             if (index >= 0) {
                 this.__items[typeId][index] = item;
                 Ti.App.Properties.setObject(type.propertyKey, this.__items[typeId]);
@@ -1392,7 +1406,7 @@ export class Items extends MapModule {
                         if (!photoDb || photoDb.length === 0) {
                             needsPhotoDbChange = true;
                             delete this.photosDb[photoId];
-                            sdebug('removing photo', photoId);
+                            console.debug('removing photo', photoId);
                             Ti.Filesystem.getFile(app.getImagePath(photoId))
                                 .deleteFile();
                         }
@@ -1419,7 +1433,7 @@ export class Items extends MapModule {
                         if (!fileDb || fileDb.length === 0) {
                             needsFileDbChange = true;
                             delete this.filesDb[fileId];
-                            sdebug('removing file', fileId);
+                            console.debug('removing file', fileId);
                             Ti.Filesystem.getFile(app.getFilePath(fileId))
                                 .deleteFile();
                         }
@@ -1454,7 +1468,7 @@ export class Items extends MapModule {
             defaultTitle: trc('list_item'),
             color: _.some(app.icons)
         });
-        sdebug('createList', _defaults, newList);
+        console.debug('createList', _defaults, newList);
         this.lists[key] = newList;
         this.saveLists();
         this.initiateType(newList, key);
@@ -1516,7 +1530,7 @@ export class Items extends MapModule {
         if (_state === false) {
             var type = this.__types[_moduleId];
             if (type) {
-                sdebug('onModuleUnLoaded', types);
+                console.debug('onModuleUnLoaded', types);
                 if (this.__clusters[_moduleId]) {
                     this.getCluster(_moduleId)
                         .removeAllAnnotations();
@@ -1535,7 +1549,7 @@ export class Items extends MapModule {
         } else {
             var types: { [k: string]: ItemType } = {};
             _module.getItemTypes && _module.getItemTypes(types);
-            sdebug('onModuleLoaded', types);
+            console.debug('onModuleLoaded', types);
             let value;
             for (const key in types) {
                 value = types[key];
@@ -1551,7 +1565,7 @@ export class Items extends MapModule {
         }
     }
     removeList(_list) {
-        sdebug('removeList', _list);
+        console.debug('removeList', _list);
         var key = _list.id;
         var list = this.lists[key];
         if (list) {
@@ -1571,7 +1585,7 @@ export class Items extends MapModule {
         app.showTutorials(['map_drop_pin']);
     }
     actionsForItem(_item, _desc, _onMap, result) {
-        // sdebug('items actionsForItem', _item.id, result);
+        // console.debug('items actionsForItem', _item.id, result);
         if (_item) {
             var isRoute = this.isItemARoute(_item);
             var toAdd = [];
@@ -1605,9 +1619,9 @@ export class Items extends MapModule {
                 toAdd.push('locate');
             }
             toAdd.push('more');
-            // sdebug('items toAdd', toAdd);
+            // console.debug('items toAdd', toAdd);
             Array.prototype.unshift.apply(result, toAdd);
-            // sdebug('items result', result);
+            // console.debug('items result', result);
         }
     }
     moreActionsForItem(_item, _desc, _onMap, result) {
@@ -1621,7 +1635,7 @@ export class Items extends MapModule {
     runActionOnItem(_type, _item, _action) {
         var isRoute = this.isItemARoute(_item);
         var mapItem = this.getMapItem(_type, _item);
-        sdebug('runActionOnItem', _type, _item.id);
+        console.debug('runActionOnItem', _type, _item.id);
         if (mapItem) {
             switch (_action) {
                 case 'select':
@@ -1632,10 +1646,10 @@ export class Items extends MapModule {
                     // } else {
                     setTimeout(() => {
                         if (isRoute) {
-                            sdebug('runActionOnItem', 'moveToRoute');
+                            console.debug('runActionOnItem', 'moveToRoute');
                             this.parent.setRegion(mapItem.region, 0.3, true);
                         } else {
-                            sdebug('runActionOnItem', 'moveToAnnotation');
+                            console.debug('runActionOnItem', 'moveToAnnotation');
                             this.parent.updateCamera({
                                 centerCoordinate: _.pick(_item, 'latitude',
                                     'longitude')
@@ -1676,8 +1690,7 @@ export class Items extends MapModule {
                         },
                         subtitle: {
                             text: moment(file.timestamp)
-                                .fromNow() + ' - ' + app.utils
-                                    .filesize(file.fileSize, {
+                                .fromNow() + ' - ' + filesize(file.fileSize, {
                                         round: 0
                                     })
                             // text:moment(file.timestamp).fromNow()

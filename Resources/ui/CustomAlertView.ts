@@ -49,7 +49,7 @@ export function create(_args?: WindowParams) {
     if (customView) {
         children.push(customView);
     }
-    sdebug(message);
+    console.debug(message);
     children = children.concat([{
         type: 'Ti.UI.Label',
         bindId: 'message',
@@ -148,7 +148,7 @@ export function create(_args?: WindowParams) {
     self.container.touchPassThrough = false;
 
     function onClick(e) {
-        sdebug(index, theCancel, e.source === backView);
+        console.debug(index, theCancel, e.source === backView);
         var isBack = e.source === self.container;
         if (isBack && !tapOutDismiss) {
             return;
@@ -172,7 +172,7 @@ export function create(_args?: WindowParams) {
     app.onDebounce(self.container, 'click', onClick);
 
     self.showMe = function (_force) {
-        sdebug('showMe');
+        console.debug('showMe');
         self.container.alertView.opacity = 0;
         self.container.alertView.animate({
             from: {

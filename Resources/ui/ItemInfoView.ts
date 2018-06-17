@@ -94,11 +94,11 @@ export function create(_args: WindowParams) {
             ],
             events: {
                 swipe: function (e) {
-                    // sdebug(e);
+                    // console.debug(e);
                     // if (__ANDROID__) {
                     //     cancelClick = true;
                     // }
-                    // sdebug('swipe', e.direction);
+                    // console.debug('swipe', e.direction);
                     switch (e.direction) {
                         case 'down':
                             self.setActionBarVisible(false);
@@ -114,13 +114,13 @@ export function create(_args: WindowParams) {
                     }
                 },
                 click: function (e) {
-                    // sdebug('click marker info');
+                    // console.debug('click marker info');
                     if (cancelClick) {
                         cancelClick = false;
                         return;
                     }
                     var callbackId = e.bindId || e.source.callbackId;
-                    // sdebug('click', callbackId);
+                    // console.debug('click', callbackId);
                     if (callbackId === 'grabber' || callbackId === 'grabberView') {
                         if (currentSupplViews) {
                             self.setSuppViewsVisible(!suppViewsVisible);
@@ -225,7 +225,7 @@ export function create(_args: WindowParams) {
         var supplViews = mapHandler.runGetMethodOnModules('getItemSupplViews', _item, _desc, {
             small: true
         });
-        // sdebug('supplViews', supplViews);
+        // console.debug('supplViews', supplViews);
         if (supplViews.length > 0) {
             for (var i = 0; i < supplViews.length; i++) {
                 var value = supplViews[i];
@@ -234,7 +234,7 @@ export function create(_args: WindowParams) {
                         value);
                 }
             }
-            // sdebug('supplViews2', supplViews);
+            // console.debug('supplViews2', supplViews);
             var newView = new View({
                 properties: {
                     layout: 'vertical',
@@ -267,7 +267,7 @@ export function create(_args: WindowParams) {
         }
         var itemDesc = selectedItem.desc;
         var item = selectedItem.item;
-        // sdebug('update', item);
+        // console.debug('update', item);
         var args = itemHandler.infoRowItemForItem(item, itemDesc, {
             altitude: {
                 visible: false
@@ -308,12 +308,12 @@ export function create(_args: WindowParams) {
             var data = app.modules.map.fromPointToPath(point, selectedItem.item.profile
                 .points);
             var maxDist = itemHandler.geolib.getMapScale(e.mpp, 100).width;
-            // sdebug('point', point.latitude + ',' + point.longitude);
-            // sdebug('maxDist', maxDist);
-            // sdebug('data', data);
-            // sdebug('dataPoint', data.latitude + ',' + data.longitude);
+            // console.debug('point', point.latitude + ',' + point.longitude);
+            // console.debug('maxDist', maxDist);
+            // console.debug('data', data);
+            // console.debug('dataPoint', data.latitude + ',' + data.longitude);
             if (data && data.distance <= maxDist) {
-                // sdebug('clicked on route with profile', data);
+                // console.debug('clicked on route with profile', data);
                 // cancelClick = true; //we dont want the click to be fired and the map to move
                 // currentSupplViews.line.select(data.index);
                 currentSupplViews.chart.highlightValue({
@@ -335,7 +335,7 @@ export function create(_args: WindowParams) {
         }
         if (selectedItem) {
             var params = itemHandler.updateParamsForLocation(selectedItem.item, _location);
-            // sdebug('MarkerInfo', 'onLocation', _location);
+            // console.debug('MarkerInfo', 'onLocation', _location);
             if (actionBar) {
                 actionBar.updateForItem(selectedItem.item, selectedItem.desc, true);
             }
@@ -346,11 +346,11 @@ export function create(_args: WindowParams) {
                         .profile
                         .points);
                     if (data && data.distance <= 20) {
-                        sdebug('location close to profile', data);
+                        console.debug('location close to profile', data);
                         if (currentSupplViews.chart) {
                             var lineData = currentSupplViews.chart.getDataForIndex(0, data.index);
                             if (lineData) {
-                                sdebug('lineData', lineData);
+                                console.debug('lineData', lineData);
                                 currentSupplViews.applyProperties({
                                     userLocation: {
                                         visible: true,
@@ -382,11 +382,11 @@ export function create(_args: WindowParams) {
         actionBar.updateForItem(selectedItem.item, selectedItem.desc, visible);
         self.update();
         self.showMe();
-        // sdebug(TAG, 'setSelectedItem', _item, visible);
+        // console.debug(TAG, 'setSelectedItem', _item, visible);
     };
 
     self.hideMe = function () {
-        // sdebug(TAG, 'hideMe', visible);
+        // console.debug(TAG, 'hideMe', visible);
         if (visible) {
             visible = false;
             self.animate({
@@ -402,7 +402,7 @@ export function create(_args: WindowParams) {
 
     self.showMe = function () {
         // update();
-        // sdebug(TAG, 'showMe', visible);
+        // console.debug(TAG, 'showMe', visible);
         if (!visible) {
             visible = true;
             self.visible = true;

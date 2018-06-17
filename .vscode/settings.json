@@ -5,5 +5,6 @@
 		"build": true
 	}
 ,
-"vsicons.presets.angular": true
+"vsicons.presets.angular": true,
+"typescript.tsdk": "node_modules/typescript/lib"
 }

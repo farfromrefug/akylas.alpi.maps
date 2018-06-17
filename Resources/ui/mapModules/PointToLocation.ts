@@ -1,12 +1,13 @@
 // import MapModule from './MapModule'
-const MapModule = require('./MapModule').MapModule;
+import { MapModule } from './MapModule';
+import * as convert from '../../lib/convert';
+
 exports.settings = {
     name: trc('point_to_location'),
     description: 'ptl_desc'
 };
 exports.create = function(_context, _args, _additional) {
-    var settings = _args.settings,
-        convert = app.utils.convert,
+    let settings = _args.settings,
         utfGrid = app.modules.map.createUTFGrid({
             id: 'map1.utfGrid',
             url: 'http://beta.map1.eu/tiles/{z}/{x}/{y}.js.gz',
@@ -17,9 +18,9 @@ exports.create = function(_context, _args, _additional) {
         if (!_data) {
             return;
         }
-        var features = [], feature;
-        var data;
-        for (i in _data) {
+        let features = [], feature;
+        let data;
+        for (let i in _data) {
             data = _data[i];
             if (data.hasOwnProperty('landuse')) {
                 continue;
@@ -27,7 +28,7 @@ exports.create = function(_context, _args, _additional) {
             feature = {
                 tags: {}
             }
-            for (prop in data) {
+            for (let prop in data) {
                 if (data.hasOwnProperty(prop)) {
                     if (prop == 'wikipedia') {
                         feature['wikipedia'] = data[prop].replace(':',
@@ -52,7 +53,7 @@ exports.create = function(_context, _args, _additional) {
             features: features
         };
     }
-    self = new MapModule(_args);
+    let self = new MapModule(_args);
 
     Object.assign(self, {
         GC: app.composeFunc(self.GC, function() {

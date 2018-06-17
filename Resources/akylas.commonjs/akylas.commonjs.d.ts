@@ -16,7 +16,7 @@ declare function akPath(name: string, dir: string): string;
 declare function akRequire(moduleId: string): any;
 declare function akInclude(moduleId: string);
 declare function debounce(func: (...args: any[]) => any, wait: number, immediate?: boolean): (...args: any[]) => any;
-declare function sdebug(...strings: any[]);
+declare function console.debug(...strings: any[]);
 declare function sinfo(...strings: any[]);
 declare function serror(...strings: any[]);
 declare function stringify(value: any, space?: string | number);

@@ -1,4 +1,9 @@
 import { EventEmitter } from 'events';
+import * as convert from './convert';
+import geolib, {Geolib} from './geolib';
+import SimpleOpeningHours from './simpleopeninghours';
+import { HTTPPromise } from './api';
+
 declare global {
     interface ItemChanges {
         title?: string;
@@ -28,8 +33,9 @@ export interface ImageResult {
     thumbnailImageName?: string;
 }
 
-export class ItemHandler extends EventEmitter {
-    convert = app.utils.convert;
+ class ItemHdlr extends EventEmitter {
+    // convert = app.utils.convert;
+    geolib = geolib;
     // openingHours = app.utils.openingHours,
     localImageCache = {};
     showMessage = app.showMessage;
@@ -250,7 +256,6 @@ export class ItemHandler extends EventEmitter {
         })
     };
 
-    geolib = app.utils.geolib;
     private _moveOnFirstChange: boolean = Ti.App.Properties.getBool('items.firstchangemove', false);
     get moveOnFirstChange(): boolean {
         return this._moveOnFirstChange;
@@ -281,7 +286,7 @@ export class ItemHandler extends EventEmitter {
     getImagePath = app.getImagePath;
     getThumbnailImagePath = app.getThumbnailImagePath;
     getAnnotImage = (_markerType: ItemType, _item?: Item, _selected?: boolean) => {
-        // sdebug('getAnnotImage', _markerType, _item, _selected);
+        // console.debug('getAnnotImage', _markerType, _item, _selected);
         var selected = !!_selected;
 
         var colors = _markerType.colors;
@@ -314,7 +319,7 @@ export class ItemHandler extends EventEmitter {
 
         this.localImageCache[imageId] = this.getImagePath(imageId);
         var file = Ti.Filesystem.getFile(this.localImageCache[imageId]);
-        // sdebug('getAnnotImage', imageId, this.localImageCache[imageId], file.exists(), app.needsUpdate('annot_images'));
+        // console.debug('getAnnotImage', imageId, this.localImageCache[imageId], file.exists(), app.needsUpdate('annot_images'));
 
         if (!app.needsUpdate('annot_images') && file.exists()) {
             return imageId;
@@ -366,7 +371,7 @@ export class ItemHandler extends EventEmitter {
             params.text = icon;
         }
         // view.applyProperties(params, true);
-        // sdebug('creating annot image', imageId, params, iconSettings);
+        // console.debug('creating annot image', imageId, params, iconSettings);
         image = view.toImage(null, {
             properties: params
         });
@@ -384,13 +389,14 @@ export class ItemHandler extends EventEmitter {
         if (_type.getPrefKey) {
             return _type; //already done
         }
-        // sdebug('initializeType', _id, _type);
+        // console.debug('initializeType', _id, _type);
         _type.propertyKey = _id + '_items';
         _type.getPrefKey = function(_suffix) {
+            console.debug('getPrefKey', this.id + '_' + _suffix );
             return this.id + '_' + _suffix;
         };
-        _type.visible = Ti.App.Properties.getBool(_type.getPrefKey('visible'), true);
         _type.id = _id;
+        _type.visible = Ti.App.Properties.getBool(_type.getPrefKey('visible'), true);
         _type.rclass = 'MapAnnot' + _.capitalize(_id);
         _type.colors = app.getContrastColors(_type.color);
         _type.image = this.getAnnotImage(_type);
@@ -401,7 +407,7 @@ export class ItemHandler extends EventEmitter {
         });
         return _type;
     };
-    getFormattedDistance = (...args) => this.geolib.getFormattedDistance.apply(this.geolib, args);
+    getFormattedDistance = (...args) => geolib.getFormattedDistance.apply(geolib, args);
     // getImagePath: app.getImagePath,
     customViewForAnnot = (_item: Item, _needsLoading?: boolean) => {
         if (!_item.photos) {
@@ -412,7 +418,7 @@ export class ItemHandler extends EventEmitter {
         var ratio = photo.width / photo.height;
         // var scale = Math.min(400 / photo.width, 300 / photo.height);
         var banner = ratio > 2;
-        sdebug('customViewForAnnot', photo, _needsLoading);
+        console.debug('customViewForAnnot', photo, _needsLoading);
         return {
             template: 'calloutPhoto',
             title: {
@@ -435,7 +441,7 @@ export class ItemHandler extends EventEmitter {
         };
     };
     annotationParamsFromItem = (_item: Item, _markerType: ItemType) => {
-        // sdebug('annotationParamsFromItem', _item, _markerType);
+        // console.debug('annotationParamsFromItem', _item, _markerType);
         var annot: TiPropertiesT<MapAnnotation> = {
             item: _item,
             type: _markerType,
@@ -496,13 +502,15 @@ export class ItemHandler extends EventEmitter {
             }
         }
         var route = {
-            item: _item,
-            type: _routeType,
+            itemId:_item.id,
+            typeId:_routeType.id,
+            // item: _item,
+            // type: _routeType,
             visible: _routeType.visible,
             points: points,
             title: _item.title,
             color: Color(_item.color || _routeType.routeColor || _routeType.color)
-                .setAlpha(0.5)
+                // .setAlpha(0.5)
                 .toHex8String(),
             selectedColor: _routeType.routeSelectedColor,
             rclass: _routeType.rclass,
@@ -523,7 +531,7 @@ export class ItemHandler extends EventEmitter {
         }
         return result;
     }
-    simplifyToNB = (points, nb: number, tolerance: number) => {
+    simplifyToNB = (points, nb: number, tolerance?: number) => {
         if (points.length <= nb) {
             return points;
         }
@@ -549,7 +557,7 @@ export class ItemHandler extends EventEmitter {
         //     duration).format('h[h]m[m]');
     }
     computeProfileEstimatedTime(_args) {
-        // sdebug('computeProfileEstimatedTime', _args);
+        // console.debug('computeProfileEstimatedTime', _args);
         var meters = _args.distance,
             fudge = (_args.fudge || 0.1) * meters,
             totalMeters = meters + fudge,
@@ -566,20 +574,20 @@ export class ItemHandler extends EventEmitter {
             shortBreaksTotal = Math.floor(movingTime - Math.floor(movingTime / 4.5)) * 5, //min
             longBreaksTotal = Math.floor(movingTime / 4.5) * 30, //min
             totalTime = Math.round((movingTime * 60 + shortBreaksTotal + longBreaksTotal) * 10) / 10 * 60 * 1000;
-        // sdebug('totalElevation', totalElevation);
-        // sdebug('totalMeters', totalMeters);
-        // sdebug('totalLoss', totalLoss);
-        // sdebug('totalGain', totalGain);
-        // sdebug('movingRate', movingRate);
-        // sdebug('movingTime', movingTime);
-        // sdebug('totalTime', totalTime);
+        // console.debug('totalElevation', totalElevation);
+        // console.debug('totalMeters', totalMeters);
+        // console.debug('totalLoss', totalLoss);
+        // console.debug('totalGain', totalGain);
+        // console.debug('movingRate', movingRate);
+        // console.debug('movingTime', movingTime);
+        // console.debug('totalTime', totalTime);
         return totalTime;
     }
     itemDetails = (_item: Item, _desc: ItemType) => {
-        return this.convert.osmTagsFastDetails(_item).join(', ');
+        return convert.osmTagsFastDetails(_item).join(', ');
     };
     itemIcons = (_item: Item, _color: string) => {
-        return this.convert.osmTagsIconsHTML(_item, _color);
+        return convert.osmTagsIconsHTML(_item, _color);
     };
     itemSubtitle = (_item: Item, _desc: ItemType) => {
         var subtitle;
@@ -595,7 +603,7 @@ export class ItemHandler extends EventEmitter {
                 var isRoute = this.isItemARoute(_item);
                 if (isRoute) {
                     var route = (_item as Route).route;
-                    subtitle = this.htmlIcon($.sDist, 0, $.black) + this.geolib.formatter.distance(route.distance);
+                    subtitle = this.htmlIcon($.sDist, 0, $.black) + geolib.formatter.distance(route.distance);
                     // if (route.duration > 0) {
                     // console.log('duraation', route.duration);
                     // subtitle += ' ' + htmlIcon(String.fromCharCode(0xe08e), 0, $.black) + moment
@@ -605,14 +613,14 @@ export class ItemHandler extends EventEmitter {
                     var profile = (_item as Route).profile || _item.tags;
                     if (profile) {
                         if (profile.dplus) {
-                            subtitle += ' ' + this.htmlIcon($.sDplus, 0, $.black) + this.geolib.formatter.altitude(profile.dplus);
+                            subtitle += ' ' + this.htmlIcon($.sDplus, 0, $.black) + geolib.formatter.altitude(profile.dplus);
                         }
                         if (profile.dmin) {
-                            subtitle += ' ' + this.htmlIcon($.sDmin, 0, $.black) + this.geolib.formatter.altitude(Math.abs(profile.dmin));
+                            subtitle += ' ' + this.htmlIcon($.sDmin, 0, $.black) + geolib.formatter.altitude(Math.abs(profile.dmin));
                         }
                     }
                 } else {
-                    subtitle = this.geolib.formatter.latLngString(_item, 2);
+                    subtitle = geolib.formatter.latLngString(_item, 2);
                 }
             }
         }
@@ -621,7 +629,7 @@ export class ItemHandler extends EventEmitter {
     };
     getAddressSearchTermOSM(_item: Item) {
         var address = _item.address.address || _item.address;
-        sdebug('getAddressSearchTermOSM', address);
+        console.debug('getAddressSearchTermOSM', address);
         if (_item.osm && address[_item.osm.subtype]) {
             return address[_item.osm.subtype];
         }
@@ -656,7 +664,7 @@ export class ItemHandler extends EventEmitter {
         );
     }
     itemSearchTerm = (_item: Item) => {
-        sdebug('itemSearchTerm', _item);
+        console.debug('itemSearchTerm', _item);
         if (_item.tags && _item.tags.name) {
             return _item.tags.name;
         } else if (!!_item.customTitle && _item.title) {
@@ -665,25 +673,24 @@ export class ItemHandler extends EventEmitter {
         if (_item.address) {
             return this.getAddressSearchTermOSM(_item);
         } else {
-            return this.geolib.formatter.latLngString(_item, 0, ',');
+            return geolib.formatter.latLngString(_item, 0, ',');
         }
     };
     setMapRegion = (_mapView: MapView, _region: Region, _deltaFactor: number, _animated?: boolean, _deltaScreen?: { top?; bottom?; left?; right? }) => {
-        sdebug('setMapRegion', _region, _deltaFactor, _animated, _deltaScreen);
+        console.debug('setMapRegion', _region, _deltaFactor, _animated, _deltaScreen);
         this.updateCamera(
             _mapView,
             {
-                region: this.geolib.scaleBounds(_region, _deltaFactor),
+                region: geolib.scaleBounds(_region, _deltaFactor),
                 animated: _animated
             },
             _deltaScreen
         );
     };
     updateCamera = (_mapView: MapView, _params: MapUpdateCamParams, _deltaScreen?: { top?; bottom?; left?; right? }, _zoom?: number) => {
-        var geolib = this.geolib,
-            zoom,
+        var zoom,
             deltaSpan;
-        sdebug('updateCamera', _params, _deltaScreen);
+        console.debug('updateCamera', _params, _deltaScreen);
         if (_params.region) {
             var region = _params.region;
             var center = geolib.getCenter([region.sw, region.ne]);
@@ -699,11 +706,11 @@ export class ItemHandler extends EventEmitter {
             //         center, zoom);
             //     region.ne.latitude += deltaSpan;
             // }
-            // sdebug('updateCamera2', region);
+            // console.debug('updateCamera2', region);
             // }
         } else if (_params.centerCoordinate) {
             zoom = _params.zoom || _zoom;
-            var location = this.geolib.coords(_params.centerCoordinate);
+            var location = geolib.coords(_params.centerCoordinate);
             // if (_deltaScreen.bottom) {
             //     deltaSpan = geolib.getSpanFromPixels(_deltaScreen.bottom / 2, location, zoom);
             //     // location.latitude -= deltaSpan;
@@ -784,7 +791,7 @@ export class ItemHandler extends EventEmitter {
             delete item.newNotes;
         }
         if (_changes.deletedNotes) {
-            item.notes = item.notes.filter(n=>_changes.deletedNotes.indexOf(n.title) === -1)
+            item.notes = item.notes.filter(n => _changes.deletedNotes.indexOf(n.title) === -1);
             // _changes.deletedNotes.forEach(function(noteId) {
             //     item.notes = _.reject(item.notes, { id: noteId });
             // });
@@ -817,7 +824,7 @@ export class ItemHandler extends EventEmitter {
         }
 
         if (this.moveOnFirstChange && _desc.isList !== true) {
-            sdebug('about to move item', item);
+            console.debug('about to move item', item);
             _mapHandler.runMethodOnModules('spreadModuleAction', {
                 id: item.type,
                 command: 'move',
@@ -841,11 +848,10 @@ export class ItemHandler extends EventEmitter {
         if (!_item) {
             return args;
         }
-        var geolib = this.geolib;
         args.extraHolder = {
             visible: false
         };
-        // sdebug('updateParamsForLocation', _item, _location);
+        // console.debug('updateParamsForLocation', _item, _location);
         if (_item.hasOwnProperty('altitude') && _item.altitude !== null) {
             args.extraHolder.visible = true;
             args.altitudeIcon = {
@@ -889,27 +895,27 @@ export class ItemHandler extends EventEmitter {
                 },
                 _item.address
             );
-            var oh = app.openingHours(_item.tags.opening_hours, {
+            var oh = new SimpleOpeningHours(_item.tags.opening_hours, {
                 lat: _item.latitude,
                 lon: _item.longitude,
                 address: address
             });
-            var it = oh.getIterator();
-            var state = it.getState();
-            result.opened = state;
+            // var it = oh.getIterator();
+            // var state = it.getState();
+            result.opened = oh.isOpenNow();
             result.oh = oh;
-            it.advance();
-            var endDate = it.getDate();
-            if (endDate) {
-                endDate = moment(endDate);
-                sdebug(endDate.valueOf());
-                sdebug(now.valueOf());
-                var delta = Math.floor((endDate.valueOf() - now.valueOf()) / 1000);
-                sdebug(delta);
-                if (0 < delta && delta < 12 * 3600) {
-                    result.nextTime = endDate;
-                }
-            }
+            // it.advance();
+            // var endDate = it.getDate();
+            // if (endDate) {
+            //     endDate = moment(endDate);
+            //     console.debug(endDate.valueOf());
+            //     console.debug(now.valueOf());
+            //     var delta = Math.floor((endDate.valueOf() - now.valueOf()) / 1000);
+            //     console.debug(delta);
+            //     if (0 < delta && delta < 12 * 3600) {
+            //         result.nextTime = endDate;
+            //     }
+            // }
             return result;
         }
     }
@@ -976,7 +982,7 @@ export class ItemHandler extends EventEmitter {
         return args;
     };
     createAnnotItem(_feature, _data, _id?: string) {
-        // sdebug('createAnnotItem', _data);
+        console.debug('createAnnotItem', _feature, _data, _id);
         // var item = {
         //     type: _feature.id,
         //     id: _id,
@@ -1030,8 +1036,8 @@ export class ItemHandler extends EventEmitter {
         options.push('remove');
 
         _mapHandler.runMethodOnModules('actionsForItem', _item, _desc, _onMap, options);
-        // sdebug('actionsForItem', options);
-        console.error('actionsForItem', options);
+        // console.debug('actionsForItem', options);
+        // console.error('actionsForItem', options);
         options = options.map(key => {
             if (typeof key === 'string' && this.itemActions.hasOwnProperty(key)) {
                 return [key, this.itemActions[key]];
@@ -1040,13 +1046,13 @@ export class ItemHandler extends EventEmitter {
         });
 
         // var result = _.mapValues(options, function(value, key){
-        //     sdebug('test', value, key);
+        //     console.debug('test', value, key);
         //     if (!Array.isArray(value) && itemActions.hasOwnProperty(key)) {
         //         return [key, itemActions[key]];
         //     }
         //     return value;
         // })
-        // sdebug('actionsForItem2', options);
+        // console.debug('actionsForItem2', options);
         // var result = _.pairs(_.pick(itemActions, options));
         return options;
     };
@@ -1086,7 +1092,7 @@ export class ItemHandler extends EventEmitter {
                 html: trc('saving_photo') + '...'
             }
         });
-        sdebug(e);
+        console.debug(e);
         return new Promise((resolve: (res: ImageResult) => void) => {
             const image = e.media;
             const imageWidth = e.width;
@@ -1101,16 +1107,16 @@ export class ItemHandler extends EventEmitter {
                 imageName: imageName
             };
             const MAX_WIDTH = 600;
-            sdebug('writing image', result);
+            console.debug('writing image', result);
             Ti.Filesystem.getFile(this.getImagePath(imageName)).write(image);
             if (imageWidth > MAX_WIDTH || imageHeight > MAX_WIDTH) {
                 const thumbnailImageName = 'photo_' + imageId + '_thumbnail.jpg';
-                sdebug('creating image thumbnail', thumbnailImageName);
+                console.debug('creating image thumbnail', thumbnailImageName);
                 result.thumbnailImageName = thumbnailImageName;
                 Ti.Image.getFilteredImage(image, {
                     scale: MAX_WIDTH / Math.max(imageWidth, imageHeight),
                     callback: (e: TiImageEvent) => {
-                        sdebug('created image thumbnail', e);
+                        console.debug('created image thumbnail', e);
                         Ti.Filesystem.getFile(this.getImagePath(thumbnailImageName)).write(e.image);
                         _parent.hideLoading();
                         resolve(result);
@@ -1163,18 +1169,18 @@ export class ItemHandler extends EventEmitter {
         // });
     };
     handleItemAction = (_option: string, _items: Item | Item[], _desc: ItemType, _callback: Function, _parent: AppWindow, _mapHandler: MapWindow, _params?) => {
-        sdebug('handleItemAction', _option);
+        console.debug('handleItemAction', _option);
         let _item: Item;
         if (!Array.isArray(_items)) {
             _item = _items;
             _items = [_item];
         }
         if (_item) {
-            sdebug('handleItemAction item:', _item.id, _item.title, _item.type);
+            console.debug('handleItemAction item:', _item.id, _item.title, _item.type);
         }
 
         var colors = app.getColors(_item, _desc);
-        var url: string, request;
+        var url: string, request: HTTPPromise<any, any>;
         switch (_option) {
             case 'wikipedia':
                 url = _item.tags.wikipedia;
@@ -1258,7 +1264,7 @@ export class ItemHandler extends EventEmitter {
                     tapOutDismiss: true
                 })
                     .on('click', (e: TiEvent) => {
-                        sdebug(e);
+                        console.debug(e);
                         if (!e.cancel) {
                             return Promise.resolve()
                                 .then(() => {
@@ -1314,7 +1320,7 @@ export class ItemHandler extends EventEmitter {
                 calls.osm = _.partial(app.api.osmDetails, _item);
                 console.log('getDetailsCalls', calls);
 
-                var request = app.api
+                request = app.api
                     .parallelMapRequests(calls)
                     .then(function(res) {
                         console.log('getDetailsCalls returned', res);
@@ -1326,7 +1332,7 @@ export class ItemHandler extends EventEmitter {
                                 if (value.photos) {
                                     value.photos.forEach(function(photo) {
                                         var url = photo.url || photo;
-                                        var existing = _item.photos?_item.photos.findIndex(v => v.url === url):-1;
+                                        var existing = _item.photos ? _item.photos.findIndex(v => v.url === url) : -1;
                                         if (existing === -1) {
                                             hasChanged = true;
                                             console.log('downloading photo', photo);
@@ -1339,7 +1345,7 @@ export class ItemHandler extends EventEmitter {
                                 if (value.notes) {
                                     value.notes.forEach(function(note) {
                                         var id = note.title;
-                                        var existing = _item.notes?_item.notes.findIndex(v => v.url === url):-1;
+                                        var existing = _item.notes ? _item.notes.findIndex(v => v.url === url) : -1;
                                         if (existing === -1) {
                                             hasChanged = true;
                                             value.newNotes = value.newNotes || [];
@@ -1374,13 +1380,13 @@ export class ItemHandler extends EventEmitter {
 
                             res.photos.forEach(function(photo) {
                                 result.newPhotos.push(photo);
-                                sdebug('adding newPhoto', photo);
+                                console.debug('adding newPhoto', photo);
                             });
                         }
                         var customizer = function(value, srcValue, key, object, source) {
                             if (!value && srcValue) {
                                 // hasChanged = true;
-                                // sdebug('needChanges for', key, value, srcValue);
+                                // console.debug('needChanges for', key, value, srcValue);
                                 return srcValue;
                             }
                             return _.merge(value, srcValue, customizer);
@@ -1405,13 +1411,13 @@ export class ItemHandler extends EventEmitter {
                         if (changes && _.size(changes) > 0) {
                             if (!hasChanged) {
                                 var test = _.omit(_item, 'id', 'title', 'type', 'image', 'selectedImage', 'profile', 'timestamp', 'settings', 'photos', 'notes', 'address');
-                                // sdebug('changes', changes);
+                                // console.debug('changes', changes);
                                 // var hashCode1 = convert.hashCode(JSON.stringify(test));
                                 // var hashCode2 = convert.hashCode(JSON.stringify(changes));
                                 hasChanged = !_.isEqual(test, changes);
-                                // sdebug(JSON.stringify(test));
-                                // sdebug(JSON.stringify(changes));
-                                // sdebug('needs change after item changed');
+                                // console.debug(JSON.stringify(test));
+                                // console.debug(JSON.stringify(changes));
+                                // console.debug('needs change after item changed');
                             }
                             if (hasChanged) {
                                 app.showMessage(trc('item_refreshed'), _desc.colors);
@@ -1452,7 +1458,7 @@ export class ItemHandler extends EventEmitter {
                 break;
             }
             case 'share': {
-                var data = this.geolib.formatter.latLngString(_item, 0) + '\n' + ' shared using Alpi Maps';
+                var data = geolib.formatter.latLngString(_item, 0) + '\n' + ' shared using Alpi Maps';
                 app.share({
                     text: data,
                     image: _mapHandler.mapViewSnapshot()
@@ -1461,13 +1467,13 @@ export class ItemHandler extends EventEmitter {
             }
             case 'open_maps': {
                 url = 'http://maps.apple.com/?q=';
-                url += this.geolib.formatter.latLngString(_item, 0, ',');
+                url += geolib.formatter.latLngString(_item, 0, ',');
                 Ti.Platform.openURL(url);
                 break;
             }
             case 'open_google_maps': {
                 url = 'comgooglemaps://?zoom=14&q=';
-                url += this.geolib.formatter.latLngString(_item, 0, ',');
+                url += geolib.formatter.latLngString(_item, 0, ',');
                 Ti.Platform.openURL(url);
                 break;
             }
@@ -1543,9 +1549,9 @@ export class ItemHandler extends EventEmitter {
                 var route = (_item as Route).route;
                 var points = route.points;
                 // var toUsePoints = this.simplify(_item.route.points, factor / 3779);
-                // sdebug(_option, points.length, toUsePoints.length);
+                // console.debug(_option, points);
                 request = app.api
-                    .ignElevationProfile(this, route.points)
+                    .mapquestElevationProfile(points)
                     .then(changes => {
                         this.showMessage(trc('profile_found'), colors);
                         var result = this.updateItem(_item, _desc, changes, _mapHandler);
@@ -1656,7 +1662,7 @@ export class ItemHandler extends EventEmitter {
             }
             case 'take_photo':
                 {
-                    sdebug('take_photo command', app.currentLocation);
+                    console.debug('take_photo command', app.currentLocation);
                     if (app.currentLocation) {
                         var _this = this;
                         var currentPos = _.pick(app.currentLocation, 'latitude', 'longitude', 'altitude');
@@ -1664,7 +1670,7 @@ export class ItemHandler extends EventEmitter {
                         this.takePhoto(_parent).then(r => {
                             var type = 'photo';
                             var existingItem = _mapHandler.runGetSingleMethodOnModules('getItem', currentPos, type);
-                            sdebug('existingItem', existingItem);
+                            console.debug('existingItem', existingItem);
                             if (existingItem) {
                                 app.showMessage(trc('item_updated'), existingItem.desc.colors);
                                 existingItem.item = _this.updateItem(
@@ -1723,4 +1729,8 @@ export class ItemHandler extends EventEmitter {
                 break;
         }
     };
+}
+export {ItemHdlr as ItemHandler};
+declare global {
+    class ItemHandler extends ItemHdlr {}
 }

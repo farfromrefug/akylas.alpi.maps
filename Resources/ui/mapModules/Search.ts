@@ -1,5 +1,5 @@
-// import MapModule from './MapModule'
-const MapModule = require('./MapModule').MapModule;
+import { MapModule } from './MapModule';
+
 exports.create = function (_context, _args, _additional) {
     var settings = _args.settings,
         visible = false,
@@ -813,7 +813,7 @@ exports.create = function (_context, _args, _additional) {
         }
     }
 
-    function clearSearch(_clearField) {
+    function clearSearch(_clearField?) {
         // sdebug('clearSearch', _clearField);
         if (searchWindow) {
             // sdebug('clearSearch', 'clearing searchWindow');

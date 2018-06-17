@@ -36,7 +36,7 @@ export class MarkerInfo extends MapModule {
             this.view
                 .on('action', e => {
                     var callbackId = e.bindId || e.source.callbackId;
-                    // sdebug('action', callbackId);
+                    // console.debug('action', callbackId);
                     if (callbackId === 'type' || callbackId === 'accessory') {
                         this.runAction('details');
                     } else if (callbackId === 'chart') {
@@ -51,7 +51,7 @@ export class MarkerInfo extends MapModule {
                     }
                 })
                 .on('point', e => {
-                    sdebug('on point', e.data, this.ignorePointEvent);
+                    console.debug('on point', e.data, this.ignorePointEvent);
                     if (this.ignorePointEvent) {
                         this.ignorePointEvent = false;
                         return;
@@ -59,9 +59,9 @@ export class MarkerInfo extends MapModule {
                     var pos = this.selectedItem.item.profile.points[e.data.x];
                     if (this.selectedItem.isRoute) {
                         var data = this.selectedItem.mapItem.distanceFromLocation(pos);
-                        sdebug('pos', pos);
-                        sdebug('data', data);
-                        sdebug('dataPoint', data.latitude + ',' + data.longitude);
+                        console.debug('pos', pos);
+                        console.debug('data', data);
+                        console.debug('dataPoint', data.latitude + ',' + data.longitude);
                         this.currentTouchPoint = _.pick(data, 'latitude', 'longitude');
                     }
                 });
@@ -74,7 +74,7 @@ export class MarkerInfo extends MapModule {
 
     unselectItem = () => {
         if (this.selectedItem) {
-            // sdebug('unselectItem');
+            // console.debug('unselectItem');
             this.selectedItem.mapItem.off('changed', this.onSelectedChanged);
             this.selectedItem = null;
             delete this.onRoutePress;
@@ -89,7 +89,7 @@ export class MarkerInfo extends MapModule {
         }
     };
 
-    onMapMarkerSelected = e => {
+    onMapMarkerSelected = (e, item , desc) => {
         var mapItem = e.annotation || e.route;
         var hadItem = !!this.selectedItem;
         var hasItem = !!mapItem;
@@ -98,7 +98,7 @@ export class MarkerInfo extends MapModule {
         }
         this.unselectItem();
         var shouldSelect = hasItem && mapItem.hasInfo !== false;
-        // sdebug('selectItem', hadItem, hasItem);
+        // console.debug('selectItem', hadItem, hasItem);
         if (!hasItem || !shouldSelect) {
             this.view && this.view.hideMe();
             return;
@@ -106,8 +106,8 @@ export class MarkerInfo extends MapModule {
         if (hasItem) {
             this.selectedItem = {
                 mapItem: mapItem,
-                item: mapItem.item,
-                desc: mapItem.type
+                item: item,
+                desc: desc
             };
             this.selectedItem.isRoute = this.itemHandler.isItemARoute(this.selectedItem.item);
             mapItem.on('changed', this.onSelectedChanged);
@@ -198,7 +198,7 @@ export class MarkerInfo extends MapModule {
     };
 
     onSelectedChanged = e => {
-        // sdebug('selectedChange');
+        // console.debug('selectedChange');
         if (this.selectedItem && e.source === this.selectedItem.mapItem) {
             this.selectedItem.item = this.selectedItem.mapItem.item;
             this.selectedItem.desc = this.selectedItem.mapItem.type;
@@ -209,10 +209,10 @@ export class MarkerInfo extends MapModule {
 
     onMoved = e => {
         if (this.selectedItem) {
-            // sdebug('onMoved');
+            // console.debug('onMoved');
             var item = this.selectedItem.item;
             var index = _.findIndex(e.items, 'id', item.id);
-            // sdebug('onMoved', index);
+            // console.debug('onMoved', index);
             if (index >= 0) {
                 this.parent.runMethodOnModules('runActionOnItem', e.desc.id, item, 'select');
             }
@@ -222,13 +222,13 @@ export class MarkerInfo extends MapModule {
     onAnnotationPress = e => {
         this.currentTouchPoint = null;
         if (this.selectedItem && e.annotation === this.selectedItem.mapItem) {
-            // sdebug('show while already selected');
+            // console.debug('show while already selected');
             this.view.onItemTouched(e);
         }
     };
 
     onRoutePress = e => {
-        sdebug('onRoutePress');
+        console.debug('onRoutePress');
         this.currentTouchPoint = null;
         if (this.selectedItem && e.route === this.selectedItem.mapItem) {
             this.currentTouchPoint = this.view.onItemTouched(e);
@@ -250,7 +250,7 @@ export class MarkerInfo extends MapModule {
     onMapReset = _params => {
         if (this.view && !this.view.canShowActionButtons) {
             this.view.canShowActionButtons = true;
-            sdebug('markerInfo', 'onMapReset', this.actionsVisibleBeforeHide, this.supplViewVisibleBeforeHide);
+            console.debug('markerInfo', 'onMapReset', this.actionsVisibleBeforeHide, this.supplViewVisibleBeforeHide);
             this.view.setActionBarVisible(this.actionsVisibleBeforeHide);
             this.view.setSuppViewsVisible(this.supplViewVisibleBeforeHide);
             this.view.animateChanges();
@@ -258,7 +258,7 @@ export class MarkerInfo extends MapModule {
     };
     hideModule = _params => {
         _params = _params || {};
-        // sdebug('markerInfo', 'hideModule', _params);
+        // console.debug('markerInfo', 'hideModule', _params);
         // if (!!_params.bottom) {
         if (this.view && this.view.canShowActionButtons) {
             this.view.canShowActionButtons = false;
@@ -273,7 +273,7 @@ export class MarkerInfo extends MapModule {
     };
     // onMapHolderSingleTap: function(e) {
     //     var callbackId = e.bindId || e.source.callbackId;
-    //     sdebug('markerInfo','onMapHolderSingleTap', callbackId);
+    //     console.debug('markerInfo','onMapHolderSingleTap', callbackId);
     //     if (callbackId === 'grabber' || callbackId === 'grabberView') {
     //         if (currentSupplViews) {
     //             suppViewsVisible = !suppViewsVisible;

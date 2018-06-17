@@ -1,5 +1,5 @@
-// import MapModule from './MapModule'
-const MapModule = require('./MapModule').MapModule;
+import { MapModule } from './MapModule';
+
 exports.create = function(_context, _args, _additional) {
     var settings = _args.settings,
         itemHandler = app.itemHandler,
@@ -10,7 +10,7 @@ exports.create = function(_context, _args, _additional) {
         type = itemHandler.initializeType('weather_station', _.cloneDeep(require('data/markertypes').data.weather_station)),
         stations = {},
         annotations = {},
-        convertTemp = function(_temp, _unit) {
+        convertTemp = function(_temp, _unit?) {
             //input in meters!
             _unit = _unit || (app.tempMetrics ? 'c' : 'f');
             if (_unit === 'f') {
@@ -108,8 +108,8 @@ exports.create = function(_context, _args, _additional) {
         Ti.App.Properties.setObject('weather', itemWeatherData);
     }
 
-    function weatherView(_data, _moment, _now, _color, _specific) {
-        var timeText = (_specific && _moment.format('LT')) || _moment.format('LT');
+    function weatherView(_data, _moment, _now, _color, _specific?) {
+        var timeText = (_specific && _moment.format('LT')) || _moment.format('LT'), delta = 0;
         if (!_specific) {
             timeText = (_moment.valueOf() <= _now) ? trc('now') : (timeText.split(':')[0] + (timeText.split(' ')[1] ||
                 ''));
@@ -198,7 +198,7 @@ exports.create = function(_context, _args, _additional) {
                 }];
                 var items = sections[0].items,
                     color = 'darkgray',
-                    theData, nexData;
+                    theData, nextData;
                 for (var i = 0; i < data.list.length; i++) {
                     theData = data.list[i];
                     nextData = data.list[i + 1];

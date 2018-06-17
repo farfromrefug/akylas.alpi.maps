@@ -18,7 +18,7 @@ export function create(_args) {
         topRect = app.ui.topWindow.rect;
 
     function cancel() {
-        sdebug('cancel');
+        console.debug('cancel');
         dataToSend = {
             cancel: true
         };
@@ -96,7 +96,7 @@ export function create(_args) {
                     listView.canFade = false;
                     cancel();
                 }
-                // sdebug(e.contentOffset.y);
+                // console.debug(e.contentOffset.y);
             }
         } : undefined
     });

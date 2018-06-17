@@ -107,13 +107,15 @@ export function create(_args) {
         // createSwitchItem(String.fromCharCode(0xe096), 'offline_mode', app.offlineMode),
         createIconItem('\ue28f', 'modules'),
         createIconItem($.sSettings, 'settings'),
-        createIconItem('\ue1ec', 'send_feedback')
+        createIconItem('\ue1ec', 'send_feedback'),
+        // createIconItem('\ue2a8', 'offline')
+        createIconItem('\ue1bf', 'keep_screen')
         ].concat((app.info.deployType === 'development' && app.modules.plcrashreporter) ? [
             createIconItem('\ue601', 'trigger_crash')
         ] : []),
         events: {
             click: app.debounce(function (e) {
-                sdebug('click', e);
+                console.debug('click', e);
                 var callbackId = e.source.callbackId || e.bindId;
                 switch (callbackId) {
                     case 'trigger_crash':
@@ -135,6 +137,27 @@ export function create(_args) {
                     case 'settings':
                         app.ui.createAndOpenWindow('SettingsWindow');
                         break;
+                    case 'keep_screen':
+                        app.ui.mainwindow.keepScreenOn = !app.ui.mainwindow.keepScreenOn
+                        break;
+                    case 'offline': {
+                        const packages = app.modules.map.getOfflineServerPackages();
+                        console.debug('packages', packages);
+                        app.showOptionsListDialog(
+                            {
+                                title: trc('offline_packages'),
+                                items:packages.map(p=>{
+                                    return {
+                                        title: {
+                                            text: p.id + ' ' + p.name
+                                        },
+                                        accessory: {
+                                            visible: false
+                                        }
+                                    }
+                                })
+                            }, (e) => {console.log(e)});
+                    }
                 }
                 // alert('click', callbackId);
             }),

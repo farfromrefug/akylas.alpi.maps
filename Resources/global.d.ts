@@ -1,6 +1,11 @@
-
 /// <reference path="/Volumes/data/dev/titanium/dist/modules/iphone/akylas.commonjs/5.0/documentation/akylas.commonjs.d.ts" />
 /// <reference path="/Volumes/data/dev/titanium/dist/modules/iphone/akylas.commonjs/5.0/documentation/lodash.d.ts" />
+
+declare namespace NodeJS {
+    interface EventEmitter {
+        off(event: string | symbol, listener: (...args: any[]) => void): this;
+    }
+}
 
 declare var app: IApp;
 
@@ -18,20 +23,19 @@ declare var _EVENT_ROUTES_ADDED_: string;
 declare var _EVENT_ROUTES_CHANGED_: string;
 declare var _EVENT_ROUTES_REMOVED_: string;
 
-
 declare interface WindowManager extends AK.IWindowManager {
-    leftmenu: LeftMenu
-    mainwindow: MainWindow
-    topWindow: TiWindow
-    rootWindow: TiWindow
-    slidemenu: SlideMenu
+    leftmenu: LeftMenu;
+    mainwindow: MainWindow;
+    topWindow: TiWindow;
+    rootWindow: TiWindow;
+    slidemenu: SlideMenu;
 }
 
-declare class HTTPPromise<T> extends Promise<T> {
-    constructor(executor: (resolve: (value?: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void)
-    request: HTTPClient
-    cancel()
-}
+// declare class HTTPPromise<T> extends Promise<T> {
+//     constructor(executor: (resolve: (value?: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void)
+//     request: HTTPClient
+//     cancel()
+// }
 declare class SlideMenu extends TiWindow {
     constructor(args?);
     toggleLeftView();
@@ -39,22 +43,21 @@ declare class SlideMenu extends TiWindow {
     closeViews();
 }
 
-
 declare interface ListEvent<T> {
-    item: T,
-    section: ListSection,
-    sectionIndex: number,
-    itemIndex: number,
-    editing?: boolean
-    accessoryClicked?: boolean
-    searchResult?: boolean
-    listView: ListView,
-    bindId?: string
+    item: T;
+    section: ListSection;
+    sectionIndex: number;
+    itemIndex: number;
+    editing?: boolean;
+    accessoryClicked?: boolean;
+    searchResult?: boolean;
+    listView: ListView;
+    bindId?: string;
 }
 
 declare interface WindowParams extends AKWindowParams {
-    item?: Item
-    itemDesc?: ItemType
-    itemHandler?: ItemHandler
-    mapHandler?: MapWindow
+    item?: Item;
+    itemDesc?: ItemType;
+    itemHandler?: ItemHandler;
+    mapHandler?: MapWindow;
 }

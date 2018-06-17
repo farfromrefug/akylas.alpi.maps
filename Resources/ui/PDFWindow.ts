@@ -25,11 +25,11 @@ export function create(_args?: WindowParams & {
     self.container.add(webView, 1);
 
     webView.on('load', function (e) {
-        // sdebug('on load done load', e.url);
+        // console.debug('on load done load', e.url);
         // setProgress(1);
     }).on('loadprogress', function (e) {
         // if (e.progress !== 1) {
-        // sdebug('loadprogress', e.progress);
+        // console.debug('loadprogress', e.progress);
         // setProgress(e.progress);
         // }
     }).on('error', function (e) {
@@ -37,7 +37,7 @@ export function create(_args?: WindowParams & {
     });
     self.onBack = function () {
         var canGoBack = webView.canGoBack();
-        sdebug('onBack', canGoBack);
+        console.debug('onBack', canGoBack);
         if (canGoBack) {
             webView.goBack();
         } else {

@@ -26,7 +26,7 @@ export class TutorialMgr extends MapModule {
         }
     }
     createTutorialView(_id: string, _tut: Tutorial) {
-        sdebug('handling', _id, _tut);
+        console.debug('handling', _id, _tut);
         var text;
 
         if (_tut.title) {
@@ -160,7 +160,7 @@ export class TutorialMgr extends MapModule {
     enabled = Ti.App.Properties.getBool('tutorials.enabled', false)
     setEnabled(_value: boolean) {
         if (_value !== this.enabled) {
-            sdebug('tutorialManager', 'setEnabled', _value);
+            console.debug('tutorialManager', 'setEnabled', _value);
             Ti.App.Properties.setBool('tutorials.enabled', _value);
             // if (_value) {
             //     app.showAlert('tutorial_restart_needed');
@@ -206,7 +206,7 @@ export class TutorialMgr extends MapModule {
         }
         if (this.tutorialWin) {
             views = _.uniqBy(this.tutorialWin.scrollView.views.concat(views), 'tutId');
-            sdebug('updating tutorial window', _.map(views, 'tutId'));
+            console.debug('updating tutorial window', _.map(views, 'tutId'));
             this.tutorialWin.applyProperties({
                 tutorials: _.map(views, 'tutId'),
                 scrollView: {
@@ -252,7 +252,7 @@ export class TutorialMgr extends MapModule {
             events: {
                 click: (e) => {
                     var callbackId = e.bindId;
-                    sdebug('callbackId', callbackId);
+                    console.debug('callbackId', callbackId);
                     switch (callbackId) {
                         case 'scrollView':
                             var tutIds = this.tutorialWin.tutorials;

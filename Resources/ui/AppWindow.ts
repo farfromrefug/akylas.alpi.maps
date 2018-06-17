@@ -1,3 +1,5 @@
+import { HTTPPromise } from "lib/api";
+
 declare global {
     class Container extends View {
         titleView: View
@@ -428,7 +430,7 @@ export function create(_args: WindowParams) {
         }
         self.showBottomToolbar = function () {
             if (self.bottomToolbarVisible) return;
-            sdebug('showBottomToolbar', self.bottomToolbarVisible);
+            console.debug('showBottomToolbar', self.bottomToolbarVisible);
             bottomToolbarHolder.cancelAllAnimations();
             self.bottomToolbarVisible = true;
             bottomToolbarHolder.visible = true;
@@ -447,7 +449,7 @@ export function create(_args: WindowParams) {
         self.hideBottomToolbar = function () {
             if (self.bottomToolbarVisible === false) return;
             self.bottomToolbarVisible = false;
-            sdebug('hideBottomToolbar', self.bottomToolbarVisible);
+            console.debug('hideBottomToolbar', self.bottomToolbarVisible);
             bottomToolbarHolder.cancelAllAnimations();
             bottomToolbarHolder.animate({
                 height: 0,
@@ -465,7 +467,7 @@ export function create(_args: WindowParams) {
 
     if (self.withLoadingIndicator) {
         var loadingShowing = false;
-        var currentRequest;
+        var currentRequest:HTTPPromise<any, any>;
         self.loadingView = new LoadingView(_args.loadingViewArgs);
         self.addPropertiesToGC('loadingView');
         self.showLoading = function (_args, _animated?) {
@@ -480,12 +482,12 @@ export function create(_args: WindowParams) {
             }
             currentRequest = _.remove(_args, 'request');
             if (currentRequest) {
-                // sdebug('we have a request');
+                // console.debug('we have a request');
                 _args.sublabel = {
                     text: trc('click_to_cancel')
                 }
                 self.loadingView.holder.once('click', function () {
-                    // sdebug('test');
+                    // console.debug('test');
                     if (currentRequest) {
                         currentRequest.abort();
                         currentRequest = null;
@@ -516,7 +518,7 @@ export function create(_args: WindowParams) {
                 return;
             }
             loadingShowing = false;
-            sdebug('app hideLoading');
+            console.debug('app hideLoading');
             currentRequest = null;
             if (self.listView && self.listView.doneLoading) {
                 self.listView.doneLoading();
@@ -527,14 +529,14 @@ export function create(_args: WindowParams) {
             }, function (e) {
 
                 if (isClosed) return;
-                sdebug('app hideLoading done');
+                console.debug('app hideLoading done');
                 self.loadingView.stopLoading();
                 self.remove(self.loadingView);
             });
         };
         self.cancelRunningRequest = function () {
             if (currentRequest) {
-                sdebug('cancelRunningRequest');
+                console.debug('cancelRunningRequest');
                 currentRequest.abort();
                 currentRequest = null;
                 return true;
@@ -636,7 +638,7 @@ export function create(_args: WindowParams) {
     self.GC = app.composeFunc(self.GC, function () {
         if (self && self !== null) {
             isClosed = true;
-            sdebug('AppWindow GC', self.title);
+            console.debug('AppWindow GC', self.title);
             if (needsLogin) {
                 app.api.off('loggedin', onLogin);
                 app.api.off('loggedout', onLogout);

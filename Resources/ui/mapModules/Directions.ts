@@ -1,33 +1,37 @@
-import { MapModule } from './MapModule'
+import { MapModule } from './MapModule';
+import geolib from '../../lib/geolib';
+
 export function settings(enabled) {
     var service = Ti.App.Properties.getString('directions.service', 'google');
     var sections = [];
     sections.push({
-        items: [{
-            callbackId: 'service',
-            title: {
-                text: trc('choose_service')
-            },
-            subtitle: {
-                text: trc(service)
+        items: [
+            {
+                callbackId: 'service',
+                title: {
+                    text: trc('choose_service')
+                },
+                subtitle: {
+                    text: trc(service)
+                }
             }
-        }]
+        ]
     });
     return {
         canBeDisabled: false,
         name: trc('directions'),
         description: 'directions_desc',
         preferencesSections: sections
-    }
-};
+    };
+}
 
 export function onSettingsClickOrChange(e, window) {
     var callbackId = (e.item && e.item.callbackId) || e.bindId;
     switch (callbackId) {
         case 'service':
             var service = Ti.App.Properties.getString('directions.service', 'google');
-            var services = ['google', 'mapzen', 'graphhopper'];
-            window.showSettingSelection(callbackId, services, services.indexOf(service), function (_index) {
+            var services = ['google', 'mapzen', 'graphhopper', 'carto', 'offline'];
+            window.showSettingSelection(callbackId, services, services.indexOf(service), function(_index) {
                 service = services[_index];
                 Ti.App.Properties.setString('directions.service', service);
                 e.section.updateItemAt(e.itemIndex, {
@@ -38,26 +42,25 @@ export function onSettingsClickOrChange(e, window) {
             });
             break;
     }
-};
+}
 
 export class Directions extends MapModule {
-
-    settings
-    visible = false
-    geolib = app.itemHandler.geolib
+    settings;
+    visible = false;
+    simplify = require('lib/simplify')
     // simplify = app.itemHandler.simplify
-    htmlIcon = app.utilities.htmlIcon
-    mode = 'walking'
-    tempRoute = null
-    waypoints: Item[] = []
-    inPaintMode = false
-    directionsColors = app.getContrastColors('#0D83D4')
-    maxPoints = 10
-    waypointType: ItemType
-    wayPointsAnnotations = []
-    view
-    paintView
-    barHeight = $.navBarTop + $.navBarHeight + 100
+    htmlIcon = app.utilities.htmlIcon;
+    mode = 'walking';
+    tempRoute = null;
+    waypoints: Item[] = [];
+    inPaintMode = false;
+    directionsColors = app.getContrastColors('#0D83D4');
+    maxPoints = 10;
+    waypointType: ItemType;
+    wayPointsAnnotations = [];
+    view;
+    paintView;
+    barHeight = $.navBarTop + $.navBarHeight + 100;
     constructor(_context, _args, _additional) {
         super(_args);
         this.settings = _args.settings;
@@ -69,38 +72,44 @@ export class Directions extends MapModule {
             },
             colors: this.directionsColors,
             settings: {}
-        }
-    }
-    rightNavButton = function (_id: string, _icon: string, _props?:TiProperties, _bindId?: string) {
-        return {
-            type: 'Ti.UI.Button',
-            bindId: _bindId,
-            properties: Object.assign({
-                callbackId: _id,
-                rclass: 'NavBarRightButton',
-                title: _icon
-            }, _props)
         };
     }
-    segmentButton = (_id: string, _icon: string, _props?:TiProperties, _bindId?: string) => {
+    rightNavButton = function(_id: string, _icon: string, _props?: TiProperties, _bindId?: string) {
         return {
             type: 'Ti.UI.Button',
             bindId: _bindId,
-            properties: Object.assign({
-                callbackId: _id,
-                rclass: 'NavBarRightButton',
-                width: 36,
-                minWidth: null,
-                font: {
-                    size: 22
+            properties: Object.assign(
+                {
+                    callbackId: _id,
+                    rclass: 'NavBarRightButton',
+                    title: _icon
                 },
-                disabledColor: $.white,
-                color: $.gray,
-                title: _icon,
-                enabled: this.mode !== _id
-            }, _props)
+                _props
+            )
         };
-    }
+    };
+    segmentButton = (_id: string, _icon: string, _props?: TiProperties, _bindId?: string) => {
+        return {
+            type: 'Ti.UI.Button',
+            bindId: _bindId,
+            properties: Object.assign(
+                {
+                    callbackId: _id,
+                    rclass: 'NavBarRightButton',
+                    width: 36,
+                    minWidth: null,
+                    font: {
+                        size: 22
+                    },
+                    disabledColor: $.white,
+                    color: $.gray,
+                    title: _icon,
+                    enabled: this.mode !== _id
+                },
+                _props
+            )
+        };
+    };
     getView = () => {
         if (!this.view) {
             this.view = new View({
@@ -109,242 +118,247 @@ export class Directions extends MapModule {
                     top: 0,
                     clipChildren: false
                 },
-                childTemplates: [{
-                    type: 'Ti.UI.View',
-                    bindId: 'bar',
-                    properties: {
-                        rclass: 'DirectionBar',
-                        backgroundColor: this.directionsColors.color,
-                        height: this.barHeight,
-                        bottom: 0
-                    },
-                    childTemplates: [{
+                childTemplates: [
+                    {
                         type: 'Ti.UI.View',
+                        bindId: 'bar',
                         properties: {
-                            top: $.navBarTop,
-                            height: $.navBarHeight,
-                            layout: 'horizontal'
+                            rclass: 'DirectionBar',
+                            backgroundColor: this.directionsColors.color,
+                            height: this.barHeight,
+                            bottom: 0
                         },
                         childTemplates: [
-                            this.rightNavButton('close', $.sClose), {
+                            {
                                 type: 'Ti.UI.View',
-                                rclass: 'NavBarButtonSeparator'
-                            },
-                            this.rightNavButton('paintmode', $.sPaint, {
-                                visible: __APPLE__
-                            }), {
-                                type: 'Ti.UI.View',
-                                rclass: 'NavBarButtonSeparator',
-                            }, {
-                                type: 'Ti.UI.View',
-                                bindId: 'modeHolder',
-                                layout: 'horizontal',
-                                width: 'SIZE',
+                                properties: {
+                                    top: $.navBarTop,
+                                    height: $.navBarHeight,
+                                    layout: 'horizontal'
+                                },
                                 childTemplates: [
-                                    this.segmentButton('raw', $.sLine),
-                                    this.segmentButton('walking', $.sWalking),
-                                    this.segmentButton('bicycling', $.sCycling),
-                                    this.segmentButton('driving', $.sDriving)
-                                ]
-                            }, {
-                                //     type: 'Ti.UI.View',
-                                //     rclass: 'NavBarButtonSeparator'
-                                // }, {
-                                type: 'Ti.UI.View'
-                            },
-                            this.rightNavButton('next', $.sCheck, {
-                                visible: false,
-                            }, 'nextBtn')
-                        ]
-                    }, {
-                        type: 'Ti.UI.View',
-                        properties: {
-                            height: 'FILL',
-                        },
-                        childTemplates: [{
-                            type: 'Ti.UI.ListView',
-                            bindId: 'listView',
-                            properties: {
-                                rclass: 'DirectionListView',
-                                // bubbleParent: false,
-                                templates: {
-                                    'default': ak.ti.prepareListViewTemplate({
-                                        properties: {
-                                            rclass: 'DirectionRow',
-                                            backgroundColor: this.directionsColors.color,
-                                            rightSwipeButtons: [
-                                                app.templates.row.createSwipeButton('delete', 'red', false)
-                                            ]
+                                    this.rightNavButton('close', $.sClose),
+                                    {
+                                        type: 'Ti.UI.View',
+                                        rclass: 'NavBarButtonSeparator'
+                                    },
+                                    this.rightNavButton('paintmode', $.sPaint, {
+                                        visible: __APPLE__
+                                    }),
+                                    {
+                                        type: 'Ti.UI.View',
+                                        rclass: 'NavBarButtonSeparator'
+                                    },
+                                    {
+                                        type: 'Ti.UI.View',
+                                        bindId: 'modeHolder',
+                                        layout: 'horizontal',
+                                        width: 'SIZE',
+                                        childTemplates: [
+                                            this.segmentButton('raw', $.sLine),
+                                            this.segmentButton('walking', $.sWalking),
+                                            this.segmentButton('bicycling', $.sCycling),
+                                            this.segmentButton('driving', $.sDriving)
+                                        ]
+                                    },
+                                    {
+                                        //     type: 'Ti.UI.View',
+                                        //     rclass: 'NavBarButtonSeparator'
+                                        // }, {
+                                        type: 'Ti.UI.View'
+                                    },
+                                    this.rightNavButton(
+                                        'next',
+                                        $.sCheck,
+                                        {
+                                            visible: false
                                         },
-                                        childTemplates: [{
-                                            type: 'AkylasShapes.View',
-                                            properties: {
-                                                rclass: 'DirectionRowShapeView'
-                                            },
-                                            childTemplates: [{
-                                                type: 'AkylasShapes.Line',
-                                                bindId: 'topLine',
-                                                properties: {
-                                                    rclass: 'DirectionRowShapeTopLine'
-                                                }
-                                            }, {
-                                                type: 'AkylasShapes.Line',
-                                                bindId: 'bottomLine',
-                                                properties: {
-                                                    rclass: 'DirectionRowShapeBottomLine'
-                                                }
-                                            }, {
-                                                type: 'Ti.UI.Label',
-                                                bindId: 'icon',
-                                                properties: {
-                                                    rclass: 'DirectionRowIcon'
-                                                }
-                                            }]
-                                        }, {
-                                            type: 'Ti.UI.Label',
-                                            bindId: 'title',
-                                            properties: {
-                                                rclass: 'DirectionRowLabel'
-                                            }
-                                        }, {
-                                            type: 'Ti.UI.Label',
-                                            bindId: 'accessory',
-                                            properties: {
-                                                rclass: 'DirectionRowIcon',
-                                                visible: false
-                                            }
-                                        }]
-                                    })
-                                },
-                                defaultItemTemplate: 'default',
-                                sections: [{}]
+                                        'nextBtn'
+                                    )
+                                ]
                             },
-                            events: {
-                                longpress: (e:TiEvent) => {
-                                    // sdebug(e);
-                                    this.view.listView.editing = !this.view.listView.editing;
+                            {
+                                type: 'Ti.UI.View',
+                                properties: {
+                                    height: 'FILL'
                                 },
-                                move: (e:TiEvent) => {
-                                    // sdebug(e);
-                                    if (!e.item) {
-                                        return;
-                                    }
-                                    _.move(this.waypoints, e.itemIndex, e.targetItemIndex);
-                                    this.update();
-                                },
-                                delete: (e:TiEvent) => {
-                                    // sdebug(e);
-                                    if (!e.item) {
-                                        return;
-                                    }
-                                    var found = e.item.id.match(
-                                        /waypoint_([0-9]+)/);
-                                    // sdebug('found', found);
-                                    if (found) {
-                                        var index = _.findIndex(
-                                            this.wayPointsAnnotations, {
-                                                'id': e.item.id
-                                            });
-                                        this.mapView.removeAnnotation(
-                                            this.wayPointsAnnotations.splice(
-                                                index, 1));
-                                    }
-                                    this.waypoints.splice(e.itemIndex, 1);
-
-                                    this.update();
-                                },
-                                click: app.debounce((e:TiEvent) => {
-                                    // sdebug(e);
-                                    if (e.item) {
-                                        var item = e.item.item;
-                                        switch (e.bindId || e.source.callbackId) {
-                                            case 'delete':
-                                                {
-                                                    var found = item.id
-                                                        .match(
-                                                        /waypoint_([0-9]+)/
-                                                        );
-                                                    // sdebug('found',
-                                                    //     found);
-                                                    if (found) {
-                                                        var index = _.findIndex(
-                                                            this.wayPointsAnnotations, {
-                                                                'id': item
-                                                                    .id
-                                                            });
-                                                        this.mapView.removeAnnotation(
-                                                            this.wayPointsAnnotations
-                                                                .splice(
-                                                                index,
-                                                                1));
-                                                    }
-                                                    this.waypoints.splice(e.itemIndex,
-                                                        1);
-                                                    e.section.deleteItemsAt(
-                                                        e.itemIndex,
-                                                        1, {
-                                                            animated: true
-                                                        });
-                                                    this.update();
-                                                    break;
+                                childTemplates: [
+                                    {
+                                        type: 'Ti.UI.ListView',
+                                        bindId: 'listView',
+                                        properties: {
+                                            rclass: 'DirectionListView',
+                                            // bubbleParent: false,
+                                            templates: {
+                                                default: ak.ti.prepareListViewTemplate({
+                                                    properties: {
+                                                        rclass: 'DirectionRow',
+                                                        backgroundColor: this.directionsColors.color,
+                                                        rightSwipeButtons: [app.templates.row.createSwipeButton('delete', 'red', false)]
+                                                    },
+                                                    childTemplates: [
+                                                        {
+                                                            type: 'AkylasShapes.View',
+                                                            properties: {
+                                                                rclass: 'DirectionRowShapeView'
+                                                            },
+                                                            childTemplates: [
+                                                                {
+                                                                    type: 'AkylasShapes.Line',
+                                                                    bindId: 'topLine',
+                                                                    properties: {
+                                                                        rclass: 'DirectionRowShapeTopLine'
+                                                                    }
+                                                                },
+                                                                {
+                                                                    type: 'AkylasShapes.Line',
+                                                                    bindId: 'bottomLine',
+                                                                    properties: {
+                                                                        rclass: 'DirectionRowShapeBottomLine'
+                                                                    }
+                                                                },
+                                                                {
+                                                                    type: 'Ti.UI.Label',
+                                                                    bindId: 'icon',
+                                                                    properties: {
+                                                                        rclass: 'DirectionRowIcon'
+                                                                    }
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            type: 'Ti.UI.Label',
+                                                            bindId: 'title',
+                                                            properties: {
+                                                                rclass: 'DirectionRowLabel'
+                                                            }
+                                                        },
+                                                        {
+                                                            type: 'Ti.UI.Label',
+                                                            bindId: 'accessory',
+                                                            properties: {
+                                                                rclass: 'DirectionRowIcon',
+                                                                visible: false
+                                                            }
+                                                        }
+                                                    ]
+                                                })
+                                            },
+                                            defaultItemTemplate: 'default',
+                                            sections: [{}]
+                                        },
+                                        events: {
+                                            longpress: (e: TiEvent) => {
+                                                // console.debug(e);
+                                                this.view.listView.editing = !this.view.listView.editing;
+                                            },
+                                            move: (e: TiEvent) => {
+                                                // console.debug(e);
+                                                if (!e.item) {
+                                                    return;
                                                 }
-                                            default:
-                                                this.parent.runMethodOnModules(
-                                                    'runActionOnItem',
-                                                    item.type,
-                                                    item, 'select');
-                                                break;
+                                                _.move(this.waypoints, e.itemIndex, e.targetItemIndex);
+                                                this.update();
+                                            },
+                                            delete: (e: TiEvent) => {
+                                                // console.debug(e);
+                                                if (!e.item) {
+                                                    return;
+                                                }
+                                                var found = e.item.id.match(/waypoint_([0-9]+)/);
+                                                // console.debug('found', found);
+                                                if (found) {
+                                                    var index = _.findIndex(this.wayPointsAnnotations, {
+                                                        id: e.item.id
+                                                    });
+                                                    this.mapView.removeAnnotation(this.wayPointsAnnotations.splice(index, 1));
+                                                }
+                                                this.waypoints.splice(e.itemIndex, 1);
+
+                                                this.update();
+                                            },
+                                            click: app.debounce((e: TiEvent) => {
+                                                // console.debug(e);
+                                                if (e.item) {
+                                                    var item = e.item.item;
+                                                    switch (e.bindId || e.source.callbackId) {
+                                                        case 'delete': {
+                                                            var found = item.id.match(/waypoint_([0-9]+)/);
+                                                            // console.debug('found',
+                                                            //     found);
+                                                            if (found) {
+                                                                var index = _.findIndex(this.wayPointsAnnotations, {
+                                                                    id: item.id
+                                                                });
+                                                                this.mapView.removeAnnotation(this.wayPointsAnnotations.splice(index, 1));
+                                                            }
+                                                            this.waypoints.splice(e.itemIndex, 1);
+                                                            e.section.deleteItemsAt(e.itemIndex, 1, {
+                                                                animated: true
+                                                            });
+                                                            this.update();
+                                                            break;
+                                                        }
+                                                        default:
+                                                            this.parent.runMethodOnModules('runActionOnItem', item.type, item, 'select');
+                                                            break;
+                                                    }
+                                                }
+                                            })
                                         }
                                     }
-                                })
+                                ]
                             }
-                        }]
-                    }],
-                    events: {
-                        'click': app.debounce((e:TiEvent) => {
-                            var callbackId = e.source.callbackId;
-                            // sdebug(callbackId);
-                            switch (callbackId) {
-                                case 'close':
-                                    this.hide();
-                                    break;
-                                case 'paintmode':
-                                    if (this.inPaintMode) {
-                                        this.leavePaintMode();
-                                    } else {
-                                        this.enterPaintMode();
-                                    }
-                                    break;
-                                // case 'edit':
-                                //     view.listView.editing = !view.listView.editing;
-                                //     break;
-                                case 'next':
-                                    this.window.showLoading({
-                                        label: {
-                                            html: this.htmlIcon($.sTrace, 1) + ' ' +
-                                            trc('computing') + '...'
+                        ],
+                        events: {
+                            click: app.debounce((e: TiEvent) => {
+                                var callbackId = e.source.callbackId;
+                                // console.debug(callbackId);
+                                switch (callbackId) {
+                                    case 'close':
+                                        this.hide();
+                                        break;
+                                    case 'paintmode':
+                                        if (this.inPaintMode) {
+                                            this.leavePaintMode();
+                                        } else {
+                                            this.enterPaintMode();
                                         }
-                                    });
-                                    var points = _.reduce(this.waypoints, function (memo, waypoint) {
-                                        memo.push([waypoint.latitude, waypoint.longitude]);
-                                        return memo;
-                                    }, []);
-                                    this.createRoute(points);
-                                    break;
-                                case 'raw':
-                                case 'walking':
-                                case 'bicycling':
-                                case 'driving':
-                                    this.mode = callbackId;
-                                    this.view.modeHolder.children.forEach(button => {
-                                        // sdebug(button.callbackId, button.callbackId !== this.mode);
-                                        button.enabled = button.callbackId !== this.mode;
-                                    });
-                                    break;
-                            }
-                        })
+                                        break;
+                                    // case 'edit':
+                                    //     view.listView.editing = !view.listView.editing;
+                                    //     break;
+                                    case 'next':
+                                        this.window.showLoading({
+                                            label: {
+                                                html: this.htmlIcon($.sTrace, 1) + ' ' + trc('computing') + '...'
+                                            }
+                                        });
+                                        var points = _.reduce(
+                                            this.waypoints,
+                                            function(memo, waypoint) {
+                                                memo.push([waypoint.latitude, waypoint.longitude]);
+                                                return memo;
+                                            },
+                                            []
+                                        );
+                                        this.createRoute(points);
+                                        break;
+                                    case 'raw':
+                                    case 'walking':
+                                    case 'bicycling':
+                                    case 'driving':
+                                        this.mode = callbackId;
+                                        this.view.modeHolder.children.forEach(button => {
+                                            // console.debug(button.callbackId, button.callbackId !== this.mode);
+                                            button.enabled = button.callbackId !== this.mode;
+                                        });
+                                        break;
+                                }
+                            })
+                        }
                     }
-                }]
+                ]
             });
         }
         this.parent.mapTopToolbar.add(this.view);
@@ -353,7 +367,7 @@ export class Directions extends MapModule {
 
     update = () => {
         var nb = this.waypoints.length;
-        // sdebug('update', nb);
+        // console.debug('update', nb);
         if (nb > 0) {
             app.showTutorials(['direction_listview']);
         }
@@ -373,19 +387,21 @@ export class Directions extends MapModule {
         } else {
             this.tempRoute.points = this.waypoints;
         }
-        this.view.listView.sections[0].updateItems(_.times(nb, function (index) {
-            return {
-                topLine: {
-                    visible: (index !== 0)
-                },
-                bottomLine: {
-                    visible: (index !== (nb - 1))
-                }
-            };
-        }));
+        this.view.listView.sections[0].updateItems(
+            _.times(nb, function(index) {
+                return {
+                    topLine: {
+                        visible: index !== 0
+                    },
+                    bottomLine: {
+                        visible: index !== nb - 1
+                    }
+                };
+            })
+        );
         this.view.nextBtn.visible = nb > 1;
-    }
-    directions
+    };
+    directions;
     getDirectionModule() {
         if (!this.directions) {
             this.directions = require('lib/ffwdme/ffwdme');
@@ -402,7 +418,7 @@ export class Directions extends MapModule {
     }
 
     reset = () => {
-        // sdebug('reset');
+        // console.debug('reset');
         if (this.tempRoute !== null) {
             this.mapView.removeRoute(this.tempRoute);
             this.tempRoute = null;
@@ -422,16 +438,16 @@ export class Directions extends MapModule {
                 visible: false
             }
         });
-    }
+    };
 
     handleCreateRoute = (_route: RouteRoute, firstPoint, lastPoint) => {
-        // sdebug('createRoute', _route);
+        // console.debug('createRoute', _route);
         var points = _route.points;
         if (!!_route.encoded) {
             points = app.api.decodeLine(_route.overview_points);
         }
         this.hide();
-        // sdebug('test', points[0], firstPoint, _.isEqual(points[0], firstPoint));
+        // console.debug('test', points[0], firstPoint, _.isEqual(points[0], firstPoint));
         var type = 'computed';
         var item = {
             start: firstPoint,
@@ -449,27 +465,31 @@ export class Directions extends MapModule {
         });
         this.parent.runMethodOnModules('runActionOnItem', type, item, 'select');
         this.window.hideLoading();
-    }
+    };
 
-    createRoute = (_points) => {
-        sdebug('createRoute', this.mode, _points);
+    createRoute = _points => {
+        console.debug('createRoute', this.mode, _points);
 
         if (this.mode === 'raw') {
-            var region = this.geolib.getBounds(_points);
-            this.handleCreateRoute({
-                distance: this.geolib.getPathLength(_points),
-                region: {
-                    ne: {
-                        latitude: region.maxLat,
-                        longitude: region.maxLng
+            var region = geolib.getBounds(_points);
+            this.handleCreateRoute(
+                {
+                    distance: geolib.getPathLength(_points),
+                    region: {
+                        ne: {
+                            latitude: region.maxLat,
+                            longitude: region.maxLng
+                        },
+                        sw: {
+                            latitude: region.minLat,
+                            longitude: region.minLng
+                        }
                     },
-                    sw: {
-                        latitude: region.minLat,
-                        longitude: region.minLng
-                    }
+                    points: _points
                 },
-                points: _points
-            }, _points[0], _.last(_points));
+                _points[0],
+                _.last(_points)
+            );
         } else {
             var firstPoint = _points[0];
             var lastPoint = _.last(_points);
@@ -477,46 +497,118 @@ export class Directions extends MapModule {
                 origin: firstPoint,
                 destination: lastPoint,
                 waypoints: _points.slice(1, -1)
-            }).then( (_result)=> {
-                this.handleCreateRoute(_result, firstPoint, lastPoint);
-            }).catch(this.window.showError).then(this.window.hideLoading);
+            })
+                .then((_result: any) => {
+                    console.log('got route', _result);
+                    this.handleCreateRoute(_result, firstPoint, lastPoint);
+                })
+                .catch(this.window.showError)
+                .then(this.window.hideLoading);
         }
+    };
 
-    }
-
-    queryRoute = (_args) => {
-        sdebug('queryRoute', _args);
-        return app.api.queryDirections({
+    queryRoute = _args => {
+        console.debug('queryRoute', _args);
+        var service = Ti.App.Properties.getString('directions.service', 'google');
+        const args = {
             mode: this.mode,
             optimize: true,
             origin: _args.origin,
             destination: _args.destination,
             waypoints: _args.waypoints,
-            lang: app.localeInfo.currentLocale,
-        });
-    }
+            lang: app.localeInfo.currentLocale
+        };
+        switch (service) {
+            case 'mapzen':
+                return app.api.queryMapzenDirections(args);
+            case 'graphhopper':
+                return app.api.queryGraphhopperDirections(args);
+            case 'carto':
+            case 'offline': {
+                let cartoMode = 'none';
+                switch (this.mode) {
+                    case 'walking':
+                        cartoMode = 'pedestrian';
+                        break;
+                    case 'bicycling':
+                        cartoMode = 'bicycle';
+                        break;
+                    case 'driving':
+                        cartoMode = 'auto';
+                        break;
+                }
+                return new Promise((resolve, reject) => {
+                    const points = [_args.origin].concat(_args.waypoints).concat([_args.destination]);
+                    const gregion = geolib.getBounds(points);
+                    const region = {
+                        ne: {
+                            latitude: gregion.maxLat,
+                            longitude: gregion.maxLng
+                        },
+                        sw: {
+                            latitude: gregion.minLat,
+                            longitude: gregion.minLng
+                        }
+                    }
+                    if (service === 'carto') {
+                        return app.modules.map.calculateRoute(app.servicesKeys.mapzen, cartoMode, points, function(e) {
+                            if (e.error) {
+                                reject(e.error);
+                            } else {
+                                e.region = region;
+                                resolve(e);
+                            }
+                        });
+                    }
+                    return app.modules.map.calculateOfflineRoute(cartoMode, points, (e)=> {
+                        if (e.error) {
+                            reject(e.error);
+                        } else {
+                            e.region = region;
+                            console.log('test1', e.points.length);
+                            e.points = this.itemHandler.simplifyToNB(e.points, e.points.length - 1, 0.2);
+                            console.log('test2', e.points.length);
+                            resolve(e);
+                        }
+                    });
+                });
+            }
+            default:
+                return app.api.queryGoogleDirections(args);
+        }
+        // return app.api.queryDirections({
+        //     mode: this.mode,
+        //     optimize: true,
+        //     origin: _args.origin,
+        //     destination: _args.destination,
+        //     waypoints: _args.waypoints,
+        //     lang: app.localeInfo.currentLocale,
+        // });
+    };
 
     addItemToListView = (_item: Item, _itemDesc: ItemType, _userLocation?: boolean) => {
         var nb = this.waypoints.length;
-        // sdebug('addItemToListView', _item, nb);
+        // console.debug('addItemToListView', _item, nb);
         if (nb > 0 && _.last(this.waypoints).id === _item.id) {
             return;
         }
-        var items = [{
-            item: _item,
-            title: {
-                text: this.itemHandler.itemTitle(_item, _itemDesc),
-            },
-            icon: {
-                text: _item.icon || _itemDesc.icon
-            },
-            topLine: {
-                visible: (nb !== 0)
-            },
-            bottomLine: {
-                visible: false
+        var items = [
+            {
+                item: _item,
+                title: {
+                    text: this.itemHandler.itemTitle(_item, _itemDesc)
+                },
+                icon: {
+                    text: _item.icon || _itemDesc.icon
+                },
+                topLine: {
+                    visible: nb !== 0
+                },
+                bottomLine: {
+                    visible: false
+                }
             }
-        }];
+        ];
 
         if (_userLocation) {
             this.waypoints.unshift(_item);
@@ -526,7 +618,6 @@ export class Directions extends MapModule {
             this.view.listView.scrollToTop(0, {
                 position: 1
             });
-
         } else {
             this.waypoints.push(_item);
             this.getView().listView.appendItems(0, items, {
@@ -535,10 +626,9 @@ export class Directions extends MapModule {
             this.view.listView.scrollToBottom(0, {
                 position: 1
             });
-
         }
         this.update();
-    }
+    };
 
     onAnnotationPressOrSelected = (e: TiEvent, _isPress?: boolean) => {
         if (e.route || !e.annotation) {
@@ -551,7 +641,8 @@ export class Directions extends MapModule {
         var index = -1,
             userLocation = false,
             mapItem = e.route || e.annotation,
-            item, itemDesc;
+            item,
+            itemDesc;
         if (mapItem === this.settings.userAnnotation) {
             userLocation = true;
             item = {
@@ -559,24 +650,23 @@ export class Directions extends MapModule {
                 icon: $.sNav,
                 title: trc('current_location'),
                 latitude: mapItem.latitude,
-                longitude: mapItem.longitude,
+                longitude: mapItem.longitude
             };
         } else {
-            // sdebug('onAnnotationPressOrSelected', _isPress);
+            // console.debug('onAnnotationPressOrSelected', _isPress);
             if (_isPress === true) {
                 return;
             }
             item = mapItem.item;
             itemDesc = mapItem.type;
-
         }
         if (!item) {
             return;
         }
         this.addItemToListView(item, itemDesc, userLocation);
 
-        return (mapItem === this.settings.userAnnotation);
-    }
+        return mapItem === this.settings.userAnnotation;
+    };
 
     enterPaintMode = () => {
         if (this.inPaintMode) {
@@ -594,16 +684,20 @@ export class Directions extends MapModule {
                 // strokeWidth (float), strokeColor (string), strokeAlpha (int, 0-255)
                 backgroundGradient: {
                     type: 'radial',
-                    colors: [{
-                        color: color.setAlpha(0).toHex8String(),
-                        offset: 0
-                    }, {
-                        color: color.setAlpha(0).toHex8String(),
-                        offset: 0.7
-                    }, {
-                        color: color.toHex8String(),
-                        offset: 1
-                    }]
+                    colors: [
+                        {
+                            color: color.setAlpha(0).toHex8String(),
+                            offset: 0
+                        },
+                        {
+                            color: color.setAlpha(0).toHex8String(),
+                            offset: 0.7
+                        },
+                        {
+                            color: color.toHex8String(),
+                            offset: 1
+                        }
+                    ]
                 },
                 multipleTouchEnabled: false,
                 strokeColor: '#0581FC',
@@ -611,12 +705,11 @@ export class Directions extends MapModule {
                 strokeWidth: 6,
                 eraseMode: false
             });
-            this.paintView.on('onpaint', function (e) {
-                sdebug('onpaint');
+            this.paintView.on('onpaint', (e) =>{
+                console.debug('onpaint');
                 this.window.showLoading({
                     label: {
-                        html: this.htmlIcon($.sTrace, 1) + ' ' +
-                        trc('computing') + '...'
+                        html: this.htmlIcon($.sTrace, 1) + ' ' + trc('computing') + '...'
                     }
                 });
                 this.paintView.touchEnabled = false;
@@ -625,28 +718,28 @@ export class Directions extends MapModule {
                     path[i][1] += $.navBarTop + $.navBarHeight;
                 }
                 var points = this.mapView.coordinateForPoints(path);
-
-                var simplifyTolerance = 2;
-                var count = 0;
-                var toUsePoints = points;
-                while (toUsePoints.length > 10) {
-                    toUsePoints = this.simplify(points, simplifyTolerance / 3779);
-                    count++;
-                    simplifyTolerance += 2;
-                }
-                sdebug('simplified', count, points.length, toUsePoints.length);
-                var tempRoute = new MapRoute({
-                    points: toUsePoints
-                });
-                this.mapView.addRoute(tempRoute);
+                points = this.itemHandler.simplifyToNB(points, 10);
+                // var simplifyTolerance = 2;
+                // var count = 0;
+                // var toUsePoints = points;
+                // while (toUsePoints.length > 10) {
+                //     toUsePoints = this.simplify(points, simplifyTolerance / 3779);
+                //     count++;
+                //     simplifyTolerance += 2;
+                // }
+                // console.debug('simplified', count, points.length, toUsePoints.length);
+                // var tempRoute = new MapRoute({
+                //     points: points
+                // });
+                // this.mapView.addRoute(tempRoute);
                 // setTimeout(function() {
-                // sdebug('removing route');
-                this.mapView.removeRoute(tempRoute);
-                tempRoute = null;
+                // console.debug('removing route');
+                // this.mapView.removeRoute(tempRoute);
+                // tempRoute = null;
                 // }, 1000);
                 this.paintView.clear();
 
-                this.createRoute(toUsePoints);
+                this.createRoute(points);
             });
         }
         this.paintView.opacity = 0;
@@ -655,11 +748,14 @@ export class Directions extends MapModule {
             opacity: 1,
             duration: 200
         });
-        this.view.bar.animate({
-            height: $.navBarHeight + $.navBarTop,
-            duration: 200
-        }, this.reset);
-    }
+        this.view.bar.animate(
+            {
+                height: $.navBarHeight + $.navBarTop,
+                duration: 200
+            },
+            this.reset
+        );
+    };
 
     leavePaintMode = () => {
         if (!this.inPaintMode) {
@@ -669,21 +765,24 @@ export class Directions extends MapModule {
         this.parent.runMethodOnModules('onMapReset', {
             bottom: true
         });
-        this.paintView.animate({
-            opacity: 0,
-            duration: 200
-        }, () => {
-            this.paintView.clear();
-            this.parent.childrenHolder.remove(this.paintView);
-        });
+        this.paintView.animate(
+            {
+                opacity: 0,
+                duration: 200
+            },
+            () => {
+                this.paintView.clear();
+                this.parent.childrenHolder.remove(this.paintView);
+            }
+        );
 
         this.view.bar.animate({
             height: this.barHeight,
             duration: 200
         });
-    }
+    };
 
-    onMapPress?(e: TiEvent)
+    onMapPress?(e: TiEvent);
     HandleOnMapPress = (e: TiEvent) => {
         var nb = this.wayPointsAnnotations.length;
         if (nb >= this.maxPoints) {
@@ -696,18 +795,23 @@ export class Directions extends MapModule {
             id: 'waypoint_' + nb,
             icon: nb + ''
         });
-        var annot = new MapAnnotation(Object.assign({
-            anchorPoint: [0.5, 0.5],
-            hasInfo: false,
-            image: app.getImagePath(this.itemHandler.getAnnotImage(this.waypointType, item))
-        }, item));
+        var annot = new MapAnnotation(
+            Object.assign(
+                {
+                    anchorPoint: [0.5, 0.5],
+                    hasInfo: false,
+                    image: app.getImagePath(this.itemHandler.getAnnotImage(this.waypointType, item))
+                },
+                item
+            )
+        );
         this.wayPointsAnnotations.push(annot);
         this.mapView.addAnnotation(annot);
         this.addItemToListView(item, this.waypointType, false);
         return true;
-    }
-    onMapMarkerSelected?(e:TiEvent, _isPress?: boolean)
-    onAnnotationPress?(e:TiEvent)
+    };
+    onMapMarkerSelected?(e: TiEvent, _isPress?: boolean);
+    onAnnotationPress?(e: TiEvent);
     show = () => {
         if (!this.visible) {
             this.onMapMarkerSelected = this.onAnnotationPressOrSelected;
@@ -721,7 +825,6 @@ export class Directions extends MapModule {
             this.mapView.applyProperties({
                 canSelectRoute: false,
                 canShowInfoWindow: false
-
             });
             // if (settings.currentLocation) {
             //     onAnnotationPress({
@@ -737,7 +840,6 @@ export class Directions extends MapModule {
                         annotation: selected
                     });
                 }
-
             }
 
             // }
@@ -747,7 +849,7 @@ export class Directions extends MapModule {
             });
             app.showTutorials(['direction_select', 'direction_paintview']);
         }
-    }
+    };
 
     hide = () => {
         if (this.visible) {
@@ -755,7 +857,7 @@ export class Directions extends MapModule {
                 this.parent.childrenHolder.remove(this.paintView);
                 this.paintView = null;
             }
-            // sdebug('hide');
+            // console.debug('hide');
             this.visible = false;
             delete this.onMapMarkerSelected;
             delete this.onAnnotationPress;
@@ -763,7 +865,6 @@ export class Directions extends MapModule {
             this.mapView.applyProperties({
                 canSelectRoute: true,
                 canShowInfoWindow: true
-
             });
             // delete self.onRoutePress;
             // settings.userAnnotation.touchable = false;
@@ -775,33 +876,36 @@ export class Directions extends MapModule {
             //     bottom: true,
             //     top: true
             // });
-            this.view.animate({
-                height: 0,
-                duration: 200
-            }, () => {
-                this.reset();
-                // sdebug('animation done');
-                this.parent.mapTopToolbar.remove(this.view);
-                this.view.bar.height = this.barHeight;
-                this.inPaintMode = false;
-            });
+            this.view.animate(
+                {
+                    height: 0,
+                    duration: 200
+                },
+                () => {
+                    this.reset();
+                    // console.debug('animation done');
+                    this.parent.mapTopToolbar.remove(this.view);
+                    this.view.bar.height = this.barHeight;
+                    this.inPaintMode = false;
+                }
+            );
         }
-    }
+    };
     GC() {
         super.GC();
         this.view = null;
     }
 
-    onStartExclusiveAction = (_id:string) => {
+    onStartExclusiveAction = (_id: string) => {
         if (_id !== 'direction') {
             this.hide();
         }
-    }
+    };
     hideModule = () => {
         if (!this.visible) {
             this.hide();
         }
-    }
+    };
     canSpreadModuleAction(_params) {
         return !this.visible;
     }
@@ -819,4 +923,4 @@ export class Directions extends MapModule {
 }
 export function create(_context, _args, _additional) {
     return new Directions(_context, _args, _additional);
-};
+}

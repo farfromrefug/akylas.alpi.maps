@@ -1,6 +1,5 @@
 import { MapModule } from './MapModule'
 export class AugmentedReality extends MapModule {
-    // geolib = app.itemHandler.geolib
     // getImagePath = app.getImagePath
     // utilities = app.utilities
     arWindow: ArWindow
@@ -66,7 +65,7 @@ export class AugmentedReality extends MapModule {
 
         // view.on('WORLD_IS_LOADED', function () {
         //     arWindow = win;
-        //     sdebug('WORLD_IS_LOADED');
+        //     console.debug('WORLD_IS_LOADED');
         //     updateData();
         // }).on('URL_WAS_INVOKED', function (e) {
 
@@ -103,7 +102,7 @@ export class AugmentedReality extends MapModule {
     }
 
     // handleWorldEvent(e) {
-    //     // sdebug('handleWorldEvent', e);
+    //     // console.debug('handleWorldEvent', e);
     //     switch (e.type) {
     //         case 'selected':
     //             arWindow.container.infoview.setSelectedItem(e.poiData);

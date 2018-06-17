@@ -26,8 +26,8 @@ export function create(_args?: WindowParams & {
         app.indexedColors = _.toPairs(require('data/palette'));
     }
     var colors = app.indexedColors;
-    // sdebug('icons', icons);
-    // sdebug('colors', colors);
+    // console.debug('icons', icons);
+    // console.debug('colors', colors);
 
     var color = (currentItem && currentItem.color) || (list && list.color);
     var icon = (currentItem && currentItem.icon) || (list && list.icon);
@@ -210,7 +210,7 @@ export function create(_args?: WindowParams & {
                     });
                 },
                 first_load: function (e) {
-                    sdebug('first_load');
+                    console.debug('first_load');
                     for (i = 0; i < icons.length; i++) {
                         pair = icons[i];
                         key = pair[0];
