@@ -974,11 +974,11 @@ export default class API extends EventEmitter {
 
     osmDetails = _args => {
         if (!_args.osm) {
-            return Promise.resolve();
+            return Promise.resolve(undefined);
         }
-        console.debug('osmDetails', _args);
+        console.debug('osmDetails', _args.osm);
         var type = _args.osm.type;
-        var data = '[out:json];{1}({2});out {3};'.assign(type, _args.osm.id, type === 'relation' ? 'geom' : 'center');
+        var data = `[out:json];${type}(${_args.osm.id});out ${type === 'relation' ? 'geom' : 'center'};`;
         return this.call({
             url: overpassAPIURL() + 'interpreter',
             silent: _args.silent,
@@ -986,7 +986,8 @@ export default class API extends EventEmitter {
                 data: escape(data)
             }
         }).then(function(result) {
-            if (result.elements && result.elements.length === 0) {
+            console.debug('osmDetails', 'result', result ,result.elements, result.elements.length);
+            if (result.elements && result.elements.length > 0) {
                 return convert.prepareOSMObject(result.elements[0], true, true);
             }
         });
@@ -1933,6 +1934,12 @@ export default class API extends EventEmitter {
             result.image = data;
             result.url = url;
             return result;
+        });
+    };
+    getJSON = (url, params?) => {
+        return this.call({
+            url: url,
+            params:params
         });
     };
     getPhoto = _photo => {

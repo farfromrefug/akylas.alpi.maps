@@ -84,6 +84,19 @@ export function htmlIcon(_icon, _size?, _color?) {
 }
 
 export function ohWeekString(oh) {
+
+    const r = oh.getTable();
+    console.log('table', r);
+    return r as {
+        su:string[]
+        mo:string[]
+        tu:string[]
+        we:string[]
+        th:string[]
+        fr:string[]
+        sa:string[]
+        ph:string[]
+    };
     var it = oh.getIterator();
     var hasNextChange = it.advance();
     var dateToday = new Date();

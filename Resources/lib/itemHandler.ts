@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import * as convert from './convert';
-import geolib, {Geolib} from './geolib';
+import geolib, { Geolib } from './geolib';
 import SimpleOpeningHours from './simpleopeninghours';
 import { HTTPPromise } from './api';
 
@@ -33,7 +33,7 @@ export interface ImageResult {
     thumbnailImageName?: string;
 }
 
- class ItemHdlr extends EventEmitter {
+class ItemHdlr extends EventEmitter {
     // convert = app.utils.convert;
     geolib = geolib;
     // openingHours = app.utils.openingHours,
@@ -392,7 +392,7 @@ export interface ImageResult {
         // console.debug('initializeType', _id, _type);
         _type.propertyKey = _id + '_items';
         _type.getPrefKey = function(_suffix) {
-            console.debug('getPrefKey', this.id + '_' + _suffix );
+            console.debug('getPrefKey', this.id + '_' + _suffix);
             return this.id + '_' + _suffix;
         };
         _type.id = _id;
@@ -502,8 +502,8 @@ export interface ImageResult {
             }
         }
         var route = {
-            itemId:_item.id,
-            typeId:_routeType.id,
+            itemId: _item.id,
+            typeId: _routeType.id,
             // item: _item,
             // type: _routeType,
             visible: _routeType.visible,
@@ -688,8 +688,7 @@ export interface ImageResult {
         );
     };
     updateCamera = (_mapView: MapView, _params: MapUpdateCamParams, _deltaScreen?: { top?; bottom?; left?; right? }, _zoom?: number) => {
-        var zoom,
-            deltaSpan;
+        var zoom, deltaSpan;
         console.debug('updateCamera', _params, _deltaScreen);
         if (_params.region) {
             var region = _params.region;
@@ -895,11 +894,14 @@ export interface ImageResult {
                 },
                 _item.address
             );
-            var oh = new SimpleOpeningHours(_item.tags.opening_hours, {
-                lat: _item.latitude,
-                lon: _item.longitude,
-                address: address
-            });
+            var oh = new SimpleOpeningHours(
+                _item.tags.opening_hours
+                //     , {
+                //     lat: _item.latitude,
+                //     lon: _item.longitude,
+                //     address: address
+                // }
+            );
             // var it = oh.getIterator();
             // var state = it.getState();
             result.opened = oh.isOpenNow();
@@ -1730,7 +1732,7 @@ export interface ImageResult {
         }
     };
 }
-export {ItemHdlr as ItemHandler};
+export { ItemHdlr as ItemHandler };
 declare global {
     class ItemHandler extends ItemHdlr {}
 }

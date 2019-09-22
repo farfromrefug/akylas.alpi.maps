@@ -1,11 +1,11 @@
 declare global {
     class GeoFeatureWindow extends AppWindow {
-        handleArgs(args)
+        handleArgs(args);
     }
 
     class SectionHeaderView extends View {
-        titleHolder: View
-        gfheader: View
+        titleHolder: View;
+        gfheader: View;
     }
 }
 
@@ -28,18 +28,21 @@ export function create(_args: WindowParams) {
         staticAnnot,
         sectionHeaderViewAtTop = false,
         staticRoute,
-        templates = Object.assign({
-            default: app.templates.row.cloneTemplateAndFill('gfoptionitem', {
-                accessory: {
-                    visible: false,
-                    text: $.sQuery
-                }
-            }),
-            geoinfo: app.templates.row.itemgeoinfo,
-            text: app.templates.row.gfoptionttextitem,
-            hours: app.templates.row.gfoptionthoursitem,
-            // admob: app.templates.row.admob
-        }, mapHandler.runReduceMethodOnModules('getSupplyTemplates')),
+        templates = Object.assign(
+            {
+                default: app.templates.row.cloneTemplateAndFill('gfoptionitem', {
+                    accessory: {
+                        visible: false,
+                        text: $.sQuery
+                    }
+                }),
+                geoinfo: app.templates.row.itemgeoinfo,
+                text: app.templates.row.gfoptionttextitem,
+                hours: app.templates.row.gfoptionthoursitem
+                // admob: app.templates.row.admob
+            },
+            mapHandler.runReduceMethodOnModules('getSupplyTemplates')
+        ),
         contentTemplates,
         actionBar = new ItemActionBar({
             onMap: false
@@ -51,20 +54,22 @@ export function create(_args: WindowParams) {
     }
     _args.bottomToolbar = actionBar;
     _args.bottomToolbarVisible = true;
-    _args.rightNavButtons = [{
-        icon: $.sEdit,
-        callback: _.partial(runAction, 'edit')
-    }];
+    _args.rightNavButtons = [
+        {
+            icon: $.sEdit,
+            callback: _.partial(runAction, 'edit')
+        }
+    ];
 
     var mapView = new MapView({
-        height: 'FILL',
-        canSelectRoute: true,
-        animateChanges: false,
-        regionFits: true,
-        touchEnabled: false,
-        buildings: false,
-        mapType: app.modules.map.MapType.satellite
-    }),
+            height: 'FILL',
+            canSelectRoute: true,
+            animateChanges: false,
+            regionFits: true,
+            touchEnabled: false,
+            buildings: false,
+            mapType: app.modules.map.MapType.satellite
+        }),
         sectionHeaderView = new View({
             properties: {
                 height: 'SIZE',
@@ -75,35 +80,38 @@ export function create(_args: WindowParams) {
         headerView = new View({
             properties: {
                 height: $.gfHeaderHeight,
-                top: 0,
+                top: 0
             },
-            childTemplates: [{
-                type: 'Ti.UI.ScrollableView',
-                bindId: 'scrollableView',
-                properties: {
-                    rclass: 'GFHeaderScrollableView',
-                    bubbleParent: false
+            childTemplates: [
+                {
+                    type: 'Ti.UI.ScrollableView',
+                    bindId: 'scrollableView',
+                    properties: {
+                        rclass: 'GFHeaderScrollableView',
+                        bubbleParent: false
+                    },
+                    events: {
+                        click: app.debounce(function(e) {
+                            console.debug(e.source);
+                            if (e.source.imageIndex >= 0) {
+                                app.showImageFullscreen(currentItem.photos, e.source.imageIndex, e.source);
+                            }
+                        })
+                    }
                 },
-                events: {
-                    click: app.debounce(function (e) {
-                        console.debug(e.source);
-                        if (e.source.imageIndex >= 0) {
-                            app.showImageFullscreen(currentItem.photos, e.source.imageIndex, e.source);
+                {
+                    type: 'Ti.UI.View',
+                    properties: {
+                        touchEnabled: false,
+                        backgroundGradient: {
+                            type: 'linear',
+                            colors: ['#000000aa', '#00000066', '#00000000'],
+                            startPoint: [0, 0],
+                            endPoint: [0, '50%']
                         }
-                    })
-                }
-            }, {
-                type: 'Ti.UI.View',
-                properties: {
-                    touchEnabled: false,
-                    backgroundGradient: {
-                        type: 'linear',
-                        colors: ['#000000aa', '#00000066', '#00000000'],
-                        startPoint: [0, 0],
-                        endPoint: [0, "50%"]
                     }
                 }
-            }]
+            ]
         }),
         self = new AppWindow(_args) as GeoFeatureWindow;
 
@@ -152,16 +160,14 @@ export function create(_args: WindowParams) {
                 maxLines: maxLines
             },
             accessory: {
-                visible: _args.hasOwnProperty('accessory') ? _args.accessory : (maxLines > 0 && ((text || html)
-                    .length >
-                    maxLines * 40))
+                visible: _args.hasOwnProperty('accessory') ? _args.accessory : maxLines > 0 && (text || html).length > maxLines * 40
             },
             data: _args.data
         };
         if (!!_args.isHours) {
             result.title2 = {
                 visible: true
-            }
+            };
         }
         return result;
     }
@@ -179,7 +185,7 @@ export function create(_args: WindowParams) {
 
         sectionHeaderView.applyProperties({
             gfheader: {
-                backgroundColor: isDark ? colors.contrast : colors.color,
+                backgroundColor: isDark ? colors.contrast : colors.color
             },
             title: {
                 text: title,
@@ -192,11 +198,11 @@ export function create(_args: WindowParams) {
             },
             subtitle: {
                 color: colors.darkestRel,
-                html: htmlIcon(itemDesc.icon, 1) + ' ' + itemDesc.title,
+                html: htmlIcon(itemDesc.icon, 1) + ' ' + itemDesc.title
             },
             info: {
                 color: colors.darkestRel,
-                html: itemHandler.itemIcons(currentItem, colors.darkerRel),
+                html: itemHandler.itemIcons(currentItem, colors.darkerRel)
             }
         });
         actionBar.updateForItem(currentItem, itemDesc, true);
@@ -226,16 +232,18 @@ export function create(_args: WindowParams) {
             },
             noonicon: {
                 color: iconicColor
-            },
+            }
         };
         var items: TiDict[] = [geoItem].concat(mapHandler.runGetMethodOnModules('getItemSupplViews', currentItem, itemDesc));
 
         if (currentItem.description) {
-            items.push(createTextItem({
-                callbackId: 'description',
-                html: currentItem.description,
-                maxLines: 2
-            }));
+            items.push(
+                createTextItem({
+                    callbackId: 'description',
+                    html: currentItem.description,
+                    maxLines: 2
+                })
+            );
         }
 
         var hasValue;
@@ -248,23 +256,26 @@ export function create(_args: WindowParams) {
             title = trc('query_profile');
             hasValue = !!(currentItem as Route).profile;
             if (!hasValue) {
-                items.push(createItem({
-                    text: title,
-                    icon: $.sElevation,
-                    callbackId: 'query_profile',
-                    accessory: !hasValue
-                }));
+                items.push(
+                    createItem({
+                        text: title,
+                        icon: $.sElevation,
+                        callbackId: 'query_profile',
+                        accessory: !hasValue
+                    })
+                );
             }
         } else {
             hasValue = !!currentItem.altitude;
             if (!hasValue) {
-
-                items.push(createItem({
-                    text: trc('query_altitude'),
-                    icon: $.sElevation,
-                    callbackId: 'consolidate_alt',
-                    accessory: true
-                }));
+                items.push(
+                    createItem({
+                        text: trc('query_altitude'),
+                        icon: $.sElevation,
+                        callbackId: 'consolidate_alt',
+                        accessory: true
+                    })
+                );
             } else {
                 title = formatter.altitude(currentItem.altitude);
                 var myAltitude = lastPosition ? lastPosition.altitude : -1;
@@ -295,20 +306,20 @@ export function create(_args: WindowParams) {
 
             ohInfos = itemHandler.itemOHInfos(currentItem);
             if (ohInfos) {
-
                 var text = '<b>{1}</b>'.assign(trc(ohInfos.opened ? 'opened' : 'closed'));
                 if (ohInfos.nextTime) {
-                    text += ': ' + trc(ohInfos.opened ? 'close_at' : 'open_at') + ' ' + ohInfos.nextTime.format(
-                        'LT');
+                    text += ': ' + trc(ohInfos.opened ? 'close_at' : 'open_at') + ' ' + ohInfos.nextTime.format('LT');
                 }
-                items.push(createTextItem({
-                    callbackId: 'hours',
-                    html: text,
-                    isHours: true,
-                    accessory: true,
-                    icon: app.icons.hours,
-                    data: false,
-                }));
+                items.push(
+                    createTextItem({
+                        callbackId: 'hours',
+                        html: text,
+                        isHours: true,
+                        accessory: true,
+                        icon: app.icons.hours,
+                        data: false
+                    })
+                );
             }
 
             title = trc('lookup_address');
@@ -316,84 +327,99 @@ export function create(_args: WindowParams) {
             if (hasValue) {
                 title = formatter.address(currentItem.address, true);
             }
-            items.push(createItem({
-                text: title,
-                icon: $.sPlace,
-                callbackId: hasValue ? 'address' : 'reverse_geo',
-                selectable: hasValue,
-                accessory: !hasValue
-            }));
+            items.push(
+                createItem({
+                    text: title,
+                    icon: $.sPlace,
+                    callbackId: hasValue ? 'address' : 'reverse_geo',
+                    selectable: hasValue,
+                    accessory: !hasValue
+                })
+            );
         }
 
         if (currentItem.notes) {
-            currentItem.notes.forEach(function (note, index) {
-                items.push(createTextItem({
-                    callbackId: 'note',
-                    html: '<b>{1}</b>'.assign(note.title),
-                    data: {
-                        noteIndex: index,
-                        showingFull: false
-                    },
-                    accessory: true
-                }));
+            currentItem.notes.forEach(function(note, index) {
+                items.push(
+                    createTextItem({
+                        callbackId: 'note',
+                        html: '<b>{1}</b>'.assign(note.title),
+                        data: {
+                            noteIndex: index,
+                            showingFull: false
+                        },
+                        accessory: true
+                    })
+                );
             });
         }
 
         if (currentItem.tags) {
             if (tags.population) {
-                items.push(createItem({
-                    text: String.formatDecimal(parseInt(tags.population), app.localeInfo.currentLanguage,
-                        '##0,000'),
-                    icon: app.icons.people,
-                }));
+                items.push(
+                    createItem({
+                        text: String.formatDecimal(parseInt(tags.population), app.localeInfo.currentLanguage, '##0,000'),
+                        icon: app.icons.people
+                    })
+                );
             }
             if (tags.wikipedia) {
-                items.push(createItem({
-                    text: trc('wikipedia'),
-                    icon: app.icons.wikipedia,
-                    callbackId: 'wikipedia',
-                    isLink: true
-                }));
+                items.push(
+                    createItem({
+                        text: trc('wikipedia'),
+                        icon: app.icons.wikipedia,
+                        callbackId: 'wikipedia',
+                        isLink: true
+                    })
+                );
             }
             if (tags.website) {
-                items.push(createItem({
-                    text: trc('website'),
+                items.push(
+                    createItem({
+                        text: trc('website'),
 
-                    icon: app.icons.website,
-                    callbackId: 'url',
-                    data: {
-                        url: tags.website
-                    },
-                    // callbackId: 'website',
-                    isLink: true
-                }));
+                        icon: app.icons.website,
+                        callbackId: 'url',
+                        data: {
+                            url: tags.website
+                        },
+                        // callbackId: 'website',
+                        isLink: true
+                    })
+                );
             }
             if (tags.facebook) {
-                items.push(createItem({
-                    text: 'Facebook',
-                    icon: app.icons.facebook,
-                    callbackId: 'url',
-                    data: {
-                        url: tags.facebook
-                    },
-                    // url: tags.facebook,
-                    isLink: true
-                }));
+                items.push(
+                    createItem({
+                        text: 'Facebook',
+                        icon: app.icons.facebook,
+                        callbackId: 'url',
+                        data: {
+                            url: tags.facebook
+                        },
+                        // url: tags.facebook,
+                        isLink: true
+                    })
+                );
             }
             if (tags.phone) {
-                items.push(createItem({
-                    text: tags.phone,
-                    icon: app.icons.phone,
-                    callbackId: 'phone',
-                    selectable: true,
-                    isLink: true
-                }));
+                items.push(
+                    createItem({
+                        text: tags.phone,
+                        icon: app.icons.phone,
+                        callbackId: 'phone',
+                        selectable: true,
+                        isLink: true
+                    })
+                );
             }
         }
-        var sections = [{
-            headerView: sectionHeaderView,
-            items: items
-        }];
+        var sections = [
+            {
+                headerView: sectionHeaderView,
+                items: items
+            }
+        ];
         mapHandler.runMethodOnModules('prepareDetailsListView', currentItem, itemDesc, sections, createItem, colors, iconicColor);
 
         listView.applyProperties({
@@ -405,69 +431,78 @@ export function create(_args: WindowParams) {
             scrollableView: {
                 showPagingControl: !!hasPhotos,
                 currentPage: hasPhotos ? 1 : 0,
-                views: _.reduce(currentItem.photos, function (memo, photo) {
-                    var ratio = photo.width / photo.height;
-                    var banner = ratio > 2;
-                    var densityFactor = app.deviceinfo.densityFactor;
-                    var scale = Math.min(app.deviceinfo.width * densityFactor / photo.width,
-                        $.gfHeaderHeight * densityFactor / photo.height);
-                    memo.push({
-                        type: 'Ti.UI.ImageView',
-                        properties: {
-                            scaleType: banner ? Ti.UI.SCALE_TYPE_ASPECT_FIT : Ti.UI.SCALE_TYPE_ASPECT_FILL,
-                            transition: {
-                                style: Ti.UI.TransitionStyle.FADE
-                            },
-                            filterOptions: {
-                                colorArt: banner,
-                                // scale:scale
-                            },
-                            localLoadSync: false,
-                            onlyTransitionIfRemote: false,
-                            width: 'FILL',
-                            height: 'FILL',
-                            imageIndex: memo.length - 1,
-                            image: app.getThumbnailImagePath(photo)
-                        },
-                        events: banner ? {
-                            load: function (e) {
-                                if (e.colorArt) {
-                                    e.source.backgroundColor = e.colorArt.backgroundColor;
-                                }
-                            }
-                        } : undefined,
-                        childTemplates: photo.attribution ? [{
-                            type: 'Ti.UI.Label',
-                            properties: {
-                                color: $.white,
-                                width: 'FILL',
-                                height: 30,
-                                bottom: 0,
-                                padding: {
-                                    left: 10
-                                },
-                                font: {
-                                    size: 10
-                                },
-                                verticalAlign: 'top',
-                                backgroundColor: '#000000aa',
-                                maxLines:2,
-                                html: app.utilities.photoAttribution(photo)
-                            }
-                        }, {
+                views: _.reduce(
+                    currentItem.photos,
+                    function(memo, photo) {
+                        var ratio = photo.width / photo.height;
+                        var banner = ratio > 2;
+                        var densityFactor = app.deviceinfo.densityFactor;
+                        var scale = Math.min(app.deviceinfo.width * densityFactor / photo.width, $.gfHeaderHeight * densityFactor / photo.height);
+                        memo.push({
                             type: 'Ti.UI.ImageView',
                             properties: {
-                                width: 'SIZE',
-                                height: 10,
-                                bottom: 18,
-                                right: 10,
-                                image: photo.attribution ? (photo.attribution.logo) : undefined
-                            }
-                        }] : undefined
-
-                    });
-                    return memo;
-                }, [mapView] as Array<View | TiDict>)
+                                scaleType: banner ? Ti.UI.SCALE_TYPE_ASPECT_FIT : Ti.UI.SCALE_TYPE_ASPECT_FILL,
+                                transition: {
+                                    style: Ti.UI.TransitionStyle.FADE
+                                },
+                                filterOptions: {
+                                    colorArt: banner
+                                    // scale:scale
+                                },
+                                localLoadSync: false,
+                                onlyTransitionIfRemote: false,
+                                width: 'FILL',
+                                height: 'FILL',
+                                imageIndex: memo.length - 1,
+                                image: app.getThumbnailImagePath(photo)
+                            },
+                            events: banner
+                                ? {
+                                      load: function(e) {
+                                          if (e.colorArt) {
+                                              e.source.backgroundColor = e.colorArt.backgroundColor;
+                                          }
+                                      }
+                                  }
+                                : undefined,
+                            childTemplates: photo.attribution
+                                ? [
+                                      {
+                                          type: 'Ti.UI.Label',
+                                          properties: {
+                                              color: $.white,
+                                              width: 'FILL',
+                                              height: 30,
+                                              bottom: 0,
+                                              padding: {
+                                                  left: 10
+                                              },
+                                              font: {
+                                                  size: 10
+                                              },
+                                              verticalAlign: 'top',
+                                              backgroundColor: '#000000aa',
+                                              maxLines: 2,
+                                              html: app.utilities.photoAttribution(photo)
+                                          }
+                                      },
+                                      {
+                                          type: 'Ti.UI.ImageView',
+                                          properties: {
+                                              width: 'SIZE',
+                                              height: 10,
+                                              bottom: 18,
+                                              right: 10,
+                                              image: photo.attribution ? photo.attribution.logo : undefined
+                                          }
+                                      }
+                                  ]
+                                : undefined
+                        });
+                        return memo;
+                    },
+                    [mapView] as Array<View | TiDict>
+                )
             }
         });
         var params;
@@ -512,7 +547,7 @@ export function create(_args: WindowParams) {
     }
 
     function scrollToItem(itemIndex) {
-        setTimeout(function () {
+        setTimeout(function() {
             listView.scrollToItem(0, itemIndex, {
                 position: 1
             });
@@ -526,7 +561,7 @@ export function create(_args: WindowParams) {
             properties: {
                 height: $.gfHeaderHeight - $.navBarTop,
                 touchEnabled: false
-            },
+            }
         },
         defaultItemTemplate: 'default',
         events: {
@@ -537,31 +572,33 @@ export function create(_args: WindowParams) {
                 expressions: {
                     b: 'min(max(_offset' + '/' + ($.gfHeaderHeight - $.navBarTop) + ', 0), 1)',
                     // c: 'min(_offset, 0) / 60',
-                    d: '1-(min(_offset, 0) / 60)',
+                    d: '1-(min(_offset, 0) / 60)'
                 },
-                targets: [{
-                    target: headerView,
-                    properties: {
-                        transform: 'os_d'
+                targets: [
+                    {
+                        target: headerView,
+                        properties: {
+                            transform: 'os_d'
+                        }
+                    },
+                    {
+                        target: sectionHeaderView.titleHolder,
+                        properties: {
+                            left: '_b*20',
+                            right: '_b*40',
+                            top: '_b*' + $.navBarTop
+                        }
+                    },
+                    {
+                        target: sectionHeaderView.gfheader,
+                        properties: {
+                            top: '(1-_b)*' + $.navBarTop
+                        }
                     }
-
-                }, {
-                    target: sectionHeaderView.titleHolder,
-                    properties: {
-                        left: '_b*20',
-                        right: '_b*40',
-                        top: '_b*' + $.navBarTop
-                    }
-                }, {
-                    target: sectionHeaderView.gfheader,
-                    properties: {
-                        top: '(1-_b)*' + $.navBarTop
-                    }
-                }]
-
+                ]
             },
-            longpress: function (e) {
-                var callbackId = e.item && e.item.callbackId || e.bindId;
+            longpress: function(e) {
+                var callbackId = (e.item && e.item.callbackId) || e.bindId;
                 if (!callbackId) {
                     return;
                 }
@@ -600,38 +637,42 @@ export function create(_args: WindowParams) {
                 if (data) {
                     console.debug('longpress data', data);
                     new OptionDialog({
-                        options: _.map(options, function (value,
-                            index) {
+                        options: _.map(options, function(value, index) {
                             return trc(value);
                         }),
                         buttonNames: [trc('cancel')],
                         cancel: 0,
                         tapOutDismiss: true
-                    }).on('click', (function (e) {
-                        if (!e.cancel) {
-                            var option = options[e.index];
-                            switch (option) {
-                                case 'copy':
-                                case 'copy_position':
-                                case 'copy_altitude':
-                                    if (option === 'copy_altitude') {
-                                        data = formatter.altitude(currentItem.altitude);
+                    })
+                        .on(
+                            'click',
+                            function(e) {
+                                if (!e.cancel) {
+                                    var option = options[e.index];
+                                    switch (option) {
+                                        case 'copy':
+                                        case 'copy_position':
+                                        case 'copy_altitude':
+                                            if (option === 'copy_altitude') {
+                                                data = formatter.altitude(currentItem.altitude);
+                                            }
+                                            Ti.UI.Clipboard.setText(data);
+                                            app.showMessage(trc('sent_to_clipboard'), itemDesc.colors);
+                                            break;
+                                        case 'share':
+                                            app.share({
+                                                text: data
+                                            });
+                                            break;
                                     }
-                                    Ti.UI.Clipboard.setText(data);
-                                    app.showMessage(trc('sent_to_clipboard'), itemDesc.colors);
-                                    break;
-                                case 'share':
-                                    app.share({
-                                        text: data
-                                    });
-                                    break;
-                            }
-                        }
-                    }).bind(this)).show();
+                                }
+                            }.bind(this)
+                        )
+                        .show();
                 }
             },
-            click: app.debounce(function (e) {
-                var callbackId = e.item && e.item.callbackId || e.bindId;
+            click: app.debounce(function(e) {
+                var callbackId = (e.item && e.item.callbackId) || e.bindId;
                 if (!callbackId) {
                     return;
                 }
@@ -640,34 +681,38 @@ export function create(_args: WindowParams) {
                 console.debug('click', callbackId, item);
                 if (e.phoneNumber || e.link) {
                     if (e.phoneNumber) {
-                        app.confirmAction({
-                            buttonNames: [trc('cancel'), trc('call')],
-                            message: e.phoneNumber,
-                            title: null
-                        }, function () {
-                            Ti.Platform.openURL('tel:' + e.phoneNumber);
-                        });
+                        app.confirmAction(
+                            {
+                                buttonNames: [trc('cancel'), trc('call')],
+                                message: e.phoneNumber,
+                                title: null
+                            },
+                            function() {
+                                Ti.Platform.openURL('tel:' + e.phoneNumber, null, null);
+                            }
+                        );
                     } else if (/http/.test(e.link)) {
-                        itemHandler.showFloatingWebView(' ', e.link, currentItem,
-                            itemDesc, self,
-                            mapHandler);
+                        itemHandler.showFloatingWebView(' ', e.link, currentItem, itemDesc, self, mapHandler);
                     } else if (e.link[0] !== '#') {
-                        Ti.Platform.openURL(e.link);
+                        Ti.Platform.openURL(e.link, null, null);
                     }
                     // console.debug(e.phoneNumber || e.link);
                     return;
                 }
                 switch (callbackId) {
                     case 'url':
-                        itemHandler.showFloatingWebView(' ', item.data.url, currentItem, itemDesc,
-                            self,
-                            mapHandler);
+                        itemHandler.showFloatingWebView(' ', item.data.url, currentItem, itemDesc, self, mapHandler);
                         break;
                     case 'file':
                         if (e.bindId === 'delete') {
-                            itemHandler.updateItem(currentItem, itemDesc, {
-                                deletedFiles: [item.data.fileName]
-                            }, mapHandler);
+                            itemHandler.updateItem(
+                                currentItem,
+                                itemDesc,
+                                {
+                                    deletedFiles: [item.data.fileName]
+                                },
+                                mapHandler
+                            );
                             e.section.deleteItemsAt(e.itemIndex, 1, {
                                 animated: true
                             });
@@ -675,16 +720,14 @@ export function create(_args: WindowParams) {
                             var file = Ti.Filesystem.getFile(app.getFilePath(item.data.fileName));
                             if (__ANDROID__) {
                                 try {
-
                                     if (Ti.Filesystem.isExternalStoragePresent()) {
                                         var filenameBase = new Date().getTime();
-                                        var tmpFile = Ti.Filesystem.getFile(Ti.Filesystem.tempDirectory,
-                                            filenameBase + '.' + item.data.type);
+                                        var tmpFile = Ti.Filesystem.getFile(Ti.Filesystem.tempDirectory, filenameBase + '.' + item.data.type);
                                         tmpFile.write(file);
                                         if (tmpFile.exists()) {
                                             var intent = Ti.Android.createIntent({
                                                 action: Ti.Android.ACTION_VIEW,
-                                                type: "application/" + item.data.type,
+                                                type: 'application/' + item.data.type,
                                                 data: tmpFile.nativePath
                                             });
                                             try {
@@ -694,8 +737,7 @@ export function create(_args: WindowParams) {
                                                 alert('No apps PDF apps installed!');
                                             }
                                         } else {
-                                            Ti.API.info('starting intent tmpFile exists: ' +
-                                                tmpFile.exists());
+                                            Ti.API.info('starting intent tmpFile exists: ' + tmpFile.exists());
                                             alert('error while reading pdf file');
                                         }
                                     }
@@ -709,12 +751,13 @@ export function create(_args: WindowParams) {
                                     alert('No PDF apps installed!');
                                 }
                             } else {
-                                Ti.UI.iOS.createDocumentViewer({
-                                    title: item.data.title,
-                                    url: file.nativePath
-                                }).show();
+                                Ti.UI.iOS
+                                    .createDocumentViewer({
+                                        title: item.data.title,
+                                        url: file.nativePath
+                                    })
+                                    .show();
                             }
-
                         }
 
                         // if (e.bindId === 'accessory') {
@@ -734,60 +777,65 @@ export function create(_args: WindowParams) {
                         // });
                         // }
                         break;
-                    case 'hours':
-                        {
-                            today = moment().day();
-                            isShowingFull = item.data;
-                            var text = '',
-                                text2 = '';
-                            if (isShowingFull) {
-                                text = '<b>{1}</b>'.assign(trc(ohInfos.opened ? 'opened' : 'closed'));
-                                if (ohInfos.nextTime) {
-                                    text += ': ' + trc(ohInfos.opened ? 'close_at' : 'open_at') +
-                                        ' ' + ohInfos.nextTime.format('LT');
+                    case 'hours': {
+                        today = moment().day();
+                        const ohdays = ['su', 'mo', 'tu', 'we', 'th', 'fr', 'sa'];
+                        isShowingFull = item.data;
+                        var text = '',
+                            text2 = '';
+                        if (isShowingFull) {
+                            text = '<b>{1}</b>'.assign(trc(ohInfos.opened ? 'opened' : 'closed'));
+                            if (ohInfos.nextTime) {
+                                text += ': ' + trc(ohInfos.opened ? 'close_at' : 'open_at') + ' ' + ohInfos.nextTime.format('LT');
+                            }
+                        } else {
+                            text += '<small>';
+                            text2 += '<small>';
+                            const data = app.utilities.ohWeekString(ohInfos.oh);
+                            let isToday, isLast, index;
+                            for (let key in data) {
+                                isToday = key === ohdays[today];
+                                index = ohdays.indexOf(key);
+                                if (index === -1) {
+                                    continue;
                                 }
-                            } else {
-                                text += '<small>';
-                                text2 += '<small>';
-                                var data = app.utilities.ohWeekString(ohInfos.oh);
-                                var length = data.length,
-                                    isLast;
-                                    data.forEach(function (value, index) {
-                                    isLast = index === length - 1;
-                                    var isToday = value[0].day() === today;
-                                    if (isToday) {
-                                        text += '<b>';
-                                        text2 += '<b>';
-                                    }
-                                    text += _.startCase(value[0].format('ddd'));
-                                    if (value.length > 1) {
-                                        for (var i = 0; i < value.length; i += 2) {
-                                            text2 += value[i].format('LT') + '-' +
-                                                value[i + 1].format('LT') + ', ';
-                                        }
-                                        text2 = text2.slice(0, -2);
-                                    } else {
-                                        text2 += trc('closed');
-                                    }
-                                    if (isToday) {
-                                        text += '</b>';
-                                        text2 += '</b>';
-                                    }
-                                    if (!isLast) {
-                                        text += '<br>';
-                                        text2 += '<br>';
-                                    }
-                                });
-                                text += '</small>';
-                                text2 += '</small>';
+                                isLast = index === 6;
+                                if (isToday) {
+                                    text += '<b>';
+                                    text2 += '<b>';
+                                }
+                                text += _.startCase(
+                                    moment()
+                                        .day(index)
+                                        .format('ddd')
+                                );
+                                if (data[key].length > 0) {
+                                    text2 += data[key].join(', ');
+                                } else {
+                                    text2 += trc('closed');
+                                }
+                                if (isToday) {
+                                    text += '</b>';
+                                    text2 += '</b>';
+                                }
+                                if (!isLast) {
+                                    text += '<br>';
+                                    text2 += '<br>';
+                                }
                             }
 
-                            e.section.updateItemAt(e.itemIndex, {
+                            text += '</small>';
+                            text2 += '</small>';
+                        }
+
+                        e.section.updateItemAt(
+                            e.itemIndex,
+                            {
                                 properties: {
                                     height: isShowingFull ? 44 : 'SIZE'
                                 },
                                 title: {
-                                    html: text,
+                                    html: text
                                 },
                                 title2: {
                                     html: text2,
@@ -797,25 +845,28 @@ export function create(_args: WindowParams) {
                                     text: isShowingFull ? $.sDown : $.sUp
                                 },
                                 data: !isShowingFull
-                            }, {
-                                    animated: true
-                                });
-                            if (!isShowingFull) {
-                                scrollToItem(e.itemIndex);
+                            },
+                            {
+                                animated: true
                             }
-                            break;
+                        );
+                        if (!isShowingFull) {
+                            scrollToItem(e.itemIndex);
                         }
-                    case 'note':
-                        {
-                            var noteIndex = item.data.noteIndex;
-                            var note = currentItem.notes[noteIndex];
-                            isShowingFull = item.data.showingFull;
-                            var title = '<b>{1}</b>'.assign(note.title);
-                            if (!isShowingFull) {
-                                title += '<br>' + note.text;
-                            }
-                            console.log('updating showing note', isShowingFull);
-                            e.section.updateItemAt(e.itemIndex, {
+                        break;
+                    }
+                    case 'note': {
+                        var noteIndex = item.data.noteIndex;
+                        var note = currentItem.notes[noteIndex];
+                        isShowingFull = item.data.showingFull;
+                        var title = '<b>{1}</b>'.assign(note.title);
+                        if (!isShowingFull) {
+                            title += '<br>' + note.text;
+                        }
+                        console.log('updating showing note', isShowingFull);
+                        e.section.updateItemAt(
+                            e.itemIndex,
+                            {
                                 properties: {
                                     height: isShowingFull ? 44 : 'SIZE'
                                 },
@@ -829,49 +880,53 @@ export function create(_args: WindowParams) {
                                     noteIndex: noteIndex,
                                     showingFull: !isShowingFull
                                 }
-                            }, {
-                                    animated: true,
-                                    // maintainPosition:true
-                                });
-                            if (!isShowingFull) {
-                                scrollToItem(e.itemIndex);
+                            },
+                            {
+                                animated: true
+                                // maintainPosition:true
                             }
-                            break;
+                        );
+                        if (!isShowingFull) {
+                            scrollToItem(e.itemIndex);
                         }
+                        break;
+                    }
                     case 'description':
                         isShowingFull = item.data;
-                        e.section.updateItemAt(e.itemIndex, {
-                            properties: {
-                                height: isShowingFull ? 44 : 'SIZE'
+                        e.section.updateItemAt(
+                            e.itemIndex,
+                            {
+                                properties: {
+                                    height: isShowingFull ? 44 : 'SIZE'
+                                },
+                                title: {
+                                    maxLines: isShowingFull ? 2 : 0
+                                },
+                                accessory: {
+                                    text: isShowingFull ? $.sDown : $.sUp
+                                },
+                                data: !isShowingFull
                             },
-                            title: {
-                                maxLines: isShowingFull ? 2 : 0,
-                            },
-                            accessory: {
-                                text: isShowingFull ? $.sDown : $.sUp
-                            },
-                            data: !isShowingFull
-                        }, {
+                            {
                                 animated: true
-                            });
+                            }
+                        );
                         break;
-                    case 'subtitle':
-                        {
-                            runAction('items_list');
-                            break;
-                        }
-                    case 'latlon':
-                        {
-                            var newFormat = (item.latlon.format + 1) % 3;
-                            e.section.updateItemAt(e.itemIndex, {
-                                latlon: {
-                                    text: formatter.latLngString(currentItem, newFormat),
-                                    format: newFormat
-                                }
-                            });
+                    case 'subtitle': {
+                        runAction('items_list');
+                        break;
+                    }
+                    case 'latlon': {
+                        var newFormat = (item.latlon.format + 1) % 3;
+                        e.section.updateItemAt(e.itemIndex, {
+                            latlon: {
+                                text: formatter.latLngString(currentItem, newFormat),
+                                format: newFormat
+                            }
+                        });
 
-                            break;
-                        }
+                        break;
+                    }
                     case 'noon':
                     case 'sunrise':
                     case 'sunset':
@@ -881,8 +936,7 @@ export function create(_args: WindowParams) {
                         if (showingTomorrow) {
                             today.add('days', 1);
                         }
-                        var sundata = suncalc.getTimes(today.toDate(), currentItem.latitude,
-                            currentItem.longitude);
+                        var sundata = suncalc.getTimes(today.toDate(), currentItem.latitude, currentItem.longitude);
 
                         e.section.updateItemAt(e.itemIndex, {
                             showTomorrowSuncalc: showingTomorrow,
@@ -900,13 +954,12 @@ export function create(_args: WindowParams) {
                             }
                         });
                         break;
-                    default:
-                        {
-                            runAction(callbackId);
-                            break;
-                        }
+                    default: {
+                        runAction(callbackId);
+                        break;
+                    }
                 }
-            }),
+            })
         }
     });
 
@@ -914,7 +967,7 @@ export function create(_args: WindowParams) {
     //     console.debug('scroll', e.contentOffset.y);
     // });
 
-    var limit = (__APPLE__ ? -$.navBarTop : 1);
+    var limit = __APPLE__ ? -$.navBarTop : 1;
 
     function onPostLayout(e) {
         var top = e.source.absoluteRect.y;
@@ -930,7 +983,7 @@ export function create(_args: WindowParams) {
 
     self.container.add(listView, 0);
     self.container.add(headerView, 0);
-    self.container.navBar.backgroundOpacity = 0;
+    self.container.navBar['backgroundOpacity'] = 0;
 
     function onChanged(e: ItemChangedEvent) {
         var item = e.item;
@@ -939,7 +992,6 @@ export function create(_args: WindowParams) {
 
             //if only removing file no need to update all listview
             if (_.xor(_.keys(e.changes), ['deletedFiles']).length == 0) {
-
             } else {
                 setDataFromItem();
             }
@@ -948,7 +1000,7 @@ export function create(_args: WindowParams) {
 
     function onRemoved(e: ItemsEvent) {
         console.debug('onRemoved', e);
-        var index = _.findIndex(e.items, function (item) {
+        var index = _.findIndex(e.items, function(item) {
             return item.id === currentItem.id;
         });
         if (index >= 0) {
@@ -974,10 +1026,11 @@ export function create(_args: WindowParams) {
 
     // self.showLoading();
 
-    self.onOpen = app.composeFunc(self.onOpen, function () {
+    self.onOpen = app.composeFunc(self.onOpen, function() {
         sectionHeaderView.gfheader.on('postlayout', onPostLayout);
         console.debug('onOpen');
-        app.on(_EVENT_ITEMS_CHANGED_, onChanged)
+        app
+            .on(_EVENT_ITEMS_CHANGED_, onChanged)
             .on(_EVENT_ITEMS_MOVED_, onMoved)
             .on(_EVENT_ITEMS_REMOVED_, onRemoved)
             .on('ItemSupplyViewUpdate', onItemSupplyViewUpdate);
@@ -986,7 +1039,7 @@ export function create(_args: WindowParams) {
         }
         // self.hideLoading();
     });
-    self.onClose = app.composeFunc(self.onClose, function () {
+    self.onClose = app.composeFunc(self.onClose, function() {
         sectionHeaderView.gfheader.off('postlayout', onPostLayout);
         console.debug('onClose');
         self.setColors('transparent', false, iconicColor);
@@ -1010,13 +1063,14 @@ export function create(_args: WindowParams) {
         listView.applyProperties({
             sections: []
         });
-        app.off(_EVENT_ITEMS_CHANGED_, onChanged)
+        app
+            .off(_EVENT_ITEMS_CHANGED_, onChanged)
             .off(_EVENT_ITEMS_MOVED_, onMoved)
             .off(_EVENT_ITEMS_REMOVED_, onRemoved)
             .off('ItemSupplyViewUpdate', onItemSupplyViewUpdate);
     });
 
-    self.handleArgs = function (_args) {
+    self.handleArgs = function(_args) {
         mapHandler = _.remove(_args, 'mapHandler', mapHandler);
         currentItem = _.remove(_args, 'item', currentItem);
         itemDesc = _.remove(_args, 'itemDesc', itemDesc);
@@ -1027,9 +1081,8 @@ export function create(_args: WindowParams) {
     };
     self.handleArgs(_args);
 
-    //END OF CLASS. NOW GC 
-    self.GC = app.composeFunc(self.GC, function () {
-
+    //END OF CLASS. NOW GC
+    self.GC = app.composeFunc(self.GC, function() {
         if (actionBar) {
             actionBar.GC();
             actionBar = null;
@@ -1045,4 +1098,4 @@ export function create(_args: WindowParams) {
         itemHandler = null;
     });
     return self;
-};
+}

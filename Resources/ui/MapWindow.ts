@@ -7,6 +7,7 @@ declare global {
         mapBottomToolbar: View;
         // mpp: number
         getMpp(): number;
+        getZoom(): number;
         getCurrentRegion(): MapRegion;
         setMapFakePadding(name: string, args: TiDict);
         setRegion(_region: MapRegion, _deltaFactor: number, _animated: boolean, _deltaScreen?);
@@ -68,6 +69,8 @@ declare global {
         url: string;
         id: string;
         downloadRegion(_bounds: MapRegion, filePath: string, _minZoom: number, _maxZoom: number, listener);
+        getTileData(x, y, z, callback);
+        searchFeatures(options, callback);
     }
 
     interface TiLocation {
@@ -77,6 +80,7 @@ declare global {
         heading?: number;
     }
     class MapAnnotation extends Titanium.Proxy {
+        // [k:string]:any
         image?: string;
         minZoom?: number;
         maxZoom?: number;
@@ -87,6 +91,7 @@ declare global {
         item?: Item;
     }
     class MapCluster extends MapAnnotation {
+        readonly region: Region;
         annotations: MapAnnotation[];
         getAnnotation(index: number): MapAnnotation;
         addAnnotation(annotations: MapAnnotation | MapAnnotation[]);
@@ -431,6 +436,7 @@ export function create(_args) {
     var mapView = new MapView({
         properties: Object.assign(moduleParams.mapArgs, {
             rclass: 'AppMapView',
+            styleFile:Ti.App.Properties.getString('mapStyleFile', 'Resources/styles/cartostyles-v1.zip'),
             locale:ak.locale.currentLanguage.split('-')[0],
             region: region,
             clusters: _.values(moduleParams.clusters).reverse(),
@@ -440,6 +446,7 @@ export function create(_args) {
         }),
         events: {
             regionchanged: function(e) {
+                // console.log('regionchanged', e.idle, e.region);
                 if (!e.idle && _.isEqual(e.region, currentRegion)) {
                     return;
                 }
@@ -449,7 +456,7 @@ export function create(_args) {
                 currentTilt = e.tilt;
                 if (e.bearing !== currentRotation) {
                     currentRotation = e.bearing;
-                    console.debug('regionchanged', e.bearing);
+                    // console.debug('bearing changed', e.bearing);
                     self.applyProperties({
                         rotationIcon: {
                             transform: `r${e.bearing}`,
@@ -464,6 +471,7 @@ export function create(_args) {
                         highlightingPoint = false;
                         runMethodOnModules('onHighlightingPoint');
                     }
+                    // console.log('saving last region', e.region);
                     Ti.App.Properties.setObject('last_region', e.region);
                 }
 

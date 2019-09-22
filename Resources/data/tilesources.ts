@@ -45,7 +45,7 @@ export const data = {
         category: 'ski',
         url: '//tiles.skimap.org/openskimap2x/{z}/{x}/{y}.png',
         options: {
-            isOverlay:true,
+            isOverlay: true,
             attribution: '&copy; <a href="http://www.openskimap.org">OpenSkiMap</a>, {attribution.OpenStreetMap}',
             forceHTTP: true
         }
@@ -119,7 +119,7 @@ export const data = {
             },
             HillShading: {
                 options: {
-                    isOverlay:true,
+                    isOverlay: true,
                     variant: 'ELEVATION.ELEVATIONGRIDCOVERAGE.SHADOW',
                     style: 'estompage_grayscale',
                     format: 'image/png'
@@ -175,10 +175,9 @@ export const data = {
             Route500: {
                 url: 'http://{s}.tile.openstreetmap.fr/route500/{z}/{x}/{y}.png',
                 options: {
-                    isOverlay:true,
+                    isOverlay: true,
                     maxZoom: 15,
                     attribution: '&copy; Openstreetmap France | {attribution.OpenStreetMap}'
-
                 }
             }
         }
@@ -205,12 +204,32 @@ export const data = {
         url: 'http://tile.waymarkedtrails.org/{variant}/{z}/{x}/{y}.png',
         options: {
             isOverlay: true,
-            maxZoom: 16,
+            maxZoom: 15,
             attribution: 'Map data: {attribution.OpenStreetMap}, <Overlay from hiking.waymarkedtrails.org, <a href="https://hiking.waymarkedtrails.org/help/acknowledgements"> Terms of Use</a> )'
         },
         variants: {
-            HikingRoutes: 'hiking',
-            CycleRoutes: 'cycling'
+            HikingRoutes: {
+                options: {
+                    variant: 'hiking',
+                //     gridSource:'https://hiking.waymarkedtrails.org/api/tiles/{z}/{x}/{y}.json',
+                //     gridMinZoom:12,
+                //     gridMaxZoom:12
+                // }
+            },
+            CycleRoutes: {
+                options: {
+                    variant: 'cycling',
+                    // gridSource:'https://cycling.waymarkedtrails.org/api/tiles/{z}/{x}/{y}.json',
+                    // gridMinZoom:12,
+                    // gridMaxZoom:12
+                }
+            },
+            hillshading: {
+                options: {
+                    isOverlay: true,
+                    variant: 'hillshading'
+                }
+            }
         }
     },
     OpenCycleMap: {
@@ -350,10 +369,11 @@ export const data = {
             TonerHybrid: 'toner-hybrid',
             TonerLines: 'toner-lines',
             TonerLabels: {
-                options:{
-                    isOverlay:true,
-                    variant:'toner-labels'
-                }},
+                options: {
+                    isOverlay: true,
+                    variant: 'toner-labels'
+                }
+            },
             TonerLite: 'toner-lite',
             Watercolor: {
                 options: {
@@ -483,7 +503,7 @@ export const data = {
         category: 'weather',
         url: 'http://{s}.tile.openweathermap.org/map/{variant}/{z}/{x}/{y}.png',
         options: {
-            isOverlay:true,
+            isOverlay: true,
             maxZoom: 19,
             attribution: 'Map data &copy; <a href="http://openweathermap.org">OpenWeatherMap</a>',
             cacheable: false
@@ -631,7 +651,7 @@ export const data = {
             HillShading: {
                 category: 'relief',
                 options: {
-                    isOverlay:true,
+                    isOverlay: true,
                     maxZoom: 15,
                     variant: 'hillshading'
                 }
@@ -659,7 +679,7 @@ export const data = {
                     variant: 'MODIS_Terra_Land_Surface_Temp_Day',
                     format: 'png',
                     maxZoom: 7,
-                    isOverlay:true,
+                    isOverlay: true
                 }
             },
             // ModisTerraSnowCover: {
@@ -675,7 +695,7 @@ export const data = {
                     variant: 'MODIS_Terra_Aerosol',
                     format: 'png',
                     maxZoom: 6,
-                    isOverlay:true,
+                    isOverlay: true
                 }
             }
             // ModisTerraChlorophyll: {
@@ -764,7 +784,7 @@ export const data = {
             },
             'Bike heatmap': {
                 options: {
-                    isOverlay:true,
+                    isOverlay: true,
                     variant: 'bikemap'
                 }
             }
@@ -775,7 +795,7 @@ export const data = {
         url:
             'http://www.skitrack.fr/cgi-bin/mapserv.fcgi?map=/srv/d_vttrack/vttrack/skitrack/mapserver/WMS-{variant}.map&SERVICE=WMS&VERSION=1.1.1&LAYERS=slope&FORMAT={format}&TRANSPARENT=true&REQUEST=GetMap&STYLES=&SRS=EPSG%3A900913&BBOX={bbox}&WIDTH=512&HEIGHT=512',
         options: {
-            isOverlay:true,
+            isOverlay: true,
             attribution: '{attribution.OpenStreetMap} &copy; <a href="http://maptoolkit.net/">Maptoolkit</a>',
             tileSize: 512,
             devHidden: true,

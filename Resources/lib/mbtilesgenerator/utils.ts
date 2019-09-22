@@ -7,7 +7,7 @@ var EARTH_RADIUS = 6378.137;
  * @param z
  * @returns {*[]}
  */
-var latLngToTileXYForZoom = function(lat, lng, z) {
+export function latLngToTileXYForZoom(lat, lng, z) {
     var n = Math.pow(2, z);
     var x = n * ((lng + 180) / 360);
     var latRad = lat * 2 * Math.PI / 360;

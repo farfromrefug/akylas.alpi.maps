@@ -1629,6 +1629,7 @@ export class TileSourceMgr extends MapModule {
             var enabled = Ti.App.Properties.getBool(_id + '_enabled', true);
             const props = Object.assign(
                 {
+                    styleFile:Ti.App.Properties.getString("mapStyleFile", 'Resources/styles/cartostyles-v1.zip'),
                     id: _id,
                     url: layer.url,
                     source: filePath,

@@ -92,20 +92,6 @@ Ti.App.on('mbtiles_generator_command', function(e: { command: string; token?: st
         }
     }
 });
-/**
- * Get Tile x y from Latitude, Longitude and tile numbers
- * @param lat in degrees
- * @param lng in degrees
- * @param z
- * @returns {*[]}
- */
-var latLngToTileXYForZoom = function(lat, lng, z) {
-    var n = Math.pow(2, z);
-    var x = n * ((lng + 180) / 360);
-    var latRad = lat * 2 * Math.PI / 360;
-    var y = n * (1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2;
-    return [Math.floor(x), Math.floor(y)];
-};
 
 // Classes
 function Tile(x, y, z) {
@@ -514,8 +500,8 @@ var countTiles = function(layer, bounds, minZoom, maxZoom) {
     var count = 0;
 
     for (var z = minZoom; z <= maxZoom; z++) {
-        var coords1 = latLngToTileXYForZoom(bounds.ne.latitude, bounds.sw.longitude, z);
-        var coords2 = latLngToTileXYForZoom(bounds.sw.latitude, bounds.ne.longitude, z);
+        var coords1 = Utils.latLngToTileXYForZoom(bounds.ne.latitude, bounds.sw.longitude, z);
+        var coords2 = Utils.latLngToTileXYForZoom(bounds.sw.latitude, bounds.ne.longitude, z);
         // Adjust to process at least one tile for each zoom (lower zoom levels)
         if (coords1[0] === coords2[0]) {
             coords2[0] += 1;
@@ -549,8 +535,8 @@ var listTiles = function(request: TilesRequest, bounds: Region, minZoom: number,
         totalCount = 0;
 
     for (var z = minZoom; z <= maxZoom; z++) {
-        var coords1 = latLngToTileXYForZoom(bounds.sw.latitude, bounds.sw.longitude, z);
-        var coords2 = latLngToTileXYForZoom(bounds.ne.latitude, bounds.ne.longitude, z);
+        var coords1 = Utils.latLngToTileXYForZoom(bounds.sw.latitude, bounds.sw.longitude, z);
+        var coords2 = Utils.latLngToTileXYForZoom(bounds.ne.latitude, bounds.ne.longitude, z);
         // var coords1 = latLngToTileXYForZoom(bounds.ne.latitude, bounds.sw.longitude, z);
         // var coords2 = latLngToTileXYForZoom(bounds.sw.latitude, bounds.ne.longitude, z);
         // Adjust to process at least one tile for each zoom (lower zoom levels)

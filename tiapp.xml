@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ti:app xmlns:ti="http://ti.appcelerator.org">
-    <sdk-version>7.3.0.AKYLAS</sdk-version>
+    <sdk-version>8.0.0.AKYLAS</sdk-version>
     <id>akylas.alpi.maps</id>
     <name>Alpi Maps</name>
     <version>1.4.0</version>
@@ -17,7 +17,7 @@
     <minify-js>false</minify-js>
     <android xmlns:android="http://schemas.android.com/apk/res/android">
         <abi>armeabi-v7a</abi>
-        <manifest android:installLocation="auto" android:versionCode="117">
+        <manifest android:installLocation="auto" android:versionCode="118">
             <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="26" />
             <uses-feature android:name="android.hardware.location.gps" />
             <application android:hardwareAccelerated="true" android:allowBackup="true">

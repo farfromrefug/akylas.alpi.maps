@@ -1,4 +1,4 @@
-/// <reference path="/Volumes/data/mguillon/Library/Application Support/Titanium/mobilesdk/osx/7.0.0.AKYLAS/titanium.d.ts" />
+/// <reference path="/Volumes/data/mguillon/Library/Application Support/Titanium/mobilesdk/osx/8.0.0.AKYLAS/titanium.d.ts" />
 /// <reference path="./TemplateModule.d.ts" />
 /// <reference path="./AKInclude/akylas.global.d.ts" />
 /// <reference path="./AKInclude/akylas.lang.d.ts" />

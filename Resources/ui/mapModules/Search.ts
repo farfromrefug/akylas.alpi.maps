@@ -1,6 +1,12 @@
 import { MapModule } from './MapModule';
 
-exports.create = function (_context, _args, _additional) {
+interface SearchView extends View {
+    textfield: titanium.UITextField;
+    loading: LoadingView;
+    filtersHolder: View;
+}
+
+exports.create = function(_context, _args, _additional) {
     var settings = _args.settings,
         visible = false,
         itemHandler = app.itemHandler,
@@ -12,15 +18,13 @@ exports.create = function (_context, _args, _additional) {
         animationDuration = 200,
         infoRowItemForItem = itemHandler.infoRowItemForItem,
         updateParamsForLocation = itemHandler.updateParamsForLocation,
-        type = itemHandler.initializeType('searchitem', _.cloneDeep(require('data/markertypes').data[
-            'searchitem'])),
-        sattype = itemHandler.initializeType('satitem', _.cloneDeep(require('data/markertypes').data[
-            'satitem'])),
+        type = itemHandler.initializeType('searchitem', _.cloneDeep(require('data/markertypes').data['searchitem'])),
+        sattype = itemHandler.initializeType('satitem', _.cloneDeep(require('data/markertypes').data['satitem'])),
         resultsVisible = false,
         searchResultIds = null,
         searchFilters = [],
         enabledSearchFilters = [],
-        cluster,
+        cluster: MapCluster,
         searchRoutes = [],
         self = new MapModule(_args),
         resultView,
@@ -30,9 +34,9 @@ exports.create = function (_context, _args, _additional) {
         searchAsTypeTimer,
         searchHistory = Ti.App.Properties.getObject('search.history', []),
         searchWindow,
-        searchView,
+        searchView: SearchView,
         currentInstantSearch,
-        getSearchView = function () {
+        getSearchView = function() {
             if (!searchView) {
                 var filters = self.parent.runGetMethodOnModules(true, 'getSearchFilters');
                 searchView = new View({
@@ -41,173 +45,181 @@ exports.create = function (_context, _args, _additional) {
                         rclass: 'SearchView',
                         bubbleParent: false
                     },
-                    childTemplates: [{
-                        type: 'Ti.UI.View',
-                        properties: {
-                            rclass: 'InternalElevatedView',
-                            backgroundColor: $.white,
-                            borderRadius: 2,
-                            zIndex: 10,
-                            layout: 'vertical',
-                            height: 'SIZE'
+                    childTemplates: [
+                        {
+                            type: 'Ti.UI.View',
+                            properties: {
+                                rclass: 'InternalElevatedView',
+                                backgroundColor: $.white,
+                                borderRadius: 2,
+                                zIndex: 10,
+                                layout: 'vertical',
+                                height: 'SIZE'
+                            },
+                            childTemplates: [
+                                {
+                                    type: 'Ti.UI.View',
+                                    properties: {
+                                        layout: 'horizontal',
+                                        height: 44
+                                    },
+
+                                    childTemplates: [
+                                        {
+                                            bindId: 'cancel',
+                                            type: 'Ti.UI.Label',
+                                            properties: {
+                                                rclass: 'WhiteOptionButton',
+                                                text: $.sClose
+                                            }
+                                        },
+                                        {
+                                            type: 'Ti.UI.TextField',
+                                            bindId: 'textfield',
+                                            properties: {
+                                                rclass: 'SearchTextField',
+                                                value: currentInstantSearch
+                                            },
+
+                                            events: {
+                                                change: function(e) {
+                                                    currentInstantSearch = e.value;
+                                                    instantSearch(currentInstantSearch);
+                                                },
+                                                focus: function() {
+                                                    if (searchFilters.length > 0) {
+                                                        if (visible) {
+                                                            searchView.filtersHolder.animate({
+                                                                height: 'SIZE',
+                                                                duration: 100
+                                                            });
+                                                        }
+                                                    }
+                                                },
+                                                blur: function() {
+                                                    if (searchFilters.length > 0) {
+                                                        if (visible) {
+                                                            searchView.filtersHolder.animate({
+                                                                height: 0,
+                                                                duration: 100
+                                                            });
+                                                        }
+                                                    }
+                                                },
+                                                return: function(e) {
+                                                    clearInstantSearch();
+                                                    if (e.value && e.value.length > 0) {
+                                                        search(e.value);
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            // properties: {
+                                            //     right: 0,
+                                            //     width: 40,
+                                            //     height: 'FILL'
+                                            // },
+                                            // childTemplates: [{
+                                            bindId: 'loading',
+                                            type: 'Ti.UI.ActivityIndicator',
+                                            properties: {
+                                                rclass: 'SearchLoadingIndicator',
+                                                visible: false
+                                            }
+                                            // }]
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: 'Ti.UI.View',
+                                    bindId: 'filtersHolder',
+                                    properties: {
+                                        height: 0
+                                    },
+                                    childTemplates: [
+                                        {
+                                            type: 'Ti.UI.ScrollView',
+                                            bindId: 'scrollableFilters',
+                                            properties: {
+                                                rclass: 'SearchFeaturesFilter',
+                                                // visible: false,
+                                                visible: filters.length > 0
+                                            },
+                                            childTemplates: _.reduce(
+                                                filters,
+                                                function(memo, value) {
+                                                    searchFilters.push(value.id);
+                                                    enabledSearchFilters.push(value.id);
+                                                    memo.push(new ActionButton(value));
+                                                    return memo;
+                                                },
+                                                []
+                                            )
+                                        }
+                                    ],
+                                    events: {
+                                        click: function(e) {
+                                            sdebug(e.source);
+                                            var id = e.source.callbackId;
+                                            if (!id) {
+                                                return;
+                                            }
+                                            var enabled = e.source.isEnabled();
+                                            sdebug(id, enabled);
+                                            if (enabled) {
+                                                _.remove(enabledSearchFilters, function(n) {
+                                                    return n === id;
+                                                });
+                                            } else {
+                                                enabledSearchFilters.push(id);
+                                            }
+                                            e.source.setEnabled(!enabled);
+                                            sdebug(enabledSearchFilters);
+                                        }
+                                    }
+                                }
+                            ]
                         },
-                        childTemplates: [{
-                            type: 'Ti.UI.View',
+                        {
+                            type: 'Ti.UI.ListView',
+                            bindId: 'satListView',
                             properties: {
-                                layout: 'horizontal',
-                                height: 44,
+                                // top: 20,
+                                bottom: 0,
+                                bubbleParent: false,
+                                templates: {
+                                    default: app.templates.row.search
+                                },
+                                defaultItemTemplate: 'default',
+                                sections: [satSection]
                             },
-
-                            childTemplates: [{
-                                bindId: 'cancel',
-                                type: 'Ti.UI.Label',
-                                properties: {
-                                    rclass: 'WhiteOptionButton',
-                                    text: $.sClose
-                                }
-                            }, {
-                                type: 'Ti.UI.TextField',
-                                bindId: 'textfield',
-                                properties: {
-                                    rclass: 'SearchTextField',
-                                    value: currentInstantSearch
-                                },
-
-                                events: {
-                                    change: function (e) {
-                                        currentInstantSearch = e.value;
-                                        instantSearch(currentInstantSearch);
-                                    },
-                                    focus: function () {
-                                        if (searchFilters.length > 0) {
-                                            if (visible) {
-                                                searchView.filtersHolder.animate({
-                                                    height: 'SIZE',
-                                                    duration: 100
-                                                });
-                                            }
-                                        }
-                                    },
-                                    blur: function () {
-                                        if (searchFilters.length > 0) {
-                                            if (visible) {
-                                                searchView.filtersHolder.animate({
-                                                    height: 0,
-                                                    duration: 100
-                                                });
-                                            }
-
-                                        }
-                                    },
-                                    return: function (e) {
-
-                                        clearInstantSearch();
-                                        if (e.value && e.value.length > 0) {
-                                            search(e.value);
-                                        }
-                                    },
-                                }
-                            }, {
-                                // properties: {
-                                //     right: 0,
-                                //     width: 40,
-                                //     height: 'FILL'
-                                // },
-                                // childTemplates: [{
-                                bindId: 'loading',
-                                type: 'Ti.UI.ActivityIndicator',
-                                properties: {
-                                    rclass: 'SearchLoadingIndicator',
-                                    visible: false,
-                                },
-                                // }]
-                            }],
-
-                        }, {
-                            type: 'Ti.UI.View',
-                            bindId: 'filtersHolder',
-                            properties: {
-                                height: 0,
-                            },
-                            childTemplates: [{
-                                type: 'Ti.UI.ScrollView',
-                                bindId: 'scrollableFilters',
-                                properties: {
-                                    rclass: 'SearchFeaturesFilter',
-                                    // visible: false,
-                                    visible: filters.length > 0,
-                                },
-                                childTemplates: _.reduce(filters, function (memo,
-                                    value) {
-                                    searchFilters.push(value.id);
-                                    enabledSearchFilters.push(value.id);
-                                    memo.push(new ActionButton(value));
-                                    return memo;
-                                }, [])
-                            }],
                             events: {
-                                click: function (e) {
-                                    sdebug(e.source);
-                                    var id = e.source.callbackId;
-                                    if (!id) {
-                                        return;
-                                    }
-                                    var enabled = e.source.isEnabled();
-                                    sdebug(id, enabled);
-                                    if (enabled) {
-                                        _.remove(enabledSearchFilters, function (n) {
-                                            return n === id;
-                                        });
+                                click: app.debounce(function(e) {
+                                    if (e.item) {
+                                        if (e.bindId === 'accessory') {
+                                            self.parent.updateCamera({
+                                                centerCoordinate: _.pick(e.item.item, 'latitude', 'longitude')
+                                            });
+                                        } else {
+                                            handleOnAdd(e, false, false);
+                                        }
+                                        hide();
                                     } else {
-                                        enabledSearchFilters.push(id);
+                                        hide();
                                     }
-                                    e.source.setEnabled(!enabled);
-                                    sdebug(enabledSearchFilters);
-                                }
+                                })
                             }
-
-                        }]
-                    }, {
-                        type: 'Ti.UI.ListView',
-                        bindId: 'satListView',
-                        properties: {
-                            // top: 20,
-                            bottom: 0,
-                            bubbleParent: false,
-                            templates: {
-                                'default': app.templates.row.search
-                            },
-                            defaultItemTemplate: 'default',
-                            sections: [satSection]
-                        },
-                        events: {
-                            click: app.debounce(function (e) {
-                                if (e.item) {
-                                    if (e.bindId === 'accessory') {
-                                        self.parent.updateCamera({
-                                            centerCoordinate: _.pick(e.item.item,
-                                                'latitude',
-                                                'longitude')
-                                        });
-                                    } else {
-                                        handleOnAdd(e, false, false);
-                                    }
-                                    hide();
-                                } else {
-                                    hide();
-                                }
-                            })
                         }
-                    }],
+                    ],
                     events: {
-
-                        click: function (e) {
+                        click: function(e) {
                             if (e.bindId === 'cancel') {
                                 hide();
                             }
                         }
                     }
-                });
+                }) as SearchView;
                 // searchView.applyProperties({
                 //     scrollableFilters: {
 
@@ -221,15 +233,17 @@ exports.create = function (_context, _args, _additional) {
         if (!cluster) {
             sdebug('search type', type);
             cluster = new MapCluster({
-                image: app.getImagePath(itemHandler.getAnnotImage(type, {
-                    iconSettings: {
-                        style: 10,
-                        // scale: 0.3
-                    }
-                })),
+                image: app.getImagePath(
+                    itemHandler.getAnnotImage(type, {
+                        iconSettings: {
+                            style: 10
+                            // scale: 0.3
+                        }
+                    })
+                ),
                 touchable: false,
                 maxDistance: 20,
-                showText: false,
+                showText: false
                 // color: type.colors.contrast
             });
             self.mapView.addCluster(cluster);
@@ -258,7 +272,7 @@ exports.create = function (_context, _args, _additional) {
     function satItem(_item, _itemDesc) {
         return {
             icon: {
-                text: _item.icon || _itemDesc.icon,
+                text: _item.icon || _itemDesc.icon
             },
             title: {
                 text: itemHandler.itemTitle(_item, _itemDesc)
@@ -283,7 +297,7 @@ exports.create = function (_context, _args, _additional) {
         }
         if (_query && _query.length > 2) {
             // sdebug('instantSearch', _query);
-            searchAsTypeTimer = setTimeout(function () {
+            searchAsTypeTimer = setTimeout(function() {
                 searchAsTypeTimer = null;
                 if (photonSearchRequest) {
                     photonSearchRequest.abort();
@@ -296,7 +310,7 @@ exports.create = function (_context, _args, _additional) {
                 let list;
                 for (const key in instantItems) {
                     list = instantItems[key];
-                    list.items.forEach(function (item) {
+                    list.items.forEach(function(item) {
                         items.push(satItem(item, list.desc));
                     });
                 }
@@ -313,9 +327,16 @@ exports.create = function (_context, _args, _additional) {
                 }
                 // sdebug('search photon');
                 searchView.loading.show();
-                photonSearchRequest = app.api.photonSearch(Object.assign({
-                    query: _query,
-                }, settings.currentLocation)).then(onPhotonSearch);
+                photonSearchRequest = app.api
+                    .photonSearch(
+                        Object.assign(
+                            {
+                                query: _query
+                            },
+                            settings.currentLocation
+                        )
+                    )
+                    .then(onPhotonSearch);
             }, 400);
         } else {
             clearInstantSearch();
@@ -336,24 +357,28 @@ exports.create = function (_context, _args, _additional) {
         }
         // sdebug('onPhotonSearch', _results);
         var existing, itemDesc, item;
-        var newItems = _.reduce(_results, function (memo, value) {
-            existing = self.parent.runGetSingleMethodOnModules('getItem', value);
-            if (existing) {
-                // value = existing.item;
-                // itemDesc = existing.desc;
-                // existing = true;
-            } else {
-                itemDesc = sattype;
-                value.type = type.id;
-                item = satItem(value, itemDesc);
-                item.existing = existing;
-                memo.push(item);
-            }
-            // item = infoRowItemForItem(value, itemDesc, null, null);
-            // item.existing = existing;
-            // memo.push(item);
-            return memo;
-        }, []);
+        var newItems = _.reduce(
+            _results,
+            function(memo, value) {
+                existing = self.parent.runGetSingleMethodOnModules('getItem', value);
+                if (existing) {
+                    // value = existing.item;
+                    // itemDesc = existing.desc;
+                    // existing = true;
+                } else {
+                    itemDesc = sattype;
+                    value.type = type.id;
+                    item = satItem(value, itemDesc);
+                    item.existing = existing;
+                    memo.push(item);
+                }
+                // item = infoRowItemForItem(value, itemDesc, null, null);
+                // item.existing = existing;
+                // memo.push(item);
+                return memo;
+            },
+            []
+        );
         satSection.appendItems(newItems, {
             animated: true
         });
@@ -401,34 +426,32 @@ exports.create = function (_context, _args, _additional) {
                     return;
                     // return true;
                 }
-
             }
         }
         resultView.listView.deselectAll(true);
         // return true;
     }
 
-    function handleOnAdd(e, _showDetails, _updateListView) {
-        var annots, index,
+    function handleOnAdd(e, _showDetails, _updateListView?) {
+        let annots: MapAnnotation[],
+            index: number,
             item = e.item.item,
             desc = e.item.desc;
-        var newType = (item.type === type.id || item.type === sattype.id) ? 'modified' : desc.id;
+        var newType = item.type === type.id || item.type === sattype.id ? 'modified' : desc.id;
         if (!e.item.existing) {
             item.type = newType;
             sdebug('adding search item', item.id);
-            self.parent.runMethodOnModules(
-                'spreadModuleAction', {
-                    id: __ITEMS__,
-                    list: newType,
-                    command: 'create_list',
-                    onlyIfExists: true
-                });
-            self.parent.runMethodOnModules(
-                'spreadModuleAction', {
-                    id: newType,
-                    command: 'add',
-                    items: [item]
-                });
+            self.parent.runMethodOnModules('spreadModuleAction', {
+                id: __ITEMS__,
+                list: newType,
+                command: 'create_list',
+                onlyIfExists: true
+            });
+            self.parent.runMethodOnModules('spreadModuleAction', {
+                id: newType,
+                command: 'add',
+                items: [item]
+            });
             var newItem = self.parent.runGetSingleMethodOnModules('getItem', item);
             var isRoute = itemHandler.isItemARoute(newItem);
             if (isRoute) {
@@ -437,7 +460,7 @@ exports.create = function (_context, _args, _additional) {
             } else {
                 if (cluster) {
                     annots = cluster.annotations;
-                    index = _.findIndex(annots, function (theA) {
+                    index = _.findIndex(annots, function(theA) {
                         return theA.item.id === item.id;
                     });
                     if (index >= 0) {
@@ -450,20 +473,18 @@ exports.create = function (_context, _args, _additional) {
                 }
             }
             if (_updateListView !== false) {
-                e.section.updateItemAt(e.itemIndex,
-                    createListItem(newItem.item, newItem.desc, true), {
-                        animated: true
-                    });
+                e.section.updateItemAt(e.itemIndex, createListItem(newItem.item, newItem.desc, true), {
+                    animated: true
+                });
             }
 
             self.runAction('select', item, desc);
         } else {
             self.runAction(!!_showDetails ? 'details' : 'select', item, desc);
         }
-
     }
 
-    var onAccessory = app.debounce(function (e) {
+    var onAccessory = app.debounce(function(e) {
         handleOnAdd(e, true);
     });
 
@@ -473,83 +494,83 @@ exports.create = function (_context, _args, _additional) {
                 properties: {
                     rclass: 'SearchResultView',
                     layout: 'vertical',
-                    height: 0,
+                    height: 0
                 },
-                childTemplates: [{
-                    bindId: 'listView',
-                    type: 'Ti.UI.ListView',
-                    properties: {
-                        allowsSelection: true,
-                        bubbleParent: false,
-                        height: resultViewHeight - 40,
-                        templates: {
-                            'default': app.templates.row.iteminfosmall
+                childTemplates: [
+                    {
+                        bindId: 'listView',
+                        type: 'Ti.UI.ListView',
+                        properties: {
+                            allowsSelection: true,
+                            bubbleParent: false,
+                            height: resultViewHeight - 40,
+                            templates: {
+                                default: app.templates.row.iteminfosmall
+                            },
+                            defaultItemTemplate: 'default'
                         },
-                        defaultItemTemplate: 'default',
-                    },
-                    events: {
-                        click: function (e) {
-                            if (e.item) {
-                                var annots, index,
-                                    item = e.item.item,
-                                    desc = e.item.desc,
-                                    existing = !!e.item.existing;
+                        events: {
+                            click: function(e) {
+                                if (e.item) {
+                                    let annots: MapAnnotation[],
+                                        index: number,
+                                        item = e.item.item,
+                                        desc = e.item.desc,
+                                        existing = !!e.item.existing;
 
-                                sdebug('click', e.bindId, existing, item.id);
-                                if (e.bindId === 'accessory') {
-                                    onAccessory(e);
-                                } else {
-                                    if (!existing) {
-                                        var isRoute = itemHandler.isItemARoute(item);
-                                        if (isRoute) {
-                                            var route = searchRoutes[e.item.routeIndex];
-                                            self.mapView.selectAnnotation(route);
-                                            self.parent.setRegion(route.region, 0.3, true);
-                                        } else {
-                                            annots = cluster.annotations;
-                                            index = _.findIndex(annots, function (theA) {
-                                                return theA.item.id === item.id;
-                                            });
-                                            self.mapView.selectAnnotation(annots[index]);
-                                            self.parent.updateCamera({
-                                                centerCoordinate: item,
-                                            });
-                                        }
-
+                                    sdebug('click', e.bindId, existing, item.id);
+                                    if (e.bindId === 'accessory') {
+                                        onAccessory(e);
                                     } else {
-                                        self.parent.runMethodOnModules('runActionOnItem',
-                                            desc.id,
-                                            item, 'select');
+                                        if (!existing) {
+                                            var isRoute = itemHandler.isItemARoute(item);
+                                            if (isRoute) {
+                                                var route = searchRoutes[e.item.routeIndex];
+                                                self.mapView.selectAnnotation(route);
+                                                self.parent.setRegion(route.region, 0.3, true);
+                                            } else {
+                                                annots = cluster.annotations;
+                                                index = _.findIndex(annots, function(theA) {
+                                                    return theA.item.id === item.id;
+                                                });
+                                                self.mapView.selectAnnotation(annots[index]);
+                                                self.parent.updateCamera({
+                                                    centerCoordinate: item
+                                                });
+                                            }
+                                        } else {
+                                            self.parent.runMethodOnModules('runActionOnItem', desc.id, item, 'select');
+                                        }
+                                        // annot = cluster.getAnnotation(e.itemIndex);
+
+                                        // self.mapView.selectAnnotation(searchAnnots[e.itemIndex]);
+                                        // self.mapView.updateCamera({
+                                        //     centerCoordinate: item.data,
+                                        //     animated: true
+                                        // });
                                     }
-                                    // annot = cluster.getAnnotation(e.itemIndex);
-
-                                    // self.mapView.selectAnnotation(searchAnnots[e.itemIndex]);
-                                    // self.mapView.updateCamera({
-                                    //     centerCoordinate: item.data,
-                                    //     animated: true
-                                    // });
                                 }
-
                             }
                         }
-                    }
-                }, {
-                    type: 'Ti.UI.Label',
-                    bindId: 'cancelBtn',
-                    properties: {
-                        text: trc('cancel').toUpperCase(),
-                        width: 'FILL',
-                        textAlign: 'center',
-                        bubbleParent: false,
-                        color: app.colors.red.color,
-                        height: 40,
-                        backgroundColor: $.white,
-                        backgroundSelectedColor: app.colors.red.darker,
                     },
-                    events: {
-                        click: hide
+                    {
+                        type: 'Ti.UI.Label',
+                        bindId: 'cancelBtn',
+                        properties: {
+                            text: trc('cancel').toUpperCase(),
+                            width: 'FILL',
+                            textAlign: 'center',
+                            bubbleParent: false,
+                            color: app.colors.red.color,
+                            height: 40,
+                            backgroundColor: $.white,
+                            backgroundSelectedColor: app.colors.red.darker
+                        },
+                        events: {
+                            click: hide
+                        }
                     }
-                }]
+                ]
             });
             self.parent.mapBottomToolbar.add(resultView);
         }
@@ -557,13 +578,12 @@ exports.create = function (_context, _args, _additional) {
     }
 
     function createListItem(_item, _itemDesc, _existing) {
-
         var args = infoRowItemForItem(_item, _itemDesc);
         args.existing = _existing;
         args.accessory = {
             title: _existing ? $.sRight : $.sAdd,
             color: args.icon.color
-        }
+        };
         return args;
     }
 
@@ -594,78 +614,91 @@ exports.create = function (_context, _args, _additional) {
         self.onMapMarkerSelected = onMapMarkerSelected;
         searchResultIds = {};
         var sectionsCount = 0,
-            sectionItems, items = [],
-            color, existing, annot, itemDesc, clusterAnnots = [],
-            value, i, sectionType, isRoute;
-        var sections = _.reduce(res, function (memo, results) {
-            if (!results) {
-                return;
-            }
-            sectionType = (results.type && _.defaults({
-                color: type.color,
-                colors: type.colors,
-            }, results.type)) || type;
-            sectionItems = [];
-            for (i = 0; i < results.items.length; i++) {
-                value = results.items[i];
-                existing = self.parent.runGetSingleMethodOnModules('getItem', value);
-                color = sectionType.colors.color;
-                isRoute = itemHandler.isItemARoute(value);
-                if (existing) {
-                    value = existing.item;
+            sectionItems,
+            items = [],
+            color,
+            existing,
+            annot,
+            itemDesc,
+            clusterAnnots = [],
+            value,
+            i,
+            sectionType,
+            isRoute;
+        var sections = _.reduce(
+            res,
+            function(memo, results) {
+                if (!results) {
+                    return;
+                }
+                sectionType =
+                    (results.type &&
+                        _.defaults(
+                            {
+                                color: type.color,
+                                colors: type.colors
+                            },
+                            results.type
+                        )) ||
+                    type;
+                sectionItems = [];
+                for (i = 0; i < results.items.length; i++) {
+                    value = results.items[i];
+                    existing = self.parent.runGetSingleMethodOnModules('getItem', value);
+                    color = sectionType.colors.color;
                     isRoute = itemHandler.isItemARoute(value);
-                    annot = existing.annotation;
-                    itemDesc = existing.desc;
-                    color = existing.desc.colors.color;
-                    existing = true;
-                } else {
-                    itemDesc = sectionType;
-                    value.type = sectionType.id;
-                }
+                    if (existing) {
+                        value = existing.item;
+                        isRoute = itemHandler.isItemARoute(value);
+                        annot = existing.annotation;
+                        itemDesc = existing.desc;
+                        color = existing.desc.colors.color;
+                        existing = true;
+                    } else {
+                        itemDesc = sectionType;
+                        value.type = sectionType.id;
+                    }
 
-                searchResultIds[value.id] = [sectionsCount, i];
-                var item = createListItem(value, itemDesc, existing);
-                if (!isRoute) {
-                    items.push(value);
-                    if (!existing) {
-                        if (value.icon || value.color) {
-                            value.image = value.selectedImage = itemHandler.getAnnotImage(
-                                sectionType,
-                                value);
-                            value.selectedImage = itemHandler.getAnnotImage(sectionType, value,
-                                true);
+                    searchResultIds[value.id] = [sectionsCount, i];
+                    var item = createListItem(value, itemDesc, existing);
+                    if (!isRoute) {
+                        items.push(value);
+                        if (!existing) {
+                            if (value.icon || value.color) {
+                                value.image = value.selectedImage = itemHandler.getAnnotImage(sectionType, value);
+                                value.selectedImage = itemHandler.getAnnotImage(sectionType, value, true);
+                            }
+                            annot = new MapAnnotation(itemHandler.annotationParamsFromItem(value, sectionType));
+                            clusterAnnots.push(annot);
                         }
-                        annot = new MapAnnotation(itemHandler.annotationParamsFromItem(value,
-                            sectionType));
-                        clusterAnnots.push(annot);
+                    } else {
+                        if (!existing) {
+                            item.routeIndex = searchRoutes.length;
+                            searchRoutes.push(new MapRoute(itemHandler.routeParamsFromItem(value, sectionType)));
+                        }
                     }
-                } else {
-                    if (!existing) {
-                        item.routeIndex = searchRoutes.length;
-                        searchRoutes.push(new MapRoute(itemHandler.routeParamsFromItem(value,
-                            sectionType)));
-                    }
-                }
-                sectionItems.push(item);
+                    sectionItems.push(item);
 
-                annot = undefined;
-            }
-            memo.push({
-                headerView: ak.ti.style({
-                    type: 'Ti.UI.Label',
-                    properties: {
-                        rclass: 'SectionHeaderLabel',
-                        backgroundColor: sectionType.colors.color,
-                        color: sectionType.colors.contrast,
-                        html: htmlIcon(sectionType.icon, 1) + ' ' + sectionType.title
-                    }
-                }),
-                // headerTitle: sectionType.title,
-                items: sectionItems
-            });
-            sectionsCount++;
-            return memo;
-        }, []);
+                    annot = undefined;
+                }
+                memo.push({
+                    headerView: ak.ti.style({
+                        type: 'Ti.UI.Label',
+                        properties: {
+                            rclass: 'SectionHeaderLabel',
+                            backgroundColor: sectionType.colors.color,
+                            color: sectionType.colors.contrast,
+                            html: htmlIcon(sectionType.icon, 1) + ' ' + sectionType.title
+                        }
+                    }),
+                    // headerTitle: sectionType.title,
+                    items: sectionItems
+                });
+                sectionsCount++;
+                return memo;
+            },
+            []
+        );
         var region;
         if (clusterAnnots.length > 0) {
             getCluster().annotations = clusterAnnots;
@@ -695,14 +728,17 @@ exports.create = function (_context, _args, _additional) {
         getResultView();
         // resultView.listView.once('postlayout', function() {
         // });
-        resultView.applyProperties({
-            // cancelBtn: {
-            //     visible: !visible
-            // },
-            listView: {
-                sections: sections
-            }
-        }, true);
+        resultView.applyProperties(
+            {
+                // cancelBtn: {
+                //     visible: !visible
+                // },
+                listView: {
+                    sections: sections
+                }
+            },
+            true
+        );
 
         if (searchWindow) {
             searchWindow.closeMe();
@@ -714,19 +750,21 @@ exports.create = function (_context, _args, _additional) {
         if (searchView) {
             searchView.loading.hide();
         }
-        return new Promise(function (resolve) {
-            resultView.animate({
-                height: resultViewHeight,
-                // transform: null,
-                duration: animationDuration
-            }, function () {
-                self.mapView.addRoute(searchRoutes);
-                if (region) {
-                    self.parent.setRegion(region, 0.1, true);
+        return new Promise(function(resolve) {
+            resultView.animate(
+                {
+                    height: resultViewHeight,
+                    // transform: null,
+                    duration: animationDuration
+                },
+                function() {
+                    self.mapView.addRoute(searchRoutes);
+                    if (region) {
+                        self.parent.setRegion(region, 0.1, true);
+                    }
+                    resolve();
                 }
-                resolve();
-            });
-
+            );
         });
     }
 
@@ -738,18 +776,23 @@ exports.create = function (_context, _args, _additional) {
         //     visible: false
         // });
         var params = {
-            query: _.deburr(_text).toLowerCase().replace(/^(the|le|la|el)\s/, '').trim(),
+            query: _.deburr(_text)
+                .toLowerCase()
+                .replace(/^(the|le|la|el)\s/, '')
+                .trim(),
             maxResults: 40,
             // centerCoordinate: self.mapView.centerCoordinate,
             // radius: 5000
             region: geolib.scaleBounds(self.mapView.region, 0.2)
         };
         var keys = [];
-        var calls = _.values(_.pick(self.parent.runReduceMethodOnModules(true, 'getSearchCalls', params),
-            enabledSearchFilters));
+        var calls = _.values(_.pick(self.parent.runReduceMethodOnModules(true, 'getSearchCalls', params), enabledSearchFilters));
         calls = [_.partial(app.api.searchOSM, params)].concat(calls);
         searchWindow.showLoading();
-        searchRequest = app.api.parallelRequests(calls).then(showSearchResults, showSearchResultsError).then(searchWindow.hideLoading);
+        searchRequest = app.api
+            .parallelRequests(calls)
+            .then(showSearchResults, showSearchResultsError)
+            .then(searchWindow.hideLoading);
     }
 
     // function onLocation(e) {
@@ -768,10 +811,10 @@ exports.create = function (_context, _args, _additional) {
                 rclass: 'SearchWindow',
                 winOpeningArgs: {
                     from: {
-                        opacity: 0,
+                        opacity: 0
                     },
                     to: {
-                        opacity: 1,
+                        opacity: 1
                     },
                     duration: animationDuration
                 },
@@ -802,12 +845,11 @@ exports.create = function (_context, _args, _additional) {
                 },
                 duration: animationDuration
             });
-            searchView.once('postlayout', function () {
+            searchView.once('postlayout', function() {
                 searchView.textfield.focus();
                 if (currentInstantSearch) {
                     instantSearch(currentInstantSearch);
                 }
-
             });
             app.ui.openWindow(searchWindow);
         }
@@ -844,19 +886,22 @@ exports.create = function (_context, _args, _additional) {
 
         if (resultView) {
             resultsVisible = false;
-            resultView.animate({
-                height: 0,
-                // transform: 'ot0,100%',
-                duration: animationDuration
-            }, function () {
-                self.parent.mapBottomToolbar.remove(resultView);
-                resultView = null;
-                if (cluster) {
-                    cluster.annotations = [];
+            resultView.animate(
+                {
+                    height: 0,
+                    // transform: 'ot0,100%',
+                    duration: animationDuration
+                },
+                function() {
+                    self.parent.mapBottomToolbar.remove(resultView);
+                    resultView = null;
+                    if (cluster) {
+                        cluster.annotations = [];
+                    }
+                    self.mapView.removeRoute(searchRoutes);
+                    searchRoutes = [];
                 }
-                self.mapView.removeRoute(searchRoutes);
-                searchRoutes = [];
-            });
+            );
         }
     }
 
@@ -893,17 +938,17 @@ exports.create = function (_context, _args, _additional) {
         }
     }
     Object.assign(self, {
-        GC: app.composeFunc(self.GC, function () {
+        GC: app.composeFunc(self.GC, function() {
             cluster = null;
             searchView = null;
             resultView = null;
         }),
-        onStartExclusiveAction: function (_id) {
+        onStartExclusiveAction: function(_id) {
             if (_id !== 'search') {
                 hide();
             }
         },
-        onWindowBack: function () {
+        onWindowBack: function() {
             if (visible || resultsVisible) {
                 hide();
                 return true;
@@ -912,7 +957,7 @@ exports.create = function (_context, _args, _additional) {
 
         showSearchResults: showSearchResults,
         showSearchResultsError: showSearchResultsError,
-        onModuleAction: function (_params) {
+        onModuleAction: function(_params) {
             if (_params.id === 'search') {
                 if (!visible) {
                     show();

@@ -225,7 +225,8 @@ export class App extends AKApp {
         'TileSourceManager',
         'AugmentedReality',
         // 'PointToLocation',
-        'Weather'
+        'Weather',
+        "Waymarkedtrails"
     ];
     errorToString(error) {
         try {
@@ -242,7 +243,8 @@ export class App extends AKApp {
     }
     showMessage(_text, _colors?) {
         var args: any = {
-            text: _text
+            text: _text,
+            view:app.ui.mainwindow
         };
         if (_colors && _colors.color) {
             args.backgroundColor = _colors.color;
@@ -699,9 +701,9 @@ function showRatingAlert() {
             alert(tr('rate_expl_false'));
         } else if (e.cancel === false) {
             if (__APPLE__) {
-                Ti.Platform.openURL('itms-apps://itunes.apple.com/app/id1045609978');
+                Ti.Platform.openURL('itms-apps://itunes.apple.com/app/id1045609978', null, null);
             } else {
-                Ti.Platform.openURL('market://details?id=' + app.info.id);
+                Ti.Platform.openURL('market://details?id=' + app.info.id, null, null);
             }
         }
     });
